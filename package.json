@@ -1,5 +1,6 @@
 {
   "name": "racksmith",
+  "version": "0.0.1",
   "module": "index.ts",
   "type": "module",
   "scripts": {
@@ -28,6 +29,5 @@
     "react-dom": "^19.2.0",
     "tailwind-merge": "^3.3.1",
     "tailwindcss-animate": "^1.0.7"
-  },
-  "version": "0.0.1"
+  }
 }
