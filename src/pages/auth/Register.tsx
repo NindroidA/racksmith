@@ -52,10 +52,10 @@ export default function Register() {
         </div>
 
         <Card className="glass-card border-white/10">
-          <CardHeader>
+          <CardHeader className='pt-8'>
             <CardTitle className="text-white text-center">Get Started</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className='p-8'>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="name" className="text-gray-300">Name</Label>

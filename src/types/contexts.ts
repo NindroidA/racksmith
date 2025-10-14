@@ -12,3 +12,10 @@ export interface AuthContextType {
   logout: () => void;
   isLoading: boolean;
 }
+
+
+// ===== SidebarContext ===== //
+export interface SidebarContextType {
+  menuSidebarOpen: boolean;
+  setMenuSidebarOpen: (open: boolean) => void;
+}

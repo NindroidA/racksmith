@@ -67,11 +67,9 @@ export default function RackVisualizer({
     e.preventDefault();
     
     const installedDeviceData = e.dataTransfer.getData('installed-device');
-    console.log('Drop event:', { position, installedDeviceData });
     
     if (installedDeviceData) {
         const movedDevice = JSON.parse(installedDeviceData);
-        console.log('Moving device:', movedDevice);
         onDeviceDrop(position, movedDevice, true);
         setRipplePosition(position);
         setTimeout(() => setRipplePosition(null), 600);
@@ -83,7 +81,6 @@ export default function RackVisualizer({
     const deviceData = e.dataTransfer.getData('device');
     if (deviceData) {
         const device = JSON.parse(deviceData);
-        console.log('Adding new device:', device);
         onDeviceDrop(position, device, false);
         setRipplePosition(position);
         setTimeout(() => setRipplePosition(null), 600);
@@ -128,13 +125,11 @@ export default function RackVisualizer({
                                     key={position}
                                     draggable={true}
                                     onDragStart={(e) => {
-                                        console.log('DRAG START:', device);
                                         e.dataTransfer.effectAllowed = 'move';
                                         e.dataTransfer.setData('installed-device', JSON.stringify(device));
                                         setDraggedInstalledDeviceSize(device.size_u);
                                     }}
                                     onDragEnd={() => {
-                                        console.log('DRAG END');
                                         setDraggedInstalledDeviceSize(1);
                                         setDragOverPosition(null);
                                     }}
@@ -210,14 +205,10 @@ export default function RackVisualizer({
                                 e.preventDefault();
                                 e.stopPropagation();
                                 
-                                console.log('DROP TRIGGERED at position:', position);
-                                
                                 const installedDeviceData = e.dataTransfer.getData('installed-device');
-                                console.log('Installed device data:', installedDeviceData);
                                 
                                 if (installedDeviceData) {
                                     const movedDevice = JSON.parse(installedDeviceData);
-                                    console.log('Moving device:', movedDevice, 'to position:', position);
                                     onDeviceDrop(position, movedDevice, true);
                                     setRipplePosition(position);
                                     setTimeout(() => setRipplePosition(null), 600);
@@ -227,11 +218,9 @@ export default function RackVisualizer({
                                 }
                                 
                                 const deviceData = e.dataTransfer.getData('device');
-                                console.log('New device data:', deviceData);
                                 
                                 if (deviceData) {
                                     const device = JSON.parse(deviceData);
-                                    console.log('Adding new device:', device, 'at position:', position);
                                     onDeviceDrop(position, device, false);
                                     setRipplePosition(position);
                                     setTimeout(() => setRipplePosition(null), 600);

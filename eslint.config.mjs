@@ -31,11 +31,8 @@ export default defineConfig([
       '@typescript-eslint/ban-ts-comment': 'warn',
       'quotes': ['warn', 'single', { 'avoidEscape': true }],
       'semi': ['error', 'always'],
-      'unused-imports/no-unused-imports': 'error',
-      'unused-imports/no-unused-vars': [
-        'warn',
-        { 'vars': 'all', 'varsIgnorePattern': '^_', 'args': 'after-used', 'argsIgnorePattern': '^_' }
-      ]
+      'camelcase': 'off',
+      'unused-imports/no-unused-imports': 'warn',
     }
   },
   ...tseslint.configs.recommended

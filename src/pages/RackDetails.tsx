@@ -68,7 +68,7 @@ const RackDetails: React.FC = () => {
           <Button
             variant="outline"
             size="icon"
-            onClick={() => navigate('Dashboard')}
+            onClick={() => navigate('/dashboard')}
             className="glass border-white/10 hover:bg-white/10"
           >
             <ArrowLeft className="w-5 h-5" />
@@ -87,12 +87,13 @@ const RackDetails: React.FC = () => {
           </Button>
         </motion.div>
 
+        {/* Device List */}
         <div className="grid lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
-            <Card className="glass-card border-white/10">
+            <Card className="glass-card p-8 border-white/10">
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-white">Devices ({devices.length})</CardTitle>
+                  <CardTitle className="text-white pt-4 pb-8">Devices ({devices.length})</CardTitle>
                   <Button
                     onClick={() => setShowConnectionManager(true)}
                     className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
@@ -133,7 +134,7 @@ const RackDetails: React.FC = () => {
                                 variant="outline"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  navigate(`DevicePorts?id=${device.id}`);
+                                  navigate(`/devices/${device.id}/ports`);
                                 }}
                                 className="glass border-purple-500/30 text-purple-400 hover:bg-purple-500/10 h-7 text-xs"
                               >

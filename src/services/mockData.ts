@@ -1,12 +1,5 @@
 import type { CustomDevice, Device, NetworkPlan, RackConfiguration } from '../types/entities';
 
-// check if we should use mock data
-const USE_MOCK_DATA = true;
-const mockDelay = () => new Promise(resolve => setTimeout(resolve, 200));
-
-// add logging
-console.log('🔧 API Service initialized - Mock mode:', USE_MOCK_DATA);
-
 export const mockRacks: RackConfiguration[] = [
   {
     id: '1',
@@ -16,6 +9,7 @@ export const mockRacks: RackConfiguration[] = [
     description: 'Primary production servers',
     color_tag: 'blue'
   },
+  /*
   {
     id: '2',
     name: 'Network Equipment',
@@ -32,9 +26,10 @@ export const mockRacks: RackConfiguration[] = [
     description: 'SAN and NAS storage',
     color_tag: 'green'
   }
+  */
 ];
 
-const mockDevices: Device[] = [
+export const mockDevices: Device[] = [
   {
     id: '1',
     rack_config_id: '1',

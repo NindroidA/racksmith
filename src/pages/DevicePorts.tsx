@@ -1,4 +1,3 @@
-
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowLeft, Cable, CheckCircle, ChevronLeft, ChevronRight, Circle, Plus, Server, XCircle, Zap } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -10,13 +9,21 @@ import PortEditor from '../components/device-ports/PortEditor';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { ScrollArea } from '../components/ui/scroll-area';
+import { useSidebar } from '../contexts/SidebarContext';
 import { ConnectionService, DeviceService, PortService, RackConfigurationService } from '../services/api';
 import type { Connection, Device, Port, RackConfiguration } from '../types/entities';
 
+/**
+ * Device Ports Page.
+ * Manages port configuration and connections for individual devices.
+ * Features dual sidebar layout with device navigation.
+ */
 const DevicePorts: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { menuSidebarOpen } = useSidebar();
 
+  /* State Management */
   const [device, setDevice] = useState<Device | null>(null);
   const [rack, setRack] = useState<RackConfiguration | null>(null);
   const [rackDevices, setRackDevices] = useState<Device[]>([]);
@@ -27,8 +34,9 @@ const DevicePorts: React.FC = () => {
   const [showPortEditor, setShowPortEditor] = useState<boolean>(false);
   const [showConnectionCreator, setShowConnectionCreator] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
+  const [deviceSidebarOpen, setDeviceSidebarOpen] = useState<boolean>(true);
 
+  /* Data Loading */
   const loadData = useCallback(async () => {
     if (!id) return;
     
@@ -74,6 +82,10 @@ const DevicePorts: React.FC = () => {
     loadData();
   }, [loadData]);
 
+  /* Event Handlers */
+  /**
+   * Automatically generates ports based on device configuration.
+   */
   const handleGeneratePorts = async () => {
     if (!device!.port_count || device!.port_count === 0) {
       toast.error('This device has no ports configured');
@@ -99,7 +111,10 @@ const DevicePorts: React.FC = () => {
     loadData();
   };
 
-  const getPortConnection = (port) => {
+  /**
+   * Gets connection data for a specific port.
+   */
+  const getPortConnection = (port: Port) => {
     return connections.find(
       conn =>
         (conn.source_device_id === id && conn.source_port_id === port.id) ||
@@ -107,6 +122,7 @@ const DevicePorts: React.FC = () => {
     );
   };
 
+  /* Computed Values */
   const portStats = {
     total: ports.length,
     connected: ports.filter(p => p.status === 'connected').length,
@@ -114,17 +130,19 @@ const DevicePorts: React.FC = () => {
     disabled: ports.filter(p => p.status === 'disabled').length
   };
 
+  /* Loading State */
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#161b22' }}>
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-gray-400 text-lg">Loading device configuration...</p>
         </div>
       </div>
     );
   }
 
+  /* Error State */
   if (!device) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#161b22' }}>
@@ -135,27 +153,28 @@ const DevicePorts: React.FC = () => {
     );
   }
 
+  /* Main Content */
   return (
     <div className="min-h-screen flex" style={{ background: '#161b22' }}>
-      {/* Device Sidebar Tab Button */}
+      {/* Device Sidebar Toggle Button */}
       <button
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-        className="fixed z-50 rounded-r-xl px-2 py-6 hover:opacity-80 transition-all duration-300 group border-l-0"
+        onClick={() => setDeviceSidebarOpen(!deviceSidebarOpen)}
+        className="fixed z-[65] rounded-r-xl px-2 py-6 hover:opacity-80 transition-all duration-300 group border-l-0"
         style={{ 
           background: 'rgba(13, 17, 23, 0.95)',
           backdropFilter: 'blur(24px) saturate(180%)',
           border: '1px solid rgba(148, 163, 184, 0.1)',
           borderLeft: 'none',
-          left: sidebarOpen ? '256px' : '0px',
-          top: 'calc(50% + 40px)',
-          transition: 'left 0.3s ease'
+          left: deviceSidebarOpen ? (menuSidebarOpen ? '512px' : '256px') : (menuSidebarOpen ? '256px' : '0px'),
+          top: 'calc(50% + 60px)',
+          transition: 'left 0.3s ease',
         }}
       >
-        <div className="flex flex-col items-center gap-1">
-          <div className="sidebar-tab text-xs font-semibold text-white/70 group-hover:text-white transition-colors">
+        <div className="flex flex-col items-center gap-2">
+          <div className="text-xs font-semibold text-white/70 group-hover:text-white transition-colors" style={{ writingMode: 'vertical-rl' }}>
             DEVICES
           </div>
-          {sidebarOpen ? (
+          {deviceSidebarOpen ? (
             <ChevronLeft className="w-4 h-4 text-white/60 group-hover:text-white transition-colors" />
           ) : (
             <ChevronRight className="w-4 h-4 text-white/60 group-hover:text-white transition-colors" />
@@ -165,16 +184,18 @@ const DevicePorts: React.FC = () => {
 
       {/* Device Navigation Sidebar */}
       <div
-        className="fixed left-0 top-0 bottom-0 w-64 border-r z-40 transition-transform duration-300 ease-in-out"
+        className="fixed top-0 bottom-0 w-64 border-r z-[55] transition-all duration-300 ease-in-out"
         style={{
           background: 'rgba(13, 17, 23, 0.95)',
           backdropFilter: 'blur(24px) saturate(180%)',
           borderRight: '1px solid rgba(148, 163, 184, 0.1)',
           boxShadow: '4px 0 24px 0 rgba(0, 0, 0, 0.6)',
-          transform: sidebarOpen ? 'translateX(0)' : 'translateX(-100%)'
+          left: menuSidebarOpen ? '256px' : '0px',
+          transform: deviceSidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
         }}
       >
         <div className="h-full flex flex-col">
+          {/* Sidebar Header */}
           <div className="p-4 border-b border-white/10">
             <Button
               variant="outline"
@@ -191,6 +212,7 @@ const DevicePorts: React.FC = () => {
             </div>
           </div>
 
+          {/* Device List */}
           <ScrollArea className="flex-1">
             <div className="p-2 space-y-1">
               <p className="text-xs text-gray-400 mb-2 px-2">Devices in Rack</p>
@@ -219,14 +241,15 @@ const DevicePorts: React.FC = () => {
         </div>
       </div>
 
-      {/* Main Content */}
+      {/* Main Content Area */}
       <div 
         className="flex-1 p-6 md:p-8 overflow-auto transition-all duration-300 ease-in-out"
         style={{
-          marginLeft: sidebarOpen ? '264px' : '0px'
+          marginLeft: deviceSidebarOpen ? '264px' : '0px'
         }}
       >
         <div className="max-w-7xl mx-auto space-y-6">
+          {/* Device Header */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -250,6 +273,7 @@ const DevicePorts: React.FC = () => {
             </Button>
           </motion.div>
 
+          {/* Port Statistics Cards */}
           <div className="grid md:grid-cols-4 gap-4">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
               <Card className="glass-card border-white/10">

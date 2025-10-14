@@ -1,3 +1,16 @@
+# Racksmith v0.2.8
+- More code cleanup and organization for the recently editted files.
+- (I plan on cleaning all files later).
+- Went through and updated/added comments.
+- This patch was more completed using AI to generate the JSdoc comments and to word things better and faster.
+- Harder Better Faster Stronger.
+
+# Racksmith v0.2.7
+- Updated the mock data and api cause there was a lot of dupe data.
+- Fixed card padding with Login and Register pages.
+- Fixed card padding with RackDetails page.
+- Went back and fixed the Sidebar z issues with both the menu and devices sidebars.
+
 # Racksmith v0.2.6
 - Added DeviceDetailsModal component.
 

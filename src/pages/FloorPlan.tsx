@@ -149,7 +149,6 @@ const FloorPlan: React.FC = () => {
     e.stopPropagation();
     
     if (type === 'standalone' && device && device.id) {
-      console.log('Opening dialog for device:', device);
       setSelectedDevice(device);
       setShowDeviceDialog(true);
     }
