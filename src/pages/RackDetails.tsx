@@ -1,15 +1,15 @@
 
-import { motion } from "framer-motion";
-import { ArrowLeft, Cable, Pencil, Plus } from "lucide-react";
-import React, { useCallback, useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import ConnectionManager from "../components/rack-details/ConnectionManager";
-import DeviceConnectionsView from "../components/rack-details/DeviceConnectionsView";
-import { Badge } from "../components/ui/badge";
-import { Button } from "../components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
-import { ConnectionService, DeviceService, RackConfigurationService } from "../services/api";
-import type { Connection, Device, RackConfiguration } from "../types/entities";
+import { motion } from 'framer-motion';
+import { ArrowLeft, Cable, Pencil, Plus } from 'lucide-react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import ConnectionManager from '../components/rack-details/ConnectionManager';
+import DeviceConnectionsView from '../components/rack-details/DeviceConnectionsView';
+import { Badge } from '../components/ui/badge';
+import { Button } from '../components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { ConnectionService, DeviceService, RackConfigurationService } from '../services/api';
+import type { Connection, Device, RackConfiguration } from '../types/entities';
 
 const RackDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -68,14 +68,14 @@ const RackDetails: React.FC = () => {
           <Button
             variant="outline"
             size="icon"
-            onClick={() => navigate("Dashboard")}
+            onClick={() => navigate('Dashboard')}
             className="glass border-white/10 hover:bg-white/10"
           >
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div className="flex-1">
             <h1 className="text-3xl font-bold gradient-text">{rack.name}</h1>
-            <p className="text-gray-400 mt-1">{rack.location || "No location set"}</p>
+            <p className="text-gray-400 mt-1">{rack.location || 'No location set'}</p>
           </div>
           <Button
             variant="outline"
@@ -199,6 +199,6 @@ const RackDetails: React.FC = () => {
       </div>
     </div>
   );
-}
+};
 
 export default RackDetails;

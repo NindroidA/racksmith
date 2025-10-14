@@ -4,11 +4,11 @@ import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './contexts/AuthContext';
 
-// Auth pages
+/* Auth Pages */
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 
-// App pages
+/* App Pages */
 import Dashboard from './pages/Dashboard';
 import DeviceLibrary from './pages/DeviceLibrary';
 import DeviceOptions from './pages/DeviceOptions';
@@ -61,6 +61,7 @@ function App() {
           </Route>
           
           {/* 404 */}
+          {/* TODO: Make 404 page */}
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </AuthProvider>

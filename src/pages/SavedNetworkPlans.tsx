@@ -1,12 +1,12 @@
-import { AnimatePresence, motion } from "framer-motion";
-import { BookMarked, Building, Calendar, Eye, Network, Trash2, Users } from "lucide-react";
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { Badge } from "../components/ui/badge";
-import { Button } from "../components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
-import { NetworkPlanService } from "../services/api";
-import type { NetworkPlan } from "../types/entities";
+import { AnimatePresence, motion } from 'framer-motion';
+import { BookMarked, Building, Calendar, Eye, Network, Trash2, Users } from 'lucide-react';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Badge } from '../components/ui/badge';
+import { Button } from '../components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { NetworkPlanService } from '../services/api';
+import type { NetworkPlan } from '../types/entities';
 
 const SavedNetworkPlans: React.FC = () => {
   const [plans, setPlans] = useState<NetworkPlan[]>([]);
@@ -14,23 +14,23 @@ const SavedNetworkPlans: React.FC = () => {
 
   const loadPlans = async () => {
     setIsLoading(true);
-    const allPlans = await NetworkPlanService.list("-created_date");
+    const allPlans = await NetworkPlanService.list('-created_date');
     setPlans(allPlans);
     setIsLoading(false);
   };
 
   const handleDelete = async (planId: string) => {
-    if (window.confirm("Delete this network plan?")) {
+    if (window.confirm('Delete this network plan?')) {
       await NetworkPlanService.delete(planId);
       loadPlans();
     }
   };
 
   const facilityLabels = {
-    small: "Small (1-50 devices)",
-    medium: "Medium (50-500 devices)",
-    large: "Large (500-2000 devices)",
-    enterprise: "Enterprise (2000+ devices)"
+    small: 'Small (1-50 devices)',
+    medium: 'Medium (50-500 devices)',
+    large: 'Large (500-2000 devices)',
+    enterprise: 'Enterprise (2000+ devices)'
   };
 
   return (
@@ -51,7 +51,7 @@ const SavedNetworkPlans: React.FC = () => {
                 <p className="text-gray-300 text-lg">View and manage your network infrastructure plans</p>
               </div>
             </div>
-            <Link to={"/network/tools"}>
+            <Link to={'/network/tools'}>
               <Button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 glow-hover">
                 <Network className="w-5 h-5 mr-2" />
                 Create New Plan
@@ -78,7 +78,7 @@ const SavedNetworkPlans: React.FC = () => {
             <p className="text-gray-400 mb-6 max-w-md mx-auto">
               Create your first network plan using the Network Builder tool
             </p>
-            <Link to={"network/tools"}>
+            <Link to={'network/tools'}>
               <Button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700">
                 <Network className="w-4 h-4 mr-2" />
                 Start Planning
@@ -198,6 +198,6 @@ const SavedNetworkPlans: React.FC = () => {
       </div>
     </div>
   );
-}
+};
 
 export default SavedNetworkPlans;

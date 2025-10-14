@@ -1,21 +1,22 @@
-import { AnimatePresence, motion } from "framer-motion";
-import { BarChart3, Cable, Database, Power, Server, Shield, Wifi, Zap } from "lucide-react";
-import React, { useState } from "react";
-import { Device } from "../../types/entities";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { AnimatePresence, motion } from 'framer-motion';
+import { BarChart3, Cable, Database, Power, Server, Shield, Wifi, Zap } from 'lucide-react';
+import React, { useState } from 'react';
+import { DropEffect, RackVisualizerProps } from '../../types/components';
+import { Device } from '../../types/entities';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 
 const deviceTypeColors = {
-  router: "from-blue-500 to-blue-600",
-  switch: "from-purple-500 to-purple-600",
-  fiber_switch: "from-cyan-500 to-cyan-600",
-  ups: "from-yellow-500 to-yellow-600",
-  patch_panel: "from-green-500 to-emerald-600",
-  server: "from-red-500 to-red-600",
-  firewall: "from-orange-500 to-orange-600",
-  load_balancer: "from-pink-500 to-pink-600",
-  storage: "from-indigo-500 to-indigo-600",
-  pdu: "from-lime-500 to-lime-600",
-  other: "from-gray-500 to-gray-600"
+  router: 'from-blue-500 to-blue-600',
+  switch: 'from-purple-500 to-purple-600',
+  fiber_switch: 'from-cyan-500 to-cyan-600',
+  ups: 'from-yellow-500 to-yellow-600',
+  patch_panel: 'from-green-500 to-emerald-600',
+  server: 'from-red-500 to-red-600',
+  firewall: 'from-orange-500 to-orange-600',
+  load_balancer: 'from-pink-500 to-pink-600',
+  storage: 'from-indigo-500 to-indigo-600',
+  pdu: 'from-lime-500 to-lime-600',
+  other: 'from-gray-500 to-gray-600'
 };
 
 const deviceTypeIcons = {
@@ -32,21 +33,6 @@ const deviceTypeIcons = {
   other: Server
 };
 
-interface RackVisualizerProps {
-  rackSize: number;
-  devices: Device[];
-  selectedDevice?: Device;
-  onDeviceSelect: (device: Device) => void;
-  onDeviceRemove: (deviceId: string) => void;
-  onDeviceMove: (deviceId: string, newPosition: number) => void;
-  colorTag?: string;
-}
-
-interface DropEffect {
-  id: number;
-  unit: number;
-  delay: number;
-}
 
 const RackVisualizer: React.FC<RackVisualizerProps> = ({ rackSize, devices, selectedDevice, onDeviceSelect, onDeviceRemove, onDeviceMove, colorTag }) => {
   const [draggedDevice, setDraggedDevice] = useState<Device | null>(null);
@@ -100,7 +86,7 @@ const RackVisualizer: React.FC<RackVisualizerProps> = ({ rackSize, devices, sele
     
     onDeviceMove(draggedDevice.id, unit);
     
-    // Create multiple ripple effects for water drop
+    // create multiple ripples for water drop effect
     const newEffects = [
       { id: Date.now(), unit, delay: 0 },
       { id: Date.now() + 1, unit, delay: 0.15 },
@@ -160,7 +146,7 @@ const RackVisualizer: React.FC<RackVisualizerProps> = ({ rackSize, devices, sele
                     }}
                     exit={{ opacity: 0, scale: 0.9, y: 20 }}
                     transition={{ 
-                      type: "spring", 
+                      type: 'spring', 
                       stiffness: 400, 
                       damping: 25,
                       opacity: { duration: 0.2 }
@@ -262,6 +248,6 @@ const RackVisualizer: React.FC<RackVisualizerProps> = ({ rackSize, devices, sele
       </CardContent>
     </Card>
   );
-}
+};
 
 export default RackVisualizer;

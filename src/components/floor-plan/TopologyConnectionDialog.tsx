@@ -1,34 +1,30 @@
 
-import { motion } from "framer-motion";
-import { Cable, X } from "lucide-react";
-import React, { useState } from "react";
-import toast from "react-hot-toast";
-import { TopologyConnectionService } from "../../services/api";
-import { RackConfiguration, StandaloneDevice, TopologyConnection } from "../../types/entities";
-import { Button } from "../ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-
-interface TopologyConnectionDialogProps {
-  devices: (StandaloneDevice | RackConfiguration)[];
-  onClose: () => void;
-}
+import { motion } from 'framer-motion';
+import { Cable, X } from 'lucide-react';
+import React, { useState } from 'react';
+import toast from 'react-hot-toast';
+import { TopologyConnectionService } from '../../services/api';
+import { TopologyConnectionDialogProps } from '../../types/components';
+import { TopologyConnection } from '../../types/entities';
+import { Button } from '../ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
 const TopologyConnectionDialog: React.FC<TopologyConnectionDialogProps> = ({ devices, onClose }) => {
-  const [sourceId, setSourceId] = useState("");
-  const [sourceType, setSourceType] = useState<TopologyConnection['source_type']>("standalone");
-  const [destId, setDestId] = useState("");
-  const [destType, setDestType] = useState<TopologyConnection['destination_type']>("standalone");
-  const [connectionType, setConnectionType] = useState<TopologyConnection['connection_type']>("fiber");
-  const [bandwidth, setBandwidth] = useState("");
-  const [description, setDescription] = useState("");
+  const [sourceId, setSourceId] = useState('');
+  const [sourceType, setSourceType] = useState<TopologyConnection['source_type']>('standalone');
+  const [destId, setDestId] = useState('');
+  const [destType, setDestType] = useState<TopologyConnection['destination_type']>('standalone');
+  const [connectionType, setConnectionType] = useState<TopologyConnection['connection_type']>('fiber');
+  const [bandwidth, setBandwidth] = useState('');
+  const [description, setDescription] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!sourceId || !destId) {
-      toast.error("Please select both source and destination");
+      toast.error('Please select both source and destination');
       return;
     }
 
@@ -42,11 +38,11 @@ const TopologyConnectionDialog: React.FC<TopologyConnectionDialogProps> = ({ dev
         bandwidth,
         description
       });
-      toast.success("Connection created successfully"); // Added toast on success
+      toast.success('Connection created successfully');
       onClose();
     } catch (error) {
-      console.error("Error creating connection:", error);
-      toast.error("Failed to create connection"); // Added toast on error
+      console.error('Error creating connection:', error);
+      toast.error('Failed to create connection');
     }
   };
 
@@ -185,6 +181,6 @@ const TopologyConnectionDialog: React.FC<TopologyConnectionDialogProps> = ({ dev
       </motion.div>
     </div>
   );
-}
+};
 
 export default TopologyConnectionDialog;

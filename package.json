@@ -1,6 +1,6 @@
 {
   "name": "racksmith",
-  "version": "0.0.1",
+  "version": "0.2.5",
   "module": "index.ts",
   "type": "module",
   "scripts": {
@@ -24,6 +24,7 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
+    "eslint-plugin-unused-imports": "^4.2.0",
     "framer-motion": "^12.23.22",
     "lucide-react": "^0.544.0",
     "react": "^19.2.0",
@@ -31,6 +32,7 @@
     "react-hot-toast": "^2.6.0",
     "react-router-dom": "^7.9.3",
     "tailwind-merge": "^3.3.1",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "typescript-eslint": "^8.46.1"
   }
 }

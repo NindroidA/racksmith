@@ -1,8 +1,10 @@
-import { motion } from "framer-motion";
-import { Activity, Layers, Server, TrendingUp } from "lucide-react";
-import { Card, CardContent } from "../../components/ui/card";
-import { Skeleton } from "../../components/ui/skeleton";
+import { motion } from 'framer-motion';
+import { Activity, Layers, Server, TrendingUp } from 'lucide-react';
+import { Card, CardContent } from '../../components/ui/card';
+import { Skeleton } from '../../components/ui/skeleton';
+import { StatsGridProps } from '../../types/components';
 
+// placeholder stat card
 const StatCard = ({ icon: Icon, label, value, color, delay }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
@@ -33,22 +35,17 @@ const StatCard = ({ icon: Icon, label, value, color, delay }) => (
   </motion.div>
 );
 
-interface StatsGridProps {
-  totalRacks: number;
-  totalDevices: number;
-  utilizationPercent: number;
-  isLoading: boolean;
-}
-
 const StatsGrid: React.FC<StatsGridProps> = ({ totalRacks, totalDevices, utilizationPercent, isLoading }) => {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {[...Array(4)].map((_, i) => (
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        {[1, 2, 3].map((i) => (
           <Card key={i} className="glass-card border-white/10">
             <CardContent className="p-6">
-              <Skeleton className="h-4 w-24 mb-2 bg-white/10" />
-              <Skeleton className="h-8 w-16 bg-white/10" />
+              <div className="space-y-3">
+                <Skeleton className="h-4 w-24 bg-white/5" />
+                <Skeleton className="h-8 w-16 bg-white/5" />
+              </div>
             </CardContent>
           </Card>
         ))}
@@ -82,12 +79,12 @@ const StatsGrid: React.FC<StatsGridProps> = ({ totalRacks, totalDevices, utiliza
       <StatCard
         icon={TrendingUp}
         label="Efficiency"
-        value={totalRacks > 0 ? "Optimal" : "—"}
+        value={totalRacks > 0 ? 'Optimal' : '—'}
         color="from-green-500 to-emerald-600"
         delay={0.3}
       />
     </div>
   );
-}
+};
 
 export default StatsGrid;

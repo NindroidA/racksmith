@@ -1,56 +1,51 @@
-import { motion } from "framer-motion";
-import { AlertCircle, CheckCircle2, Network } from "lucide-react";
-import React, { useState } from "react";
-import { Badge } from "../ui/badge";
-import { Button } from "../ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-
-interface IPSegment {
-  name: string;
-  subnet: string;
-  hosts: string;
-  range: string;
-}
+import { motion } from 'framer-motion';
+import { AlertCircle, CheckCircle2, Network } from 'lucide-react';
+import React, { useState } from 'react';
+import { IPSegment } from '../../types/components';
+import { Badge } from '../ui/badge';
+import { Button } from '../ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
 const IPAddressPlanner: React.FC = () => {
-  const [facilitySize, setFacilitySize] = useState("medium");
+  const [facilitySize, setFacilitySize] = useState('medium');
   const [deviceCount, setDeviceCount] = useState(100);
   const [segments, setSegments] = useState<IPSegment[]>([]);
 
+  // placeholder data
   const generatePlan = () => {
     const plans = {
       small: {
-        baseNetwork: "192.168.1.0/24",
+        baseNetwork: '192.168.1.0/24',
         segments: [
-          { name: "Management", subnet: "192.168.1.0/27", hosts: "30", range: "192.168.1.1 - 192.168.1.30" },
-          { name: "Servers", subnet: "192.168.1.32/27", hosts: "30", range: "192.168.1.33 - 192.168.1.62" },
-          { name: "Users", subnet: "192.168.1.64/26", hosts: "62", range: "192.168.1.65 - 192.168.1.126" },
-          { name: "Guest WiFi", subnet: "192.168.1.128/26", hosts: "62", range: "192.168.1.129 - 192.168.1.190" },
+          { name: 'Management', subnet: '192.168.1.0/27', hosts: '30', range: '192.168.1.1 - 192.168.1.30' },
+          { name: 'Servers', subnet: '192.168.1.32/27', hosts: '30', range: '192.168.1.33 - 192.168.1.62' },
+          { name: 'Users', subnet: '192.168.1.64/26', hosts: '62', range: '192.168.1.65 - 192.168.1.126' },
+          { name: 'Guest WiFi', subnet: '192.168.1.128/26', hosts: '62', range: '192.168.1.129 - 192.168.1.190' },
         ]
       },
       medium: {
-        baseNetwork: "10.0.0.0/16",
+        baseNetwork: '10.0.0.0/16',
         segments: [
-          { name: "Management", subnet: "10.0.0.0/24", hosts: "254", range: "10.0.0.1 - 10.0.0.254" },
-          { name: "Servers", subnet: "10.0.1.0/24", hosts: "254", range: "10.0.1.1 - 10.0.1.254" },
-          { name: "Users - Floor 1", subnet: "10.0.10.0/23", hosts: "510", range: "10.0.10.1 - 10.0.11.254" },
-          { name: "Users - Floor 2", subnet: "10.0.12.0/23", hosts: "510", range: "10.0.12.1 - 10.0.13.254" },
-          { name: "Guest WiFi", subnet: "10.0.20.0/24", hosts: "254", range: "10.0.20.1 - 10.0.20.254" },
-          { name: "IoT Devices", subnet: "10.0.30.0/24", hosts: "254", range: "10.0.30.1 - 10.0.30.254" },
+          { name: 'Management', subnet: '10.0.0.0/24', hosts: '254', range: '10.0.0.1 - 10.0.0.254' },
+          { name: 'Servers', subnet: '10.0.1.0/24', hosts: '254', range: '10.0.1.1 - 10.0.1.254' },
+          { name: 'Users - Floor 1', subnet: '10.0.10.0/23', hosts: '510', range: '10.0.10.1 - 10.0.11.254' },
+          { name: 'Users - Floor 2', subnet: '10.0.12.0/23', hosts: '510', range: '10.0.12.1 - 10.0.13.254' },
+          { name: 'Guest WiFi', subnet: '10.0.20.0/24', hosts: '254', range: '10.0.20.1 - 10.0.20.254' },
+          { name: 'IoT Devices', subnet: '10.0.30.0/24', hosts: '254', range: '10.0.30.1 - 10.0.30.254' },
         ]
       },
       large: {
-        baseNetwork: "10.0.0.0/8",
+        baseNetwork: '10.0.0.0/8',
         segments: [
-          { name: "Management", subnet: "10.0.0.0/24", hosts: "254", range: "10.0.0.1 - 10.0.0.254" },
-          { name: "Server Farm", subnet: "10.1.0.0/16", hosts: "65,534", range: "10.1.0.1 - 10.1.255.254" },
-          { name: "Users - Building A", subnet: "10.10.0.0/16", hosts: "65,534", range: "10.10.0.1 - 10.10.255.254" },
-          { name: "Users - Building B", subnet: "10.20.0.0/16", hosts: "65,534", range: "10.20.0.1 - 10.20.255.254" },
-          { name: "Guest Networks", subnet: "10.100.0.0/16", hosts: "65,534", range: "10.100.0.1 - 10.100.255.254" },
-          { name: "IoT & Sensors", subnet: "10.200.0.0/16", hosts: "65,534", range: "10.200.0.1 - 10.200.255.254" },
+          { name: 'Management', subnet: '10.0.0.0/24', hosts: '254', range: '10.0.0.1 - 10.0.0.254' },
+          { name: 'Server Farm', subnet: '10.1.0.0/16', hosts: '65,534', range: '10.1.0.1 - 10.1.255.254' },
+          { name: 'Users - Building A', subnet: '10.10.0.0/16', hosts: '65,534', range: '10.10.0.1 - 10.10.255.254' },
+          { name: 'Users - Building B', subnet: '10.20.0.0/16', hosts: '65,534', range: '10.20.0.1 - 10.20.255.254' },
+          { name: 'Guest Networks', subnet: '10.100.0.0/16', hosts: '65,534', range: '10.100.0.1 - 10.100.255.254' },
+          { name: 'IoT & Sensors', subnet: '10.200.0.0/16', hosts: '65,534', range: '10.200.0.1 - 10.200.255.254' },
         ]
       }
     };
@@ -164,6 +159,6 @@ const IPAddressPlanner: React.FC = () => {
       </div>
     </div>
   );
-}
+};
 
 export default IPAddressPlanner;

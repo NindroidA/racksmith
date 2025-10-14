@@ -3,7 +3,7 @@ import type { Connection, CustomDevice, Device, NASConfiguration, NetworkPlan, P
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 const USE_MOCK_DATA = true;
 
-// Use localStorage to persist mock data across refreshes
+// use localStorage to persist mock data across refreshes
 const getStorageKey = (key: string) => `racksmith_mock_${key}`;
 
 const getFromStorage = <T>(key: string, defaultValue: T[]): T[] => {
@@ -18,7 +18,7 @@ const saveToStorage = <T>(key: string, data: T[]) => {
   }
 };
 
-// Initial mock data
+// initial mock data
 const initialRacks: RackConfiguration[] = [
   { id: '1', name: 'Main Server Rack', size_u: 42, location: 'Data Center A, Row 1', description: 'Primary production servers', color_tag: 'blue' },
   { id: '2', name: 'Network Equipment', size_u: 24, location: 'Data Center A, Row 2', description: 'Core network switches and routers', color_tag: 'purple' },
@@ -59,7 +59,7 @@ const initialNetworkPlans: NetworkPlan[] = [
   }
 ];
 
-// Initialize storage if empty
+// initialize storage if empty
 if (!localStorage.getItem(getStorageKey('racks'))) {
   saveToStorage('racks', initialRacks);
 }
@@ -83,7 +83,7 @@ async function apiRequest<T>(endpoint: string, options?: RequestInit): Promise<T
     const method = options?.method || 'GET';
     const params = new URLSearchParams(endpoint.includes('?') ? endpoint.split('?')[1] : '');
     
-    // Racks
+    // racks
     if (path.includes('/racks')) {
       let racks = getFromStorage<RackConfiguration>('racks', initialRacks);
       
@@ -115,7 +115,7 @@ async function apiRequest<T>(endpoint: string, options?: RequestInit): Promise<T
       }
     }
     
-    // Devices
+    // devices
     if (path.includes('/devices')) {
       let devices = getFromStorage<Device>('devices', initialDevices);
       
@@ -151,7 +151,7 @@ async function apiRequest<T>(endpoint: string, options?: RequestInit): Promise<T
       }
     }
     
-    // Ports
+    // ports
     if (path.includes('/ports')) {
       let ports = getFromStorage<Port>('ports', []);
       
@@ -183,7 +183,7 @@ async function apiRequest<T>(endpoint: string, options?: RequestInit): Promise<T
       }
     }
     
-    // Connections
+    // connections
     if (path.includes('/connections')) {
       let connections = getFromStorage<Connection>('connections', []);
       
@@ -202,7 +202,7 @@ async function apiRequest<T>(endpoint: string, options?: RequestInit): Promise<T
       }
     }
     
-    // Custom Devices
+    // custom devices
     if (path.includes('/custom-devices')) {
       let customDevices = getFromStorage<CustomDevice>('custom-devices', initialCustomDevices);
       
@@ -230,7 +230,7 @@ async function apiRequest<T>(endpoint: string, options?: RequestInit): Promise<T
       }
     }
     
-    // Standalone Devices
+    // standalone devices
     if (path.includes('/standalone-devices')) {
       let standaloneDevices = getFromStorage<StandaloneDevice>('standalone-devices', []);
       
@@ -258,7 +258,7 @@ async function apiRequest<T>(endpoint: string, options?: RequestInit): Promise<T
       }
     }
     
-    // Topology Connections
+    // topology connections
     if (path.includes('/topology-connections')) {
       let topoConnections = getFromStorage<TopologyConnection>('topology-connections', []);
       
@@ -277,7 +277,7 @@ async function apiRequest<T>(endpoint: string, options?: RequestInit): Promise<T
       }
     }
     
-    // Network Plans
+    // network plans
     if (path.includes('/network-plans')) {
       let networkPlans = getFromStorage<NetworkPlan>('network-plans', initialNetworkPlans);
       
@@ -296,9 +296,9 @@ async function apiRequest<T>(endpoint: string, options?: RequestInit): Promise<T
       }
     }
     
-    // NAS Configurations
+    // NAS configurations
     if (path.includes('/nas-configurations')) {
-      let nasConfigs = getFromStorage<NASConfiguration>('nas-configurations', []);
+      const nasConfigs = getFromStorage<NASConfiguration>('nas-configurations', []);
       
       if (method === 'GET') return nasConfigs as T;
       if (method === 'POST') {
@@ -309,9 +309,9 @@ async function apiRequest<T>(endpoint: string, options?: RequestInit): Promise<T
       }
     }
     
-    // Rack Positions
+    // rack positions
     if (path.includes('/rack-positions')) {
-      let positions = getFromStorage<RackPosition>('rack-positions', []);
+      const positions = getFromStorage<RackPosition>('rack-positions', []);
       
       if (method === 'GET') return positions as T;
       if (method === 'POST') {

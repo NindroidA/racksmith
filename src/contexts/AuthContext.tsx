@@ -1,18 +1,5 @@
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
-
-interface User {
-  id: string;
-  email: string;
-  name: string;
-}
-
-interface AuthContextType {
-  user: User | null;
-  login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, name: string) => Promise<void>;
-  logout: () => void;
-  isLoading: boolean;
-}
+import { AuthContextType, User } from '../types/contexts';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -31,7 +18,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      // DEVELOPMENT MODE: Auto-login with any credentials
+      // DEV MODE: auto-login
       const mockUser: User = {
         id: '1',
         email: email || 'demo@racksmith.com',
@@ -49,7 +36,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = async (email: string, password: string, name: string) => {
     setIsLoading(true);
     try {
-      // DEVELOPMENT MODE: Auto-register
+      // DEV MODE: auto-register
       const mockUser = { id: Date.now().toString(), email, name };
       setUser(mockUser);
       localStorage.setItem('user', JSON.stringify(mockUser));

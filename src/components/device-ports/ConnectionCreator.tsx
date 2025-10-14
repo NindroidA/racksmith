@@ -1,35 +1,26 @@
-import { motion } from "framer-motion";
-import { Cable, X } from "lucide-react";
-import React, { useCallback, useEffect, useState } from "react";
-import { ConnectionService, PortService } from "../../services/api";
-import { Connection, Device, Port } from "../../types/entities";
-import { Button } from "../ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { motion } from 'framer-motion';
+import { Cable, X } from 'lucide-react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { ConnectionService, PortService } from '../../services/api';
+import { ConnectionCreatorProps } from '../../types/components';
+import { Connection, Port } from '../../types/entities';
+import { Button } from '../ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
-const cableTypes = [
-  "cat5e", "cat6", "cat6a", "cat7",
-  "fiber_om3", "fiber_om4", "fiber_sm",
-  "sfp", "sfp_plus", "qsfp", "qsfp28", "dac", "power"
-];
-
-interface ConnectionCreatorProps {
-  sourceDevice: Device;
-  sourcePort: Port;
-  allDevices: Device[];
-  onClose: () => void;
-}
+// TODO: remove this later and make it fully part of the entities
+const cableTypes = ['cat5e', 'cat6', 'cat6a', 'cat7', 'fiber_om3', 'fiber_om4', 'fiber_sm', 'sfp', 'sfp_plus', 'qsfp', 'qsfp28', 'dac', 'power'];
 
 const ConnectionCreator: React.FC<ConnectionCreatorProps> = ({ sourceDevice, sourcePort, allDevices, onClose }) => {
-  const [destDeviceId, setDestDeviceId] = useState("");
+  const [destDeviceId, setDestDeviceId] = useState('');
   const [destPorts, setDestPorts] = useState<Port[]>([]);
-  const [destPort, setDestPort] = useState("");
-  const [cableType, setCableType] = useState<Connection['cable_type']>("cat6");
-  const [cableLength, setCableLength] = useState("");
-  const [description, setDescription] = useState("");
-  const [vlan, setVlan] = useState("");
+  const [destPort, setDestPort] = useState('');
+  const [cableType, setCableType] = useState<Connection['cable_type']>('cat6');
+  const [cableLength, setCableLength] = useState('');
+  const [description, setDescription] = useState('');
+  const [vlan, setVlan] = useState('');
 
   const loadDestPorts = useCallback(async () => {
     const ports = await PortService.filter({ device_id: destDeviceId });
@@ -45,7 +36,7 @@ const ConnectionCreator: React.FC<ConnectionCreatorProps> = ({ sourceDevice, sou
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!destDeviceId || !destPort) {
-      alert("Please select a destination device and port");
+      alert('Please select a destination device and port');
       return;
     }
 
@@ -60,11 +51,11 @@ const ConnectionCreator: React.FC<ConnectionCreatorProps> = ({ sourceDevice, sou
       vlan
     });
 
-    await PortService.update(sourcePort.id, { status: "connected" });
+    await PortService.update(sourcePort.id, { status: 'connected' });
     
     const destPortObj = destPorts.find(p => p.port_number === destPort);
     if (destPortObj) {
-      await PortService.update(destPortObj.id, { status: "connected" });
+      await PortService.update(destPortObj.id, { status: 'connected' });
     }
 
     onClose();
@@ -197,6 +188,6 @@ const ConnectionCreator: React.FC<ConnectionCreatorProps> = ({ sourceDevice, sou
       </motion.div>
     </div>
   );
-}
+};
 
 export default ConnectionCreator;

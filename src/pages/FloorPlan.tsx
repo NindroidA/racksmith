@@ -1,19 +1,14 @@
-import { Eye, EyeOff, Grid3x3, Layers, Plus, Save, ZoomIn, ZoomOut } from "lucide-react";
-import React, { useState } from "react";
-import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
-import StandaloneDeviceDialog from "../components/floor-plan/StandaloneDeviceDialog";
-import TopologyConnectionDialog from "../components/floor-plan/TopologyConnectionDialog";
-import { Button } from "../components/ui/button";
-import { Card } from "../components/ui/card";
-import { DeviceService, RackConfigurationService, RackPositionService, StandaloneDeviceService, TopologyConnectionService } from "../services/api";
-import type { Device, RackConfiguration, StandaloneDevice, TopologyConnection } from "../types/entities";
-
-interface DraggedItem {
-  id: string;
-  type: 'standalone' | 'rack';
-  [key: string]: any;
-}
+import { Eye, EyeOff, Grid3x3, Layers, Plus, Save, ZoomIn, ZoomOut } from 'lucide-react';
+import React, { useState } from 'react';
+import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
+import StandaloneDeviceDialog from '../components/floor-plan/StandaloneDeviceDialog';
+import TopologyConnectionDialog from '../components/floor-plan/TopologyConnectionDialog';
+import { Button } from '../components/ui/button';
+import { Card } from '../components/ui/card';
+import { DeviceService, RackConfigurationService, RackPositionService, StandaloneDeviceService, TopologyConnectionService } from '../services/api';
+import type { Device, RackConfiguration, StandaloneDevice, TopologyConnection } from '../types/entities';
+import { DraggedItem } from '../types/pages';
 
 const FloorPlan: React.FC = () => {
   const navigate = useNavigate();
@@ -100,10 +95,10 @@ const FloorPlan: React.FC = () => {
         }
       }
       
-      toast.success("Floor plan saved successfully!");
+      toast.success('Floor plan saved successfully!');
     } catch (error) {
-      console.error("Error saving floor plan:", error);
-      toast.error("Failed to save floor plan");
+      console.error('Error saving floor plan:', error);
+      toast.error('Failed to save floor plan');
     }
     setIsSaving(false);
   };
@@ -336,7 +331,7 @@ const FloorPlan: React.FC = () => {
               className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white shadow-lg"
             >
               <Save className="w-4 h-4 mr-2" />
-              {isSaving ? "Saving..." : "Save"}
+              {isSaving ? 'Saving...' : 'Save'}
             </Button>
           </div>
         </div>
@@ -466,6 +461,6 @@ const FloorPlan: React.FC = () => {
       </div>
     </div>
   );
-}
+};
 
 export default FloorPlan;

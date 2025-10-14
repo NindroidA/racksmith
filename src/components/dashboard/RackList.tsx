@@ -1,29 +1,22 @@
-import { AnimatePresence, motion } from "framer-motion";
-import { MapPin, Pencil, Server, Trash2, Zap } from "lucide-react";
-import toast from "react-hot-toast";
-import { Link } from "react-router-dom";
-import { RackConfigurationService } from "../../services/api";
-import type { Device, RackConfiguration } from "../../types/entities";
-import { Badge } from "../ui/badge";
-import { Button } from "../ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Skeleton } from "../ui/skeleton";
+import { AnimatePresence, motion } from 'framer-motion';
+import { MapPin, Pencil, Server, Trash2, Zap } from 'lucide-react';
+import toast from 'react-hot-toast';
+import { Link } from 'react-router-dom';
+import { RackConfigurationService } from '../../services/api';
+import { RackListProps } from '../../types/components';
+import { Badge } from '../ui/badge';
+import { Button } from '../ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Skeleton } from '../ui/skeleton';
 
 const colorMap = {
-  blue: "from-blue-500 to-blue-600",
-  purple: "from-purple-500 to-purple-600",
-  cyan: "from-cyan-500 to-cyan-600",
-  green: "from-green-500 to-emerald-600",
-  orange: "from-orange-500 to-orange-600",
-  red: "from-red-500 to-red-600"
+  blue: 'from-blue-500 to-blue-600',
+  purple: 'from-purple-500 to-purple-600',
+  cyan: 'from-cyan-500 to-cyan-600',
+  green: 'from-green-500 to-emerald-600',
+  orange: 'from-orange-500 to-orange-600',
+  red: 'from-red-500 to-red-600'
 };
-
-interface RackListProps {
-  racks: RackConfiguration[];
-  devices: Device[];
-  isLoading: boolean;
-  onRackDeleted: () => void;
-}
 
 export default function RackList({ racks, devices, isLoading, onRackDeleted }: RackListProps) {
   const handleDelete = async (rackId: string) => {
@@ -43,7 +36,7 @@ export default function RackList({ racks, devices, isLoading, onRackDeleted }: R
             size="sm"
             onClick={async () => {
               await RackConfigurationService.delete(rackId);
-              toast.success("Rack deleted successfully");
+              toast.success('Rack deleted successfully');
               onRackDeleted();
               toast.dismiss(t.id);
             }}
@@ -69,22 +62,24 @@ export default function RackList({ racks, devices, isLoading, onRackDeleted }: R
 
   if (isLoading) {
     return (
-      <Card className="glass-card border-white/10">
-        <CardHeader>
-          <CardTitle className="text-white">Rack Configurations</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="glass border-white/10 rounded-xl p-6">
-                <Skeleton className="h-6 w-32 mb-4 bg-white/10" />
-                <Skeleton className="h-4 w-full mb-2 bg-white/10" />
-                <Skeleton className="h-4 w-24 bg-white/10" />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {[1, 2, 3].map((i) => (
+          <Card key={i} className="glass-card border-white/10">
+            <CardContent className="p-6">
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <Skeleton className="h-12 w-12 rounded-xl bg-white/5" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-4 w-32 bg-white/5" />
+                    <Skeleton className="h-3 w-24 bg-white/5" />
+                  </div>
+                </div>
+                <Skeleton className="h-3 w-full bg-white/5" />
               </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     );
   }
 

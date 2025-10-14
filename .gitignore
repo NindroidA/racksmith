@@ -31,3 +31,6 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # project shtuff
 private
+
+# until ready to deploy
+.github

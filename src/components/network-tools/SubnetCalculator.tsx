@@ -1,37 +1,30 @@
-import { Calculator } from "lucide-react";
-import React, { useState } from "react";
-import { Badge } from "../ui/badge";
-import { Button } from "../ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
+import { Calculator } from 'lucide-react';
+import React, { useState } from 'react';
+import { ResultRowProps, SubnetResult } from '../../types/components';
+import { Badge } from '../ui/badge';
+import { Button } from '../ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
 
-interface SubnetResult {
-  network: string;
-  broadcast: string;
-  subnetMask: string;
-  firstUsable: string;
-  lastUsable: string;
-  totalHosts: number;
-  usableHosts: number;
-  recommendedDevices: {
-    workstations: number;
-    servers: number;
-    printers: number;
-    iot: number;
-    reserved: number;
-  };
+function ResultRow({ label, value, highlight }: ResultRowProps) {
+  return (
+    <div className={`flex justify-between items-center p-3 rounded-lg ${highlight ? 'glass-card border-green-500/50' : 'glass border-white/10'}`}>
+      <span className="text-gray-300 font-medium">{label}</span>
+      <code className={`${highlight ? 'text-green-400' : 'text-blue-400'} font-mono text-lg`}>{value}</code>
+    </div>
+  );
 }
 
 export const SubnetCalculator: React.FC = () => {
-  const [ipAddress, setIpAddress] = useState<string>("192.168.1.0");
+  const [ipAddress, setIpAddress] = useState<string>('192.168.1.0');
   const [cidr, setCidr] = useState<number>(24);
   const [result, setResult] = useState<SubnetResult | null>(null);
 
   const calculate = () => {
     const ipPattern = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
     if (!ipPattern.test(ipAddress)) {
-      alert("Please enter a valid IP address.");
+      alert('Please enter a valid IP address.');
       return;
     }
 
@@ -194,21 +187,6 @@ export const SubnetCalculator: React.FC = () => {
       </Card>
     </div>
   );
-}
-
-interface ResultRowProps {
-  label: string;
-  value: string;
-  highlight?: boolean;
-}
-
-function ResultRow({ label, value, highlight }: ResultRowProps) {
-  return (
-    <div className={`flex justify-between items-center p-3 rounded-lg ${highlight ? 'glass-card border-green-500/50' : 'glass border-white/10'}`}>
-      <span className="text-gray-300 font-medium">{label}</span>
-      <code className={`${highlight ? 'text-green-400' : 'text-blue-400'} font-mono text-lg`}>{value}</code>
-    </div>
-  );
-}
+};
 
 export default SubnetCalculator;

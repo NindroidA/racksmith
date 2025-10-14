@@ -25,14 +25,14 @@ export default function Login() {
       navigate('/dashboard');
     } catch (error) {
       toast.error('Login failed - but you can still continue!');
-      // Still navigate in dev mode
+      // still navigate in dev mode
       navigate('/dashboard');
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Quick login for development
+  // quick login for dev
   const handleQuickLogin = async () => {
     setIsLoading(true);
     try {

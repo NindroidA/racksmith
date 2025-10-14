@@ -1,24 +1,18 @@
-import { Save, X } from "lucide-react";
-import React, { useState } from "react";
-import { Device } from "../../types/entities";
-import { Button } from "../ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Textarea } from "../ui/textarea";
-
-interface DevicePropertiesPanelProps {
-  device: Device;
-  onUpdate: (updates: Partial<Device>) => void;
-  onClose: () => void;
-}
+import { Save, X } from 'lucide-react';
+import React, { useState } from 'react';
+import { DevicePropertiesPanelProps } from '../../types/components';
+import { Button } from '../ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { Textarea } from '../ui/textarea';
 
 const DevicePropertiesPanel: React.FC<DevicePropertiesPanelProps> = ({ device, onUpdate, onClose }) => {
   const [name, setName] = useState(device.name);
-  const [model, setModel] = useState(device.model || "");
+  const [model, setModel] = useState(device.model || '');
   const [portCount, setPortCount] = useState(device.port_count || 0);
   const [powerWatts, setPowerWatts] = useState(device.power_watts || 0);
-  const [notes, setNotes] = useState(device.notes || "");
+  const [notes, setNotes] = useState(device.notes || '');
 
   const handleSave = () => {
     onUpdate({
@@ -123,6 +117,6 @@ const DevicePropertiesPanel: React.FC<DevicePropertiesPanelProps> = ({ device, o
       </CardContent>
     </Card>
   );
-}
+};
 
 export default DevicePropertiesPanel;

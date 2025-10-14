@@ -1,36 +1,31 @@
-import { motion } from "framer-motion";
-import { Save, X } from "lucide-react";
-import { useState } from "react";
-import { CustomDevice } from "../../types/entities";
-import { Button } from "../ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { Textarea } from "../ui/textarea";
-
-interface CustomDeviceDialogProps {
-  device?: CustomDevice;
-  onSave: (deviceData: Omit<CustomDevice, 'id'>) => Promise<void>;
-  onClose: () => void;
-}
+import { motion } from 'framer-motion';
+import { Save, X } from 'lucide-react';
+import { useState } from 'react';
+import { CustomDeviceDialogProps } from '../../types/components';
+import { CustomDevice } from '../../types/entities';
+import { Button } from '../ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { Textarea } from '../ui/textarea';
 
 const CustomDeviceDialog: React.FC<CustomDeviceDialogProps> = ({ device, onSave, onClose }) => {
   const [formData, setFormData] = useState<Omit<CustomDevice, 'id'>>(device || {
-    name: "",
-    manufacturer: "",
-    model: "",
-    device_type: "other" as CustomDevice['device_type'],
+    name: '',
+    manufacturer: '',
+    model: '',
+    device_type: 'other' as CustomDevice['device_type'],
     size_u: 1,
     port_count: 0,
     power_watts: 0,
-    description: ""
+    description: ''
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.manufacturer) {
-      alert("Please fill in all required fields");
+      alert('Please fill in all required fields');
       return;
     }
     onSave(formData);
@@ -47,7 +42,7 @@ const CustomDeviceDialog: React.FC<CustomDeviceDialogProps> = ({ device, onSave,
         <Card className="glass-card border-white/10">
           <CardHeader className="flex flex-row items-center justify-between border-b border-white/10">
             <CardTitle className="text-white">
-              {device ? "Edit Custom Device" : "Add Custom Device"}
+              {device ? 'Edit Custom Device' : 'Add Custom Device'}
             </CardTitle>
             <Button variant="ghost" size="icon" onClick={onClose} className="hover:bg-white/10">
               <X className="w-5 h-5" />
@@ -177,6 +172,6 @@ const CustomDeviceDialog: React.FC<CustomDeviceDialogProps> = ({ device, onSave,
       </motion.div>
     </div>
   );
-}
+};
 
 export default CustomDeviceDialog;

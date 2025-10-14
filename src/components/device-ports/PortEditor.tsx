@@ -1,37 +1,32 @@
-import { motion } from "framer-motion";
-import { Save, X } from "lucide-react";
-import { useState } from "react";
-import { PortService } from "../../services/api";
-import { Port } from "../../types/entities";
-import { Button } from "../ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { Textarea } from "../ui/textarea";
-
-interface PortEditorProps {
-  port?: Port;
-  deviceId: string;
-  onClose: () => void;
-}
+import { motion } from 'framer-motion';
+import { Save, X } from 'lucide-react';
+import { useState } from 'react';
+import { PortService } from '../../services/api';
+import { PortEditorProps } from '../../types/components';
+import { Port } from '../../types/entities';
+import { Button } from '../ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { Textarea } from '../ui/textarea';
 
 const PortEditor: React.FC<PortEditorProps> = ({ port, deviceId, onClose }) => {
   const [formData, setFormData] = useState<Omit<Port, 'id'>>(port || {
     device_id: deviceId,
-    port_number: "",
-    port_type: "ethernet",
-    status: "available",
-    description: "",
-    vlan: "",
-    speed: "1G",
-    notes: ""
+    port_number: '',
+    port_type: 'ethernet',
+    status: 'available',
+    description: '',
+    vlan: '',
+    speed: '1G',
+    notes: ''
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.port_number) {
-      alert("Please enter a port number");
+      alert('Please enter a port number');
       return;
     }
 
@@ -54,7 +49,7 @@ const PortEditor: React.FC<PortEditorProps> = ({ port, deviceId, onClose }) => {
         <Card className="glass-card border-white/10">
           <CardHeader className="flex flex-row items-center justify-between border-b border-white/10">
             <CardTitle className="text-white">
-              {port ? "Edit Port" : "Add New Port"}
+              {port ? 'Edit Port' : 'Add New Port'}
             </CardTitle>
             <Button variant="ghost" size="icon" onClick={onClose} className="hover:bg-white/10">
               <X className="w-5 h-5" />
@@ -169,7 +164,7 @@ const PortEditor: React.FC<PortEditorProps> = ({ port, deviceId, onClose }) => {
                 </Button>
                 <Button type="submit" className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700">
                   <Save className="w-4 h-4 mr-2" />
-                  {port ? "Update Port" : "Create Port"}
+                  {port ? 'Update Port' : 'Create Port'}
                 </Button>
               </div>
             </form>
@@ -178,6 +173,6 @@ const PortEditor: React.FC<PortEditorProps> = ({ port, deviceId, onClose }) => {
       </motion.div>
     </div>
   );
-}
+};
 
 export default PortEditor;

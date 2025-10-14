@@ -1,65 +1,61 @@
-import { motion } from "framer-motion";
-import { Save, Trash2, X } from "lucide-react";
-import React, { useState } from "react";
-import toast from "react-hot-toast";
-import { StandaloneDeviceService } from "../../services/api";
-import { StandaloneDevice } from "../../types/entities";
-import { Button } from "../ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { Textarea } from "../ui/textarea";
-
-interface StandaloneDeviceDialogProps {
-  device?: StandaloneDevice;
-  onClose: () => void;
-}
+import { motion } from 'framer-motion';
+import { Save, Trash2, X } from 'lucide-react';
+import React, { useState } from 'react';
+import toast from 'react-hot-toast';
+import { StandaloneDeviceService } from '../../services/api';
+import { StandaloneDeviceDialogProps } from '../../types/components';
+import { StandaloneDevice } from '../../types/entities';
+import { Button } from '../ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { Textarea } from '../ui/textarea';
 
 const StandaloneDeviceDialog: React.FC<StandaloneDeviceDialogProps> = ({ device, onClose }) => {
   const [formData, setFormData] = useState<Omit<StandaloneDevice, 'id'>>(device || {
-    name: "",
-    device_type: "router",
-    manufacturer: "",
-    model: "",
+    name: '',
+    device_type: 'router',
+    manufacturer: '',
+    model: '',
     x_position: 100,
     y_position: 100,
-    icon_color: "blue",
+    icon_color: 'blue',
     port_count: 0,
-    notes: ""
+    notes: ''
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name) {
-      toast.error("Please enter a device name");
+      toast.error('Please enter a device name');
       return;
     }
 
     try {
       if (device?.id) {
         await StandaloneDeviceService.update(device.id, formData);
-        toast.success("Device updated successfully");
+        toast.success('Device updated successfully');
       } else {
         await StandaloneDeviceService.create(formData);
-        toast.success("Device created successfully");
+        toast.success('Device created successfully');
       }
       onClose();
     } catch (error) {
-      console.error("Error saving device:", error);
-      toast.error("Failed to save device");
+      console.error('Error saving device:', error);
+      toast.error('Failed to save device');
     }
   };
 
   const handleDelete = () => {
     if (!device || !device.id) {
-      console.error("Cannot delete: device or device.id is undefined", device);
-      toast.error("Cannot delete device: Invalid device data");
+      console.error('Cannot delete: device or device.id is undefined', device);
+      toast.error('Cannot delete device: Invalid device data');
       return;
     }
     
     const deviceId = device.id;
-    const deviceName = device.name || "this device";
+    const deviceName = device.name || 'this device';
     
     toast((t) => (
       <div className="flex flex-col gap-3">
@@ -78,16 +74,16 @@ const StandaloneDeviceDialog: React.FC<StandaloneDeviceDialogProps> = ({ device,
             onClick={async () => {
               try {
                 if (!deviceId) {
-                  throw new Error("Device ID is undefined");
+                  throw new Error('Device ID is undefined');
                 }
                 await StandaloneDeviceService.delete(deviceId);
                 toast.dismiss(t.id);
-                toast.success("Device deleted successfully");
+                toast.success('Device deleted successfully');
                 onClose();
               } catch (error) {
-                console.error("Error deleting device:", error);
+                console.error('Error deleting device:', error);
                 toast.dismiss(t.id);
-                toast.error("Failed to delete device");
+                toast.error('Failed to delete device');
               }
             }}
             className="bg-red-500 hover:bg-red-600"
@@ -117,7 +113,7 @@ const StandaloneDeviceDialog: React.FC<StandaloneDeviceDialogProps> = ({ device,
         <Card className="glass-card border-white/10">
           <CardHeader className="flex flex-row items-center justify-between border-b border-white/10">
             <CardTitle className="text-white">
-              {device?.id ? "Edit Device" : "Add Network Device"}
+              {device?.id ? 'Edit Device' : 'Add Network Device'}
             </CardTitle>
             <Button variant="ghost" size="icon" onClick={onClose} className="hover:bg-white/10">
               <X className="w-5 h-5" />
@@ -237,7 +233,7 @@ const StandaloneDeviceDialog: React.FC<StandaloneDeviceDialogProps> = ({ device,
                   </Button>
                   <Button type="submit" className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700">
                     <Save className="w-4 h-4 mr-2" />
-                    {device?.id ? "Update" : "Create"}
+                    {device?.id ? 'Update' : 'Create'}
                   </Button>
                 </div>
               </div>
@@ -247,6 +243,6 @@ const StandaloneDeviceDialog: React.FC<StandaloneDeviceDialogProps> = ({ device,
       </motion.div>
     </div>
   );
-}
+};
 
 export default StandaloneDeviceDialog;

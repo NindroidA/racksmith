@@ -1,10 +1,10 @@
 import type { CustomDevice, Device, NetworkPlan, RackConfiguration } from '../types/entities';
 
-// Check if we should use mock data
+// check if we should use mock data
 const USE_MOCK_DATA = true;
 const mockDelay = () => new Promise(resolve => setTimeout(resolve, 200));
 
-// Add logging
+// add logging
 console.log('🔧 API Service initialized - Mock mode:', USE_MOCK_DATA);
 
 export const mockRacks: RackConfiguration[] = [

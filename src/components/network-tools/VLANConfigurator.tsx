@@ -1,58 +1,51 @@
 
-import { AnimatePresence, motion } from "framer-motion";
-import { Download, Layers, Plus, Trash2 } from "lucide-react"; // Corrected: Added Layers to the import
-import React, { useState } from "react";
-import { Badge } from "../ui/badge";
-import { Button } from "../ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Textarea } from "../ui/textarea";
-
-interface VLAN {
-  id: number;
-  vlan_id: string;
-  name: string;
-  description: string;
-  color: string;
-  ports: string;
-}
+import { AnimatePresence, motion } from 'framer-motion';
+import { Download, Layers, Plus, Trash2 } from 'lucide-react'; // Corrected: Added Layers to the import
+import React, { useState } from 'react';
+import { VLAN } from '../../types/components';
+import { Badge } from '../ui/badge';
+import { Button } from '../ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { Textarea } from '../ui/textarea';
 
 export const VLANConfigurator: React.FC = () => {
+  // includes placeholder data
   const [vlans, setVlans] = useState<VLAN[]>([
-    { id: 1, vlan_id: "10", name: "Management", description: "Network management and monitoring", color: "blue", ports: "1-8" },
-    { id: 2, vlan_id: "20", name: "Servers", description: "Production server network", color: "purple", ports: "9-16" },
-    { id: 3, vlan_id: "30", name: "Users", description: "End user workstations", color: "green", ports: "17-40" },
+    { id: 1, vlan_id: '10', name: 'Management', description: 'Network management and monitoring', color: 'blue', ports: '1-8' },
+    { id: 2, vlan_id: '20', name: 'Servers', description: 'Production server network', color: 'purple', ports: '9-16' },
+    { id: 3, vlan_id: '30', name: 'Users', description: 'End user workstations', color: 'green', ports: '17-40' },
   ]);
 
   const [newVlan, setNewVlan] = useState<Omit<VLAN, 'id'>>({
-    vlan_id: "",
-    name: "",
-    description: "",
-    color: "blue",
-    ports: ""
+    vlan_id: '',
+    name: '',
+    description: '',
+    color: 'blue',
+    ports: ''
   });
 
   const colorOptions = [
-    { value: "blue", label: "Blue", class: "from-blue-500 to-blue-600" },
-    { value: "purple", label: "Purple", class: "from-purple-500 to-purple-600" },
-    { value: "green", label: "Green", class: "from-green-500 to-emerald-600" },
-    { value: "orange", label: "Orange", class: "from-orange-500 to-orange-600" },
-    { value: "cyan", label: "Cyan", class: "from-cyan-500 to-cyan-600" },
-    { value: "red", label: "Red", class: "from-red-500 to-red-600" },
+    { value: 'blue', label: 'Blue', class: 'from-blue-500 to-blue-600' },
+    { value: 'purple', label: 'Purple', class: 'from-purple-500 to-purple-600' },
+    { value: 'green', label: 'Green', class: 'from-green-500 to-emerald-600' },
+    { value: 'orange', label: 'Orange', class: 'from-orange-500 to-orange-600' },
+    { value: 'cyan', label: 'Cyan', class: 'from-cyan-500 to-cyan-600' },
+    { value: 'red', label: 'Red', class: 'from-red-500 to-red-600' },
   ];
 
   const addVlan = () => {
     if (!newVlan.vlan_id || !newVlan.name) {
-      alert("Please enter VLAN ID and name");
+      alert('Please enter VLAN ID and name');
       return;
     }
 
     setVlans([...vlans, { ...newVlan, id: Date.now() }]);
-    setNewVlan({ vlan_id: "", name: "", description: "", color: "blue", ports: "" });
+    setNewVlan({ vlan_id: '', name: '', description: '', color: 'blue', ports: '' });
   };
 
-  const removeVlan = (id) => {
+  const removeVlan = (id: VLAN['id']) => {
     setVlans(vlans.filter(v => v.id !== id));
   };
 
@@ -220,6 +213,6 @@ export const VLANConfigurator: React.FC = () => {
       </div>
     </div>
   );
-}
+};
 
 export default VLANConfigurator;

@@ -3,8 +3,7 @@ import { HTMLAttributes } from 'react';
 const Skeleton = ({ className = '', ...props }: HTMLAttributes<HTMLDivElement>) => {
   return (
     <div
-      className={`animate-pulse rounded-md ${className}`}
-      style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
+      className={`animate-pulse rounded-md bg-white/5 ${className}`}
       {...props}
     />
   );

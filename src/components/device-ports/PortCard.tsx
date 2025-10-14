@@ -1,27 +1,17 @@
-import { motion } from "framer-motion";
-import { Cable, CheckCircle, Circle, Pencil, Trash2, XCircle, Zap } from "lucide-react";
-import { ConnectionService, PortService } from "../../services/api";
-import { Connection, Device, Port } from "../../types/entities";
-import { Badge } from "../ui/badge";
-import { Button } from "../ui/button";
-import { Card, CardContent } from "../ui/card";
+import { motion } from 'framer-motion';
+import { Cable, CheckCircle, Circle, Pencil, Trash2, XCircle, Zap } from 'lucide-react';
+import { ConnectionService, PortService } from '../../services/api';
+import { PortCardProps } from '../../types/components';
+import { Badge } from '../ui/badge';
+import { Button } from '../ui/button';
+import { Card, CardContent } from '../ui/card';
 
 const statusConfig = {
-  available: { icon: Circle, color: "text-blue-400", bg: "bg-blue-500/10", border: "border-blue-500/30" },
-  connected: { icon: CheckCircle, color: "text-green-400", bg: "bg-green-500/10", border: "border-green-500/30" },
-  disabled: { icon: XCircle, color: "text-red-400", bg: "bg-red-500/10", border: "border-red-500/30" },
-  reserved: { icon: Zap, color: "text-yellow-400", bg: "bg-yellow-500/10", border: "border-yellow-500/30" }
+  available: { icon: Circle, color: 'text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/30' },
+  connected: { icon: CheckCircle, color: 'text-green-400', bg: 'bg-green-500/10', border: 'border-green-500/30' },
+  disabled: { icon: XCircle, color: 'text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/30' },
+  reserved: { icon: Zap, color: 'text-yellow-400', bg: 'bg-yellow-500/10', border: 'border-yellow-500/30' }
 };
-
-interface PortCardProps {
-  port: Port;
-  connection?: Connection;
-  allDevices: Device[];
-  index: number;
-  onEdit: () => void;
-  onConnect: () => void;
-  onRefresh: () => void;
-}
 
 const PortCard: React.FC<PortCardProps> = ({ port, connection, allDevices, index, onEdit, onConnect, onRefresh }) => {
   const config = statusConfig[port.status] || statusConfig.available;
@@ -43,7 +33,7 @@ const PortCard: React.FC<PortCardProps> = ({ port, connection, allDevices, index
       ? connection.destination_device_id 
       : connection.source_device_id;
     const device = allDevices.find(d => d.id === deviceId);
-    return device?.name || "Unknown Device";
+    return device?.name || 'Unknown Device';
   };
 
   return (
@@ -138,6 +128,6 @@ const PortCard: React.FC<PortCardProps> = ({ port, connection, allDevices, index
       </Card>
     </motion.div>
   );
-}
+};
 
 export default PortCard;

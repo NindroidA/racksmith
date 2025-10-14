@@ -1,17 +1,10 @@
-import { motion } from "framer-motion";
-import { ArrowRight, X } from "lucide-react";
-import React from "react";
-import { Connection, Device } from "../../types/entities";
-import { Badge } from "../ui/badge";
-import { Button } from "../ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-
-interface DeviceConnectionsViewProps {
-  device: Device;
-  connections: Connection[];
-  allDevices: Device[];
-  onClose: () => void;
-}
+import { motion } from 'framer-motion';
+import { ArrowRight, X } from 'lucide-react';
+import React from 'react';
+import { DeviceConnectionsViewProps } from '../../types/components';
+import { Badge } from '../ui/badge';
+import { Button } from '../ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 
 const DeviceConnectionsView: React.FC<DeviceConnectionsViewProps> = ({ device, connections, allDevices, onClose }) => {
   const getConnectedDevice = (connection, isSource) => {
@@ -72,7 +65,7 @@ const DeviceConnectionsView: React.FC<DeviceConnectionsViewProps> = ({ device, c
                         </Badge>
                       </div>
                       <p className="text-sm text-white font-medium">
-                        {connectedDevice?.name || "Unknown Device"}
+                        {connectedDevice?.name || 'Unknown Device'}
                       </p>
                       <div className="flex flex-wrap gap-2 mt-2">
                         <Badge variant="outline" className="border-white/20 text-gray-400 text-xs">
@@ -97,6 +90,6 @@ const DeviceConnectionsView: React.FC<DeviceConnectionsViewProps> = ({ device, c
       </Card>
     </motion.div>
   );
-}
+};
 
-export default DeviceConnectionsView
+export default DeviceConnectionsView;

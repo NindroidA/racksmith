@@ -1,45 +1,39 @@
-import { motion } from "framer-motion";
-import { Cpu, HardDrive, Plus, Save, Trash2 } from "lucide-react";
-import React, { useState } from "react";
-import { NASConfigurationService } from "../../services/api";
-import { NASConfiguration } from "../../types/entities";
-import { Badge } from "../ui/badge";
-import { Button } from "../ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { motion } from 'framer-motion';
+import { Cpu, HardDrive, Plus, Save, Trash2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { NASConfigurationService } from '../../services/api';
+import { DriveConfig } from '../../types/components';
+import { NASConfiguration } from '../../types/entities';
+import { Badge } from '../ui/badge';
+import { Button } from '../ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
+// placeholder data
 const chassisOptions = [
-  { value: "2bay", label: "2-Bay", bays: 2 },
-  { value: "4bay", label: "4-Bay", bays: 4 },
-  { value: "8bay", label: "8-Bay", bays: 8 },
-  { value: "12bay", label: "12-Bay", bays: 12 },
-  { value: "16bay", label: "16-Bay", bays: 16 },
-  { value: "24bay", label: "24-Bay", bays: 24 },
-  { value: "45bay", label: "45-Bay (45drives)", bays: 45 }
+  { value: '2bay', label: '2-Bay', bays: 2 },
+  { value: '4bay', label: '4-Bay', bays: 4 },
+  { value: '8bay', label: '8-Bay', bays: 8 },
+  { value: '12bay', label: '12-Bay', bays: 12 },
+  { value: '16bay', label: '16-Bay', bays: 16 },
+  { value: '24bay', label: '24-Bay', bays: 24 },
+  { value: '45bay', label: '45-Bay (45drives)', bays: 45 }
 ];
 
+// placeholder data
 const driveTypes = {
-  hdd: { name: "HDD", color: "from-blue-500 to-blue-600", icon: "💾" },
-  ssd: { name: "SSD", color: "from-purple-500 to-purple-600", icon: "⚡" },
-  nvme: { name: "NVMe", color: "from-orange-500 to-orange-600", icon: "🚀" }
+  hdd: { name: 'HDD', color: 'from-blue-500 to-blue-600', icon: '💾' },
+  ssd: { name: 'SSD', color: 'from-purple-500 to-purple-600', icon: '⚡' },
+  nvme: { name: 'NVMe', color: 'from-orange-500 to-orange-600', icon: '🚀' }
 };
-
-interface DriveConfig {
-  bay_number: number;
-  drive_type: 'hdd' | 'ssd' | 'nvme';
-  capacity_tb: number;
-  rpm?: number;
-  interface: 'sata' | 'sas' | 'nvme';
-}
-
 
 const NASBuilder: React.FC = () => {
   const [config, setConfig] = useState({
-    name: "",
-    chassis_type: "8bay" as NASConfiguration['chassis_type'],
-    raid_type: "raid6" as NASConfiguration['raid_type'],
+    name: '',
+    chassis_type: '8bay' as NASConfiguration['chassis_type'],
+    raid_type: 'raid6' as NASConfiguration['raid_type'],
     network_interfaces: 2
   });
   const [drives, setDrives] = useState<DriveConfig[]>([]);
@@ -50,43 +44,44 @@ const NASBuilder: React.FC = () => {
   const addDrive = (bayNumber) => {
     setDrives([...drives, {
       bay_number: bayNumber,
-      drive_type: "hdd",
+      drive_type: 'hdd',
       capacity_tb: 4,
       rpm: 7200,
-      interface: "sata"
+      interface: 'sata'
     }]);
     setSelectedBay(null);
   };
 
-  const removeDrive = (bayNumber) => {
+  const removeDrive = (bayNumber: DriveConfig['bay_number']) => {
     setDrives(drives.filter(d => d.bay_number !== bayNumber));
   };
 
-  const updateDrive = (bayNumber, updates) => {
+  const updateDrive = (bayNumber: DriveConfig['bay_number'], updates) => {
     setDrives(drives.map(d => d.bay_number === bayNumber ? { ...d, ...updates } : d));
   };
 
-  const getDrive = (bayNumber) => drives.find(d => d.bay_number === bayNumber);
+  const getDrive = (bayNumber: DriveConfig['bay_number']) => drives.find(d => d.bay_number === bayNumber);
 
   const calculateCapacity = () => {
     const totalRaw = drives.reduce((sum, d) => sum + d.capacity_tb, 0);
     let usable = totalRaw;
     
-    // Simple RAID calculations
+    // simple RAID calculations
+    // TODO: rhobust later
     switch (config.raid_type) {
-      case "raid0":
+      case 'raid0':
         usable = totalRaw;
         break;
-      case "raid1":
+      case 'raid1':
         usable = totalRaw / 2;
         break;
-      case "raid5":
+      case 'raid5':
         usable = totalRaw - (drives[0]?.capacity_tb || 0);
         break;
-      case "raid6":
+      case 'raid6':
         usable = totalRaw - (2 * (drives[0]?.capacity_tb || 0));
         break;
-      case "raid10":
+      case 'raid10':
         usable = totalRaw / 2;
         break;
       default:
@@ -100,7 +95,7 @@ const NASBuilder: React.FC = () => {
 
   const handleSave = async () => {
     if (!config.name) {
-      alert("Please enter a configuration name");
+      alert('Please enter a configuration name');
       return;
     }
 
@@ -110,7 +105,7 @@ const NASBuilder: React.FC = () => {
       total_capacity_tb: capacity.totalRaw,
       usable_capacity_tb: capacity.usable
     });
-    alert("NAS configuration saved!");
+    alert('NAS configuration saved!');
   };
 
   return (
@@ -349,6 +344,6 @@ const NASBuilder: React.FC = () => {
       </div>
     </div>
   );
-}
+};
 
 export default NASBuilder;

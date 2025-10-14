@@ -1,50 +1,20 @@
 
-import { AnimatePresence, motion } from "framer-motion";
-import { ArrowRight, Cable, Camera, Check, Network, Phone, Save, Wifi, Zap } from "lucide-react";
-import React, { useState } from "react";
-import { NetworkPlanService } from "../../services/api";
-import { Badge } from "../ui/badge";
-import { Button } from "../ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-
-interface PlanData {
-  name: string;
-  facility_size: 'small' | 'medium' | 'large' | 'enterprise';
-  total_devices: number;
-  wired_devices: number;
-  wireless_devices: number;
-  access_points: number;
-  cameras: number;
-  phones: number;
-  floors: number;
-  square_feet: number;
-}
-
-interface IPScheme {
-  base: string;
-  management?: string;
-  servers?: string;
-  users?: string;
-  guest?: string;
-  iot?: string;
-}
-
-interface VLANConfig {
-  vlan_id: string;
-  name: string;
-  description: string;
-  subnet: string;
-  ports?: string;
-  device_count?: string;
-}
+import { AnimatePresence, motion } from 'framer-motion';
+import { ArrowRight, Cable, Camera, Check, Network, Phone, Save, Wifi, Zap } from 'lucide-react';
+import React, { useState } from 'react';
+import { NetworkPlanService } from '../../services/api';
+import { IPScheme, PlanData, VLANConfig } from '../../types/components';
+import { Badge } from '../ui/badge';
+import { Button } from '../ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
 
 export const NetworkBuilder: React.FC = () => {
   const [step, setStep] = useState<number>(1);
   const [planData, setPlanData] = useState<PlanData>({
-    name: "",
-    facility_size: "medium",
+    name: '',
+    facility_size: 'medium',
     total_devices: 100,
     wired_devices: 60,
     wireless_devices: 40,
@@ -67,39 +37,39 @@ export const NetworkBuilder: React.FC = () => {
 
     // IP scheme recommendation
     let ipScheme = {
-        base: "",
-        management: "",
-        servers: "",
-        users: "",
-        guest: "",
-        iot: "",
+        base: '',
+        management: '',
+        servers: '',
+        users: '',
+        guest: '',
+        iot: '',
     };
     if (planData.total_devices < 50) {
       ipScheme = {
-        base: "192.168.1.0/24",
-        management: "192.168.1.0/27",
-        servers: "192.168.1.32/27",
-        users: "192.168.1.64/26",
-        guest: "192.168.1.128/26",
-        iot: ""
+        base: '192.168.1.0/24',
+        management: '192.168.1.0/27',
+        servers: '192.168.1.32/27',
+        users: '192.168.1.64/26',
+        guest: '192.168.1.128/26',
+        iot: ''
       };
     } else if (planData.total_devices < 500) {
       ipScheme = {
-        base: "10.0.0.0/16",
-        management: "10.0.0.0/24",
-        servers: "10.0.1.0/24",
-        users: "10.0.10.0/23",
-        guest: "10.0.20.0/24",
-        iot: "10.0.30.0/24"
+        base: '10.0.0.0/16',
+        management: '10.0.0.0/24',
+        servers: '10.0.1.0/24',
+        users: '10.0.10.0/23',
+        guest: '10.0.20.0/24',
+        iot: '10.0.30.0/24'
       };
     } else {
       ipScheme = {
-        base: "10.0.0.0/8",
-        management: "10.0.0.0/24",
-        servers: "10.1.0.0/16",
-        users: "10.10.0.0/16",
-        guest: "10.100.0.0/16",
-        iot: "10.200.0.0/16"
+        base: '10.0.0.0/8',
+        management: '10.0.0.0/24',
+        servers: '10.1.0.0/16',
+        users: '10.10.0.0/16',
+        guest: '10.100.0.0/16',
+        iot: '10.200.0.0/16'
       };
     }
 
@@ -107,14 +77,14 @@ export const NetworkBuilder: React.FC = () => {
 
     // VLAN recommendations
     const recommendedVLANs = [
-      { vlan_id: "1", name: "Management", description: "Network management and admin", subnet: ipScheme.management },
-      { vlan_id: "10", name: "Servers", description: "Production servers", subnet: ipScheme.servers },
-      { vlan_id: "20", name: "Users", description: "End user workstations", subnet: ipScheme.users },
-      { vlan_id: "30", name: "Guest WiFi", description: "Guest wireless network", subnet: ipScheme.guest }
+      { vlan_id: '1', name: 'Management', description: 'Network management and admin', subnet: ipScheme.management },
+      { vlan_id: '10', name: 'Servers', description: 'Production servers', subnet: ipScheme.servers },
+      { vlan_id: '20', name: 'Users', description: 'End user workstations', subnet: ipScheme.users },
+      { vlan_id: '30', name: 'Guest WiFi', description: 'Guest wireless network', subnet: ipScheme.guest }
     ];
 
     if (ipScheme.iot) {
-      recommendedVLANs.push({ vlan_id: "40", name: "IoT/Cameras", description: "IoT devices and cameras", subnet: ipScheme.iot });
+      recommendedVLANs.push({ vlan_id: '40', name: 'IoT/Cameras', description: 'IoT devices and cameras', subnet: ipScheme.iot });
     }
 
     setVlanPlan(recommendedVLANs);
@@ -136,7 +106,7 @@ export const NetworkBuilder: React.FC = () => {
       vlan_config: vlanPlan,
       poe_budget: (planData.access_points * 25) + (planData.cameras * 15) + (planData.phones * 7)
     });
-    alert("Network plan saved successfully!");
+    alert('Network plan saved successfully!');
   };
 
   return (
@@ -146,10 +116,10 @@ export const NetworkBuilder: React.FC = () => {
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             {[
-              { num: 1, name: "Device Count" },
-              { num: 2, name: "IP Planning" },
-              { num: 3, name: "VLAN Config" },
-              { num: 4, name: "Review & Save" }
+              { num: 1, name: 'Device Count' },
+              { num: 2, name: 'IP Planning' },
+              { num: 3, name: 'VLAN Config' },
+              { num: 4, name: 'Review & Save' }
             ].map((s, idx) => (
               <React.Fragment key={s.num}>
                 <div className="flex items-center gap-3">
@@ -494,6 +464,6 @@ export const NetworkBuilder: React.FC = () => {
       </AnimatePresence>
     </div>
   );
-}
+};
 
 export default NetworkBuilder;

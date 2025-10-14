@@ -1,70 +1,57 @@
-import { Plus, Server } from "lucide-react";
-import React, { useState } from "react";
-import { Device } from "../../types/entities";
-import { Button } from "../ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { ScrollArea } from "../ui/scroll-area";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import { Plus, Server } from 'lucide-react';
+import React, { useState } from 'react';
+import { DeviceSelectorProps, PresetDevice } from '../../types/components';
+import { Device } from '../../types/entities';
+import { Button } from '../ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { ScrollArea } from '../ui/scroll-area';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 
+// placeholder data
 const devicePresets = {
   cisco: [
-    { name: "Catalyst 9300", model: "C9300-48P", type: "switch", size_u: 1, ports: 48 },
-    { name: "ISR 4331", model: "ISR4331/K9", type: "router", size_u: 1, ports: 4 },
-    { name: "Nexus 9000", model: "N9K-C93180YC-EX", type: "switch", size_u: 1, ports: 48 }
+    { name: 'Catalyst 9300', model: 'C9300-48P', type: 'switch', size_u: 1, ports: 48 },
+    { name: 'ISR 4331', model: 'ISR4331/K9', type: 'router', size_u: 1, ports: 4 },
+    { name: 'Nexus 9000', model: 'N9K-C93180YC-EX', type: 'switch', size_u: 1, ports: 48 }
   ],
   ubiquiti: [
-    { name: "UniFi Dream Machine Pro", model: "UDM-Pro", type: "router", size_u: 1, ports: 8 },
-    { name: "UniFi Switch Pro 48", model: "USW-Pro-48", type: "switch", size_u: 1, ports: 48 },
-    { name: "UniFi Switch Aggregation", model: "USW-Aggregation", type: "fiber_switch", size_u: 1, ports: 8 }
+    { name: 'UniFi Dream Machine Pro', model: 'UDM-Pro', type: 'router', size_u: 1, ports: 8 },
+    { name: 'UniFi Switch Pro 48', model: 'USW-Pro-48', type: 'switch', size_u: 1, ports: 48 },
+    { name: 'UniFi Switch Aggregation', model: 'USW-Aggregation', type: 'fiber_switch', size_u: 1, ports: 8 }
   ],
   fs: [
-    { name: "S5860-20SQ", model: "S5860-20SQ", type: "fiber_switch", size_u: 1, ports: 20 },
-    { name: "S3900-48T4S", model: "S3900-48T4S", type: "switch", size_u: 1, ports: 48 }
+    { name: 'S5860-20SQ', model: 'S5860-20SQ', type: 'fiber_switch', size_u: 1, ports: 20 },
+    { name: 'S3900-48T4S', model: 'S3900-48T4S', type: 'switch', size_u: 1, ports: 48 }
   ],
   tripplite: [
-    { name: "SmartPro UPS 3000VA", model: "SMART3000RM2U", type: "ups", size_u: 2, ports: 0 },
-    { name: "PDU 20A", model: "PDU1230", type: "pdu", size_u: 1, ports: 12 }
+    { name: 'SmartPro UPS 3000VA', model: 'SMART3000RM2U', type: 'ups', size_u: 2, ports: 0 },
+    { name: 'PDU 20A', model: 'PDU1230', type: 'pdu', size_u: 1, ports: 12 }
   ]
 };
 
-interface DeviceSelectorProps {
-  rackSize: number;
-  existingDevices: Device[];
-  onAddDevice: (device: Partial<Device>) => void;
-}
-
-interface PresetDevice {
-  name: string;
-  manufacturer: string;
-  model: string;
-  device_type: Device['device_type'];
-  size_u: number;
-  port_count: number;
-  power_watts: number;
-  description: string;
-}
-
 const DeviceSelector: React.FC<DeviceSelectorProps> = ({ rackSize, existingDevices, onAddDevice }) => {
-  const [manufacturer, setManufacturer] = useState("cisco");
+  const [manufacturer, setManufacturer] = useState('cisco');
   const [selectedPreset, setSelectedPreset] = useState<PresetDevice | null>(null);
+  /*
   const [customDevice, setCustomDevice] = useState<Partial<Device>>({
-    name: "",
-    manufacturer: "custom" as Device['manufacturer'],
-    device_type: "server" as Device['device_type'],
+    name: '',
+    manufacturer: 'custom' as Device['manufacturer'],
+    device_type: 'server' as Device['device_type'],
     size_u: 1,
     position_u: 1,
     port_count: 0,
     power_watts: 0,
   });
-  const [customName, setCustomName] = useState("");
+  */
+  const [customName, setCustomName] = useState('');
   const [customSize, setCustomSize] = useState(1);
-  const [customType, setCustomType] = useState<Device['device_type']>("server");
-  const [position, setPosition] = useState(1);
+  const [customType, setCustomType] = useState<Device['device_type']>('server');
+  //const [position, setPosition] = useState(1);
 
-  const findNextAvailablePosition = (deviceSize) => {
+  const findNextAvailablePosition = (deviceSize: PresetDevice['size_u']) => {
     const occupiedUnits = new Set();
     existingDevices.forEach(device => {
       for (let i = 0; i < device.size_u; i++) {
@@ -90,7 +77,7 @@ const DeviceSelector: React.FC<DeviceSelectorProps> = ({ rackSize, existingDevic
   
   const availablePosition = findNextAvailablePosition(selectedPreset.size_u);
   if (availablePosition === null) {
-    alert("Not enough space in the rack for this device");
+    alert('Not enough space in the rack for this device');
     return;
   }
 
@@ -108,26 +95,26 @@ const DeviceSelector: React.FC<DeviceSelectorProps> = ({ rackSize, existingDevic
 
   const handleAddCustom = () => {
     if (!customName) {
-      alert("Please enter a device name");
+      alert('Please enter a device name');
       return;
     }
 
     const availablePosition = findNextAvailablePosition(customSize);
     if (availablePosition === null) {
-      alert("Not enough space in the rack for this device");
+      alert('Not enough space in the rack for this device');
       return;
     }
 
     onAddDevice({
       name: customName,
-      manufacturer: "custom" as Device['manufacturer'],
-      model: "Custom Device",
+      manufacturer: 'custom' as Device['manufacturer'],
+      model: 'Custom Device',
       device_type: customType,
       size_u: customSize,
       position_u: availablePosition,
       port_count: 0
     });
-    setCustomName("");
+    setCustomName('');
     setCustomSize(1);
   };
 
@@ -146,7 +133,7 @@ const DeviceSelector: React.FC<DeviceSelectorProps> = ({ rackSize, existingDevic
             <TabsTrigger value="custom">Custom</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="presets" className="space-y-4">
+          <TabsContent className="space-y-4">
             <div className="space-y-2">
               <Label className="text-gray-300">Manufacturer</Label>
               <Select value={manufacturer} onValueChange={setManufacturer}>
@@ -193,7 +180,7 @@ const DeviceSelector: React.FC<DeviceSelectorProps> = ({ rackSize, existingDevic
             </Button>
           </TabsContent>
 
-          <TabsContent value="custom" className="space-y-4">
+          <TabsContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="customName" className="text-gray-300">Device Name</Label>
               <Input
@@ -252,6 +239,6 @@ const DeviceSelector: React.FC<DeviceSelectorProps> = ({ rackSize, existingDevic
       </CardContent>
     </Card>
   );
-}
+};
 
 export default DeviceSelector;

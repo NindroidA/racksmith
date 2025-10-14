@@ -1,17 +1,17 @@
 
-import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, Cable, CheckCircle, ChevronLeft, ChevronRight, Circle, Plus, Server, XCircle, Zap } from "lucide-react";
-import React, { useCallback, useEffect, useState } from "react";
-import toast from "react-hot-toast";
-import { useNavigate, useParams } from "react-router-dom";
-import ConnectionCreator from "../components/device-ports/ConnectionCreator";
-import PortCard from "../components/device-ports/PortCard";
-import PortEditor from "../components/device-ports/PortEditor";
-import { Button } from "../components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
-import { ScrollArea } from "../components/ui/scroll-area";
-import { ConnectionService, DeviceService, PortService, RackConfigurationService } from "../services/api";
-import type { Connection, Device, Port, RackConfiguration } from "../types/entities";
+import { AnimatePresence, motion } from 'framer-motion';
+import { ArrowLeft, Cable, CheckCircle, ChevronLeft, ChevronRight, Circle, Plus, Server, XCircle, Zap } from 'lucide-react';
+import React, { useCallback, useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
+import { useNavigate, useParams } from 'react-router-dom';
+import ConnectionCreator from '../components/device-ports/ConnectionCreator';
+import PortCard from '../components/device-ports/PortCard';
+import PortEditor from '../components/device-ports/PortEditor';
+import { Button } from '../components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { ScrollArea } from '../components/ui/scroll-area';
+import { ConnectionService, DeviceService, PortService, RackConfigurationService } from '../services/api';
+import type { Connection, Device, Port, RackConfiguration } from '../types/entities';
 
 const DevicePorts: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -63,8 +63,8 @@ const DevicePorts: React.FC = () => {
 
       setAllDevices(devices);
     } catch (error) {
-      console.error("Error loading device data:", error);
-      toast.error("Failed to load device data");
+      console.error('Error loading device data:', error);
+      toast.error('Failed to load device data');
     }
     
     setIsLoading(false);
@@ -76,13 +76,13 @@ const DevicePorts: React.FC = () => {
 
   const handleGeneratePorts = async () => {
     if (!device!.port_count || device!.port_count === 0) {
-      toast.error("This device has no ports configured");
+      toast.error('This device has no ports configured');
       return;
     }
 
     const existingPorts = await PortService.filter({ device_id: id! });
     if (existingPorts.length > 0) {
-      toast.error("Ports already exist. Delete them first to regenerate.");
+      toast.error('Ports already exist. Delete them first to regenerate.');
       return;
     }
 
@@ -90,8 +90,8 @@ const DevicePorts: React.FC = () => {
       await PortService.create({
         device_id: id!,
         port_number: `Port ${i}`,
-        port_type: "ethernet",
-        status: "available"
+        port_type: 'ethernet',
+        status: 'available'
       });
     }
 
@@ -109,9 +109,9 @@ const DevicePorts: React.FC = () => {
 
   const portStats = {
     total: ports.length,
-    connected: ports.filter(p => p.status === "connected").length,
-    available: ports.filter(p => p.status === "available").length,
-    disabled: ports.filter(p => p.status === "disabled").length
+    connected: ports.filter(p => p.status === 'connected').length,
+    available: ports.filter(p => p.status === 'available').length,
+    disabled: ports.filter(p => p.status === 'disabled').length
   };
 
   if (isLoading) {
@@ -313,7 +313,7 @@ const DevicePorts: React.FC = () => {
               <p className="text-gray-400 mb-6 max-w-md mx-auto">
                 {device.port_count! > 0
                   ? `This device has ${device.port_count} ports. Generate them automatically or add them manually.`
-                  : "Add ports manually to start tracking connections and configurations."
+                  : 'Add ports manually to start tracking connections and configurations.'
                 }
               </p>
               <div className="flex gap-3 justify-center">
@@ -402,6 +402,6 @@ const DevicePorts: React.FC = () => {
       </div>
     </div>
   );
-}
+};
 
 export default DevicePorts;
