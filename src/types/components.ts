@@ -153,6 +153,7 @@ export interface DevicePaletteProps {
   selectedDevice: (Device | CustomDevice) | null;
   onDragStart?: (size: number) => void;
   onDragEnd?: () => void;
+  onDeviceDragStart?: (device: Device | CustomDevice, size: number) => void;
 }
 
 export interface RackVisualizerProps {

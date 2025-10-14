@@ -1,91 +1,98 @@
-import { GripVertical, Search } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { useState } from 'react';
 import { DevicePaletteProps } from '../../types/components';
 import { CustomDevice, Device } from '../../types/entities';
+import { Card, CardContent } from '../ui/card';
 import { Input } from '../ui/input';
 import DeviceGraphic from './DeviceGraphic';
 
-export default function DevicePalette({ devices, onDeviceSelect, selectedDevice, onDragStart, onDragEnd }: DevicePaletteProps) {
+export default function DevicePalette({ devices, onDeviceDragStart }: DevicePaletteProps) {
   const [searchQuery, setSearchQuery] = useState('');
 
   const filteredDevices = devices.filter(device =>
     device.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    device.manufacturer.toLowerCase().includes(searchQuery.toLowerCase()) ||
     device.model!.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleDragStart = (e: React.DragEvent, device: Device | CustomDevice) => {
     e.dataTransfer.setData('device', JSON.stringify(device));
     e.dataTransfer.effectAllowed = 'copy';
-    onDeviceSelect(device);
-    onDragStart?.(device.size_u);
-  };
-
-  const handleDragEnd = () => {
-    onDragEnd?.();
+    onDeviceDragStart?.(device, device.size_u);
   };
 
   return (
-    <div className="glass-card p-4 h-full flex flex-col">
-      <h3 className="text-lg font-semibold text-white mb-4">Device Library</h3>
+    <Card className="glass-card border-white/10 h-full flex flex-col">
+      <CardContent className="p-6 flex flex-col h-full">
+        <h3 className="text-lg font-semibold text-white mb-4">Device Library</h3>
 
-      <div className="relative mb-4">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-        <Input
-          type="text"
-          placeholder="Search devices..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10 glass border-white/10 text-white placeholder:text-gray-500"
-        />
-      </div>
+        {/* Search */}
+        <div className="relative mb-4">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+          <Input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search devices..."
+            className="pl-10 glass border-white/10 text-white"
+          />
+        </div>
 
-      <div className="flex-1 overflow-auto custom-scrollbar space-y-2">
-        {filteredDevices.length === 0 ? (
-          <div className="text-center text-gray-500 py-8">No devices found</div>
-        ) : (
-          filteredDevices.map((device) => {
-            const isSelected = selectedDevice?.id === device.id;
-
-            return (
+        {/* Device List */}
+        <div className="flex-1 overflow-y-auto space-y-3 custom-scrollbar">
+          {filteredDevices.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              <p>No devices found</p>
+            </div>
+          ) : (
+            filteredDevices.map((device) => (
               <div
                 key={device.id}
                 draggable
                 onDragStart={(e) => handleDragStart(e, device)}
-                onDragEnd={handleDragEnd}
-                onClick={() => onDeviceSelect(device)}
-                className={`p-3 rounded-lg cursor-grab active:cursor-grabbing transition-all group ${
-                  isSelected
-                    ? 'bg-blue-500/30 border border-blue-500'
-                    : 'glass border border-white/10 hover:border-white/30 hover:scale-[1.02]'
-                }`}
+                className="glass border border-white/10 rounded-lg p-3 cursor-move hover:border-white/30 transition-all group"
               >
-                <div className="flex items-start gap-3">
-                  <GripVertical className="w-4 h-4 text-gray-500 mt-1 group-hover:text-gray-300 transition-colors flex-shrink-0" />
-                  <div className={`p-2 rounded flex-shrink-0 ${isSelected ? 'bg-blue-500/50' : 'bg-white/10'}`}>
-                    <DeviceGraphic type={device.device_type} className="w-12 h-6 text-white" />
-                  </div>
+                <div className="flex items-center gap-3 mb-2">
+                  <DeviceGraphic
+                    type={device.device_type}
+                    className="w-12 h-8 text-blue-400 opacity-70 group-hover:opacity-100 transition-opacity flex-shrink-0"
+                  />
                   <div className="flex-1 min-w-0">
-                    <div className="font-medium text-white truncate">{device.name}</div>
-                    <div className="text-xs text-gray-400 truncate">{device.manufacturer} {device.model}</div>
-                    <div className="flex gap-3 mt-1 text-xs text-gray-500">
-                      <span>{device.size_u}U</span>
-                      <span>{device.port_count} ports</span>
-                      {device.power_watts && <span>{device.power_watts}W</span>}
+                    <div className="text-sm font-semibold text-white truncate">
+                      {device.name}
+                    </div>
+                    <div className="text-xs text-gray-400 truncate">
+                      {device.manufacturer} {device.model}
                     </div>
                   </div>
                 </div>
-              </div>
-            );
-          })
-        )}
-      </div>
 
-      <div className="mt-4 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
-        <p className="text-xs text-blue-300">
-          💧 Drag devices into the rack or click to select, then click a position
-        </p>
-      </div>
-    </div>
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="px-2 py-1 rounded bg-white/5 text-gray-300">
+                    {device.size_u}U
+                  </span>
+                  {device.port_count && device.port_count > 0 && (
+                    <span className="px-2 py-1 rounded bg-blue-500/20 text-blue-400">
+                      {device.port_count} ports
+                    </span>
+                  )}
+                  {device.power_watts && device.power_watts > 0 && (
+                    <span className="px-2 py-1 rounded bg-yellow-500/20 text-yellow-400">
+                      {device.power_watts}W
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Helper Text */}
+        <div className="mt-4 pt-4 border-t border-white/10">
+          <div className="flex items-start gap-2 text-xs text-blue-400">
+            <span className="text-lg">💡</span>
+            <p>Drag devices into the rack or click to select, then click a position</p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

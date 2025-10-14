@@ -1,3 +1,6 @@
+# Racksmith v0.2.6
+- Added DeviceDetailsModal component.
+
 # Racksmith v0.2.5
 - Overall code and comment cleanup.
 - Migrated things to their respective type files.
