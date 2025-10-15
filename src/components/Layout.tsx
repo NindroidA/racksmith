@@ -1,7 +1,9 @@
-import { BookMarked, ChevronLeft, ChevronRight, Layers, LayoutGrid, Library, Map, Server, Wrench } from 'lucide-react';
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import { BookMarked, ChevronLeft, ChevronRight, Layers, LayoutGrid, Library, LogOut, Map, Server, Wrench } from 'lucide-react';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import { useSidebar } from '../contexts/SidebarContext';
 import { LayoutProps } from '../types/components';
+import Footer from './Footer';
 
 /* Navigation Items */
 const navigationItems = [
@@ -20,7 +22,14 @@ const navigationItems = [
  */
 export default function Layout({ children }: LayoutProps) {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { logout } = useAuth();
   const { menuSidebarOpen, setMenuSidebarOpen } = useSidebar();
+
+  const handleSignOut = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <div className="min-h-screen flex w-full" style={{ background: 'linear-gradient(135deg, #0a0e1a 0%, #1a1f35 100%)' }}>
@@ -60,7 +69,7 @@ export default function Layout({ children }: LayoutProps) {
                 <Layers className="w-6 h-6 text-white relative z-10" />
               </div>
               <div>
-                <h2 className="font-bold text-xl gradient-text">RackSmith</h2>
+                <h2 className="font-bold text-xl gradient-text-linear">RackSmith</h2>
                 <p className="text-xs text-gray-400">Network Manager</p>
               </div>
             </div>
@@ -89,6 +98,17 @@ export default function Layout({ children }: LayoutProps) {
               })}
             </ul>
           </nav>
+
+          {/* Sign Out Button */}
+          <div className="border-t border-white/10 p-3">
+            <button
+              onClick={handleSignOut}
+              className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-gray-300 hover:bg-red-500/10 hover:text-red-400 transition-all duration-200"
+            >
+              <LogOut className="w-5 h-5 flex-shrink-0" />
+              <span className="font-medium">Sign Out</span>
+            </button>
+          </div>
         </div>
       </aside>
 
@@ -100,6 +120,7 @@ export default function Layout({ children }: LayoutProps) {
         <div className="flex-1 overflow-auto">
           {children || <Outlet />}
         </div>
+        <Footer />
       </main>
     </div>
   );

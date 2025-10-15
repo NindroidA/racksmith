@@ -2,6 +2,7 @@ import { Layers } from 'lucide-react';
 import { FormEvent, useState } from 'react';
 import toast from 'react-hot-toast';
 import { Link, useNavigate } from 'react-router-dom';
+import Footer from '../../components/Footer';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
@@ -47,16 +48,17 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: '#0d1117' }}>
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 via-purple-500 to-cyan-500 flex items-center justify-center shadow-lg glow">
-              <Layers className="w-7 h-7 text-white" />
+    <div className="min-h-screen flex flex-col" style={{ background: '#0d1117' }}>
+      <div className="flex-1 flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 via-purple-500 to-cyan-500 flex items-center justify-center shadow-lg glow">
+                <Layers className="w-7 h-7 text-white" />
+              </div>
+              <h1 className="text-3xl font-bold gradient-text">RackSmith</h1>
             </div>
-            <h1 className="text-3xl font-bold gradient-text">RackSmith</h1>
-          </div>
-          <p className="text-gray-400">Network Infrastructure Manager</p>
+            <p className="text-gray-400">Network Infrastructure Manager</p>
         </div>
 
         <Card className="glass-card border-white/10">
@@ -92,7 +94,8 @@ export default function Login() {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+                variant="gradient"
+                className="w-full"
               >
                 {isLoading ? 'Signing in...' : 'Sign In'}
               </Button>
@@ -111,7 +114,7 @@ export default function Login() {
                 variant="outline"
                 onClick={handleQuickLogin}
                 disabled={isLoading}
-                className="w-full glass-button border-white/20 text-gray-300 hover:text-white"
+                className="w-full"
               >
                 Quick Demo Login
               </Button>
@@ -129,7 +132,9 @@ export default function Login() {
         <p className="text-center text-xs text-gray-500 mt-4">
           Development Mode: Click any button to continue
         </p>
+        </div>
       </div>
+      <Footer />
     </div>
   );
 }

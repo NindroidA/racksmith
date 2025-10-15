@@ -15,7 +15,7 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
           ref={ref}
           value={value}
           onChange={(e) => onValueChange?.(e.target.value)}
-          className={`flex h-10 w-full items-center justify-between rounded-md border px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 appearance-none pr-10 bg-transparent ${className}`}
+          className={`glass-input flex h-11 w-full items-center justify-between rounded-lg px-4 py-2 text-sm text-white appearance-none pr-10 cursor-pointer ${className}`}
           {...props}
         >
           {children}
