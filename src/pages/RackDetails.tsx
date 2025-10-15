@@ -66,10 +66,10 @@ const RackDetails: React.FC = () => {
           className="flex items-center gap-4"
         >
           <Button
-            variant="outline"
+            variant="ghost"
             size="icon"
             onClick={() => navigate('/dashboard')}
-            className="glass border-white/10 hover:bg-white/10"
+            className="glass border-white/10 hover:bg-white/10 text-white"
           >
             <ArrowLeft className="w-5 h-5" />
           </Button>
@@ -80,7 +80,7 @@ const RackDetails: React.FC = () => {
           <Button
             variant="outline"
             onClick={() => navigate(`/racks/${id}/edit`)}
-            className="glass border-white/10 hover:bg-white/10"
+            className="glass border-white/10 hover:bg-white/10 text-white"
           >
             <Pencil className="w-4 h-4 mr-2" />
             Edit Rack

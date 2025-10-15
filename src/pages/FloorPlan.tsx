@@ -1,5 +1,5 @@
-import { Eye, EyeOff, Grid3x3, Layers, Plus, Save, ZoomIn, ZoomOut } from 'lucide-react';
-import React, { useState } from 'react';
+import { Eye, EyeOff, Grid3x3, Layers, Maximize2, Plus, Save, ZoomIn, ZoomOut } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import StandaloneDeviceDialog from '../components/floor-plan/StandaloneDeviceDialog';
@@ -10,15 +10,21 @@ import { DeviceService, RackConfigurationService, RackPositionService, Standalon
 import type { Device, RackConfiguration, StandaloneDevice, TopologyConnection } from '../types/entities';
 import { DraggedItem } from '../types/pages';
 
+/**
+ * FloorPlan Component.
+ * Displays a draggable floor plan view with racks and standalone network devices.
+ * Allows creating connections between devices and saving layout positions.
+ */
 const FloorPlan: React.FC = () => {
   const navigate = useNavigate();
 
+  // state management
   const [racks, setRacks] = useState<RackConfiguration[]>([]);
   const [rackPositions, setRackPositions] = useState<Record<string, { x: number; y: number; rotation: number }>>({});
   const [devices, setDevices] = useState<Device[]>([]);
   const [standaloneDevices, setStandaloneDevices] = useState<StandaloneDevice[]>([]);
   const [topologyConnections, setTopologyConnections] = useState<TopologyConnection[]>([]);
-  const [zoom, setZoom] = useState<number>(0.8);
+  const [zoom, setZoom] = useState<number>(1.0);
   const [showGrid, setShowGrid] = useState<boolean>(true);
   const [showConnections, setShowConnections] = useState<boolean>(true);
   const [isSaving, setIsSaving] = useState<boolean>(false);
@@ -27,6 +33,14 @@ const FloorPlan: React.FC = () => {
   const [selectedDevice, setSelectedDevice] = useState<StandaloneDevice | null>(null);
   const [draggedItem, setDraggedItem] = useState<DraggedItem | null>(null);
   const [dragOffset, setDragOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+  
+  /**
+   * Load all floor plan data on component mount.
+   */
+  useEffect(() => {
+    loadData();
+  }, []);
 
   const loadData = async () => {
     const [racksData, positionsData, devicesData, standaloneData, topoConnData] = await Promise.all([
@@ -44,8 +58,8 @@ const FloorPlan: React.FC = () => {
     const positionsMap = {};
     positionsData.forEach(pos => {
       positionsMap[pos.rack_config_id] = {
-        x: pos.x_position || 200,
-        y: pos.y_position || 200,
+        x: pos.x_position ?? 50,
+        y: pos.y_position ?? 50,
         rotation: pos.rotation || 0
       };
     });
@@ -53,8 +67,8 @@ const FloorPlan: React.FC = () => {
     racksData.forEach((rack, index) => {
       if (!positionsMap[rack.id]) {
         positionsMap[rack.id] = {
-          x: 200 + (index * 250),
-          y: 200,
+          x: 50 + (index * 250),
+          y: 50,
           rotation: 0
         };
       }
@@ -63,7 +77,10 @@ const FloorPlan: React.FC = () => {
     setRackPositions(positionsMap);
     setStandaloneDevices(standaloneData);
   };
-
+  
+  /**
+   * Save rack positions and standalone device positions to backend.
+   */
   const handleSaveLayout = async () => {
     setIsSaving(true);
     try {
@@ -102,12 +119,18 @@ const FloorPlan: React.FC = () => {
     }
     setIsSaving(false);
   };
-
-  const getRackDeviceCount = (rackId) => {
+  
+  /**
+   * Count devices in a specific rack.
+   */
+  const getRackDeviceCount = (rackId: string): number => {
     return devices.filter(d => d.rack_config_id === rackId).length;
   };
-
-  const handleMouseDown = (item, type, e) => {
+  
+  /**
+   * Handle mouse down on draggable items (racks or standalone devices).
+   */
+  const handleMouseDown = (item: any, type: 'rack' | 'standalone', e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
@@ -119,14 +142,22 @@ const FloorPlan: React.FC = () => {
     });
     
     setDraggedItem({ ...item, type });
+    setIsDragging(false); // reset dragging state
   };
 
-  const handleMouseMove = (e) => {
+  /**
+   * Handle mouse move during drag operation.
+   */
+  const handleMouseMove = (e: React.MouseEvent) => {
     if (!draggedItem) return;
     
+    // mark as dragging after any movement
+    setIsDragging(true);
+    
     const container = e.currentTarget.getBoundingClientRect();
-    const x = Math.max(0, (e.clientX - container.left) / zoom - dragOffset.x);
-    const y = Math.max(0, (e.clientY - container.top) / zoom - dragOffset.y);
+    const padding = 40; // match the padding in the styled div
+    const x = Math.max(padding, (e.clientX - container.left) / zoom - dragOffset.x);
+    const y = Math.max(padding, (e.clientY - container.top) / zoom - dragOffset.y);
 
     if (draggedItem.type === 'standalone') {
       setStandaloneDevices(prev => prev.map(d =>
@@ -140,11 +171,19 @@ const FloorPlan: React.FC = () => {
     }
   };
 
+  /**
+   * Handle mouse up to end drag operation.
+   */
   const handleMouseUp = () => {
     setDraggedItem(null);
+    // reset dragging state after a short delay to prevent click events
+    setTimeout(() => setIsDragging(false), 50);
   };
-
-  const handleContextMenu = (device, type, e) => {
+  
+  /**
+   * Handle right click context menu on devices.
+   */
+  const handleContextMenu = (device: StandaloneDevice, type: 'standalone' | 'rack', e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
@@ -154,12 +193,18 @@ const FloorPlan: React.FC = () => {
     }
   };
 
+  /**
+   * Close device dialog and reload data.
+   */
   const handleCloseDeviceDialog = () => {
     setShowDeviceDialog(false);
     setSelectedDevice(null);
     loadData();
   };
-
+  
+  /**
+   * Render connection lines between devices.
+   */
   const renderConnections = () => {
     if (!showConnections || topologyConnections.length === 0) return null;
     
@@ -252,6 +297,7 @@ const FloorPlan: React.FC = () => {
     });
   };
 
+  // styling for device/rack types
   const colorMap = {
     blue: 'from-blue-500 to-blue-600',
     purple: 'from-purple-500 to-purple-600',
@@ -262,9 +308,7 @@ const FloorPlan: React.FC = () => {
     yellow: 'from-yellow-500 to-yellow-600',
     pink: 'from-pink-500 to-pink-600'
   };
-
-  const createPageUrl = (path) => `/${path}`;
-
+  
   return (
     <div className="min-h-screen p-6 md:p-8" style={{ background: '#161b22' }}>
       <div className="max-w-full mx-auto space-y-6">
@@ -312,17 +356,25 @@ const FloorPlan: React.FC = () => {
             </Button>
             <Button
               variant="outline"
-              onClick={() => setZoom(Math.max(0.5, zoom - 0.1))}
+              onClick={() => setZoom(Math.max(0.6, zoom - 0.1))}
               className="glass-button text-white border-white/20"
             >
               <ZoomOut className="w-4 h-4" />
             </Button>
             <Button
               variant="outline"
-              onClick={() => setZoom(Math.min(1.2, zoom + 0.1))}
+              onClick={() => setZoom(Math.min(1.5, zoom + 0.1))}
               className="glass-button text-white border-white/20"
             >
               <ZoomIn className="w-4 h-4" />
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => setZoom(1.0)}
+              className="glass-button text-white border-white/20"
+              title="Reset Zoom (100%)"
+            >
+              <Maximize2 className="w-4 h-4" />
             </Button>
             <Button
               onClick={handleSaveLayout}
@@ -336,40 +388,54 @@ const FloorPlan: React.FC = () => {
         </div>
 
         <Card 
-          className="glass-card border-white/10 p-0 overflow-auto"
-          style={{ height: '650px' }}
+          className="glass-card border-white/10 p-0"
+          style={{ 
+            height: 'calc(100vh - 240px)', 
+            minHeight: '600px',
+            overflow: 'hidden' 
+          }}
           data-floor-plan
-          onMouseMove={draggedItem ? handleMouseMove : undefined}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
         >
           <div
-            className="relative select-none"
+            className="w-full h-full relative"
+            onMouseMove={draggedItem ? handleMouseMove : undefined}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
             style={{ 
-              transform: `scale(${zoom})`,
-              transformOrigin: '0 0',
-              width: '2000px',
-              height: '1400px'
+              overflow: 'hidden',
+              backgroundColor: 'rgba(0,0,0,0.2)'
             }}
           >
+            {/* Grid background - not affected by zoom */}
             {showGrid && (
               <div 
-                className="absolute pointer-events-none"
+                className="absolute inset-0 pointer-events-none"
                 style={{
-                  top: 0,
-                  left: 0,
-                  width: '2000px',
-                  height: '1400px',
                   backgroundImage: `
-                    linear-gradient(to right, rgba(96, 165, 250, 0.3) 1px, transparent 1px),
-                    linear-gradient(to bottom, rgba(96, 165, 250, 0.3) 1px, transparent 1px)
+                    linear-gradient(to right, rgba(96, 165, 250, 0.25) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(96, 165, 250, 0.25) 1px, transparent 1px)
                   `,
-                  backgroundSize: '50px 50px'
+                  backgroundSize: `${50 * zoom}px ${50 * zoom}px`,
+                  backgroundPosition: `${40 * zoom}px ${40 * zoom}px`,
+                  // Add subtle fade at edges for cleaner look
+                  WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 95%, rgba(0,0,0,0) 100%)',
+                  maskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 95%, rgba(0,0,0,0) 100%)'
                 }}
               />
             )}
 
-            <svg className="absolute inset-0 pointer-events-none" style={{ width: '2000px', height: '1400px' }}>
+            {/* Scaled content container */}
+            <div
+              className="absolute select-none"
+              style={{ 
+                transform: `scale(${zoom})`,
+                transformOrigin: '0 0',
+                width: '100%',
+                height: '100%',
+                padding: '40px'
+              }}
+            >
+            <svg className="absolute inset-0 pointer-events-none" style={{ width: '100%', height: '100%' }}>
               {renderConnections()}
             </svg>
 
@@ -409,7 +475,13 @@ const FloorPlan: React.FC = () => {
                 <div
                   key={rack.id}
                   onMouseDown={(e) => handleMouseDown(rack, 'rack', e)}
-                  onClick={() => navigate(createPageUrl(`RackDetails?id=${rack.id}`))}
+                  onClick={(e) => {
+                    // only navigate if not dragging
+                    if (!isDragging) {
+                      e.stopPropagation();
+                      navigate(`/RackDetails?id=${rack.id}`);
+                    }
+                  }}
                   style={{
                     position: 'absolute',
                     left: pos.x,
@@ -438,6 +510,7 @@ const FloorPlan: React.FC = () => {
                 </div>
               );
             })}
+            </div>
           </div>
         </Card>
 

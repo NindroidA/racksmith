@@ -167,7 +167,7 @@ const TopologyConnectionDialog: React.FC<TopologyConnectionDialogProps> = ({ dev
               </div>
 
               <div className="flex justify-end gap-3 pt-4">
-                <Button type="button" variant="outline" onClick={onClose} className="glass border-white/10 hover:bg-white/10">
+                <Button type="button" variant="outline" onClick={onClose} className="glass border-white/10 hover:bg-white/10 text-white">
                   Cancel
                 </Button>
                 <Button type="submit" className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700">

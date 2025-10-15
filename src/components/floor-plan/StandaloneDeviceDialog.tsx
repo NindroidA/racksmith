@@ -65,7 +65,7 @@ const StandaloneDeviceDialog: React.FC<StandaloneDeviceDialogProps> = ({ device,
             size="sm"
             variant="outline"
             onClick={() => toast.dismiss(t.id)}
-            className="glass-button"
+            className="glass-button text-white border-white/20"
           >
             Cancel
           </Button>
@@ -228,7 +228,7 @@ const StandaloneDeviceDialog: React.FC<StandaloneDeviceDialogProps> = ({ device,
                   </Button>
                 )}
                 <div className="flex gap-3 ml-auto">
-                  <Button type="button" variant="outline" onClick={onClose} className="glass border-white/10 hover:bg-white/10">
+                  <Button type="button" variant="outline" onClick={onClose} className="glass border-white/10 hover:bg-white/10 text-white">
                     Cancel
                   </Button>
                   <Button type="submit" className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700">

@@ -218,7 +218,7 @@ export default function RackBuilder() {
             <Button
               variant="ghost"
               onClick={() => navigate('/racks')}
-              className="text-gray-400 hover:text-white hover:bg-white/10"
+              className="text-white hover:text-white hover:bg-white/10"
             >
               <ArrowLeft className="w-5 h-5 mr-2" />
               Back

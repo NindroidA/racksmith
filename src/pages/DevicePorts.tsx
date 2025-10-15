@@ -356,7 +356,7 @@ const DevicePorts: React.FC = () => {
                     setShowPortEditor(true);
                   }}
                   variant="outline"
-                  className="glass border-white/10 hover:bg-white/10"
+                  className="glass border-white/10 hover:bg-white/10 text-white"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Add Port Manually

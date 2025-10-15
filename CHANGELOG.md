@@ -1,3 +1,16 @@
+# Racksmith v0.2.9
+**Floor Plan Page Updates**:
+- Fixed no data loading on page mount.
+- Fixed navigation bug when clicking devices.
+- Fixed grid section cutting off.
+- Added comprehensive JSDoc comments (courtesy of copilot).
+
+**UI Updates**:
+- Updated some button styles that weren't consistent (some had icons or text that was black when it should be white).
+
+**General Updates**:
+- Updated README to look more profesionally done (most of it courtesy of copilot).
+
 # Racksmith v0.2.8
 - More code cleanup and organization for the recently editted files.
 - (I plan on cleaning all files later).
@@ -20,31 +33,30 @@
 
 # Racksmith v0.2.0-v0.2.4
 Major Features:
-- Visual rack builder with U-position display and device placement
-- Drag-and-drop device installation with water drop ripple effect
-- Bottom-up rack positioning with visual preview highlighting
-- Modern SVG device graphics with gradient styling
-- Blue/purple color palette across all device types
-- Polished Racks page with better card layout
-- Refined NetworkTools with consistent styling
-- Updated Dashboard, DeviceLibrary, and DeviceOptions pages with updated components
+- Visual rack builder with U-position display and device placement.
+- Drag-and-drop device installation with water drop ripple effect.
+- Bottom-up rack positioning with visual preview highlighting.
+- Modern SVG device graphics with gradient styling.
+- Blue/purple color palette across all device types.
+- Polished Racks page with better card layout.
+- Refined NetworkTools with consistent styling.
+- Updated Dashboard, DeviceLibrary, and DeviceOptions pages with updated components.
 
 UI Updates:
-- Enhanced glassmorphism design with gradient backgrounds
-- Improved component alignment and spacing
-- Visual stuff for drag operations
+- Enhanced glassmorphism design with gradient backgrounds.
+- Improved component alignment and spacing.
+- Visual stuff for drag operations.
 
 Component Updates:
-- Redesigned Layout with enhanced sidebar styling
-- Updated RackVisualizer with device graphics and drag-drop
-- Improved DevicePalette with search and drag support
-- 
-- Fixed Select component with proper dropdown icons
-- Fixed alignment issues with Card and Skeleton components
+- Redesigned Layout with enhanced sidebar styling.
+- Updated RackVisualizer with device graphics and drag-drop.
+- Improved DevicePalette with search and drag support.
+- Fixed Select component with proper dropdown icons.
+- Fixed alignment issues with Card and Skeleton components.
 
 Technical Improvements:
-- Fixed rack unit positioning logic (bottom-up)
-- State management for drag operations
+- Fixed rack unit positioning logic (bottom-up).
+- State management for drag operations.
 
 # Racksmith v0.0.2-v0.1.3
 - Added pages, component, and overall structure from AI tool.

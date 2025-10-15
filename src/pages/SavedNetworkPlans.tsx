@@ -174,7 +174,7 @@ const SavedNetworkPlans: React.FC = () => {
                       <div className="flex gap-2">
                         <Button
                           variant="outline"
-                          className="flex-1 glass border-white/10 hover:bg-white/10"
+                          className="flex-1 glass border-white/10 hover:bg-white/10 text-white"
                         >
                           <Eye className="w-4 h-4 mr-2" />
                           View Details
