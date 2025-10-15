@@ -16,6 +16,7 @@ import DeviceOptions from './pages/DeviceOptions';
 import DevicePorts from './pages/DevicePorts';
 import FloorPlan from './pages/FloorPlan';
 import NetworkTools from './pages/NetworkTools';
+import NotFound from './pages/NotFound';
 import RackBuilder from './pages/RackBuilder';
 import RackDetails from './pages/RackDetails';
 import Racks from './pages/Racks';
@@ -64,8 +65,7 @@ function App() {
             </Route>
             
             {/* 404 Fallback */}
-            {/* TODO: make 404 page later */}
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </SidebarProvider>
       </AuthProvider>

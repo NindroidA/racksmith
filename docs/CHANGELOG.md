@@ -1,3 +1,7 @@
+# RackSmith v0.2.11
+**Page Updates**:
+- Added and implemented '404 Not Found' Page that'll appear at any undefined route (instead of just defaulting back to /dashboard).
+
 # RackSmith v0.2.10
 **UI Updates**:
 - Added and implemented 'Sign Out' button (located in the main sidebar).
