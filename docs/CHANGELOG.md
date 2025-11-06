@@ -1,5 +1,4 @@
 # RackSmith v0.4.0 🎉
-**Major Milestone: Core Features Complete!**
 This release marks the completion of all high-priority core functionality. The application now has comprehensive tools for rack design, network planning, and infrastructure management.
 
 ## v0.3.19 - Device Cloning System
