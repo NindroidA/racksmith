@@ -57,7 +57,7 @@ export default function Layout({ children }: LayoutProps) {
 
       {/* Main Sidebar */}
       <aside
-        className="fixed left-0 top-0 bottom-0 w-64 glass-sidebar z-[60] transition-transform duration-300 ease-in-out"
+        className="fixed left-0 top-0 bottom-0 w-64 z-[60] transition-transform duration-300 ease-in-out glass-sidebar"
         style={{ transform: menuSidebarOpen ? 'translateX(0)' : 'translateX(-100%)' }}
       >
         <div className="flex flex-col h-full">

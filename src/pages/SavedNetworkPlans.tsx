@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { BookMarked, Building, Calendar, Eye, Network, Trash2, Users } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
@@ -18,6 +18,10 @@ const SavedNetworkPlans: React.FC = () => {
     setPlans(allPlans);
     setIsLoading(false);
   };
+
+  useEffect(() => {
+    loadPlans();
+  }, []);
 
   const handleDelete = async (planId: string) => {
     if (window.confirm('Delete this network plan?')) {

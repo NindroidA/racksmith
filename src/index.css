@@ -3,6 +3,12 @@
 @tailwind utilities;
 
 @layer base {
+  /* Fix overscroll white background */
+  html {
+    background: #0a0e1a;
+    overflow-x: hidden;
+  }
+  
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
@@ -17,6 +23,14 @@
     animation: gradientShift 20s ease infinite;
     margin: 0;
     padding: 0;
+    min-height: 100vh;
+    overscroll-behavior: none; /* Disable bounce effect */
+  }
+  
+  /* Root element background */
+  #root {
+    min-height: 100vh;
+    background: transparent;
   }
 }
 
@@ -76,6 +90,39 @@
   box-shadow: 
     4px 0 32px 0 rgba(0, 0, 0, 0.5),
     inset -1px 0 0 0 rgba(255, 255, 255, 0.05);
+}
+
+/* Glass sidebar light - Grainy white/silver for main navigation */
+.glass-sidebar-light {
+  background: linear-gradient(180deg, 
+    rgba(240, 240, 245, 0.98) 0%, 
+    rgba(230, 230, 235, 0.99) 100%);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border-right: 1px solid rgba(0, 0, 0, 0.12);
+  box-shadow: 
+    4px 0 32px 0 rgba(0, 0, 0, 0.15),
+    inset -1px 0 0 0 rgba(255, 255, 255, 0.9);
+  /* Add grain texture */
+  position: relative;
+}
+
+.glass-sidebar-light::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+  opacity: 0.3;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.glass-sidebar-light > * {
+  position: relative;
+  z-index: 2;
 }
 
 /* Glass button - Interactive elements */

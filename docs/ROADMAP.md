@@ -48,10 +48,10 @@
 ## 🟢 Lower Priority
 
 ### User Experience
-- [ ] **User Preferences** - Theme customization (dark/light), default settings, view preferences
-- [ ] **Activity Log** - Track all configuration changes with timestamps and user info
-- [ ] **In-app Documentation** - Context-sensitive help, tooltips, guided tours
-- [ ] **Keyboard Shortcuts** - Quick navigation and actions
+- [x] **User Preferences** - Theme customization (dark/light), default settings, view preferences *(v0.4.1)*
+- [x] **Activity Log** - Track all configuration changes with timestamps and user info *(v0.4.2)*
+- [x] **In-app Documentation** - Context-sensitive help, tooltips, guided tours *(v0.4.3)*
+- [x] **Keyboard Shortcuts** - Quick navigation and actions *(v0.4.4)*
 
 ### Additional Features
 - [ ] **Equipment Inventory** - Track hardware lifecycle, warranty info, procurement

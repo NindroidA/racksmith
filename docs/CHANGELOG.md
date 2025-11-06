@@ -1,5 +1,181 @@
+# RackSmith v0.4.5
+**UI/UX Bug Fixes**: Multiple styling and logic improvements for better user experience.
+
+## Bug Fixes
+- **Fixed Overscroll White Background**: Added `overscroll-behavior: none` to body and set html background to match app theme
+- **Fixed Saved Plans Loading**: Added missing `useEffect` hook to load network plans on component mount
+- **Updated Main Sidebar Styling**: Changed main navigation sidebar to grainy white/silver theme with SVG texture overlay
+  - Added `.glass-sidebar-light` class with gradient background
+  - Updated text colors for better contrast
+  - Added grain texture for premium feel
+  - Device sidebars remain dark for better visual distinction
+- **Fixed Floor Plan Issues**:
+  - Corrected connection endpoint calculations for rack cards (adjusted y-offset from 50 to 80)
+  - Fixed dragging calculations to properly account for zoom and padding
+  - Improved drag position clamping to prevent negative coordinates
+
+## Technical Details
+- CSS: Added `overscroll-behavior: none`, `.glass-sidebar-light` with SVG grain filter
+- Components: Fixed `SavedNetworkPlans` loading state, updated `Layout` sidebar styling
+- Floor Plan: Improved drag math for proper positioning at all zoom levels
+
+---
+
+# RackSmith v0.4.1
+**Small Stylings HotFix**: Updated default background to go along with the dark theme (and not seem super out of place when overscroll is visible).
+
 # RackSmith v0.4.0 🎉
 This release marks the completion of all high-priority core functionality. The application now has comprehensive tools for rack design, network planning, and infrastructure management.
+
+## v0.4.4 - Keyboard Shortcuts System
+**Quick Navigation & Actions via Keyboard**:
+- **Comprehensive Shortcut System**: 40+ keyboard shortcuts across all pages
+  - Global shortcuts (save, search, command palette)
+  - Navigation shortcuts (Alt+1-9 for pages)
+  - Rack Builder shortcuts (delete, duplicate, move devices)
+  - Floor Plan shortcuts (rotate, group, pan, zoom)
+  - Editing shortcuts (undo/redo, copy/paste)
+  - View shortcuts (compact view, fullscreen)
+- **Shortcuts Utilities** (`src/utils/keyboardShortcuts.ts`):
+  - `loadShortcuts()`: Load shortcuts from storage
+  - `saveShortcuts()`: Persist custom shortcuts
+  - `updateShortcut()`: Customize key bindings
+  - `toggleShortcut()`: Enable/disable shortcuts
+  - `resetShortcuts()`: Restore defaults
+  - `getShortcutsByCategory()`: Filter by category
+  - `getShortcutsByContext()`: Context-aware shortcuts
+  - `findShortcutByAction()`: Lookup by action
+  - `isKeyCombinationUsed()`: Conflict detection
+  - `formatShortcut()`: Display formatting (Mac/Windows)
+  - `parseKeyEvent()`: Event to key combo
+  - `matchShortcut()`: Event matching
+  - `exportShortcuts()`: Export configuration
+  - `importShortcuts()`: Import configuration
+  - `getShortcutConflicts()`: Detect conflicts
+  - `getShortcutsCheatSheet()`: Generate cheat sheet
+- **Features**:
+  - Platform-aware formatting (⌘ on Mac, Ctrl on Windows)
+  - Customizable shortcuts (where appropriate)
+  - Context-specific shortcuts (only active on relevant pages)
+  - Conflict detection and resolution
+  - Import/export configuration
+
+## v0.4.3 - In-App Documentation System
+**Context-Sensitive Help & Guided Tours**:
+- **Comprehensive Help System**: 8+ detailed help articles
+  - Getting Started guide
+  - Rack creation tutorial
+  - Device management guide
+  - Connection management
+  - Floor plan documentation
+  - Network tools overview
+  - Keyboard shortcuts reference
+  - Troubleshooting guide
+- **Documentation Utilities** (`src/utils/documentation.ts`):
+  - `searchHelpArticles()`: Search help content
+  - `getArticlesByCategory()`: Category filtering
+  - `getArticleById()`: Fetch specific article
+  - `trackArticleView()`: Usage tracking
+  - `getRelatedArticles()`: Related content
+  - `getPopularArticles()`: Most viewed
+  - `getTourById()`: Get guided tour
+  - `completeTour()`: Mark tour complete
+  - `getCompletedTours()`: Track progress
+  - `getAvailableTours()`: Available tours
+  - `getContextHelp()`: Context-sensitive help
+  - `generateTooltips()`: Dynamic tooltips
+- **Guided Tours**:
+  - "Create Your First Rack" tour (8 steps)
+  - "Add Devices to Your Rack" tour (8 steps)
+  - Step-by-step interactive walkthroughs
+  - Progress tracking
+  - Element highlighting
+- **Features**:
+  - Keyword-based search
+  - Category organization
+  - View count tracking
+  - Related articles
+  - Context-aware help suggestions
+  - Interactive tooltips
+
+## v0.4.2 - Activity Log System
+**Configuration Change Tracking**:
+- **Comprehensive Activity Logging**: Track all user actions and changes
+  - Actions: create, update, delete, clone, move, connect, disconnect, import, export
+  - Entity types: rack, device, connection, floor_plan, network_plan, template
+  - Severity levels: info, warning, error, success
+  - Automatic categorization
+- **Activity Log Utilities** (`src/utils/activityLog.ts`):
+  - `logActivity()`: Log any action
+  - `getActivityLogs()`: Retrieve all logs
+  - `filterActivityLogs()`: Advanced filtering
+  - `groupLogsByDate()`: Group by date
+  - `groupLogsByCategory()`: Group by category
+  - `getActivityStats()`: Statistics and analytics
+  - `logDeviceCreate/Update/Delete()`: Device-specific helpers
+  - `logRackCreate/Update()`: Rack-specific helpers
+  - `logConnectionCreate/Delete()`: Connection helpers
+  - `exportActivityLogsCSV()`: Export to CSV
+  - `clearOldLogs()`: Cleanup old entries
+  - `getActivityTimeline()`: Timeline visualization
+  - `searchActivityLogs()`: Advanced search
+- **Features**:
+  - Change tracking with before/after values
+  - Metadata storage for context
+  - Filter by date range, user, action, entity type
+  - Group by date or category
+  - Activity statistics (action counts, most active day)
+  - Timeline visualization (hourly/daily/weekly/monthly)
+  - Search with fuzzy matching
+  - CSV export for analysis
+  - Auto-cleanup of old logs (keep last 1000)
+
+## v0.4.1 - User Preferences System
+**Theme Customization & Default Settings**:
+- **Comprehensive Preferences**: Theme, defaults, views, and notifications
+  - Theme modes: light, dark, auto (system preference)
+  - Color customization (primary, accent)
+  - Font size: small, medium, large
+  - Density: compact, comfortable, spacious
+  - Custom CSS support
+- **Preferences Utilities** (`src/utils/userPreferences.ts`):
+  - `loadPreferences()`: Load from storage
+  - `savePreferences()`: Persist to storage
+  - `updateThemePreferences()`: Update theme
+  - `updateDefaultPreferences()`: Update defaults
+  - `updateViewPreferences()`: Update view settings
+  - `updateNotificationPreferences()`: Update notifications
+  - `resetPreferences()`: Restore defaults
+  - `applyTheme()`: Apply theme to document
+  - `getThemePresets()`: Pre-made themes
+  - `exportPreferences()`: Export as JSON
+  - `importPreferences()`: Import from JSON
+  - `getPreferenceSummary()`: Overview
+  - `validatePreferences()`: Validation
+  - `mergeWithDefaults()`: Merge partial updates
+- **Default Settings**:
+  - Default rack size (42U)
+  - Default rack color tag
+  - Default device manufacturer
+  - Auto-save interval
+  - Confirm delete dialogs
+- **View Preferences**:
+  - Sidebar collapsed state
+  - Show/hide rack labels, U numbers, power usage
+  - Grid vs list view
+  - Items per page
+  - Default sorting
+- **Notification Preferences**:
+  - Enable/disable notifications
+  - Toast position
+  - Sound alerts
+  - Severity filtering
+- **Theme Presets**:
+  - Ocean Blue (professional blue)
+  - Purple Haze (creative purple)
+  - Forest Green (natural green)
+  - Sunset Orange (warm orange)
+  - Light Mode (clean light)
 
 ## v0.3.19 - Device Cloning System
 **Advanced Device & Rack Duplication**:

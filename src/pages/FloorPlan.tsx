@@ -156,8 +156,10 @@ const FloorPlan: React.FC = () => {
     
     const container = e.currentTarget.getBoundingClientRect();
     const padding = 40; // match the padding in the styled div
-    const x = Math.max(padding, (e.clientX - container.left) / zoom - dragOffset.x);
-    const y = Math.max(padding, (e.clientY - container.top) / zoom - dragOffset.y);
+    
+    // Calculate position relative to the zoomed content
+    const x = Math.max(0, (e.clientX - container.left - padding * zoom) / zoom - dragOffset.x);
+    const y = Math.max(0, (e.clientY - container.top - padding * zoom) / zoom - dragOffset.y);
 
     if (draggedItem.type === 'standalone') {
       setStandaloneDevices(prev => prev.map(d =>
@@ -216,7 +218,7 @@ const FloorPlan: React.FC = () => {
         if (sourceDev) sourcePos = { x: (sourceDev.x_position || 0) + 48, y: (sourceDev.y_position || 0) + 48 };
       } else {
         const rackPos = rackPositions[conn.source_device_id];
-        if (rackPos) sourcePos = { x: rackPos.x + 90, y: rackPos.y + 50 };
+        if (rackPos) sourcePos = { x: rackPos.x + 90, y: rackPos.y + 80 };
       }
       
       if (conn.destination_type === 'standalone') {
@@ -224,7 +226,7 @@ const FloorPlan: React.FC = () => {
         if (destDev) destPos = { x: (destDev.x_position || 0) + 48, y: (destDev.y_position || 0) + 48 };
       } else {
         const rackPos = rackPositions[conn.destination_device_id];
-        if (rackPos) destPos = { x: rackPos.x + 90, y: rackPos.y + 50 };
+        if (rackPos) destPos = { x: rackPos.x + 90, y: rackPos.y + 80 };
       }
       
       if (!sourcePos || !destPos) return null;
