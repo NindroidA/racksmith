@@ -1,8 +1,10 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { BarChart3, Cable, Database, Power, Server, Shield, Wifi, Zap } from 'lucide-react';
+import { AlertTriangle, BarChart3, Cable, Database, Power, Server, Shield, Wifi, Zap } from 'lucide-react';
 import React, { useState } from 'react';
+import toast from 'react-hot-toast';
 import { DropEffect, RackVisualizerProps } from '../../types/components';
 import { Device } from '../../types/entities';
+import { validateDevicePlacement, calculateRackUtilization } from '../../utils/validators';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 
 const deviceTypeColors = {
@@ -38,36 +40,52 @@ const RackVisualizer: React.FC<RackVisualizerProps> = ({ rackSize, devices, sele
   const [draggedDevice, setDraggedDevice] = useState<Device | null>(null);
   const [dragOverUnit, setDragOverUnit] = useState<number | null>(null);
   const [dropEffects, setDropEffects] = useState<DropEffect[]>([]);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   const rackUnits = Array.from({ length: rackSize }, (_, i) => rackSize - i);
   
-  const isUnitOccupied = (unitNumber) => {
+  // Calculate rack utilization with warnings
+  const utilization = calculateRackUtilization(
+    { id: '', name: '', size_u: rackSize, location: '', color_tag: (colorTag as any) || 'blue' },
+    devices
+  );
+  
+  const isUnitOccupied = (unitNumber: number) => {
     return devices.find(device => {
-      const deviceEnd = device.position_u + device.size_u - 1;
-      return unitNumber >= device.position_u && unitNumber <= deviceEnd;
+      const deviceEnd = (device.position_u || 0) + device.size_u - 1;
+      return unitNumber >= (device.position_u || 0) && unitNumber <= deviceEnd;
     });
   };
 
-  const getDeviceAtUnit = (unitNumber) => {
+  const getDeviceAtUnit = (unitNumber: number) => {
     return devices.find(device => device.position_u === unitNumber);
   };
 
-  const canPlaceDevice = (device, targetUnit) => {
-    if (targetUnit < 1 || targetUnit + device.size_u - 1 > rackSize) return false;
+  const canPlaceDevice = (device: Device, targetUnit: number) => {
+    // Use validation utility for comprehensive checking
+    const validation = validateDevicePlacement(
+      device,
+      targetUnit,
+      { id: '', name: '', size_u: rackSize, location: '', color_tag: (colorTag as any) || 'blue' },
+      devices
+    );
     
-    for (let u = targetUnit; u < targetUnit + device.size_u; u++) {
-      const occupant = isUnitOccupied(u);
-      if (occupant && occupant.id !== device.id) return false;
+    if (!validation.isValid) {
+      setValidationError(validation.errors[0] || 'Cannot place device here');
+      return false;
     }
+    
+    setValidationError(null);
     return true;
   };
 
-  const handleDragStart = (device, e) => {
+  const handleDragStart = (device: Device, e: React.DragEvent) => {
     setDraggedDevice(device);
     e.dataTransfer.effectAllowed = 'move';
+    setValidationError(null);
   };
 
-  const handleDragOver = (unit, e) => {
+  const handleDragOver = (unit: number, e: React.DragEvent) => {
     e.preventDefault();
     if (!draggedDevice) return;
     
@@ -80,13 +98,25 @@ const RackVisualizer: React.FC<RackVisualizerProps> = ({ rackSize, devices, sele
     }
   };
 
-  const handleDrop = (unit, e) => {
+  const handleDrop = (unit: number, e: React.DragEvent) => {
     e.preventDefault();
-    if (!draggedDevice || !canPlaceDevice(draggedDevice, unit)) return;
+    if (!draggedDevice) return;
+    
+    if (!canPlaceDevice(draggedDevice, unit)) {
+      if (validationError) {
+        toast.error(validationError);
+      }
+      setDraggedDevice(null);
+      setDragOverUnit(null);
+      return;
+    }
     
     onDeviceMove(draggedDevice.id, unit);
     
-    // create multiple ripples for water drop effect
+    // Show success toast with validation info
+    toast.success(`${draggedDevice.name} moved to ${unit}U`);
+    
+    // Create multiple ripples for water drop effect
     const newEffects = [
       { id: Date.now(), unit, delay: 0 },
       { id: Date.now() + 1, unit, delay: 0.15 },
@@ -100,6 +130,7 @@ const RackVisualizer: React.FC<RackVisualizerProps> = ({ rackSize, devices, sele
     
     setDraggedDevice(null);
     setDragOverUnit(null);
+    setValidationError(null);
   };
 
   const handleDragEnd = () => {
@@ -110,10 +141,29 @@ const RackVisualizer: React.FC<RackVisualizerProps> = ({ rackSize, devices, sele
   return (
     <Card className="glass-card border-white/10 overflow-hidden">
       <CardHeader className="border-b border-white/10">
-        <CardTitle className="text-white flex items-center gap-2">
-          <Server className="w-5 h-5" />
-          Rack Layout ({rackSize}U)
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-white flex items-center gap-2">
+            <Server className="w-5 h-5" />
+            Rack Layout ({rackSize}U)
+          </CardTitle>
+          <div className="flex items-center gap-4">
+            {utilization.percentage >= 80 && (
+              <div className="flex items-center gap-1 text-amber-400 text-sm">
+                <AlertTriangle className="w-4 h-4" />
+                <span>{utilization.percentage.toFixed(0)}% Full</span>
+              </div>
+            )}
+            <div className="text-sm text-white/60">
+              {utilization.usedUnits}U / {rackSize}U used
+            </div>
+          </div>
+        </div>
+        {validationError && (
+          <div className="mt-2 px-3 py-2 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4" />
+            <span>{validationError}</span>
+          </div>
+        )}
       </CardHeader>
       <CardContent className="p-6">
         <div className="space-y-1 max-h-[700px] overflow-y-auto custom-scrollbar pr-2">
@@ -132,29 +182,12 @@ const RackVisualizer: React.FC<RackVisualizerProps> = ({ rackSize, devices, sele
                 const DeviceIcon = deviceTypeIcons[device.device_type] || Server;
                 
                 return (
-                  <motion.div
+                  <div
                     key={device.id}
                     draggable
                     onDragStart={(e) => handleDragStart(device, e)}
                     onDragEnd={handleDragEnd}
                     onClick={() => onDeviceSelect(device)}
-                    initial={{ opacity: 0, scale: 0.9, y: -20 }}
-                    animate={{ 
-                      opacity: isDraggingThis ? 0.4 : 1, 
-                      scale: isDraggingThis ? 0.95 : 1,
-                      y: 0
-                    }}
-                    exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                    transition={{ 
-                      type: 'spring', 
-                      stiffness: 400, 
-                      damping: 25,
-                      opacity: { duration: 0.2 }
-                    }}
-                    whileHover={{ 
-                      scale: isDraggingThis ? 0.95 : 1.02,
-                      transition: { duration: 0.2 }
-                    }}
                     className={`relative cursor-move ${
                       isSelected ? 'ring-2 ring-fuchsia-500/50 glow z-10' : ''
                     }`}
@@ -210,7 +243,7 @@ const RackVisualizer: React.FC<RackVisualizerProps> = ({ rackSize, devices, sele
                         </div>
                       </div>
                     </div>
-                  </motion.div>
+                  </div>
                 );
               }
               
