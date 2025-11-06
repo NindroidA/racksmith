@@ -1,4 +1,4 @@
-import { Edit, Eye, Plus, Search, Server, Trash2 } from 'lucide-react';
+import { Download, Edit, Eye, Plus, Search, Server, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
@@ -6,12 +6,14 @@ import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { Input } from '../components/ui/input';
 import { Skeleton } from '../components/ui/skeleton';
-import { RackConfigurationService } from '../services/api';
-import { RackConfiguration } from '../types/entities';
+import { DeviceService, RackConfigurationService } from '../services/api';
+import { Device, RackConfiguration } from '../types/entities';
+import { downloadAllRacks } from '../utils/exportUtils';
 
 export default function Racks() {
   const navigate = useNavigate();
   const [racks, setRacks] = useState<RackConfiguration[]>([]);
+  const [devices, setDevices] = useState<Device[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
@@ -21,8 +23,12 @@ export default function Racks() {
 
   const loadRacks = async () => {
     try {
-      const data = await RackConfigurationService.list();
-      setRacks(data);
+      const [racksData, devicesData] = await Promise.all([
+        RackConfigurationService.list(),
+        DeviceService.list()
+      ]);
+      setRacks(racksData);
+      setDevices(devicesData);
     } catch (error) {
       toast.error('Failed to load racks');
     } finally {
@@ -39,6 +45,15 @@ export default function Racks() {
       toast.success('Rack deleted');
     } catch (error) {
       toast.error('Failed to delete rack');
+    }
+  };
+
+  const handleExportAll = (format: 'json' | 'csv') => {
+    try {
+      downloadAllRacks(racks, devices, format);
+      toast.success(`Exported ${racks.length} rack${racks.length !== 1 ? 's' : ''} as ${format.toUpperCase()}`);
+    } catch (error) {
+      toast.error('Failed to export racks');
     }
   };
 
@@ -77,10 +92,32 @@ export default function Racks() {
             <h1 className="text-3xl font-bold text-white mb-2">Rack Configurations</h1>
             <p className="text-gray-400">Manage all your rack configurations in one place</p>
           </div>
-          <Button onClick={() => navigate('/racks/new')} className="bg-gradient-to-r from-blue-500 to-purple-600">
-            <Plus className="w-4 h-4 mr-2" />
-            New Rack Configuration
-          </Button>
+          <div className="flex gap-3">
+            {racks.length > 0 && (
+              <div className="flex gap-2">
+                <Button 
+                  onClick={() => handleExportAll('json')} 
+                  variant="ghost"
+                  className="glass-button text-white hover:bg-white/10"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Export JSON
+                </Button>
+                <Button 
+                  onClick={() => handleExportAll('csv')} 
+                  variant="ghost"
+                  className="glass-button text-white hover:bg-white/10"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Export CSV
+                </Button>
+              </div>
+            )}
+            <Button onClick={() => navigate('/racks/new')} className="bg-gradient-to-r from-blue-500 to-purple-600">
+              <Plus className="w-4 h-4 mr-2" />
+              New Rack Configuration
+            </Button>
+          </div>
         </div>
 
         <div className="mb-6">

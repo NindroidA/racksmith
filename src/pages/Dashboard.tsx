@@ -1,4 +1,4 @@
-import { Activity, Eye, HardDrive, Plus, Server, TrendingUp, Zap } from 'lucide-react';
+import { Activity, Edit, Eye, HardDrive, Plus, Server, Trash2, TrendingUp, Zap } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
@@ -56,6 +56,22 @@ export default function Dashboard() {
     }
   };
 
+  const handleDeleteRack = async (id: string, name: string) => {
+    if (!confirm(`Are you sure you want to delete "${name}"?`)) return;
+    
+    try {
+      await RackConfigurationService.delete(id);
+      setRacks(racks.filter(r => r.id !== id));
+      toast.success('Rack deleted successfully');
+      
+      // Recalculate stats
+      loadData();
+    } catch (error) {
+      console.error('Failed to delete rack:', error);
+      toast.error('Failed to delete rack');
+    }
+  };
+
   const colorMap: Record<string, string> = {
     blue: 'from-blue-500 to-blue-600',
     purple: 'from-purple-500 to-purple-600',
@@ -69,9 +85,27 @@ export default function Dashboard() {
     <div className="p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">Infrastructure Overview</h1>
-          <p className="text-gray-400">Manage your network hardware and rack configurations</p>
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-4xl font-bold text-white mb-2">Infrastructure Overview</h1>
+            <p className="text-gray-400">Manage your network hardware and rack configurations</p>
+          </div>
+          <div className="flex gap-3">
+            <Button 
+              onClick={() => navigate('/device-library')}
+              className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add Device
+            </Button>
+            <Button 
+              onClick={() => navigate('/racks/new')}
+              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              New Rack
+            </Button>
+          </div>
         </div>
 
         {/* Stats Grid */}
@@ -223,15 +257,33 @@ export default function Dashboard() {
                         </div>
                       </div>
 
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => navigate(`/racks/${rack.id}`)}
-                        className="w-full glass-button text-white hover:bg-white/10"
-                      >
-                        <Eye className="w-4 h-4 mr-2" />
-                        View Details
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => navigate(`/racks/${rack.id}`)}
+                          className="flex-1 glass-button text-white hover:bg-white/10"
+                        >
+                          <Eye className="w-4 h-4 mr-2" />
+                          View
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => navigate(`/racks/${rack.id}/edit`)}
+                          className="glass-button text-white hover:bg-white/10"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleDeleteRack(rack.id, rack.name)}
+                          className="glass-button text-red-400 hover:bg-red-500/20"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </CardContent>
                   </Card>
                 );

@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion';
 import { Save, X } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
+import { CustomDeviceService } from '../../services/api';
 import { CustomDeviceDialogProps } from '../../types/components';
 import { CustomDevice } from '../../types/entities';
 import { Button } from '../ui/button';
@@ -21,14 +23,60 @@ const CustomDeviceDialog: React.FC<CustomDeviceDialogProps> = ({ device, onSave,
     power_watts: 0,
     description: ''
   });
+  const [isSaving, setIsSaving] = useState(false);
+  const isEditing = !!device;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Load device data if editing
+  useEffect(() => {
+    if (device) {
+      setFormData({
+        name: device.name,
+        manufacturer: device.manufacturer,
+        model: device.model,
+        device_type: device.device_type,
+        size_u: device.size_u,
+        port_count: device.port_count || 0,
+        power_watts: device.power_watts || 0,
+        description: device.description || '',
+      });
+    }
+  }, [device]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.manufacturer) {
-      alert('Please fill in all required fields');
+    
+    // Validation
+    if (!formData.name.trim()) {
+      toast.error('Device name is required');
       return;
     }
-    onSave(formData);
+    if (!formData.manufacturer.trim()) {
+      toast.error('Manufacturer is required');
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      let savedDevice: CustomDevice;
+      
+      if (isEditing && device?.id) {
+        // Update existing device
+        savedDevice = await CustomDeviceService.update(device.id, formData);
+        toast.success('Device updated successfully');
+      } else {
+        // Create new device
+        savedDevice = await CustomDeviceService.create(formData);
+        toast.success('Device created successfully');
+      }
+      
+      onSave(savedDevice);
+      onClose();
+    } catch (error) {
+      console.error('Failed to save device:', error);
+      toast.error(isEditing ? 'Failed to update device' : 'Failed to create device');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -41,10 +89,15 @@ const CustomDeviceDialog: React.FC<CustomDeviceDialogProps> = ({ device, onSave,
       >
         <Card className="glass-card border-white/10">
           <CardHeader className="flex flex-row items-center justify-between border-b border-white/10">
-            <CardTitle className="text-white">
-              {device ? 'Edit Custom Device' : 'Add Custom Device'}
-            </CardTitle>
-            <Button variant="ghost" size="icon" onClick={onClose} className="hover:bg-white/10">
+            <div>
+              <CardTitle className="text-white">
+                {isEditing ? 'Edit Custom Device' : 'Add Custom Device'}
+              </CardTitle>
+              <p className="text-sm text-gray-400 mt-1">
+                {isEditing ? 'Update device information' : 'Create a new custom device for your library'}
+              </p>
+            </div>
+            <Button variant="ghost" size="icon" onClick={onClose} disabled={isSaving} className="hover:bg-white/10">
               <X className="w-5 h-5" />
             </Button>
           </CardHeader>
@@ -157,13 +210,23 @@ const CustomDeviceDialog: React.FC<CustomDeviceDialogProps> = ({ device, onSave,
                 />
               </div>
 
-              <div className="flex justify-end gap-3 pt-4">
-                <Button type="button" variant="outline" onClick={onClose} className="glass border-white/10 hover:bg-white/10">
+              <div className="flex justify-end gap-3 pt-4 border-t border-white/10 mt-6">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={onClose} 
+                  disabled={isSaving}
+                  className="glass border-white/10 hover:bg-white/10"
+                >
                   Cancel
                 </Button>
-                <Button type="submit" className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700">
+                <Button 
+                  type="submit" 
+                  disabled={isSaving}
+                  className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
+                >
                   <Save className="w-4 h-4 mr-2" />
-                  Save Device
+                  {isSaving ? 'Saving...' : isEditing ? 'Update Device' : 'Create Device'}
                 </Button>
               </div>
             </form>

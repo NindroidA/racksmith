@@ -7,7 +7,12 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react()],
     server: {
-      port: 3000
+      port: 5173
     },
+    define: {
+      // Expose environment variables without VITE_ prefix
+      'import.meta.env.RELEASE': JSON.stringify(env.RELEASE || 'dev'),
+      'import.meta.env.API_URL': JSON.stringify(env.API_URL || 'http://localhost:3000/api'),
+    }
   };
 });

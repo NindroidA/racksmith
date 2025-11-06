@@ -1,10 +1,9 @@
-import packageJson from '../../package.json';
-
-const version = packageJson.version;
+import config from '../config/env';
 
 /**
  * Global footer component displaying developer info and version.
  * Apple-style glassmorphic design with frosted glass effect.
+ * Version is automatically pulled from package.json via config.
  */
 export default function Footer() {
   return (
@@ -25,7 +24,7 @@ export default function Footer() {
           }}
         >
           <p className="text-center text-base text-gray-200">
-            ⚒️ Developed by{' '}
+            Developed by{' '}
             <span 
               className="font-semibold"
               style={{
@@ -39,7 +38,7 @@ export default function Footer() {
             </span>
             {' '} • {' '}
             <span className="text-white">Version</span>{' '}
-            <span className="font-medium gradient-text">v{version}</span>
+            <span className="font-medium gradient-text">v{config.version}</span>
           </p>
         </div>
       </div>

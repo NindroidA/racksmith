@@ -1,6 +1,7 @@
 import { Edit, HardDrive, Network, Plus, Server, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import CustomDeviceDialog from '../components/device-library/CustomDeviceDialog';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { Skeleton } from '../components/ui/skeleton';
@@ -82,6 +83,8 @@ export default function DeviceLibrary() {
   const [activeTab, setActiveTab] = useState('Custom Devices');
   const [customDevices, setCustomDevices] = useState<CustomDevice[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showDialog, setShowDialog] = useState(false);
+  const [editingDevice, setEditingDevice] = useState<CustomDevice | null>(null);
 
   useEffect(() => {
     loadCustomDevices();
@@ -109,6 +112,31 @@ export default function DeviceLibrary() {
     } catch (error) {
       toast.error('Failed to delete device');
     }
+  };
+
+  const handleEdit = (device: CustomDevice) => {
+    setEditingDevice(device);
+    setShowDialog(true);
+  };
+
+  const handleCreate = () => {
+    setEditingDevice(null);
+    setShowDialog(true);
+  };
+
+  const handleSave = (device: CustomDevice) => {
+    if (editingDevice) {
+      // Update existing device in list
+      setCustomDevices(customDevices.map(d => d.id === device.id ? device : d));
+    } else {
+      // Add new device to list
+      setCustomDevices([device, ...customDevices]);
+    }
+  };
+
+  const handleCloseDialog = () => {
+    setShowDialog(false);
+    setEditingDevice(null);
   };
 
   const getDeviceIcon = (type: string) => {
@@ -165,7 +193,7 @@ export default function DeviceLibrary() {
               </div>
             </div>
             <Button 
-              onClick={() => toast('Add Custom Device feature coming soon!', { icon: '💡' })}
+              onClick={handleCreate}
               className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
             >
               <Plus className="w-4 h-4 mr-2" />
@@ -224,7 +252,7 @@ export default function DeviceLibrary() {
             <h3 className="text-2xl font-bold text-white mb-2">No Custom Devices Yet</h3>
             <p className="text-gray-400 mb-6">Create your first custom device to get started</p>
             <Button 
-              onClick={() => toast('Add Custom Device feature coming soon!', { icon: '💡' })}
+              onClick={handleCreate}
               className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
             >
               <Plus className="w-4 h-4 mr-2" />
@@ -280,7 +308,7 @@ export default function DeviceLibrary() {
                             variant="ghost"
                             size="sm"
                             className="h-8 w-8 p-0 text-gray-400 hover:text-white hover:bg-white/10"
-                            onClick={() => toast('Edit feature coming soon!', { icon: '✏️' })}
+                            onClick={() => handleEdit(device)}
                           >
                             <Edit className="w-4 h-4" />
                           </Button>
@@ -302,6 +330,15 @@ export default function DeviceLibrary() {
           </div>
         )}
       </div>
+
+      {/* Custom Device Dialog */}
+      {showDialog && (
+        <CustomDeviceDialog
+          device={editingDevice}
+          onSave={handleSave}
+          onClose={handleCloseDialog}
+        />
+      )}
     </div>
   );
 }

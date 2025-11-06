@@ -1,5 +1,5 @@
-import { ReactNode } from "react";
-import { Connection, CustomDevice, Device, Port, RackConfiguration, StandaloneDevice } from "./entities";
+import { ReactNode } from 'react';
+import { Connection, CustomDevice, Device, Port, RackConfiguration, StandaloneDevice } from './entities';
 
 // ===== dashboard ===== //
 export interface RackListProps {
@@ -19,8 +19,8 @@ export interface StatsGridProps {
 
 // ===== device-library ===== //
 export interface CustomDeviceDialogProps {
-  device?: CustomDevice;
-  onSave: (deviceData: Omit<CustomDevice, 'id'>) => Promise<void>;
+  device?: CustomDevice | null;
+  onSave: (device: CustomDevice) => void;
   onClose: () => void;
 }
 
@@ -162,7 +162,7 @@ export interface RackVisualizerProps {
   onDeviceClick: (device: Device) => void;
   onDeviceRemove: (deviceId: string) => void;
   onPositionClick: (positionU: number) => void;
-  onDeviceDrop: (position: number, device: any, isMoving?: boolean) => void;
+  onDeviceDrop: (position: number, device: Device | CustomDevice, isMoving?: boolean) => void;
   selectedPosition: number | null;
   draggedDeviceSize?: number;
 }

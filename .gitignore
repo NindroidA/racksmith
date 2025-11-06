@@ -28,6 +28,7 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # environment variable files
 .env
+.env.local
 
 # project shtuff
 private

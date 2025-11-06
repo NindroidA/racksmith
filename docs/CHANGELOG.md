@@ -1,3 +1,85 @@
+# RackSmith v0.3.3
+**Data Export/Import System**:
+- **Complete data export and import functionality**
+  - Export individual racks as JSON or CSV
+  - Export all racks with devices
+  - Export device library as CSV
+  - Generate text-based ASCII rack diagrams
+  - Import rack configurations from JSON
+  - Automatic file naming with timestamps
+  - Summary metadata in exports
+- **Added export buttons to Racks page**
+  - Export JSON and Export CSV buttons
+  - Toast notifications for successful exports
+  - Smart file naming: `rack_{name}_{date}.json`
+
+**Technical Additions**:
+- Created `src/utils/exportUtils.ts` with 9 export/import functions
+- Added download utilities for browser file downloads
+- CSV and JSON serialization for rack/device data
+
+# RackSmith v0.3.2
+**Real-time Validation System**:
+- **Comprehensive validation utilities** (`src/utils/validators.ts`)
+  - Device placement validation with collision detection
+  - Rack capacity validation with utilization warnings (75%, 90%, 100%)
+  - Port configuration validation (duplicate detection)
+  - IP address format and conflict validation
+  - Subnet mask validation (all standard masks)
+  - VLAN ID validation (1-4094 range)
+  - Private IP range detection
+
+**Validation Functions**:
+- `validateDevicePlacement()` - Collision detection and bounds checking
+- `validateRackCapacity()` - Capacity warnings and power monitoring
+- `calculateRackUtilization()` - Utilization calculations
+- `validatePortConfiguration()` - Duplicate port detection
+- `validateIPAddress()` - IPv4 format validation
+- `validateSubnetMask()` - Standard mask validation
+- `validateIPConflicts()` - Duplicate IP prevention
+- `validateVLANId()` - VLAN range validation
+
+**Use Cases**:
+- Prevent device placement conflicts in rack builder
+- Warn about approaching capacity limits
+- Validate network configurations in network tools
+- Ensure data integrity across the application
+
+# RackSmith v0.3.1
+**Dashboard Quick Actions**:
+- **Enhanced dashboard with rack management capabilities**
+  - Added quick action buttons (Add Device, New Rack) to header
+  - Added edit/delete buttons to rack cards
+  - View, edit, or delete racks directly from dashboard
+  - Auto-refresh stats after rack deletion
+
+**Improvements**:
+- Streamlined workflow - no need to navigate away for basic operations
+- Delete confirmation dialogs
+- Real-time stat updates after operations
+- Better user experience with immediate feedback
+
+# RackSmith v0.3.0
+**Device Library - Full CRUD Operations**:
+- **Complete Create, Read, Update, Delete functionality for custom devices**
+  - Create custom devices with full validation
+  - Edit existing custom devices
+  - Delete custom devices with confirmation
+  - Real-time API integration with toast notifications
+  - Improved CustomDeviceDialog component with proper state management
+
+**Configuration Updates**:
+- Centralized version management - now auto-imported from package.json
+- Added environment configuration utility (`src/config/env.ts`) with dev/prod mode helpers
+- Updated Vite config to expose custom env vars without prefix requirement
+- Footer component now uses centralized config for automatic version display
+
+**Backend Preparation**:
+- Created comprehensive API requirements documentation for backend integration
+- Implemented environment-based authentication system (dev mode bypasses auth, prod enforces)
+- Updated AuthContext to support both mock data (dev) and real API calls (prod)
+- Configured CORS requirements and JWT token system specifications
+
 # RackSmith v0.2.11
 **Page Updates**:
 - Added and implemented '404 Not Found' Page that'll appear at any undefined route (instead of just defaulting back to /dashboard).
