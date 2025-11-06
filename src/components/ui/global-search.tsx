@@ -1,5 +1,5 @@
-import { Search, X, Server, Cable, Network, Settings, Filter } from 'lucide-react';
-import React, { useState, useEffect, useRef } from 'react';
+import { Cable, Filter, Network, Search, Server, Settings, X } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Device, RackConfiguration } from '../../types/entities';
 

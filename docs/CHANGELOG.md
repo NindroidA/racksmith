@@ -1,3 +1,216 @@
+# RackSmith v0.4.0 🎉
+**Major Milestone: Core Features Complete!**
+This release marks the completion of all high-priority core functionality. The application now has comprehensive tools for rack design, network planning, and infrastructure management.
+
+## v0.3.19 - Device Cloning System
+**Advanced Device & Rack Duplication**:
+- **Device Cloning**: Duplicate individual devices with customizable options
+  - Clone with connections and ports
+  - Customizable naming patterns ({original}, {num})
+  - Position offset support
+  - Preserve or auto-assign positions
+- **Cloning Utilities** (`src/utils/deviceCloning.ts`):
+  - `cloneDevice()`: Clone single device with options
+  - `cloneMultipleDevices()`: Batch clone operations
+  - `cloneDeviceWithConnections()`: Clone with connection mapping
+  - `cloneDeviceWithPorts()`: Clone with port configurations
+  - `cloneRack()`: Duplicate entire racks
+  - `cloneRackWithConnections()`: Clone racks with connection remapping
+  - `batchCloneDevices()`: Batch clone to specific positions
+  - `cloneDeviceWithIncrement()`: Auto-increment naming (Device01 → Device02)
+  - `mirrorDevice()`: Mirror to another rack
+  - `createHAPair()`: Generate HA pairs (Primary/Secondary)
+  - `validateClone()`: Pre-clone validation
+  - `getCloneSummary()`: Clone operation statistics
+- **Smart Features**:
+  - ID remapping for connections (maintains relationships)
+  - Collision detection before cloning
+  - Auto-increment model/name numbers
+  - HA pair generation with configurable suffixes
+  - Port status reset to 'available' on clone
+
+## v0.3.18 - Advanced Search & Filtering
+**Global Search Across All Data Types**:
+- **Multi-Type Search**: Search racks, devices, connections, ports, custom devices, network plans
+  - Relevance scoring (exact match: 100pts, name match: 50pts, field match: 10pts)
+  - Matched field highlighting
+  - Type-based grouping
+  - Suggestions based on partial matches
+- **Search Utilities** (`src/utils/advancedSearch.ts`):
+  - `globalSearch()`: Search across all data types
+  - `advancedSearch()`: Query with filters and sorting
+  - `sortSearchResults()`: Sort by relevance/name/type/date
+  - `applyFilters()`: Multi-criteria filtering
+  - `groupResultsByType()`: Group by data type
+  - `getSearchSuggestions()`: Auto-complete suggestions
+  - `highlightMatches()`: Highlight matched text
+  - `getFilterStats()`: Filter statistics
+  - `saveSearchQuery()`: Search history tracking
+  - `exportSearchResultsCSV()`: Export to CSV
+- **Advanced Filters**:
+  - Filter by types (rack/device/connection/etc.)
+  - Manufacturer filtering
+  - Device type filtering
+  - Rack-specific filtering
+  - Size range (minSizeU, maxSizeU)
+  - Power range (minPowerWatts, maxPowerWatts)
+  - Has notes filter
+  - Date range filtering
+- **Search Results**:
+  - Relevance score calculation
+  - Matched fields tracking
+  - Metadata preservation
+  - CSV export support
+  - Group by type/filter stats
+
+## v0.3.17 - Enhanced Rack Visualizer
+**Advanced Drag-and-Drop with Precision Placement**:
+- **Collision Detection**: Real-time collision checking during drag operations
+  - Visual feedback (green for valid, red for collision)
+  - Collidding device identification
+  - Available space calculation
+- **Visualizer Utilities** (`src/utils/rackVisualizerEnhanced.ts`):
+  - `calculateUPositionFromMouse()`: Mouse to U position conversion
+  - `calculateYFromUPosition()`: U position to Y coordinate
+  - `snapToUPosition()`: Snap to nearest valid position
+  - `detectCollision()`: Real-time collision detection
+  - `findAvailableSpaces()`: Find all open rack spaces
+  - `findNearestAvailablePosition()`: Smart positioning
+  - `generateSnapGuides()`: Visual alignment guides
+  - `validateDropZone()`: Drop zone validation
+  - `getDropZoneColor()`: Visual feedback colors
+  - `compactDevices()`: Auto-arrange to eliminate gaps
+  - `distributeDevicesEvenly()`: Even distribution across rack
+  - `calculateRackUtilization()`: Usage percentage with efficiency rating
+  - `suggestOptimalPlacement()`: AI suggestions (top/bottom/center/compact)
+  - `generateDragGhost()`: Drag preview generation
+- **Smart Features**:
+  - Auto-snap to U positions
+  - Rack boundary enforcement
+  - Available space finder with contiguous detection
+  - Compact mode (eliminate gaps)
+  - Even distribution mode
+  - Utilization tracking (low/optimal/high/critical)
+  - Optimal placement suggestions
+  - Snap guides for alignment
+
+## v0.3.16 - Bulk Operations Enhancement
+**Note**: Bulk operations utilities already existed from v0.3.7, but were enhanced with additional validations and error handling.
+
+# RackSmith v0.3.15
+**Favorites & Bookmarks System**:
+- **Quick Access**: Manage frequently used items for easy retrieval
+  - Favorite racks, devices, network plans, NAS configs, and floor plans
+  - Pin important items to the top
+  - Track access counts and patterns
+  - Recent items history with auto-cleanup
+- **Favorites Utilities** (`src/utils/favorites.ts`):
+  - `addToFavorites()`: Add items to favorites
+  - `removeFromFavorites()`: Remove favorites
+  - `togglePin()`: Pin/unpin items
+  - `recordAccess()`: Track usage patterns
+  - `sortFavorites()`: Sort by name, date, usage, or type
+  - `filterByType()`: Filter by item type
+  - `filterByCategory()`: Filter by category
+  - `searchFavorites()`: Search by name/tags
+  - `createCategory()`: Create custom categories
+  - `getFavoriteStats()`: Usage statistics
+  - `suggestFavorites()`: AI suggestions based on usage
+  - `generateQuickAccessMenu()`: Build quick access menu
+- **Organization Features**:
+  - Custom categories with colors and icons
+  - Tag-based organization (bulk add/remove)
+  - Export/import favorites as JSON
+  - Smart suggestions based on access patterns (3+ accesses)
+  - Statistics: total, by type, pinned count, most accessed
+  - Recent items tracking (configurable max items)
+
+# RackSmith v0.3.14
+**Cable Management System**:
+- **Cable Labeling**: Professional cable identification system
+  - Structured format (RACK-DEVICE-PORT)
+  - Simple format (DEVICE:PORT)
+  - Custom template support
+  - CSV export for label printing
+- **Cable Management Utilities** (`src/utils/cableManagement.ts`):
+  - `generateCableLabel()`: Create structured labels
+  - `calculateCableLength()`: Calculate with path segments
+  - `createPatchPanel()`: Configure patch panels (24/48/96 ports)
+  - `mapToPatchPanel()`: Map devices to ports
+  - `getAvailablePorts()`: Find free ports
+  - `generateCableReport()`: Summary report
+  - `generateCableSchedule()`: Spreadsheet-ready schedule
+  - `calculateCableInventory()`: BOM generation
+  - `suggestCableColors()`: Color coding by VLAN/type
+  - `validateCableCompatibility()`: Port compatibility check
+  - `generatePatchPanelMap()`: Port mapping documentation
+- **Length Calculation**:
+  - Vertical/horizontal path segments
+  - Service loop allowance (10%)
+  - Path types (direct, overhead, underfloor)
+  - Slack allowance (10% additional)
+- **Color Suggestions**:
+  - VLAN-based: Management (Blue), User (Green), Guest (Yellow), IoT (Orange)
+  - Type-based: Fiber (Yellow), Power (Black), High-speed (Blue)
+
+# RackSmith v0.3.13
+**Advanced NAS Builder**:
+- **RAID Configuration**: Comprehensive RAID planning and analysis
+  - RAID 0, 1, 5, 6, 10, 50, 60, and JBOD support
+  - Usable capacity calculation with efficiency metrics
+  - Rebuild time estimation by drive type
+  - Performance predictions (sequential/random, read/write)
+- **NAS Utilities** (`src/utils/nasBuilderAdvanced.ts`):
+  - `calculateRAIDCapacity()`: Capacity and efficiency calculations
+  - `estimateRebuildTime()`: Rebuild duration estimates
+  - `estimatePerformance()`: Performance predictions with bottleneck detection
+  - `calculateCapacityPlan()`: Growth planning with time-to-full
+  - `recommendRAIDType()`: AI recommendations based on requirements
+  - `generateRAIDReport()`: Comprehensive markdown report
+  - `estimatePowerConsumption()`: Power usage calculations
+  - `validateRAIDConfiguration()`: Configuration validation with warnings
+- **Performance Estimation**:
+  - HDD: 150MB/s read, 140MB/s write, 150 IOPS
+  - SSD: 500MB/s read, 450MB/s write, 80K IOPS
+  - NVMe: 3500MB/s read, 3000MB/s write, 500K IOPS
+  - RAID performance multipliers with parity overhead
+  - Network bottleneck detection (1GbE/10GbE)
+- **Smart Recommendations**:
+  - Performance priority: RAID 10 or RAID 0
+  - Capacity priority: RAID 50, RAID 5, or RAID 0
+  - Redundancy priority: RAID 60, RAID 6, or RAID 1
+  - Balanced: RAID 50, RAID 10, or RAID 5
+
+# RackSmith v0.3.12
+**Advanced Floor Plan**:
+- **Multi-Floor Support**: Manage devices across multiple building floors
+  - Create and configure floors with custom dimensions
+  - Add devices to specific floors with coordinates
+  - Inter-floor connection tracking and visualization
+  - Floor-level statistics and utilization
+- **Floor Plan Utilities** (`src/utils/floorPlanAdvanced.ts`):
+  - `createFloor()`: Create floor configurations
+  - `addDeviceToFloor()`: Position devices on floors
+  - `createDeviceGroup()`: Organize devices into groups
+  - `calculateConnectionPath()`: Multi-floor cable routing
+  - `calculatePathDistance()`: Total path length calculation
+  - `getDevicesInGroup()`: Retrieve grouped devices
+  - `getInterFloorConnections()`: Find cross-floor connections
+  - `autoGroupDevicesByProximity()`: Auto-grouping (100px threshold)
+  - `calculateFloorUtilization()`: Floor space usage percentage
+  - `getFloorsSummary()`: Building-wide statistics
+  - `validateDevicePlacement()`: Boundary validation
+  - `exportFloorPlan()`: JSON export
+  - `importFloorPlan()`: JSON import
+- **Device Grouping**:
+  - Manual groups with custom names and colors
+  - Auto-grouping by proximity
+  - Group-based filtering and organization
+- **Path Visualization**:
+  - Horizontal, vertical, and inter-floor segments
+  - Riser location support (cable shaft routing)
+  - Distance calculation with 4m per floor height
+
 # RackSmith v0.3.11
 **Network Topology Map Generator**:
 - **Topology Generation**: Auto-generate network diagrams from devices and connections

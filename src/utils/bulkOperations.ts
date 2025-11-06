@@ -1,6 +1,6 @@
+import toast from 'react-hot-toast';
 import { Device, RackConfiguration } from '../types/entities';
 import { validateDevicePlacement, validateIPAddress } from './validators';
-import toast from 'react-hot-toast';
 
 export interface BulkImportResult {
   success: boolean;

@@ -1,4 +1,4 @@
-import { Device, Connection, RackConfiguration, StandaloneDevice, TopologyConnection } from '../types/entities';
+import { Connection, Device, RackConfiguration, StandaloneDevice, TopologyConnection } from '../types/entities';
 
 export interface TopologyNode {
   id: string;

@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { DropEffect, RackVisualizerProps } from '../../types/components';
 import { Device } from '../../types/entities';
-import { validateDevicePlacement, calculateRackUtilization } from '../../utils/validators';
+import { calculateRackUtilization, validateDevicePlacement } from '../../utils/validators';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 
 const deviceTypeColors = {

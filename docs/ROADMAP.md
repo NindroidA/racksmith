@@ -3,14 +3,14 @@
 ## 🔴 High Priority
 
 ### Core Functionality
-- [ ] **Enhanced Rack Visualizer** - Improve drag-and-drop with precise U-position placement and collision detection
-- [ ] **Port Connection Management** - Visual cable routing between device ports with connection validation
-- [ ] **Advanced Floor Plan** - Multi-floor support, device grouping, and connection path visualization
-- [x] **Complete CRUD Operations** - Add edit/delete functionality to all pages
+- [x] **Enhanced Rack Visualizer** - Improve drag-and-drop with precise U-position placement and collision detection *(v0.3.17)*
+- [x] **Port Connection Management** - Visual cable routing between device ports with connection validation *(v0.3.10)*
+- [x] **Advanced Floor Plan** - Multi-floor support, device grouping, and connection path visualization *(v0.3.12)*
+- [x] **Complete CRUD Operations** - Add edit/delete functionality to all pages *(v0.3.0-v0.3.3)*
   - [x] Device Library - Full CRUD with create/edit/delete custom devices
   - [x] Dashboard - Quick actions for rack management (view/edit/delete)
   - [x] Racks Page - Full CRUD with search and filtering
-- [ ] **Network Topology Map** - Auto-generated network diagram showing device relationships
+- [x] **Network Topology Map** - Auto-generated network diagram showing device relationships *(v0.3.11)*
 
 ### Data & Validation
 - [x] **Real-time Validation** - Port conflict detection, rack space utilization alerts, IP address conflicts
@@ -20,27 +20,27 @@
   - [x] IP address validation (format and conflicts)
   - [x] VLAN ID validation
   - [x] Subnet mask validation
-- [x] **Data Export/Import** - JSON configuration export, CSV reports, text diagrams
+- [x] **Data Export/Import** - JSON configuration export, CSV reports, text diagrams *(v0.3.2)*
   - [x] Export individual racks (JSON/CSV)
   - [x] Export all racks (JSON/CSV)
   - [x] Export devices (CSV)
   - [x] Text-based rack diagrams
   - [x] Import rack configurations (JSON)
-- [ ] **Bulk Operations** - Import multiple devices, batch port configuration
+- [x] **Bulk Operations** - Import multiple devices, batch port configuration *(v0.3.7, enhanced in v0.3.16)*
 
 ## 🟡 Medium Priority
 
 ### Enhanced Tools
-- [ ] **IP Scheme Auto-Generator** - Calculate and allocate IP ranges based on device count and network requirements
-- [ ] **VLAN Setup Wizard** - Step-by-step guided VLAN configuration with templates
-- [ ] **Advanced NAS Builder** - RAID configuration, capacity planning, performance estimation
-- [ ] **Cable Management** - Cable labeling system, length calculation, patch panel mapping
+- [x] **IP Scheme Auto-Generator** - Calculate and allocate IP ranges based on device count and network requirements *(v0.3.8)*
+- [x] **VLAN Setup Wizard** - Step-by-step guided VLAN configuration with templates *(v0.3.9)*
+- [x] **Advanced NAS Builder** - RAID configuration, capacity planning, performance estimation *(v0.3.13)*
+- [x] **Cable Management** - Cable labeling system, length calculation, patch panel mapping *(v0.3.14)*
 
 ### UI Improvements
-- [ ] **Advanced Search & Filtering** - Global search, multi-criteria filtering across all data
-- [ ] **Favorites/Bookmarks** - Quick access to frequently used racks/devices
-- [ ] **Rack Templates** - Pre-configured rack layouts for common setups
-- [ ] **Device Cloning** - Duplicate devices/racks with configurations
+- [x] **Advanced Search & Filtering** - Global search, multi-criteria filtering across all data *(v0.3.18)*
+- [x] **Favorites/Bookmarks** - Quick access to frequently used racks/devices *(v0.3.15)*
+- [x] **Rack Templates** - Pre-configured rack layouts for common setups *(v0.3.4)*
+- [x] **Device Cloning** - Duplicate devices/racks with configurations *(v0.3.19)*
 
 ### Page Ideas
 - [ ] **User Profile Page** - Typical profile page containing user info and small editting features
