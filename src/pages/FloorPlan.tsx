@@ -1,4 +1,4 @@
-import { Eye, EyeOff, Grid3x3, Layers, Maximize2, Plus, Save, ZoomIn, ZoomOut } from 'lucide-react';
+import { Eye, EyeOff, Grid3x3, Layers, MapPin, Maximize2, Plus, Save, ZoomIn, ZoomOut } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
@@ -312,30 +312,39 @@ const FloorPlan: React.FC = () => {
   };
   
   return (
-    <div className="min-h-screen p-6 md:p-8" style={{ background: '#161b22' }}>
-      <div className="max-w-full mx-auto space-y-6">
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-4xl font-bold gradient-text mb-2">Floor Plan & Topology</h1>
-              <p className="text-gray-400">Drag devices to reposition • Right-click standalone devices to edit</p>
+    <div className="p-8">
+      <div className="max-w-full mx-auto">
+        {/* Header */}
+        <div className="glass-card border-white/10 rounded-2xl p-8 mb-8">
+          <div className="flex items-start justify-between gap-6">
+            <div className="flex items-start gap-6">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center glow">
+                <MapPin className="w-8 h-8 text-white" />
+              </div>
+              <div>
+                <h1 className="text-4xl font-bold gradient-text mb-3">Floor Plan & Topology</h1>
+                <p className="text-gray-300 text-lg">Drag devices to reposition • Right-click standalone devices to edit</p>
+              </div>
             </div>
           </div>
-          
+        </div>
+        
+        {/* Controls */}
+        <div className="glass-card border-white/10 rounded-xl p-4 mb-6">
           <div className="flex gap-2 flex-wrap">
             <Button
               onClick={() => {
                 setSelectedDevice(null);
                 setShowDeviceDialog(true);
               }}
-              className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-lg"
+              className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
             >
               <Plus className="w-4 h-4 mr-2" />
               Add Device
             </Button>
             <Button
               onClick={() => setShowConnectionDialog(true)}
-              className="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white shadow-lg"
+              className="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700"
             >
               <Plus className="w-4 h-4 mr-2" />
               Add Connection
@@ -343,7 +352,7 @@ const FloorPlan: React.FC = () => {
             <Button
               variant="outline"
               onClick={() => setShowConnections(!showConnections)}
-              className="glass-button text-white border-white/20"
+              className="glass-button text-white border-white/10 hover:bg-white/10"
             >
               {showConnections ? <Eye className="w-4 h-4 mr-2" /> : <EyeOff className="w-4 h-4 mr-2" />}
               Connections
@@ -351,7 +360,7 @@ const FloorPlan: React.FC = () => {
             <Button
               variant="outline"
               onClick={() => setShowGrid(!showGrid)}
-              className="glass-button text-white border-white/20"
+              className="glass-button text-white border-white/10 hover:bg-white/10"
             >
               <Grid3x3 className="w-4 h-4 mr-2" />
               Grid
@@ -359,14 +368,14 @@ const FloorPlan: React.FC = () => {
             <Button
               variant="outline"
               onClick={() => setZoom(Math.max(0.6, zoom - 0.1))}
-              className="glass-button text-white border-white/20"
+              className="glass-button text-white border-white/10 hover:bg-white/10"
             >
               <ZoomOut className="w-4 h-4" />
             </Button>
             <Button
               variant="outline"
               onClick={() => setZoom(Math.min(1.5, zoom + 0.1))}
-              className="glass-button text-white border-white/20"
+              className="glass-button text-white border-white/10 hover:bg-white/10"
             >
               <ZoomIn className="w-4 h-4" />
             </Button>

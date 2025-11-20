@@ -159,11 +159,8 @@ const DevicePorts: React.FC = () => {
       {/* Device Sidebar Toggle Button */}
       <button
         onClick={() => setDeviceSidebarOpen(!deviceSidebarOpen)}
-        className="fixed z-[65] rounded-r-xl px-2 py-6 hover:opacity-80 transition-all duration-300 group border-l-0"
-        style={{ 
-          background: 'rgba(13, 17, 23, 0.95)',
-          backdropFilter: 'blur(24px) saturate(180%)',
-          border: '1px solid rgba(148, 163, 184, 0.1)',
+        className="fixed z-[65] rounded-r-xl px-2 py-6 hover:opacity-80 transition-all duration-300 group border-l-0 glass-sidebar"
+        style={{
           borderLeft: 'none',
           left: deviceSidebarOpen ? (menuSidebarOpen ? '512px' : '256px') : (menuSidebarOpen ? '256px' : '0px'),
           top: 'calc(50% + 60px)',
@@ -184,12 +181,8 @@ const DevicePorts: React.FC = () => {
 
       {/* Device Navigation Sidebar */}
       <div
-        className="fixed top-0 bottom-0 w-64 border-r z-[55] transition-all duration-300 ease-in-out"
+        className="fixed top-0 bottom-0 w-64 z-[55] transition-all duration-300 ease-in-out glass-sidebar"
         style={{
-          background: 'rgba(13, 17, 23, 0.95)',
-          backdropFilter: 'blur(24px) saturate(180%)',
-          borderRight: '1px solid rgba(148, 163, 184, 0.1)',
-          boxShadow: '4px 0 24px 0 rgba(0, 0, 0, 0.6)',
           left: menuSidebarOpen ? '256px' : '0px',
           transform: deviceSidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
         }}

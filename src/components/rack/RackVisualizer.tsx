@@ -1,5 +1,5 @@
 import { Settings, Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import { RackVisualizerProps } from '../../types/components';
 import { Device } from '../../types/entities';
 import { Button } from '../ui/button';
@@ -19,7 +19,11 @@ const DEVICE_TYPE_COLORS: Record<string, string> = {
   other: 'bg-gradient-to-br from-slate-500/80 to-gray-500/80'
 };
 
-export default function RackVisualizer({
+/**
+ * RackVisualizer Component
+ * Memoized for performance optimization with useMemo and useCallback hooks
+ */
+const RackVisualizer = memo(function RackVisualizer({
   rackSizeU,
   devices,
   onDeviceClick,
@@ -34,36 +38,41 @@ export default function RackVisualizer({
   const [ripplePosition, setRipplePosition] = useState<number | null>(null);
   const [draggedInstalledDeviceSize, setDraggedInstalledDeviceSize] = useState<number>(1);
 
-  const occupiedPositions = new Set<number>();
-  devices.forEach(device => {
-    const startPos = device.position_u - device.size_u + 1;
-    for (let i = 0; i < device.size_u; i++) {
-      occupiedPositions.add(startPos + i);
-    }
-  });
+  // Memoize occupied positions calculation
+  const occupiedPositions = useMemo(() => {
+    const positions = new Set<number>();
+    devices.forEach(device => {
+      const startPos = device.position_u - device.size_u + 1;
+      for (let i = 0; i < device.size_u; i++) {
+        positions.add(startPos + i);
+      }
+    });
+    return positions;
+  }, [devices]);
 
-  const getDeviceAtPosition = (position: number): Device | null => {
+  // Memoize helper functions
+  const getDeviceAtPosition = useCallback((position: number): Device | null => {
     return devices.find(d => {
       const startPos = d.position_u - d.size_u + 1;
       return position >= startPos && position <= d.position_u;
     }) || null;
-  };
+  }, [devices]);
 
-  const wouldOccupy = (position: number, size: number): number[] => {
+  const wouldOccupy = useCallback((position: number, size: number): number[] => {
     const positions: number[] = [];
     for (let i = 0; i < size; i++) {
       positions.push(position - i);
     }
     return positions;
-  };
+  }, []);
 
-  const handleDragOver = (e: React.DragEvent, position: number) => {
+  const handleDragOver = useCallback((e: React.DragEvent, position: number) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'copy';
     setDragOverPosition(position);
-  };
+  }, []);
 
-  const handleDrop = (e: React.DragEvent, position: number) => {
+  const handleDrop = useCallback((e: React.DragEvent, position: number) => {
     e.preventDefault();
     
     const installedDeviceData = e.dataTransfer.getData('installed-device');
@@ -86,7 +95,7 @@ export default function RackVisualizer({
         setTimeout(() => setRipplePosition(null), 600);
     }
     setDragOverPosition(null);
-  };
+  }, [onDeviceDrop]);
 
   return (
     <div className="glass-card p-6 h-full">
@@ -245,4 +254,6 @@ export default function RackVisualizer({
         </div>
     </div>
     );
-}
+});
+
+export default RackVisualizer;

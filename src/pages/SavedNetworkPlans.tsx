@@ -101,7 +101,7 @@ const SavedNetworkPlans: React.FC = () => {
                   transition={{ delay: index * 0.05 }}
                 >
                   <Card className="glass-card border-white/10 hover:border-white/20 transition-all group glow-hover">
-                    <CardHeader className="border-b border-white/10">
+                    <CardHeader className="border-b border-white/10 p-6">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <CardTitle className="text-white text-xl mb-2">{plan.name}</CardTitle>
@@ -117,15 +117,15 @@ const SavedNetworkPlans: React.FC = () => {
                     </CardHeader>
                     <CardContent className="p-6">
                       <div className="grid grid-cols-2 gap-4 mb-6">
-                        <div className="glass-card border-white/10 rounded-lg p-3">
-                          <div className="flex items-center gap-2 mb-1">
+                        <div className="glass-card border-white/10 rounded-lg p-5">
+                          <div className="flex items-center gap-2 mb-3">
                             <Users className="w-4 h-4 text-blue-400" />
                             <span className="text-xs text-gray-400">Total Devices</span>
                           </div>
                           <p className="text-2xl font-bold text-white">{plan.total_devices || (plan.wired_devices + plan.wireless_devices)}</p>
                         </div>
-                        <div className="glass-card border-white/10 rounded-lg p-3">
-                          <div className="flex items-center gap-2 mb-1">
+                        <div className="glass-card border-white/10 rounded-lg p-5">
+                          <div className="flex items-center gap-2 mb-3">
                             <Building className="w-4 h-4 text-purple-400" />
                             <span className="text-xs text-gray-400">VLANs</span>
                           </div>
@@ -169,7 +169,7 @@ const SavedNetworkPlans: React.FC = () => {
                       </div>
 
                       {plan.ip_scheme && (
-                        <div className="glass-card border-blue-500/20 rounded-lg p-3 mb-4">
+                        <div className="glass-card border-blue-500/20 rounded-lg p-4 mb-4">
                           <p className="text-xs text-gray-400 mb-2">Network</p>
                           <code className="text-sm text-blue-400 font-mono">{plan.ip_scheme.base}</code>
                         </div>

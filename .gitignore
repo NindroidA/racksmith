@@ -1,14 +1,22 @@
 # dependencies (bun install)
 node_modules
 
+# lock files (using bun.lock)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
 # output
 out
 dist
+build
 *.tgz
 
 # code coverage
 coverage
 *.lcov
+coverage.json
+.nyc_output
 
 # logs
 logs
@@ -22,6 +30,9 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # vscode
 .vscode
+
+# claude
+.claude
 
 # Finder (MacOS) folder config
 .DS_Store

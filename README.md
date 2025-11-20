@@ -3,6 +3,7 @@
 > **A Modern Network Infrastructure Management Platform**
 > 
 > Streamline your network administration workflow with intelligent rack management, device configuration, and topology visualization.
+> Your rack, your way.
 
 
 ## 🚀 Tech Stack

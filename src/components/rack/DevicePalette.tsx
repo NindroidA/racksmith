@@ -1,27 +1,35 @@
 import { Search } from 'lucide-react';
-import { useState } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import { DevicePaletteProps } from '../../types/components';
 import { CustomDevice, Device } from '../../types/entities';
 import { Card, CardContent } from '../ui/card';
 import { Input } from '../ui/input';
 import DeviceGraphic from './DeviceGraphic';
 
-export default function DevicePalette({ devices, onDeviceDragStart }: DevicePaletteProps) {
+/**
+ * DevicePalette Component
+ * Memoized for performance optimization
+ */
+const DevicePalette = memo(function DevicePalette({ devices, onDeviceDragStart }: DevicePaletteProps) {
   const [searchQuery, setSearchQuery] = useState('');
 
-  const filteredDevices = devices.filter(device =>
-    device.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    device.model!.toLowerCase().includes(searchQuery.toLowerCase())
+  // Memoize filtered devices
+  const filteredDevices = useMemo(() => 
+    devices.filter(device =>
+      device.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      device.model!.toLowerCase().includes(searchQuery.toLowerCase())
+    ),
+    [devices, searchQuery]
   );
 
-  const handleDragStart = (e: React.DragEvent, device: Device | CustomDevice) => {
+  const handleDragStart = useCallback((e: React.DragEvent, device: Device | CustomDevice) => {
     e.dataTransfer.setData('device', JSON.stringify(device));
     e.dataTransfer.effectAllowed = 'copy';
     onDeviceDragStart?.(device, device.size_u);
-  };
+  }, [onDeviceDragStart]);
 
   return (
-    <Card className="glass-card border-white/10 h-full flex flex-col">
+    <Card className="glass-device-palette h-full flex flex-col">
       <CardContent className="p-6 flex flex-col h-full">
         <h3 className="text-lg font-semibold text-white mb-4">Device Library</h3>
 
@@ -95,4 +103,6 @@ export default function DevicePalette({ devices, onDeviceDragStart }: DevicePale
       </CardContent>
     </Card>
   );
-}
+});
+
+export default DevicePalette;

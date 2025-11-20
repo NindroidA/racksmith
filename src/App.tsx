@@ -1,32 +1,38 @@
+import { Suspense, lazy } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
+import { PageSkeleton } from './components/ui/loading-skeletons';
 import { AuthProvider } from './contexts/AuthContext';
 import { SidebarProvider } from './contexts/SidebarContext';
 
-/* Auth Pages */
+/* Auth Pages - Not lazy loaded (needed immediately) */
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 
-/* App Pages */
-import Dashboard from './pages/Dashboard';
-import DeviceLibrary from './pages/DeviceLibrary';
-import DeviceOptions from './pages/DeviceOptions';
-import DevicePorts from './pages/DevicePorts';
-import FloorPlan from './pages/FloorPlan';
-import NetworkTools from './pages/NetworkTools';
-import NotFound from './pages/NotFound';
-import RackBuilder from './pages/RackBuilder';
-import RackDetails from './pages/RackDetails';
-import Racks from './pages/Racks';
-import SavedNetworkPlans from './pages/SavedNetworkPlans';
+/* Lazy-loaded App Pages for code splitting */
+const ActivityHistory = lazy(() => import('./pages/ActivityHistory'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const DeviceLibrary = lazy(() => import('./pages/DeviceLibrary'));
+const DeviceOptions = lazy(() => import('./pages/DeviceOptions'));
+const DevicePorts = lazy(() => import('./pages/DevicePorts'));
+const FloorPlan = lazy(() => import('./pages/FloorPlan'));
+const NetworkTools = lazy(() => import('./pages/NetworkTools'));
+const NotFound = lazy(() => import('./pages/NotFound'));
+const RackBuilder = lazy(() => import('./pages/RackBuilder'));
+const RackDetails = lazy(() => import('./pages/RackDetails'));
+const Racks = lazy(() => import('./pages/Racks'));
+const SavedNetworkPlans = lazy(() => import('./pages/SavedNetworkPlans'));
+const UserProfile = lazy(() => import('./pages/UserProfile'));
 
 function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <SidebarProvider>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <AuthProvider>
+          <SidebarProvider>
           {/* Toast Notifications */}
           <Toaster 
             position="top-right"
@@ -51,25 +57,28 @@ function App() {
             {/* Protected Routes with Layout */}
             <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
               <Route index element={<Navigate to="/dashboard" replace />} />
-              <Route path="dashboard" element={<Dashboard />} />
-              <Route path="racks" element={<Racks />} />
-              <Route path="racks/new" element={<RackBuilder />} />
-              <Route path="racks/:id/edit" element={<RackBuilder />} />
-              <Route path="racks/:id" element={<RackDetails />} />
-              <Route path="devices/library" element={<DeviceLibrary />} />
-              <Route path="devices/options" element={<DeviceOptions />} />
-              <Route path="devices/:id/ports" element={<DevicePorts />} />
-              <Route path="network/floor-plan" element={<FloorPlan />} />
-              <Route path="network/tools" element={<NetworkTools />} />
-              <Route path="network/plans" element={<SavedNetworkPlans />} />
+              <Route path="dashboard" element={<Suspense fallback={<PageSkeleton />}><Dashboard /></Suspense>} />
+              <Route path="racks" element={<Suspense fallback={<PageSkeleton />}><Racks /></Suspense>} />
+              <Route path="racks/new" element={<Suspense fallback={<PageSkeleton />}><RackBuilder /></Suspense>} />
+              <Route path="racks/:id/edit" element={<Suspense fallback={<PageSkeleton />}><RackBuilder /></Suspense>} />
+              <Route path="racks/:id" element={<Suspense fallback={<PageSkeleton />}><RackDetails /></Suspense>} />
+              <Route path="devices/library" element={<Suspense fallback={<PageSkeleton />}><DeviceLibrary /></Suspense>} />
+              <Route path="devices/options" element={<Suspense fallback={<PageSkeleton />}><DeviceOptions /></Suspense>} />
+              <Route path="devices/:id/ports" element={<Suspense fallback={<PageSkeleton />}><DevicePorts /></Suspense>} />
+              <Route path="network/floor-plan" element={<Suspense fallback={<PageSkeleton />}><FloorPlan /></Suspense>} />
+              <Route path="network/tools" element={<Suspense fallback={<PageSkeleton />}><NetworkTools /></Suspense>} />
+              <Route path="network/plans" element={<Suspense fallback={<PageSkeleton />}><SavedNetworkPlans /></Suspense>} />
+              <Route path="profile" element={<Suspense fallback={<PageSkeleton />}><UserProfile /></Suspense>} />
+              <Route path="activity" element={<Suspense fallback={<PageSkeleton />}><ActivityHistory /></Suspense>} />
             </Route>
             
             {/* 404 Fallback */}
-            <Route path="*" element={<NotFound />} />
+            <Route path="*" element={<Suspense fallback={<PageSkeleton />}><NotFound /></Suspense>} />
           </Routes>
         </SidebarProvider>
       </AuthProvider>
     </BrowserRouter>
+    </ErrorBoundary>
   );
 }
 

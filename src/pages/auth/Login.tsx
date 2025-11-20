@@ -1,4 +1,4 @@
-import { Layers } from 'lucide-react';
+import { Eye, EyeOff, Layers, Loader2 } from 'lucide-react';
 import { FormEvent, useState } from 'react';
 import toast from 'react-hot-toast';
 import { Link, useNavigate } from 'react-router-dom';
@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/ca
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { useAuth } from '../../contexts/AuthContext';
+import { validateEmail } from '../../utils/validation';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -15,9 +16,44 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [emailError, setEmailError] = useState('');
+  const [touched, setTouched] = useState({ email: false, password: false });
+
+  const handleEmailChange = (value: string) => {
+    setEmail(value);
+    if (touched.email) {
+      const validation = validateEmail(value);
+      setEmailError(validation.error || '');
+    }
+  };
+
+  const handleEmailBlur = () => {
+    setTouched({ ...touched, email: true });
+    const validation = validateEmail(email);
+    setEmailError(validation.error || '');
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+
+    // Mark all fields as touched
+    setTouched({ email: true, password: true });
+
+    // Validate email
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.isValid) {
+      setEmailError(emailValidation.error || '');
+      toast.error(emailValidation.error || 'Invalid email');
+      return;
+    }
+
+    // Validate password exists
+    if (!password) {
+      toast.error('Password is required');
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -25,9 +61,11 @@ export default function Login() {
       toast.success('Welcome back!');
       navigate('/dashboard');
     } catch (error) {
-      toast.error('Login failed - but you can still continue!');
-      // still navigate in dev mode
-      navigate('/dashboard');
+      toast.error('Invalid email or password');
+      // In dev mode still allow navigation
+      if (process.env.NODE_ENV === 'development') {
+        navigate('/dashboard');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -73,22 +111,40 @@ export default function Login() {
                   id="email"
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => handleEmailChange(e.target.value)}
+                  onBlur={handleEmailBlur}
                   placeholder="you@example.com"
-                  className="glass border-white/10 text-white placeholder:text-gray-500"
+                  className={`glass border-white/10 text-white placeholder:text-gray-500 ${
+                    emailError && touched.email ? 'border-red-500/50' : ''
+                  }`}
+                  disabled={isLoading}
                 />
+                {emailError && touched.email && (
+                  <p className="text-xs text-red-400">{emailError}</p>
+                )}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-gray-300">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="glass border-white/10 text-white placeholder:text-gray-500"
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="glass border-white/10 text-white placeholder:text-gray-500 pr-10"
+                    disabled={isLoading}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                    disabled={isLoading}
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
 
               <Button
@@ -97,7 +153,14 @@ export default function Login() {
                 variant="gradient"
                 className="w-full"
               >
-                {isLoading ? 'Signing in...' : 'Sign In'}
+                {isLoading ? (
+                  <span className="flex items-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Signing in...
+                  </span>
+                ) : (
+                  'Sign In'
+                )}
               </Button>
 
               <div className="relative">

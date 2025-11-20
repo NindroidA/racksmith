@@ -1,9 +1,10 @@
-import { ArrowLeft, Save } from 'lucide-react';
+import { ArrowLeft, FileStack, Save } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useNavigate, useParams } from 'react-router-dom';
 import DeviceDetailsModal from '../components/rack/DeviceDetailsModal';
 import DevicePalette from '../components/rack/DevicePalette';
+import RackTemplateDialog from '../components/rack/RackTemplateDialog';
 import RackVisualizer from '../components/rack/RackVisualizer';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
@@ -12,6 +13,7 @@ import { Label } from '../components/ui/label';
 import { Select, SelectItem } from '../components/ui/select';
 import { CustomDeviceService, DeviceService, RackConfigurationService } from '../services/api';
 import { CustomDevice, Device, RackConfiguration } from '../types/entities';
+import { logActivity } from '../utils/activityLog';
 
 const RACK_SIZES = [
   { value: 12, label: '12U (Small)' },
@@ -32,6 +34,7 @@ export default function RackBuilder() {
   const [draggedDeviceSize, setDraggedDeviceSize] = useState<number>(1);
   const [selectedDevice, setSelectedDevice] = useState<Device | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showTemplateDialog, setShowTemplateDialog] = useState(false);
 
   const [formData, setFormData] = useState<RackConfiguration>({
     id: id || 'new',
@@ -199,9 +202,35 @@ export default function RackBuilder() {
   };
 
   const handleDeviceSave = (updatedDevice: Device) => {
-    setInstalledDevices(prev => 
+    setInstalledDevices(prev =>
       prev.map(d => d.id === updatedDevice.id ? updatedDevice : d)
     );
+  };
+
+  const handleApplyTemplate = (rack: RackConfiguration, devices: Device[]) => {
+    // Apply template data to form
+    setFormData({
+      ...formData,
+      name: rack.name,
+      size_u: rack.size_u,
+      description: rack.description || '',
+    });
+
+    // Set template devices as installed
+    setInstalledDevices(devices);
+
+    // Log activity
+    logActivity('create', 'template', rack.id, {
+      entityName: rack.name,
+      severity: 'info',
+      metadata: {
+        deviceCount: devices.length,
+        rackSize: rack.size_u,
+        source: 'template'
+      }
+    });
+
+    toast.success(`Template "${rack.name}" applied with ${devices.length} devices`);
   };
 
   // Calculate stats
@@ -230,14 +259,26 @@ export default function RackBuilder() {
               <p className="text-gray-400">Design your rack layout and add devices</p>
             </div>
           </div>
-          <Button
-            onClick={handleSubmit}
-            disabled={isLoading}
-            className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
-          >
-            <Save className="w-4 h-4 mr-2" />
-            Save Configuration
-          </Button>
+          <div className="flex gap-3">
+            {(!id || id === 'new') && (
+              <Button
+                variant="ghost"
+                onClick={() => setShowTemplateDialog(true)}
+                className="glass-button text-white hover:bg-white/10"
+              >
+                <FileStack className="w-4 h-4 mr-2" />
+                Use Template
+              </Button>
+            )}
+            <Button
+              onClick={handleSubmit}
+              disabled={isLoading}
+              className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
+            >
+              <Save className="w-4 h-4 mr-2" />
+              Save Configuration
+            </Button>
+          </div>
         </div>
 
         {/* Configuration Form */}
@@ -364,6 +405,14 @@ export default function RackBuilder() {
         onDelete={handleDeviceRemove}
         maxPosition={formData.size_u}
       />
+
+      {/* Rack Template Dialog */}
+      {showTemplateDialog && (
+        <RackTemplateDialog
+          onApply={handleApplyTemplate}
+          onClose={() => setShowTemplateDialog(false)}
+        />
+      )}
     </div>
   );
 }

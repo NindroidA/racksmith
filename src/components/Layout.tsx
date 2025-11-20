@@ -1,4 +1,4 @@
-import { BookMarked, ChevronLeft, ChevronRight, Layers, LayoutGrid, Library, LogOut, Map, Server, Wrench } from 'lucide-react';
+import { Activity, BookMarked, ChevronLeft, ChevronRight, Layers, LayoutGrid, Library, LogOut, Map, Server, User, Wrench } from 'lucide-react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useSidebar } from '../contexts/SidebarContext';
@@ -14,6 +14,8 @@ const navigationItems = [
   { title: 'Floor Plan', url: '/network/floor-plan', icon: Map },
   { title: 'Network Tools', url: '/network/tools', icon: Wrench },
   { title: 'Saved Plans', url: '/network/plans', icon: BookMarked },
+  { title: 'Activity History', url: '/activity', icon: Activity },
+  { title: 'User Profile', url: '/profile', icon: User },
 ];
 
 /**
@@ -36,28 +38,28 @@ export default function Layout({ children }: LayoutProps) {
       {/* Sidebar Toggle Button */}
       <button
         onClick={() => setMenuSidebarOpen(!menuSidebarOpen)}
-        className="fixed left-0 top-1/2 -translate-y-1/2 z-[70] rounded-r-xl px-2 py-6 hover:opacity-90 transition-all duration-300 group glass-sidebar border-l-0"
-        style={{ 
+        className="fixed left-0 top-1/2 -translate-y-1/2 z-[70] rounded-r-xl px-2 py-6 hover:opacity-90 transition-all duration-300 group glass-menu-sidebar border-l-0"
+        style={{
           borderLeft: 'none',
           marginLeft: menuSidebarOpen ? '256px' : '0px',
           transition: 'margin-left 0.3s ease',
         }}
       >
         <div className="flex flex-col items-center gap-2">
-          <div className="text-xs font-semibold text-gray-300 group-hover:text-white transition-colors" style={{ writingMode: 'vertical-rl' }}>
+          <div className="text-xs font-semibold text-slate-400 group-hover:text-white transition-colors" style={{ writingMode: 'vertical-rl' }}>
             MENU
           </div>
           {menuSidebarOpen ? (
-            <ChevronLeft className="w-4 h-4 text-gray-400 group-hover:text-white transition-colors" />
+            <ChevronLeft className="w-4 h-4 text-slate-400 group-hover:text-white transition-colors" />
           ) : (
-            <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-white transition-colors" />
+            <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-white transition-colors" />
           )}
         </div>
       </button>
 
       {/* Main Sidebar */}
       <aside
-        className="fixed left-0 top-0 bottom-0 w-64 z-[60] transition-transform duration-300 ease-in-out glass-sidebar"
+        className="fixed left-0 top-0 bottom-0 w-64 z-[60] transition-transform duration-300 ease-in-out glass-menu-sidebar"
         style={{ transform: menuSidebarOpen ? 'translateX(0)' : 'translateX(-100%)' }}
       >
         <div className="flex flex-col h-full">
@@ -70,11 +72,11 @@ export default function Layout({ children }: LayoutProps) {
               </div>
               <div>
                 <h2 className="font-bold text-xl gradient-text-linear">RackSmith</h2>
-                <p className="text-xs text-gray-400">Network Manager</p>
+                <p className="text-xs text-slate-400">Network Manager</p>
               </div>
             </div>
           </div>
-          
+
           {/* Navigation Links */}
           <nav className="flex-1 overflow-auto p-3 custom-scrollbar">
             <ul className="space-y-1">
@@ -86,8 +88,8 @@ export default function Layout({ children }: LayoutProps) {
                       to={item.url}
                       className={`flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 ${
                         isActive
-                          ? 'bg-gradient-to-r from-fuchsia-500/20 to-pink-500/20 text-fuchsia-400' 
-                          : 'text-gray-300 hover:bg-white/5 hover:text-white'
+                          ? 'bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-blue-400 font-semibold shadow-sm'
+                          : 'text-slate-300 hover:bg-white/5 hover:text-white'
                       }`}
                     >
                       <item.icon className="w-5 h-5 flex-shrink-0" />
@@ -103,7 +105,7 @@ export default function Layout({ children }: LayoutProps) {
           <div className="border-t border-white/10 p-3">
             <button
               onClick={handleSignOut}
-              className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-gray-300 hover:bg-red-500/10 hover:text-red-400 transition-all duration-200"
+              className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-slate-300 hover:bg-red-500/15 hover:text-red-400 transition-all duration-200"
             >
               <LogOut className="w-5 h-5 flex-shrink-0" />
               <span className="font-medium">Sign Out</span>

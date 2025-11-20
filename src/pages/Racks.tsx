@@ -8,6 +8,7 @@ import { Input } from '../components/ui/input';
 import { Skeleton } from '../components/ui/skeleton';
 import { DeviceService, RackConfigurationService } from '../services/api';
 import { Device, RackConfiguration } from '../types/entities';
+import { logActivity } from '../utils/activityLog';
 import { downloadAllRacks } from '../utils/exportUtils';
 
 export default function Racks() {
@@ -38,12 +39,27 @@ export default function Racks() {
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this rack?')) return;
-    
+
+    const rack = racks.find(r => r.id === id);
+
     try {
       await RackConfigurationService.delete(id);
       setRacks(racks.filter(r => r.id !== id));
+
+      // Log activity
+      logActivity('delete', 'rack', id, {
+        entityName: rack?.name || 'Unknown Rack',
+        severity: 'success',
+        metadata: { location: rack?.location, size: rack?.size_u }
+      });
+
       toast.success('Rack deleted');
     } catch (error) {
+      logActivity('delete', 'rack', id, {
+        entityName: rack?.name || 'Unknown Rack',
+        severity: 'error',
+        metadata: { error: String(error) }
+      });
       toast.error('Failed to delete rack');
     }
   };
@@ -51,8 +67,21 @@ export default function Racks() {
   const handleExportAll = (format: 'json' | 'csv') => {
     try {
       downloadAllRacks(racks, devices, format);
+
+      // Log activity
+      logActivity('export', 'rack', 'bulk', {
+        entityName: `${racks.length} racks`,
+        severity: 'success',
+        metadata: { format, count: racks.length }
+      });
+
       toast.success(`Exported ${racks.length} rack${racks.length !== 1 ? 's' : ''} as ${format.toUpperCase()}`);
     } catch (error) {
+      logActivity('export', 'rack', 'bulk', {
+        entityName: `${racks.length} racks`,
+        severity: 'error',
+        metadata: { format, error: String(error) }
+      });
       toast.error('Failed to export racks');
     }
   };
@@ -87,58 +116,76 @@ export default function Racks() {
   return (
     <div className="p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-white mb-2">Rack Configurations</h1>
-            <p className="text-gray-400">Manage all your rack configurations in one place</p>
-          </div>
-          <div className="flex gap-3">
-            {racks.length > 0 && (
-              <div className="flex gap-2">
-                <Button 
-                  onClick={() => handleExportAll('json')} 
-                  variant="ghost"
-                  className="glass-button text-white hover:bg-white/10"
-                >
-                  <Download className="w-4 h-4 mr-2" />
-                  Export JSON
-                </Button>
-                <Button 
-                  onClick={() => handleExportAll('csv')} 
-                  variant="ghost"
-                  className="glass-button text-white hover:bg-white/10"
-                >
-                  <Download className="w-4 h-4 mr-2" />
-                  Export CSV
-                </Button>
+        {/* Header */}
+        <div className="glass-card border-white/10 rounded-2xl p-8 mb-8">
+          <div className="flex items-start justify-between gap-6">
+            <div className="flex items-start gap-6">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center glow">
+                <Server className="w-8 h-8 text-white" />
               </div>
-            )}
-            <Button onClick={() => navigate('/racks/new')} className="bg-gradient-to-r from-blue-500 to-purple-600">
-              <Plus className="w-4 h-4 mr-2" />
-              New Rack Configuration
-            </Button>
+              <div>
+                <h1 className="text-4xl font-bold gradient-text mb-3">Rack Configurations</h1>
+                <p className="text-gray-300 text-lg">Manage all your rack configurations in one place</p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              {racks.length > 0 && (
+                <div className="flex gap-2">
+                  <Button 
+                    onClick={() => handleExportAll('json')} 
+                    variant="ghost"
+                    className="glass-button text-white hover:bg-white/10"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Export JSON
+                  </Button>
+                  <Button 
+                    onClick={() => handleExportAll('csv')} 
+                    variant="ghost"
+                    className="glass-button text-white hover:bg-white/10"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Export CSV
+                  </Button>
+                </div>
+              )}
+              <Button 
+                onClick={() => navigate('/racks/new')} 
+                className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                New Rack
+              </Button>
+            </div>
           </div>
         </div>
 
-        <div className="mb-6">
+        <div className="mb-8">
           <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <Input
               type="text"
               placeholder="Search racks by name or location..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 glass border-white/10 text-white"
+              className="pl-10 glass-input border-white/10 text-white placeholder:text-gray-500"
             />
           </div>
         </div>
 
         {filteredRacks.length === 0 ? (
-          <div className="glass-card p-12 text-center">
-            <Server className="w-16 h-16 text-gray-500 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-white mb-2">No Racks Found</h3>
-            <p className="text-gray-400 mb-6">Get started by creating your first rack configuration</p>
-            <Button onClick={() => navigate('/racks/new')} className="bg-gradient-to-r from-blue-500 to-purple-600">
+          <div className="glass-card border-white/10 rounded-2xl p-12 text-center">
+            <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center glass">
+              <Server className="w-10 h-10 text-blue-400" />
+            </div>
+            <h3 className="text-2xl font-semibold text-white mb-3">No Racks Found</h3>
+            <p className="text-gray-400 mb-6 max-w-md mx-auto">
+              Get started by creating your first rack configuration
+            </p>
+            <Button 
+              onClick={() => navigate('/racks/new')} 
+              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+            >
               <Plus className="w-4 h-4 mr-2" />
               Create First Rack
             </Button>

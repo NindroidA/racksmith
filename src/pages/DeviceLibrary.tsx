@@ -1,6 +1,8 @@
-import { Edit, HardDrive, Network, Plus, Server, Trash2 } from 'lucide-react';
+import { Copy, Edit, HardDrive, Network, Plus, Server, Trash2, Upload } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import BulkImportDialog from '../components/device-library/BulkImportDialog';
+import CloneDeviceDialog from '../components/device-library/CloneDeviceDialog';
 import CustomDeviceDialog from '../components/device-library/CustomDeviceDialog';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
@@ -8,6 +10,7 @@ import { Skeleton } from '../components/ui/skeleton';
 import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { CustomDeviceService } from '../services/api';
 import { CustomDevice } from '../types/entities';
+import { logActivity } from '../utils/activityLog';
 
 // placeholder data
 const presetDevices = [
@@ -85,6 +88,9 @@ export default function DeviceLibrary() {
   const [isLoading, setIsLoading] = useState(true);
   const [showDialog, setShowDialog] = useState(false);
   const [editingDevice, setEditingDevice] = useState<CustomDevice | null>(null);
+  const [showCloneDialog, setShowCloneDialog] = useState(false);
+  const [cloningDevice, setCloningDevice] = useState<CustomDevice | null>(null);
+  const [showBulkImportDialog, setShowBulkImportDialog] = useState(false);
 
   useEffect(() => {
     loadCustomDevices();
@@ -104,12 +110,27 @@ export default function DeviceLibrary() {
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this device?')) return;
-    
+
+    const device = customDevices.find(d => d.id === id);
+
     try {
       await CustomDeviceService.delete(id);
       setCustomDevices(customDevices.filter(d => d.id !== id));
+
+      // Log activity
+      logActivity('delete', 'device', id, {
+        entityName: device?.name || 'Unknown Device',
+        severity: 'success',
+        metadata: { deviceType: device?.device_type, manufacturer: device?.manufacturer }
+      });
+
       toast.success('Device deleted');
     } catch (error) {
+      logActivity('delete', 'device', id, {
+        entityName: device?.name || 'Unknown Device',
+        severity: 'error',
+        metadata: { error: String(error) }
+      });
       toast.error('Failed to delete device');
     }
   };
@@ -128,15 +149,99 @@ export default function DeviceLibrary() {
     if (editingDevice) {
       // Update existing device in list
       setCustomDevices(customDevices.map(d => d.id === device.id ? device : d));
+
+      // Log activity
+      logActivity('update', 'device', device.id, {
+        entityName: device.name,
+        severity: 'success',
+        metadata: { deviceType: device.device_type, manufacturer: device.manufacturer }
+      });
     } else {
       // Add new device to list
       setCustomDevices([device, ...customDevices]);
+
+      // Log activity
+      logActivity('create', 'device', device.id, {
+        entityName: device.name,
+        severity: 'success',
+        metadata: { deviceType: device.device_type, manufacturer: device.manufacturer }
+      });
     }
   };
 
   const handleCloseDialog = () => {
     setShowDialog(false);
     setEditingDevice(null);
+  };
+
+  const handleClone = (device: CustomDevice) => {
+    setCloningDevice(device);
+    setShowCloneDialog(true);
+  };
+
+  const handleCloneComplete = async (clonedDevice: CustomDevice) => {
+    try {
+      // Save cloned device via API
+      const saved = await CustomDeviceService.create(clonedDevice);
+      setCustomDevices([saved, ...customDevices]);
+
+      // Log activity
+      logActivity('clone', 'device', saved.id, {
+        entityName: saved.name,
+        severity: 'success',
+        metadata: {
+          originalDevice: cloningDevice?.name,
+          deviceType: saved.device_type,
+          manufacturer: saved.manufacturer
+        }
+      });
+    } catch (error) {
+      toast.error('Failed to save cloned device');
+    }
+  };
+
+  const handleCloseCloneDialog = () => {
+    setShowCloneDialog(false);
+    setCloningDevice(null);
+  };
+
+  const handleBulkImport = async (devices: CustomDevice[]) => {
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const device of devices) {
+      try {
+        const saved = await CustomDeviceService.create(device);
+        setCustomDevices(prev => [saved, ...prev]);
+
+        // Log activity for each imported device
+        logActivity('import', 'device', saved.id, {
+          entityName: saved.name,
+          severity: 'success',
+          metadata: {
+            deviceType: saved.device_type,
+            manufacturer: saved.manufacturer,
+            source: 'CSV Import'
+          }
+        });
+
+        successCount++;
+      } catch (error) {
+        logActivity('import', 'device', device.id, {
+          entityName: device.name,
+          severity: 'error',
+          metadata: { error: String(error), source: 'CSV Import' }
+        });
+        failCount++;
+      }
+    }
+
+    if (successCount > 0) {
+      toast.success(`Successfully imported ${successCount} device${successCount !== 1 ? 's' : ''}`);
+    }
+    if (failCount > 0) {
+      toast.error(`Failed to import ${failCount} device${failCount !== 1 ? 's' : ''}`);
+    }
   };
 
   const getDeviceIcon = (type: string) => {
@@ -179,26 +284,34 @@ export default function DeviceLibrary() {
     <div className="p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="glass-card p-8 mb-8">
-          <div className="flex items-start gap-6">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0">
-              <Server className="w-8 h-8 text-white" />
-            </div>
-            <div className="flex-1">
-              <h1 className="text-3xl font-bold text-white mb-2">Device Library</h1>
-              <p className="text-gray-400 mb-4">Browse preset devices from major manufacturers</p>
-              <div className="flex items-center gap-2 text-sm text-gray-500">
-                <div className="w-1.5 h-1.5 rounded-full bg-blue-400" />
-                <span>Use these devices when building your rack configurations</span>
+        <div className="glass-card border-white/10 rounded-2xl p-8 mb-8">
+          <div className="flex items-start justify-between gap-6">
+            <div className="flex items-start gap-6">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center glow">
+                <Server className="w-8 h-8 text-white" />
+              </div>
+              <div>
+                <h1 className="text-4xl font-bold gradient-text mb-3">Device Library</h1>
+                <p className="text-gray-300 text-lg">Browse preset devices from major manufacturers</p>
               </div>
             </div>
-            <Button 
-              onClick={handleCreate}
-              className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Add Custom Device
-            </Button>
+            <div className="flex gap-3">
+              <Button
+                onClick={() => setShowBulkImportDialog(true)}
+                variant="ghost"
+                className="glass-button text-white hover:bg-white/10"
+              >
+                <Upload className="w-4 h-4 mr-2" />
+                Bulk Import
+              </Button>
+              <Button
+                onClick={handleCreate}
+                className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Custom Device
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -245,19 +358,26 @@ export default function DeviceLibrary() {
             ))}
           </div>
         ) : filteredDevices.length === 0 ? (
-          <div className="glass-card p-12 text-center">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center mx-auto mb-6">
-              <Plus className="w-10 h-10 text-blue-400" />
+          <div className="glass-card border-white/10 rounded-2xl p-12 text-center">
+            <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center glass">
+              <Server className="w-10 h-10 text-blue-400" />
             </div>
-            <h3 className="text-2xl font-bold text-white mb-2">No Custom Devices Yet</h3>
-            <p className="text-gray-400 mb-6">Create your first custom device to get started</p>
-            <Button 
-              onClick={handleCreate}
-              className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Add Custom Device
-            </Button>
+            <h3 className="text-2xl font-semibold text-white mb-3">No Devices Found</h3>
+            <p className="text-gray-400 mb-6 max-w-md mx-auto">
+              {activeTab === 'Custom Devices' 
+                ? 'Create your first custom device to get started'
+                : 'No devices available in this category'
+              }
+            </p>
+            {activeTab === 'Custom Devices' && (
+              <Button 
+                onClick={handleCreate}
+                className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Create Device
+              </Button>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -307,8 +427,18 @@ export default function DeviceLibrary() {
                           <Button
                             variant="ghost"
                             size="sm"
+                            className="h-8 w-8 p-0 text-blue-400 hover:text-white hover:bg-blue-500/20"
+                            onClick={() => handleClone(device)}
+                            title="Clone device"
+                          >
+                            <Copy className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
                             className="h-8 w-8 p-0 text-gray-400 hover:text-white hover:bg-white/10"
                             onClick={() => handleEdit(device)}
+                            title="Edit device"
                           >
                             <Edit className="w-4 h-4" />
                           </Button>
@@ -317,6 +447,7 @@ export default function DeviceLibrary() {
                             size="sm"
                             className="h-8 w-8 p-0 text-red-400 hover:bg-red-500/20"
                             onClick={() => handleDelete(device.id)}
+                            title="Delete device"
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
@@ -337,6 +468,23 @@ export default function DeviceLibrary() {
           device={editingDevice}
           onSave={handleSave}
           onClose={handleCloseDialog}
+        />
+      )}
+
+      {/* Clone Device Dialog */}
+      {showCloneDialog && cloningDevice && (
+        <CloneDeviceDialog
+          device={cloningDevice}
+          onClone={handleCloneComplete}
+          onClose={handleCloseCloneDialog}
+        />
+      )}
+
+      {/* Bulk Import Dialog */}
+      {showBulkImportDialog && (
+        <BulkImportDialog
+          onImport={handleBulkImport}
+          onClose={() => setShowBulkImportDialog(false)}
         />
       )}
     </div>

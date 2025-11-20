@@ -80,20 +80,20 @@ export default function NetworkTools() {
     <div className="p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="glass-card p-8 mb-8">
+        <div className="glass-card border-white/10 rounded-2xl p-8 mb-8">
           <div className="flex items-start gap-6">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center flex-shrink-0">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center glow">
               <Wrench className="w-8 h-8 text-white" />
             </div>
-            <div className="flex-1">
-              <h1 className="text-3xl font-bold text-white mb-2">Network Planning Tools</h1>
-              <p className="text-gray-400">Professional tools to help you design and configure your network infrastructure</p>
+            <div>
+              <h1 className="text-4xl font-bold gradient-text mb-3">Network Planning Tools</h1>
+              <p className="text-gray-300 text-lg">Professional tools to help you design and configure your network infrastructure</p>
             </div>
           </div>
         </div>
 
         {/* Tool Tabs */}
-        <div className="glass-card p-1 inline-flex rounded-lg mb-8">
+        <div className="glass-card border-white/10 p-1 inline-flex rounded-lg mb-8">
           {[
             { id: 'builder' as ToolType, label: 'Network Builder', icon: Network },
             { id: 'subnet' as ToolType, label: 'Subnet Calculator', icon: Calculator },
