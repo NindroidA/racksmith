@@ -1,0 +1,582 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ─── Auth (Better Auth managed) ──────────────────
+
+model User {
+  id            String    @id
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  role              String    @default("user")
+  banned            Boolean   @default(false)
+  twoFactorEnabled  Boolean   @default(false)
+  activeOrganizationId String?
+  profileRole         String?
+  profileScale        String?
+  profileUse          String?
+  profileCompletedAt  DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  sessions    Session[]
+  accounts    Account[]
+  memberships Member[]
+  sentInvitations Invitation[] @relation("InvitedBy")
+  racks       Rack[]
+  devices     Device[]
+  connections Connection[]
+  floorPlans  FloorPlan[]
+  discoveries DiscoveryScan[]
+  settings    UserSettings?
+  auditLogs   AuditLog[]
+  twoFactors  TwoFactor[]
+  subnets     Subnet[]
+  ipAssignments IpAssignment[]
+  dhcpRanges  DhcpRange[]
+  vlans       Vlan[]
+  vlanAssignments VlanAssignment[]
+  buildPlans  BuildPlan[]
+  recommendationDismissals RecommendationDismissal[]
+  initiatedOwnershipTransfers OwnershipTransfer[] @relation("OwnershipTransferFrom")
+  pendingOwnershipTransfers   OwnershipTransfer[] @relation("OwnershipTransferTo")
+}
+
+model Session {
+  id        String   @id
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  // Maintained by Better Auth's organization plugin (acceptInvitation,
+  // setActiveOrganization endpoints). Our app reads `User.activeOrganizationId`
+  // — this column exists for BA schema compat but is not authoritative.
+  activeOrganizationId String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Account {
+  id                    String    @id
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accountId             String
+  providerId            String
+  accessToken           String?
+  refreshToken          String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  idToken               String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model TwoFactor {
+  id          String  @id
+  userId      String
+  user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  secret      String
+  backupCodes String
+  verified    Boolean @default(false)
+
+  @@index([userId])
+}
+
+// ─── Organizations (BA Organization plugin) ─────
+
+// Tenancy boundary for every tenant-scoped resource. Tier state (plan /
+// planExpiresAt) lives here, not on User — paid tiers are per-workspace, so a
+// user can belong to multiple orgs with different plans. RLS policies key off
+// Organization.id via the `app.organization_id` session var.
+model Organization {
+  id            String    @id @default(cuid())
+  name          String
+  slug          String    @unique
+  logo          String?
+  metadata      Json?
+
+  // RackSmith extras — not managed by the BA plugin
+  plan          String    @default("free")
+  planExpiresAt DateTime?
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  members        Member[]
+  invitations    Invitation[]
+  racks          Rack[]
+  devices        Device[]
+  subnets        Subnet[]
+  ipAssignments  IpAssignment[]
+  dhcpRanges     DhcpRange[]
+  vlans          Vlan[]
+  vlanAssignments VlanAssignment[]
+  connections    Connection[]
+  floorPlans     FloorPlan[]
+  discoveryScans DiscoveryScan[]
+  buildPlans     BuildPlan[]
+  recommendationDismissals RecommendationDismissal[]
+  auditLogs      AuditLog[]
+  ownershipTransfers OwnershipTransfer[]
+
+  @@index([slug])
+}
+
+// Email-confirmed ownership handoff. Owner initiates → target member gets
+// an email → target confirms → atomic role swap. Tokens are the row's CUID
+// (opaque, single-use, expires after 3 days). Per handoff §6c the email
+// roundtrip is required; an owner cannot unilaterally promote someone else.
+model OwnershipTransfer {
+  id             String   @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  fromUserId     String
+  fromUser       User     @relation("OwnershipTransferFrom", fields: [fromUserId], references: [id], onDelete: Cascade)
+  toUserId       String
+  toUser         User     @relation("OwnershipTransferTo", fields: [toUserId], references: [id], onDelete: Cascade)
+  status         String   @default("pending")  // pending | accepted | revoked | expired
+  expiresAt      DateTime
+  acceptedAt     DateTime?
+  revokedAt      DateTime?
+  createdAt      DateTime @default(now())
+
+  @@index([organizationId, status])
+  @@index([toUserId, status])
+  @@index([expiresAt])
+}
+
+// Join table between User and Organization. Role hierarchy:
+//   owner  — billing, delete, transfer ownership (exactly one per org)
+//   admin  — invite / remove members, org settings
+//   member — CRUD on resources
+//   viewer — read-only
+model Member {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  role           String
+  createdAt      DateTime @default(now())
+
+  @@unique([userId, organizationId])
+  @@index([organizationId, role])
+}
+
+// BA Organization plugin owns token generation/validation. Cap of 50 pending
+// invitations per Organization enforced at the application layer.
+model Invitation {
+  id             String   @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  email          String
+  role           String
+  status         String   @default("pending")  // pending | accepted | canceled | expired
+  expiresAt      DateTime
+  inviterId      String
+  inviter        User     @relation("InvitedBy", fields: [inviterId], references: [id])
+  createdAt      DateTime @default(now())
+
+  @@index([organizationId, email])
+  @@index([email, status])
+  @@index([expiresAt])
+}
+
+// ─── Infrastructure ──────────────────────────────
+
+model Rack {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  name        String
+  sizeU       Int
+  location    String   @default("")
+  description String   @default("")
+  colorTag    String   @default("blue")
+
+  devices Device[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([organizationId])
+}
+
+// ─── IPAM ────────────────────────────────────────
+
+model Subnet {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  cidr        String
+  name        String
+  description String   @default("")
+  gateway     String?
+  dnsServers  String   @default("")
+  colorTag    String   @default("blue")
+
+  vlanId      String?
+  vlan        Vlan?    @relation(fields: [vlanId], references: [id], onDelete: SetNull)
+
+  assignments IpAssignment[]
+  dhcpRanges  DhcpRange[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+  @@index([organizationId])
+  @@index([vlanId])
+  @@unique([organizationId, cidr])
+}
+
+model Vlan {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  vlanId      Int
+  name        String
+  description String   @default("")
+  colorTag    String   @default("purple")
+  purpose     String   @default("user")
+
+  subnets     Subnet[]
+  assignments VlanAssignment[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+  @@index([organizationId])
+  @@unique([organizationId, vlanId])
+}
+
+model VlanAssignment {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  vlanId     String
+  vlan       Vlan     @relation(fields: [vlanId], references: [id], onDelete: Cascade)
+
+  deviceId   String
+  device     Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+
+  mode       String   @default("access")
+  portNumber Int?
+  tagged     Boolean  @default(true)
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([userId])
+  @@index([organizationId])
+  @@index([vlanId])
+  @@index([deviceId])
+  @@unique([vlanId, deviceId, portNumber])
+}
+
+model IpAssignment {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  subnetId  String
+  subnet    Subnet   @relation(fields: [subnetId], references: [id], onDelete: Cascade)
+  ipAddress String
+
+  deviceId  String?
+  device    Device?  @relation(fields: [deviceId], references: [id], onDelete: SetNull)
+  status    String   @default("assigned")
+  notes     String   @default("")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([organizationId])
+  @@index([subnetId])
+  @@unique([subnetId, ipAddress])
+}
+
+model DhcpRange {
+  id        String  @id @default(cuid())
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  subnetId  String
+  subnet    Subnet  @relation(fields: [subnetId], references: [id], onDelete: Cascade)
+
+  startIp   String
+  endIp     String
+  label     String  @default("")
+
+  @@index([userId])
+  @@index([organizationId])
+  @@index([subnetId])
+}
+
+model Device {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  name         String
+  deviceType   String
+  manufacturer String   @default("")
+  model        String   @default("")
+  sizeU        Int      @default(1)
+  portCount    Int      @default(0)
+  powerWatts   Int?
+  notes        String   @default("")
+
+  rackId    String?
+  rack      Rack?    @relation(fields: [rackId], references: [id], onDelete: SetNull)
+  positionU Int?
+
+  ipAddress     String?
+  macAddress    String?
+  hostname      String?
+  osFingerprint String?
+  discoveredAt  DateTime?
+  lastSeen      DateTime?
+  isManual      Boolean  @default(true)
+
+  canvasX Float?
+  canvasY Float?
+
+  sourceConnections Connection[] @relation("SourceDevice")
+  targetConnections Connection[] @relation("TargetDevice")
+  ipAssignments     IpAssignment[]
+  vlanAssignments   VlanAssignment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([organizationId])
+  @@index([rackId])
+  @@index([ipAddress])
+  @@index([macAddress])
+}
+
+model Connection {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  sourceDeviceId String
+  sourceDevice   Device @relation("SourceDevice", fields: [sourceDeviceId], references: [id], onDelete: Cascade)
+  sourcePort     String @default("")
+
+  targetDeviceId String
+  targetDevice   Device @relation("TargetDevice", fields: [targetDeviceId], references: [id], onDelete: Cascade)
+  targetPort     String @default("")
+
+  cableType     String @default("ethernet")
+  cableLengthFt Float?
+  vlan          String?
+  bandwidth     String?
+  description   String @default("")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([organizationId])
+}
+
+// ─── Topology / Floor Plans ─────────────────────
+
+model FloorPlan {
+  id       String @id @default(cuid())
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  name       String
+  width      Int   @default(1200)
+  height     Int   @default(800)
+  gridSize   Int   @default(20)
+  background String @default("")
+  metadata   Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([organizationId])
+}
+
+// ─── Auto-Discovery ─────────────────────────────
+
+model DiscoveryScan {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  subnet     String
+  status     String @default("pending")
+  hostsFound Int    @default(0)
+  hostsNew   Int    @default(0)
+  hostsKnown Int    @default(0)
+  duration   Int?
+  results    Json?
+  error      String?
+
+  startedAt   DateTime?
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([userId])
+  @@index([organizationId])
+}
+
+// ─── Supporting ──────────────────────────────────
+
+// Per-user preferences (theme, sidebar collapsed, default subnet) — stays on
+// User even in the multi-tenant world because these are UI preferences, not
+// org-scoped data. `UserSettings.defaultSubnet` may move if we later add
+// per-org defaults; for now it reads across all orgs a user is in.
+model UserSettings {
+  id               String  @id @default(cuid())
+  userId           String  @unique
+  user             User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  defaultSubnet    String?
+  scanInterval     Int?
+  theme            String  @default("dark")
+  sidebarCollapsed Boolean @default(false)
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  action     String
+  entityType String
+  entityId   String?
+  changes    Json?
+  metadata   Json?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([organizationId, createdAt])
+  @@index([entityType, entityId])
+}
+
+// ─── Plan Wizard + Recommendations (Phase 9) ────
+
+// User-built network blueprints that can be materialized into real
+// Rack/Device/Subnet/Vlan rows in one transactional apply.
+model BuildPlan {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  name      String   @default("Untitled plan")
+  status    String   @default("draft") // draft | applied | discarded
+  inputs    Json
+  appliedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, status])
+  @@index([organizationId, status])
+}
+
+// Persisted dismissals + snoozes for derived recommendations. Dismissals are
+// keyed by (ruleKey, entityKey) so a re-discovered alert (same rule, same
+// resource) stays muted; a different resource that hits the same rule still
+// fires.
+model RecommendationDismissal {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  ruleKey     String
+  entityKey   String
+  expiresAt   DateTime?
+  dismissedAt DateTime @default(now())
+
+  @@unique([organizationId, ruleKey, entityKey])
+  @@index([userId, expiresAt])
+  @@index([organizationId, expiresAt])
+}
+
+// ─── Device Catalog (seeded, shared) ────────────
+
+// Shared seed data — stays outside the tenancy boundary. Read-only from app
+// code; managed by `prisma db seed`.
+model DeviceCatalog {
+  id           String  @id @default(cuid())
+  name         String
+  manufacturer String
+  model        String
+  deviceType   String
+  sizeU        Int     @default(1)
+  portCount    Int     @default(0)
+  powerWatts   Int?
+  imageUrl     String?
+  description  String  @default("")
+  isDefault    Boolean @default(true)
+
+  @@unique([manufacturer, model])
+}

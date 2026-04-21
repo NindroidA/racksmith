@@ -1,0 +1,81 @@
+# dependencies
+node_modules/
+.pnp
+.pnp.js
+.yarn/
+
+# next.js
+.next/
+out/
+
+# production
+build/
+dist/
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# env
+.env
+.env*.local
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# prisma — migration_lock.toml IS committed per Prisma best practice
+# (tracks which DB provider is in use; skipping it causes drift across envs).
+# Nothing to ignore here right now; keep the header for future additions.
+
+# worktrees
+.worktrees/
+
+# pre-delete organization snapshots (RACKSMITH_BACKUP_DIR)
+backups/
+
+# ide
+.idea/
+.vscode/
+test-artifacts/
+
+# playwright
+playwright-report/
+test-results/
+/playwright/.cache/
+.playwright-mcp/
+
+# desloppify review/fix artifacts (large JSON + subagent logs; generated, not source)
+.desloppify/
+
+# expect/mcp artifacts
+.expect/
+
+# misc generated — desloppify drops a fresh scorecard.png on every scan.
+# Treated as a pure artifact (current state, not source); never commit it.
+scorecard.png
+
+# claude code local (personal tool permissions / model prefs — team settings.json would be committed)
+.claude/settings.local.json
+
+# internal planning + session handoff docs (local context, not source)
+.plans/
+
+# editor swap/backup files (vim, emacs, crash dumps)
+*.swp
+*.swo
+*~
+
+# coverage reports (vitest / any future coverage tool)
+coverage/
+.nyc_output/
+
+

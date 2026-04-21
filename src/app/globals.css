@@ -1,0 +1,307 @@
+@import "tailwindcss";
+
+/* ─── Theme Tokens ─────────────────────────────── */
+
+@theme {
+  --color-base: #0a0e1a;
+  --color-surface: #141829;
+  --color-surface-raised: #1a1f35;
+
+  --color-primary: #3b82f6;
+  --color-primary-muted: rgba(59, 130, 246, 0.15);
+
+  --color-accent-blue: #3b82f6;
+  --color-accent-purple: #8b5cf6;
+  --color-accent-cyan: #06b6d4;
+  --color-accent-green: #10b981;
+  --color-accent-orange: #f97316;
+  --color-accent-red: #ef4444;
+
+  --color-glass-bg: rgba(255, 255, 255, 0.04);
+  --color-glass-border: rgba(255, 255, 255, 0.1);
+  --color-glass-border-hover: rgba(255, 255, 255, 0.2);
+
+  --color-text-primary: rgba(255, 255, 255, 0.95);
+  --color-text-secondary: rgba(255, 255, 255, 0.6);
+  --color-text-muted: rgba(255, 255, 255, 0.4);
+}
+
+/* ─── Base ─────────────────────────────────────── */
+
+html {
+  background: #0a0e1a;
+  overflow-x: hidden;
+}
+
+body {
+  color: var(--color-text-primary);
+  font-feature-settings: "rlig" 1, "calt" 1;
+  background: linear-gradient(
+    135deg,
+    #0a0e1a 0%,
+    #1a1f35 25%,
+    #141829 50%,
+    #1a1f35 75%,
+    #0f1420 100%
+  );
+  background-attachment: fixed;
+  background-size: 400% 400%;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  overscroll-behavior: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  body {
+    animation: gradientShift 20s ease infinite;
+  }
+}
+
+@keyframes gradientShift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* ─── Glass Effects ────────────────────────────── */
+
+.glass {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 8px 32px 0 rgba(0, 0, 0, 0.37),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+}
+
+.glass-card {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.09) 0%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  backdrop-filter: blur(40px) saturate(200%);
+  -webkit-backdrop-filter: blur(40px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow:
+    0 8px 32px 0 rgba(31, 38, 135, 0.37),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.12),
+    0 0 0 1px rgba(255, 255, 255, 0.06);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0.07) 100%
+  );
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow:
+    0 12px 40px 0 rgba(31, 38, 135, 0.45),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.15),
+    0 0 0 1px rgba(255, 255, 255, 0.08);
+  transform: translateY(-2px);
+}
+
+.glass-sidebar {
+  background: linear-gradient(
+    180deg,
+    rgba(20, 25, 40, 0.96) 0%,
+    rgba(15, 20, 35, 0.98) 100%
+  );
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    4px 0 32px 0 rgba(0, 0, 0, 0.5),
+    inset -1px 0 0 0 rgba(255, 255, 255, 0.05);
+}
+
+.glass-button {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(20px) saturate(200%);
+  -webkit-backdrop-filter: blur(20px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-button:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.22);
+  transform: translateY(-1px);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+}
+
+.glass-button:active {
+  transform: translateY(0);
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+}
+
+.glass-input {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+  color: var(--color-text-primary);
+}
+
+.glass-input:focus {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(59, 130, 246, 0.5);
+  box-shadow:
+    inset 0 2px 4px 0 rgba(0, 0, 0, 0.2),
+    0 0 0 3px rgba(59, 130, 246, 0.1);
+  outline: none;
+}
+
+.glass-input::placeholder {
+  color: var(--color-text-muted);
+}
+
+/* Reusable button surfaces — primary uses the brand accent, secondary keeps
+   parity with glass surfaces and is used for back-links / cancels. */
+.btn-primary {
+  background: rgb(59, 130, 246);
+  color: #ffffff;
+  font-weight: 500;
+  transition: background-color 0.15s ease, opacity 0.15s ease;
+}
+.btn-primary:hover:not(:disabled) {
+  background: rgba(59, 130, 246, 0.9);
+}
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+.btn-secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.10);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+}
+.btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.glass-panel {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.06) 100%
+  );
+  backdrop-filter: blur(50px) saturate(200%);
+  -webkit-backdrop-filter: blur(50px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow:
+    0 16px 64px 0 rgba(0, 0, 0, 0.5),
+    inset 0 2px 0 0 rgba(255, 255, 255, 0.15),
+    0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+/* ─── Gradient Text ────────────────────────────── */
+
+.gradient-text {
+  background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 50%, #f0abfc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  background-size: 200% auto;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .gradient-text {
+    animation: shimmer 8s ease-in-out infinite;
+  }
+}
+
+@keyframes shimmer {
+  0%,
+  100% {
+    background-position: 0% center;
+  }
+  50% {
+    background-position: 100% center;
+  }
+}
+
+/* ─── Autofill (keep password-manager functional, kill the yellow) ─── */
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active,
+textarea:-webkit-autofill {
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.95) !important;
+  -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
+  box-shadow: 0 0 0 1000px transparent inset !important;
+  caret-color: rgba(255, 255, 255, 0.95);
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* ─── Scrollbar ────────────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* ─── Skeleton Loading ─────────────────────────── */
+
+@keyframes skeleton-pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.1;
+  }
+}
+
+.skeleton {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .skeleton {
+    animation: skeleton-pulse 2s ease-in-out infinite;
+  }
+}

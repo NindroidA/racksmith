@@ -1,0 +1,60 @@
+rules:
+  - id: prisma-tenant-table-missing-organization-id
+    languages: [typescript]
+    severity: ERROR
+    message: |
+      Prisma read on a tenant-scoped table without `organizationId` in
+      `where`. Add `organizationId` explicitly even when RLS would catch
+      the leak — defense in depth is the documented pattern. If the call
+      is genuinely tenant-agnostic (admin tooling), exempt it in
+      `scripts/audit-tenant-filter.ts` and silence this rule with a
+      `nosemgrep` comment.
+    paths:
+      include:
+        - "src/app"
+        - "src/lib"
+        - "src/components"
+      exclude:
+        - "**/*.test.ts"
+        - "**/*.test.tsx"
+        - "**/*.d.ts"
+        - "src/lib/prisma-tenant.ts"
+        - "src/lib/prisma-admin.ts"
+        - "src/lib/audit.ts"
+        - "src/lib/organization-export.ts"
+    patterns:
+      - pattern-either:
+          - pattern: $X.rack.findMany($ARGS)
+          - pattern: $X.rack.findFirst($ARGS)
+          - pattern: $X.rack.count($ARGS)
+          - pattern: $X.device.findMany($ARGS)
+          - pattern: $X.device.findFirst($ARGS)
+          - pattern: $X.device.count($ARGS)
+          - pattern: $X.subnet.findMany($ARGS)
+          - pattern: $X.subnet.findFirst($ARGS)
+          - pattern: $X.subnet.count($ARGS)
+          - pattern: $X.vlan.findMany($ARGS)
+          - pattern: $X.vlan.findFirst($ARGS)
+          - pattern: $X.vlan.count($ARGS)
+          - pattern: $X.vlanAssignment.findMany($ARGS)
+          - pattern: $X.vlanAssignment.findFirst($ARGS)
+          - pattern: $X.ipAssignment.findMany($ARGS)
+          - pattern: $X.ipAssignment.findFirst($ARGS)
+          - pattern: $X.ipAssignment.count($ARGS)
+          - pattern: $X.dhcpRange.findMany($ARGS)
+          - pattern: $X.dhcpRange.findFirst($ARGS)
+          - pattern: $X.connection.findMany($ARGS)
+          - pattern: $X.connection.findFirst($ARGS)
+          - pattern: $X.connection.count($ARGS)
+          - pattern: $X.floorPlan.findMany($ARGS)
+          - pattern: $X.floorPlan.findFirst($ARGS)
+          - pattern: $X.discoveryScan.findMany($ARGS)
+          - pattern: $X.discoveryScan.findFirst($ARGS)
+          - pattern: $X.buildPlan.findMany($ARGS)
+          - pattern: $X.buildPlan.findFirst($ARGS)
+          - pattern: $X.recommendationDismissal.findMany($ARGS)
+          - pattern: $X.recommendationDismissal.findFirst($ARGS)
+          - pattern: $X.auditLog.findMany($ARGS)
+          - pattern: $X.auditLog.findFirst($ARGS)
+          - pattern: $X.auditLog.count($ARGS)
+      - pattern-not-regex: 'organizationId|organization\s*:'

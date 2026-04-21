@@ -1,0 +1,265 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { twMerge } from "tailwind-merge";
+import {
+  LayoutDashboard,
+  Server,
+  HardDrive,
+  Network,
+  Radar,
+  Settings,
+  ChevronLeft,
+  ChevronRight,
+  LogOut,
+  Wrench,
+  Calculator,
+  Globe,
+  Tag,
+  FileCode,
+  Wand2,
+  Battery,
+  Cable,
+  Bell,
+} from "lucide-react";
+import { signOut } from "@/lib/auth-client";
+import { useSidebar } from "./sidebar-context";
+import {
+  OrganizationSwitcher,
+  type OrgMembership,
+} from "./organization-switcher";
+
+type NavItem = {
+  href: string;
+  label: string;
+  icon: typeof LayoutDashboard;
+  group?: string;
+};
+
+const NAV_ITEMS: readonly NavItem[] = [
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/racks", label: "Racks", icon: Server },
+  { href: "/devices", label: "Devices", icon: HardDrive },
+  { href: "/topology", label: "Topology", icon: Network },
+  { href: "/discovery", label: "Discovery", icon: Radar },
+  {
+    href: "/network-tools/subnet-calc",
+    label: "Subnet Calc",
+    icon: Calculator,
+    group: "Network Tools",
+  },
+  {
+    href: "/network-tools/ipam",
+    label: "IPAM",
+    icon: Globe,
+    group: "Network Tools",
+  },
+  {
+    href: "/network-tools/vlans",
+    label: "VLANs",
+    icon: Tag,
+    group: "Network Tools",
+  },
+  {
+    href: "/network-tools/config-gen",
+    label: "Config Gen",
+    icon: FileCode,
+    group: "Network Tools",
+  },
+  {
+    href: "/network-tools/plan-wizard",
+    label: "Plan Wizard",
+    icon: Wand2,
+    group: "Network Tools",
+  },
+  {
+    href: "/network-tools/power",
+    label: "Power",
+    icon: Battery,
+    group: "Network Tools",
+  },
+  {
+    href: "/network-tools/cables",
+    label: "Cables",
+    icon: Cable,
+    group: "Network Tools",
+  },
+  {
+    href: "/network-tools/recommendations",
+    label: "Recommendations",
+    icon: Bell,
+    group: "Network Tools",
+  },
+  { href: "/settings", label: "Settings", icon: Settings },
+] as const;
+
+type SidebarProps = {
+  activeOrgId: string | null;
+  activeOrgName: string | null;
+  memberships: OrgMembership[];
+};
+
+export function Sidebar({
+  activeOrgId,
+  activeOrgName,
+  memberships,
+}: SidebarProps) {
+  const { collapsed, toggle } = useSidebar();
+  const pathname = usePathname();
+  const reduceMotion = useReducedMotion();
+  // When the user prefers reduced motion, skip the sliding/fading label
+  // transitions on collapse/expand and let the labels appear/disappear
+  // instantly. The `width` animation is what vestibular-sensitive users
+  // most need blocked — opacity alone is within the "safe" category.
+  const labelAnim = reduceMotion
+    ? { initial: false, animate: { opacity: 1, width: "auto" } }
+    : {
+        initial: { opacity: 0, width: 0 },
+        animate: { opacity: 1, width: "auto" },
+        exit: { opacity: 0, width: 0 },
+      };
+
+  return (
+    <aside
+      className={twMerge(
+        "glass-sidebar fixed left-0 top-0 z-40 flex h-screen flex-col transition-[width] duration-300",
+        collapsed ? "w-[72px]" : "w-[240px]",
+      )}
+    >
+      {/* Collapse Tab Handle — sticks out from the right edge, slides further out on hover */}
+      <button
+        onClick={toggle}
+        aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        className="group absolute right-[-18px] top-1/2 z-50 flex h-14 w-[22px] -translate-y-1/2 items-center justify-center rounded-r-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/50"
+      >
+        <span
+          aria-hidden
+          className={twMerge(
+            "pointer-events-none absolute inset-y-0 left-0 flex w-[18px] items-center justify-center rounded-r-xl",
+            "bg-gradient-to-r from-[#0f1423] to-[#141829]",
+            "border-y border-r border-white/[0.12]",
+            "shadow-[4px_0_16px_rgba(0,0,0,0.45),inset_-1px_0_0_rgba(255,255,255,0.04)]",
+            "transition-[transform,background,border-color] duration-200 ease-out",
+            "group-hover:translate-x-[4px] group-hover:from-[#141829] group-hover:to-[#1a1f35] group-hover:border-white/25",
+            "group-active:translate-x-[1px]",
+          )}
+        >
+          {collapsed ? (
+            <ChevronRight className="h-3.5 w-3.5 text-white/50 transition-colors group-hover:text-white/90" />
+          ) : (
+            <ChevronLeft className="h-3.5 w-3.5 text-white/50 transition-colors group-hover:text-white/90" />
+          )}
+        </span>
+      </button>
+
+      {/* Logo */}
+      <div className="flex h-16 items-center gap-3 px-4">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/20">
+          <Wrench className="h-5 w-5 text-primary" />
+        </div>
+        <AnimatePresence>
+          {!collapsed && (
+            <motion.span
+              {...labelAnim}
+              className="gradient-text overflow-hidden whitespace-nowrap text-lg font-bold"
+            >
+              RackSmith
+            </motion.span>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Workspace switcher */}
+      {activeOrgId && activeOrgName && (
+        <div className="mt-2">
+          <OrganizationSwitcher
+            collapsed={collapsed}
+            activeOrgId={activeOrgId}
+            activeOrgName={activeOrgName}
+            memberships={memberships}
+          />
+        </div>
+      )}
+
+      {/* Navigation */}
+      <nav className="mt-4 flex flex-1 flex-col gap-1 px-3">
+        {NAV_ITEMS.map((item, idx) => {
+          const isActive =
+            pathname === item.href || pathname?.startsWith(item.href + "/");
+          const Icon = item.icon;
+          const prevGroup = idx > 0 ? NAV_ITEMS[idx - 1].group : undefined;
+          const showHeader =
+            !collapsed && item.group && item.group !== prevGroup;
+
+          return (
+            <div key={item.href}>
+              {showHeader && (
+                <div className="mb-1 mt-3 px-3 text-[10px] font-semibold uppercase tracking-wider text-white/30">
+                  {item.group}
+                </div>
+              )}
+              <Link
+                href={item.href}
+                title={collapsed ? item.label : undefined}
+                className={twMerge(
+                  "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
+                  isActive
+                    ? "bg-primary/15 text-white"
+                    : "text-white/60 hover:bg-white/[0.06] hover:text-white/90",
+                )}
+              >
+                {isActive && (
+                  <motion.div
+                    layoutId="sidebar-active"
+                    className="absolute inset-0 rounded-lg bg-primary/15"
+                    transition={{ type: "spring", bounce: 0.15, duration: 0.5 }}
+                  />
+                )}
+                <Icon
+                  className={twMerge(
+                    "relative z-10 h-5 w-5 shrink-0",
+                    isActive ? "text-primary" : "",
+                  )}
+                />
+                <AnimatePresence>
+                  {!collapsed && (
+                    <motion.span
+                      {...labelAnim}
+                      className="relative z-10 overflow-hidden whitespace-nowrap"
+                    >
+                      {item.label}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </Link>
+            </div>
+          );
+        })}
+      </nav>
+
+      {/* Bottom actions */}
+      <div className="border-t border-white/10 p-3">
+        <button
+          onClick={() => signOut()}
+          title={collapsed ? "Sign Out" : undefined}
+          aria-label={collapsed ? "Sign Out" : undefined}
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white/60 transition-all duration-200 hover:bg-white/[0.06] hover:text-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/50"
+        >
+          <LogOut className="h-5 w-5 shrink-0" />
+          <AnimatePresence>
+            {!collapsed && (
+              <motion.span
+                {...labelAnim}
+                className="overflow-hidden whitespace-nowrap"
+              >
+                Sign Out
+              </motion.span>
+            )}
+          </AnimatePresence>
+        </button>
+      </div>
+    </aside>
+  );
+}

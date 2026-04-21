@@ -1,0 +1,29 @@
+export default function RacksLoading() {
+  return (
+    <div>
+      <div className="mb-6 flex items-end justify-between">
+        <div>
+          <div className="h-9 w-32 animate-pulse rounded bg-white/[0.05]" />
+          <div className="mt-2 h-4 w-56 animate-pulse rounded bg-white/[0.04]" />
+        </div>
+        <div className="h-10 w-32 animate-pulse rounded-lg bg-white/[0.05]" />
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {[0, 1, 2, 3, 4, 5].map((i) => (
+          <div key={i} className="glass-card flex flex-col gap-3 rounded-xl p-6">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 animate-pulse rounded-lg bg-white/[0.05]" />
+              <div className="flex-1">
+                <div className="h-5 w-32 animate-pulse rounded bg-white/[0.05]" />
+                <div className="mt-1.5 h-3 w-20 animate-pulse rounded bg-white/[0.04]" />
+              </div>
+            </div>
+            <div className="h-2 w-full animate-pulse rounded-full bg-white/[0.04]" />
+            <div className="h-3 w-24 animate-pulse rounded bg-white/[0.04]" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

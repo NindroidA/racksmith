@@ -1,0 +1,60 @@
+{
+  "name": "racksmith",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "description": "Unified infrastructure documentation and visualization: racks, devices, network topology, auto-discovery.",
+  "homepage": "https://github.com/nindroid-systems/racksmith",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nindroid-systems/racksmith.git"
+  },
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "test": "vitest",
+    "test:e2e": "playwright test",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "audit:tenant-filter": "bun scripts/audit-tenant-filter.ts",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "test:integration:prepare": "scripts/prepare-test-db.sh",
+    "db:migrate": "prisma migrate dev",
+    "db:seed": "prisma db seed",
+    "db:generate": "prisma generate",
+    "db:studio": "prisma studio"
+  },
+  "prisma": {
+    "seed": "bun prisma/seed.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^6",
+    "@xyflow/react": "^12.10.2",
+    "better-auth": "^1.6.4",
+    "cmdk": "^1.1.1",
+    "framer-motion": "^12.38.0",
+    "html-to-image": "^1.11.13",
+    "ipaddr.js": "^2.3.0",
+    "lucide-react": "^1.8.0",
+    "next": "^16.2.4",
+    "qrcode.react": "^4.2.0",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "react-hot-toast": "^2.6.0",
+    "tailwind-merge": "^3.5.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.59.1",
+    "@tailwindcss/postcss": "^4.2.2",
+    "@types/node": "^25.6.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "postcss": "^8.5.10",
+    "prisma": "^6",
+    "tailwindcss": "^4.2.2",
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.4"
+  }
+}

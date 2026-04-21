@@ -1,0 +1,14 @@
+services:
+  db-test:
+    image: postgres:17-alpine
+    container_name: racksmith-db-test
+    environment:
+      POSTGRES_USER: racksmith_test
+      POSTGRES_PASSWORD: racksmith_test
+      POSTGRES_DB: racksmith_test
+    ports:
+      - "5433:5432"
+    tmpfs:
+      # Use tmpfs so the test DB is wiped on every container restart and is
+      # never persisted to disk — keeps the integration suite hermetic.
+      - /var/lib/postgresql/data

@@ -1,0 +1,18 @@
+import type { MetadataRoute } from "next";
+
+export default function manifest(): MetadataRoute.Manifest {
+  return {
+    name: "RackSmith",
+    short_name: "RackSmith",
+    description:
+      "Rack visualization, device inventory, network topology, and auto-discovery in one modern tool.",
+    start_url: "/dashboard",
+    display: "standalone",
+    background_color: "#0a0e1a",
+    theme_color: "#3b82f6",
+    icons: [
+      { src: "/icon", sizes: "32x32", type: "image/png" },
+      { src: "/apple-icon", sizes: "180x180", type: "image/png" },
+    ],
+  };
+}

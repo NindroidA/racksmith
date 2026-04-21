@@ -1,0 +1,279 @@
+"use client";
+
+import { useId, useMemo, useRef, useState } from "react";
+import { Cable, Plus, Trash2 } from "lucide-react";
+import { twMerge } from "tailwind-merge";
+import {
+  CABLE_SPECS,
+  buildBom,
+  estimateCableLength,
+  type CableMediaType,
+  type EstimateResult,
+  type LinkSpeed,
+} from "@/lib/cable";
+
+const STATUS_COLOR: Record<string, string> = {
+  ok: "text-accent-green",
+  warning: "text-accent-orange",
+  exceeded: "text-red-500",
+  speed_mismatch: "text-red-500",
+};
+
+type Row = {
+  id: string;
+  cableType: CableMediaType;
+  linkSpeed: LinkSpeed;
+  manualMeters: number;
+};
+
+const SPEED_OPTIONS: ReadonlyArray<LinkSpeed> = [
+  "1G",
+  "2.5G",
+  "5G",
+  "10G",
+  "25G",
+  "40G",
+  "100G",
+  "400G",
+];
+
+export function CableEstimatorClient() {
+  // Per-instance row IDs. `useId` gives a stable instance prefix; `nextRow`
+  // is bumped per `addRow` call. Replaces the previous module-scoped counter
+  // (which leaked IDs across page mounts in a single SPA session).
+  const idPrefix = useId();
+  const nextRow = useRef(0);
+  const makeRowId = () => {
+    nextRow.current += 1;
+    return `${idPrefix}-cable-${nextRow.current}`;
+  };
+
+  const [rows, setRows] = useState<Row[]>(() => [
+    { id: makeRowId(), cableType: "cat6a", linkSpeed: "10G", manualMeters: 30 },
+  ]);
+
+  const evaluated = useMemo(
+    () =>
+      rows.map((r) => ({
+        row: r,
+        result: estimateCableLength({
+          cableType: r.cableType,
+          linkSpeed: r.linkSpeed,
+          manualMeters: r.manualMeters,
+        }),
+      })),
+    [rows],
+  );
+
+  const bom = useMemo(
+    () =>
+      buildBom(
+        evaluated
+          .filter((e) => e.result.status !== "speed_mismatch")
+          .map((e) => ({
+            cableType: e.row.cableType,
+            recommendedMeters: e.result.recommendedMeters,
+          })),
+      ),
+    [evaluated],
+  );
+
+  const addRow = () =>
+    setRows((prev) => [
+      ...prev,
+      {
+        id: makeRowId(),
+        cableType: "cat6a",
+        linkSpeed: "1G",
+        manualMeters: 5,
+      },
+    ]);
+
+  const removeRow = (id: string) =>
+    setRows((prev) => prev.filter((r) => r.id !== id));
+
+  const updateRow = (id: string, patch: Partial<Row>) =>
+    setRows((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)));
+
+  return (
+    <div className="space-y-8">
+      <section className="glass-card rounded-xl p-6">
+        <header className="mb-4 flex items-center gap-2">
+          <Cable className="h-5 w-5 text-primary" aria-hidden />
+          <h2 className="text-lg font-semibold text-white">Cable runs</h2>
+        </header>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-left text-[11px] uppercase tracking-wide text-white/40">
+                <th scope="col" className="px-2 py-2">
+                  Type
+                </th>
+                <th scope="col" className="px-2 py-2">
+                  Speed
+                </th>
+                <th scope="col" className="px-2 py-2">
+                  Length (m)
+                </th>
+                <th scope="col" className="px-2 py-2">
+                  Buy length
+                </th>
+                <th scope="col" className="px-2 py-2">
+                  Status
+                </th>
+                <th scope="col" className="px-2 py-2 sr-only">
+                  Remove
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {evaluated.map(({ row, result }) => (
+                <tr key={row.id} className="border-t border-white/[0.04]">
+                  <td className="px-2 py-2">
+                    <select
+                      value={row.cableType}
+                      onChange={(e) =>
+                        updateRow(row.id, {
+                          cableType: e.target.value as CableMediaType,
+                        })
+                      }
+                      aria-label="Cable type"
+                      className="glass-input rounded-lg px-2 py-1.5 text-sm text-white"
+                    >
+                      {(Object.keys(CABLE_SPECS) as CableMediaType[]).map(
+                        (t) => (
+                          <option key={t} value={t}>
+                            {CABLE_SPECS[t].label}
+                          </option>
+                        ),
+                      )}
+                    </select>
+                  </td>
+                  <td className="px-2 py-2">
+                    <select
+                      value={row.linkSpeed}
+                      onChange={(e) =>
+                        updateRow(row.id, {
+                          linkSpeed: e.target.value as LinkSpeed,
+                        })
+                      }
+                      aria-label="Link speed"
+                      className="glass-input rounded-lg px-2 py-1.5 text-sm text-white"
+                    >
+                      {SPEED_OPTIONS.map((s) => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                  <td className="px-2 py-2">
+                    <input
+                      type="number"
+                      min={0}
+                      step={0.5}
+                      value={row.manualMeters}
+                      onChange={(e) =>
+                        updateRow(row.id, {
+                          manualMeters: Math.max(
+                            0,
+                            Number(e.target.value) || 0,
+                          ),
+                        })
+                      }
+                      aria-label="Length in meters"
+                      className="glass-input w-24 rounded-lg px-2 py-1.5 text-sm text-white"
+                    />
+                  </td>
+                  <td className="px-2 py-2 text-white/70">
+                    {result.recommendedMeters} m
+                  </td>
+                  <td className="px-2 py-2">
+                    <span
+                      className={twMerge(
+                        "text-xs font-medium uppercase",
+                        STATUS_COLOR[result.status],
+                      )}
+                    >
+                      {result.status.replace("_", " ")}
+                    </span>
+                  </td>
+                  <td className="px-2 py-2">
+                    <button
+                      type="button"
+                      onClick={() => removeRow(row.id)}
+                      aria-label={`Remove ${CABLE_SPECS[row.cableType].label} cable run`}
+                      className="flex h-8 w-8 items-center justify-center rounded-lg text-white/40 transition-colors hover:bg-red-500/10 hover:text-red-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/50"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <button
+          type="button"
+          onClick={addRow}
+          className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-1.5 text-sm text-white/80 hover:bg-white/[0.08]"
+        >
+          <Plus className="h-3.5 w-3.5" aria-hidden /> Add cable run
+        </button>
+
+        <NotesList evaluated={evaluated} />
+      </section>
+
+      <section className="glass-card rounded-xl p-6">
+        <h2 className="mb-3 text-lg font-semibold text-white">
+          Bill of materials
+        </h2>
+        {bom.length === 0 ? (
+          <p className="text-sm text-white/50">
+            Add a cable run above. Speed-mismatched runs are excluded.
+          </p>
+        ) : (
+          <ul className="divide-y divide-white/[0.04]">
+            {bom.map((line) => (
+              <li
+                key={`${line.cableType}-${line.lengthMeters}`}
+                className="flex items-center justify-between py-2.5 text-sm"
+              >
+                <span className="text-white">
+                  {CABLE_SPECS[line.cableType].label}{" "}
+                  <span className="text-white/40">·</span> {line.lengthMeters} m
+                </span>
+                <span className="text-white/60">× {line.count}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+    </div>
+  );
+}
+
+function NotesList({
+  evaluated,
+}: {
+  evaluated: ReadonlyArray<{ row: Row; result: EstimateResult }>;
+}) {
+  const notes = evaluated.flatMap(({ row, result }) =>
+    result.notes.map((note) => ({ key: `${row.id}-${note}`, note })),
+  );
+  if (notes.length === 0) return null;
+  return (
+    <ul className="mt-4 space-y-2">
+      {notes.map((n) => (
+        <li
+          key={n.key}
+          className="rounded-lg border border-amber-500/20 bg-amber-500/[0.06] px-3 py-2 text-xs text-amber-100/90"
+        >
+          {n.note}
+        </li>
+      ))}
+    </ul>
+  );
+}

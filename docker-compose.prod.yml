@@ -1,0 +1,56 @@
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-racksmith}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
+      POSTGRES_DB: ${POSTGRES_DB:-racksmith}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-racksmith} -d ${POSTGRES_DB:-racksmith}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: racksmith:latest
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # Core
+      DATABASE_URL: postgresql://${POSTGRES_USER:-racksmith}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-racksmith}?schema=public
+      NODE_ENV: production
+      PORT: "3000"
+      HOSTNAME: 0.0.0.0
+      RACKSMITH_SEED: ${RACKSMITH_SEED:-0}
+      # Better Auth — must match the external URL users reach this at
+      BETTER_AUTH_SECRET: "${BETTER_AUTH_SECRET:?BETTER_AUTH_SECRET must be set - generate with openssl rand -hex 32}"
+      BETTER_AUTH_URL: "${BETTER_AUTH_URL:?BETTER_AUTH_URL must be set - e.g. https://racksmith.yourdomain.com}"
+      # OAuth (optional — buttons hide when unset)
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      # Email delivery (optional — falls back to console logger)
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      RACKSMITH_EMAIL_FROM: ${RACKSMITH_EMAIL_FROM:-}
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+volumes:
+  pgdata:
