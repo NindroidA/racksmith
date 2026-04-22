@@ -76,12 +76,14 @@ export async function createTestMembership(
  */
 export async function seedOrgWithOwner(opts?: {
   orgName?: string;
+  slug?: string;
   userEmail?: string;
   plan?: Plan;
 }): Promise<TestContext> {
   const user = await createTestUser({ email: opts?.userEmail });
   const organization = await createTestOrganization({
     name: opts?.orgName,
+    slug: opts?.slug,
     plan: opts?.plan,
   });
   await createTestMembership(user.id, organization.id, "owner");
@@ -106,12 +108,14 @@ export async function createTestRack(
   userId: string,
   opts?: { name?: string; sizeU?: number },
 ) {
-  const id = nextId("rack");
+  // Let Prisma generate a CUID-shaped id via @default(cuid()). Passing a
+  // non-CUID string here would fail downstream zod validation when the row
+  // is referenced via the public API (e.g. createDeviceBody.rackId).
+  const fallbackName = nextId("rack");
   return withTenant(organizationId, (tx) =>
     tx.rack.create({
       data: {
-        id,
-        name: opts?.name ?? `Rack ${id}`,
+        name: opts?.name ?? `Rack ${fallbackName}`,
         sizeU: opts?.sizeU ?? 42,
         userId,
         organizationId,
@@ -163,12 +167,12 @@ export async function createTestDevice(
   userId: string,
   opts?: { name?: string; rackId?: string | null },
 ) {
-  const id = nextId("dev");
+  // Let Prisma generate a CUID-shaped id — same rationale as createTestRack.
+  const fallbackName = nextId("dev");
   return withTenant(organizationId, (tx) =>
     tx.device.create({
       data: {
-        id,
-        name: opts?.name ?? `Device ${id}`,
+        name: opts?.name ?? `Device ${fallbackName}`,
         deviceType: "switch",
         sizeU: 1,
         portCount: 24,
