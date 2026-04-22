@@ -166,16 +166,37 @@ const PRICING = [
   },
 ];
 
-const TECH_STACK = [
-  "Next.js 16",
-  "Bun",
-  "TypeScript",
-  "Tailwind 4",
-  "PostgreSQL 17",
-  "Prisma",
-  "Better Auth",
-  "React Flow",
-  "nmap",
+const TECH_STACK: { name: string; classes: string }[] = [
+  { name: "Next.js 16", classes: "bg-white/[0.08] border-white/20 text-white" },
+  { name: "Bun", classes: "bg-pink-400/15 border-pink-400/30 text-pink-200" },
+  {
+    name: "TypeScript",
+    classes: "bg-blue-500/15 border-blue-500/30 text-blue-200",
+  },
+  {
+    name: "Tailwind 4",
+    classes: "bg-cyan-400/15 border-cyan-400/30 text-cyan-200",
+  },
+  {
+    name: "PostgreSQL 17",
+    classes: "bg-indigo-500/15 border-indigo-500/30 text-indigo-200",
+  },
+  {
+    name: "Prisma",
+    classes: "bg-teal-400/15 border-teal-400/30 text-teal-200",
+  },
+  {
+    name: "Better Auth",
+    classes: "bg-purple-500/15 border-purple-500/30 text-purple-200",
+  },
+  {
+    name: "React Flow",
+    classes: "bg-orange-400/15 border-orange-400/30 text-orange-200",
+  },
+  {
+    name: "nmap",
+    classes: "bg-green-500/15 border-green-500/30 text-green-200",
+  },
 ];
 
 export default function LandingPage() {
@@ -572,26 +593,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Tech stack */}
-      <section className="border-y border-white/[0.06] bg-white/[0.02] py-14">
-        <div className="mx-auto max-w-5xl px-6">
-          <div className="mb-6 flex items-center justify-center gap-2 text-xs uppercase tracking-wider text-white/40">
-            <Sparkles className="h-3.5 w-3.5" />
-            Built with modern tech
-          </div>
-          <div className="flex flex-wrap items-center justify-center gap-2">
-            {TECH_STACK.map((t) => (
-              <span
-                key={t}
-                className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-white/70"
-              >
-                {t}
-              </span>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Final CTA */}
       <section
         id="final-cta"
@@ -621,6 +622,26 @@ export default function LandingPage() {
             <GithubIcon className="h-4 w-4" />
             View on GitHub
           </a>
+        </div>
+      </section>
+
+      {/* Tech stack */}
+      <section className="border-y border-white/[0.06] bg-white/[0.02] py-14">
+        <div className="mx-auto max-w-5xl px-6">
+          <div className="mb-6 flex items-center justify-center gap-2 text-xs uppercase tracking-wider text-white/40">
+            <Sparkles className="h-3.5 w-3.5" />
+            Built with modern tech
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            {TECH_STACK.map((t) => (
+              <span
+                key={t.name}
+                className={`rounded-full border px-3 py-1.5 text-xs font-medium ${t.classes}`}
+              >
+                {t.name}
+              </span>
+            ))}
+          </div>
         </div>
       </section>
 
