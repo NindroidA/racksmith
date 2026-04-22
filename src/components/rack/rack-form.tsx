@@ -15,6 +15,7 @@ import {
   deleteRack,
 } from "@/app/(dashboard)/racks/actions";
 import type { RackInput } from "@/lib/validators";
+import { describeError } from "@/lib/error-message";
 
 type Props =
   | { mode: "create"; initial?: undefined; rackId?: undefined }
@@ -70,7 +71,7 @@ export function RackForm(props: Props) {
         }
       } catch (err) {
         toast.error(
-          err instanceof Error ? err.message : "Something went wrong",
+          describeError(err, "Something went wrong"),
         );
       }
     });
@@ -90,7 +91,7 @@ export function RackForm(props: Props) {
       toast.success("Rack deleted");
       router.push("/racks");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to delete");
+      toast.error(describeError(err, "Failed to delete"));
       setDeleting(false);
       setConfirmOpen(false);
     }

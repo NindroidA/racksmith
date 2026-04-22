@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import { ArrowLeft, Upload, FileText, CheckCircle2, AlertCircle } from "lucide-react";
 import { parseCsv, csvToDeviceRows, type CsvDeviceRow } from "@/lib/csv";
 import { importDevices } from "@/app/(dashboard)/devices/actions";
+import { describeError } from "@/lib/error-message";
 
 const SAMPLE_CSV = `name,deviceType,manufacturer,model,sizeU,portCount,powerWatts,ipAddress,macAddress,hostname,notes
 Main Switch,switch,cisco,C9300-48P,1,48,715,192.168.1.10,aa:bb:cc:dd:ee:ff,sw-core-01,Core switch
@@ -61,7 +62,7 @@ export function DeviceImportClient() {
         }
         router.push("/devices");
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Import failed");
+        toast.error(describeError(err, "Import failed"));
       }
     });
   }

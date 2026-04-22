@@ -15,6 +15,7 @@ import {
 } from "@/app/(dashboard)/network-tools/ipam/actions";
 import { IP_ASSIGNMENT_STATUSES } from "@/lib/validators";
 import type { AssignmentLite, DeviceLite } from "./subnet-types";
+import { describeError } from "@/lib/error-message";
 
 type Props = {
   subnetId: string;
@@ -72,7 +73,7 @@ export function IpAssignmentDialog({
         toast.success(existing ? "Assignment updated" : "IP assigned");
         onClose();
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Failed");
+        toast.error(describeError(err, "Failed"));
       }
     });
   };

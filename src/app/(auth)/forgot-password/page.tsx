@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { Wrench, Mail, CheckCircle2 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import toast from "react-hot-toast";
+import { describeError } from "@/lib/error-message";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -27,7 +28,7 @@ export default function ForgotPasswordPage() {
         setSent(true);
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Something went wrong");
+      toast.error(describeError(err, "Something went wrong"));
     } finally {
       setLoading(false);
     }

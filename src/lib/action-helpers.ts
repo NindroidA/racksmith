@@ -1,13 +1,19 @@
 import type { ActionResult } from "./action-types";
 import { ForbiddenError } from "./auth-helpers";
+import { describeError } from "./error-message";
 import type { LimitCheckDenied } from "./tiers";
+
+// Re-exported so server-side callers that already imported from this module
+// keep working without churn. Client callers should import from
+// `@/lib/error-message` directly to avoid pulling server-only deps.
+export { describeError };
 
 export function handleZodError(err: unknown): string {
   if (err && typeof err === "object" && "issues" in err) {
     const issues = (err as { issues: Array<{ message: string }> }).issues;
     return issues[0]?.message || "Invalid input";
   }
-  return err instanceof Error ? err.message : "Unknown error";
+  return describeError(err, "Unknown error");
 }
 
 /**
@@ -25,18 +31,6 @@ export function tierDenial(check: LimitCheckDenied): ActionResult<never> {
       max: check.limit,
     },
   };
-}
-
-/**
- * Extract a useful message from a thrown value. Better Auth's `APIError`
- * exposes a reliable `message`; other Errors are used as-is. Falls back
- * to the provided `fallback` for non-Error throws.
- */
-export function describeError(err: unknown, fallback: string): string {
-  if (err instanceof Error) {
-    return err.message || fallback;
-  }
-  return fallback;
 }
 
 /**

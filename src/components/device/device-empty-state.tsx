@@ -11,6 +11,7 @@ import {
   type DeviceTemplate,
 } from "@/lib/templates/devices";
 import { createDeviceFromTemplate } from "@/app/(dashboard)/devices/actions";
+import { describeError } from "@/lib/error-message";
 
 export function DeviceEmptyState() {
   const router = useRouter();
@@ -32,7 +33,7 @@ export function DeviceEmptyState() {
         toast.success(`${t.name} created`);
         router.push(`/devices/${result.data.id}`);
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Something went wrong");
+        toast.error(describeError(err, "Something went wrong"));
         setSubmittingId(null);
       }
     });

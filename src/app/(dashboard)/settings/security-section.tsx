@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Lock, Monitor, LogOut } from "lucide-react";
 import toast from "react-hot-toast";
 import { authClient } from "@/lib/auth-client";
+import { describeError } from "@/lib/error-message";
 
 type SessionRow = {
   id: string;
@@ -58,7 +59,7 @@ export function SecuritySection({ currentSessionId }: { currentSessionId: string
       rows.sort((a, b) => (a.current ? -1 : b.current ? 1 : 0));
       setSessions(rows);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to load sessions");
+      toast.error(describeError(err, "Failed to load sessions"));
     } finally {
       setSessionsLoading(false);
     }
@@ -97,7 +98,7 @@ export function SecuritySection({ currentSessionId }: { currentSessionId: string
         loadSessions();
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed");
+      toast.error(describeError(err, "Failed"));
     } finally {
       setPwLoading(false);
     }
@@ -114,7 +115,7 @@ export function SecuritySection({ currentSessionId }: { currentSessionId: string
         setSessions((prev) => prev.filter((s) => s.token !== token));
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed");
+      toast.error(describeError(err, "Failed"));
     } finally {
       setRevokeLoading(null);
     }
@@ -130,7 +131,7 @@ export function SecuritySection({ currentSessionId }: { currentSessionId: string
         loadSessions();
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed");
+      toast.error(describeError(err, "Failed"));
     }
   }
 
@@ -139,7 +140,7 @@ export function SecuritySection({ currentSessionId }: { currentSessionId: string
       await authClient.revokeSessions();
       router.push("/login");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed");
+      toast.error(describeError(err, "Failed"));
     }
   }
 

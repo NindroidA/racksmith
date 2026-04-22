@@ -13,6 +13,7 @@ import {
 import toast from "react-hot-toast";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
+import { describeError } from "@/lib/error-message";
 
 type Props = { initialEnabled: boolean };
 
@@ -52,7 +53,7 @@ export function TwoFactorSection({ initialEnabled }: Props) {
       setBackupCodes(result.data.backupCodes);
       setStage("scan");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed");
+      toast.error(describeError(err, "Failed"));
     } finally {
       setLoading(false);
     }
@@ -77,7 +78,7 @@ export function TwoFactorSection({ initialEnabled }: Props) {
       }
       setStage("backup");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed");
+      toast.error(describeError(err, "Failed"));
     } finally {
       setLoading(false);
     }
@@ -111,7 +112,7 @@ export function TwoFactorSection({ initialEnabled }: Props) {
         router.refresh();
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed");
+      toast.error(describeError(err, "Failed"));
     } finally {
       setLoading(false);
     }
@@ -134,7 +135,7 @@ export function TwoFactorSection({ initialEnabled }: Props) {
         toast.success("New backup codes generated");
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed");
+      toast.error(describeError(err, "Failed"));
     } finally {
       setLoading(false);
     }

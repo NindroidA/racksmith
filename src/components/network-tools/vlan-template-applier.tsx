@@ -6,6 +6,7 @@ import { Sparkles } from "lucide-react";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
 import { applyVlanTemplate } from "@/app/(dashboard)/network-tools/vlans/actions";
 import { VLAN_TEMPLATES } from "@/lib/config-gen/templates";
+import { describeError } from "@/lib/error-message";
 
 type ConfirmTarget = { id: string; label: string } | null;
 
@@ -32,7 +33,7 @@ export function VlanTemplateApplier() {
           : "";
         toast.success(`${result.data.created} VLAN(s) created${skipMsg}`);
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Failed");
+        toast.error(describeError(err, "Failed"));
       } finally {
         setSubmittingId(null);
         setConfirmTarget(null);

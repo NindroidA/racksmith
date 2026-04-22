@@ -92,7 +92,7 @@ export async function updateConnection(
   input: ConnectionInput,
 ): Promise<ActionResult> {
   return withActionEnvelope(async () => {
-    const { organizationId } = await requireMember("member");
+    const { session, organizationId } = await requireMember("member");
 
     const parsed = connectionSchema.safeParse(input);
     if (!parsed.success) {
@@ -129,6 +129,18 @@ export async function updateConnection(
     if (result.count === 0) {
       return { ok: false, error: "Connection not found" };
     }
+    await audit({
+      userId: session.user.id,
+      organizationId,
+      action: "updated",
+      entityType: "connection",
+      entityId: id,
+      changes: {
+        sourceDeviceId: data.sourceDeviceId,
+        targetDeviceId: data.targetDeviceId,
+        cableType: data.cableType,
+      },
+    });
     revalidatePath("/topology");
     return { ok: true, data: undefined };
   }, "Failed to update connection");
@@ -163,7 +175,7 @@ export async function updateDevicePosition(
   input: DevicePositionInput,
 ): Promise<ActionResult> {
   return withActionEnvelope(async () => {
-    const { organizationId } = await requireMember("member");
+    const { session, organizationId } = await requireMember("member");
 
     const parsed = devicePositionSchema.safeParse(input);
     if (!parsed.success) {
@@ -180,18 +192,28 @@ export async function updateDevicePosition(
     if (result.count === 0) {
       return { ok: false, error: "Device not found" };
     }
+    await audit({
+      userId: session.user.id,
+      organizationId,
+      action: "moved",
+      entityType: "device",
+      entityId: deviceId,
+      changes: { x, y },
+      metadata: { surface: "topology_canvas" },
+    });
     return { ok: true, data: undefined };
   }, "Failed to save position");
 }
 
 /**
  * Simple grid-based auto-layout. Not dagre-level smart, but a reasonable
- * default that gets devices onto the canvas. Uses BFS from devices with the
- * most connections (likely routers/core switches) to place them centrally.
+ * default that gets devices onto the canvas. Sorts devices by connection
+ * degree (most-connected first) and places them into a roughly square
+ * row-major grid (cols = ceil(sqrt(n)), 320×200 cells).
  */
 export async function autoLayout(): Promise<ActionResult> {
   return withActionEnvelope(async () => {
-    const { organizationId } = await requireMember("member");
+    const { session, organizationId } = await requireMember("member");
 
     const { devices, connections } = await withTenant(
       organizationId,
@@ -239,6 +261,17 @@ export async function autoLayout(): Promise<ActionResult> {
           data: { canvasX: col * cellW, canvasY: row * cellH },
         });
       }
+    });
+    // Aggregate audit row for the bulk operation. Per-device `moved` rows
+    // would flood the log (N writes per click); keep intent at the org level
+    // and capture the count in changes for downstream pattern detection.
+    await audit({
+      userId: session.user.id,
+      organizationId,
+      action: "updated",
+      entityType: "organization",
+      entityId: organizationId,
+      changes: { operation: "auto_layout", deviceCount: sorted.length },
     });
     revalidatePath("/topology");
     return { ok: true, data: undefined };

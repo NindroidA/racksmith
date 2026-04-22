@@ -17,6 +17,7 @@ import {
   deleteDevice,
 } from "@/app/(dashboard)/devices/actions";
 import type { DeviceInput } from "@/lib/validators";
+import { describeError } from "@/lib/error-message";
 
 type RackOption = { id: string; name: string; sizeU: number };
 
@@ -143,7 +144,7 @@ export function DeviceForm(props: Props) {
         }
       } catch (err) {
         toast.error(
-          err instanceof Error ? err.message : "Something went wrong",
+          describeError(err, "Something went wrong"),
         );
       }
     });
@@ -163,7 +164,7 @@ export function DeviceForm(props: Props) {
       toast.success("Device deleted");
       router.push("/devices");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to delete");
+      toast.error(describeError(err, "Failed to delete"));
       setDeleting(false);
       setConfirmOpen(false);
     }

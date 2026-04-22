@@ -14,6 +14,7 @@ import {
   deleteVlan,
 } from "@/app/(dashboard)/network-tools/vlans/actions";
 import { VLAN_PURPOSES, type VlanInput } from "@/lib/validators";
+import { describeError } from "@/lib/error-message";
 
 type Purpose = (typeof VLAN_PURPOSES)[number];
 
@@ -81,7 +82,7 @@ export function VlanForm(props: Props) {
         }
       } catch (err) {
         toast.error(
-          err instanceof Error ? err.message : "Something went wrong",
+          describeError(err, "Something went wrong"),
         );
       }
     });
@@ -101,7 +102,7 @@ export function VlanForm(props: Props) {
       toast.success("VLAN deleted");
       router.push("/network-tools/vlans");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to delete");
+      toast.error(describeError(err, "Failed to delete"));
       setDeleting(false);
       setConfirmOpen(false);
     }

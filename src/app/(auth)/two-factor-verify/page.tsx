@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { Wrench, ShieldCheck, KeyRound } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import toast from "react-hot-toast";
+import { describeError } from "@/lib/error-message";
 
 export default function TwoFactorVerifyPage() {
   const router = useRouter();
@@ -37,7 +38,7 @@ export default function TwoFactorVerifyPage() {
         router.push("/dashboard");
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Invalid code");
+      toast.error(describeError(err, "Invalid code"));
     } finally {
       setLoading(false);
     }

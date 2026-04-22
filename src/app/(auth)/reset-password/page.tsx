@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { Wrench, Lock, AlertCircle } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import toast from "react-hot-toast";
+import { describeError } from "@/lib/error-message";
 
 function ResetPasswordInner() {
   const router = useRouter();
@@ -47,7 +48,7 @@ function ResetPasswordInner() {
       }
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Failed to reset password",
+        describeError(err, "Failed to reset password"),
       );
     } finally {
       setLoading(false);

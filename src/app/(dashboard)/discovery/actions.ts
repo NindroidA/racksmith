@@ -157,7 +157,7 @@ export async function assignToExistingDevice(
   deviceId: string,
 ): Promise<ActionResult> {
   return withActionEnvelope(async () => {
-    const { organizationId } = await requireMember("member");
+    const { session, organizationId } = await requireMember("member");
 
     const preload = await withTenant(organizationId, async (tx) => {
       const scan = await tx.discoveryScan.findFirst({
@@ -196,6 +196,20 @@ export async function assignToExistingDevice(
     });
     logScanStateFailure("assignToExistingDevice", scanId, hostIp, stateResult);
 
+    await audit({
+      userId: session.user.id,
+      organizationId,
+      action: "updated",
+      entityType: "device",
+      entityId: deviceId,
+      changes: {
+        ip: host.ip,
+        ...(host.mac ? { mac: host.mac } : {}),
+        ...(host.hostname ? { hostname: host.hostname } : {}),
+      },
+      metadata: { linkedFromScan: scanId, hostIp },
+    });
+
     revalidatePath("/discovery");
     revalidatePath("/devices");
     revalidatePath(`/devices/${deviceId}`);
@@ -219,7 +233,7 @@ export async function ignoreDiscovery(
 
 export async function cancelScan(scanId: string): Promise<ActionResult> {
   return withActionEnvelope(async () => {
-    const { organizationId } = await requireMember("member");
+    const { session, organizationId } = await requireMember("member");
 
     const result = await withTenant(organizationId, (tx) =>
       tx.discoveryScan.updateMany({
@@ -238,6 +252,13 @@ export async function cancelScan(scanId: string): Promise<ActionResult> {
     if (result.count === 0) {
       return { ok: false, error: "Scan not found or already complete" };
     }
+    await audit({
+      userId: session.user.id,
+      organizationId,
+      action: "scan_cancelled",
+      entityType: "discovery_scan",
+      entityId: scanId,
+    });
     revalidatePath("/discovery");
     return { ok: true, data: undefined };
   }, "Failed to cancel");
@@ -245,7 +266,7 @@ export async function cancelScan(scanId: string): Promise<ActionResult> {
 
 export async function deleteScan(scanId: string): Promise<ActionResult> {
   return withActionEnvelope(async () => {
-    const { organizationId } = await requireMember("member");
+    const { session, organizationId } = await requireMember("member");
     const result = await withTenant(organizationId, (tx) =>
       tx.discoveryScan.deleteMany({
         where: { id: scanId, organizationId },
@@ -254,6 +275,13 @@ export async function deleteScan(scanId: string): Promise<ActionResult> {
     if (result.count === 0) {
       return { ok: false, error: "Scan not found" };
     }
+    await audit({
+      userId: session.user.id,
+      organizationId,
+      action: "deleted",
+      entityType: "discovery_scan",
+      entityId: scanId,
+    });
     revalidatePath("/discovery");
     return { ok: true, data: undefined };
   }, "Failed to delete");

@@ -28,6 +28,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { signOut } from "@/lib/auth-client";
+import { describeError } from "@/lib/error-message";
 
 type Action = {
   id: string;
@@ -271,7 +272,7 @@ export function CommandPalette() {
           } catch (err) {
             const { default: toast } = await import("react-hot-toast");
             toast.error(
-              err instanceof Error ? err.message : "Failed to sign out",
+              describeError(err, "Failed to sign out"),
             );
           }
         },

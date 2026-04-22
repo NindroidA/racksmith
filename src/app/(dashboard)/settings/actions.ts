@@ -264,9 +264,9 @@ export async function acceptInvitationAction(
     await audit({
       userId: session.user.id,
       organizationId: acceptedOrgId,
-      action: "created",
-      entityType: "member",
-      changes: { invitationId: idCheck.data, accepted: true },
+      action: "invitation_accepted",
+      entityType: "invitation",
+      entityId: idCheck.data,
     });
 
     revalidatePath("/", "layout");
@@ -307,10 +307,9 @@ export async function declineInvitationAction(
     await audit({
       userId: session.user.id,
       organizationId: invite.organizationId,
-      action: "invitation_revoked",
+      action: "invitation_declined",
       entityType: "invitation",
       entityId: idCheck.data,
-      changes: { declinedByInvitee: true },
     });
 
     return { ok: true, data: undefined };

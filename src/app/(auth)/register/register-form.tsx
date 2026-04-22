@@ -9,6 +9,7 @@ import { signIn, signUp } from "@/lib/auth-client";
 import toast from "react-hot-toast";
 import type { OAuthProviders } from "@/lib/oauth-providers";
 import { GithubIcon, GoogleIcon } from "@/components/ui/oauth-icons";
+import { describeError } from "@/lib/error-message";
 
 export function RegisterForm({ oauth }: { oauth: OAuthProviders }) {
   const router = useRouter();
@@ -32,7 +33,7 @@ export function RegisterForm({ oauth }: { oauth: OAuthProviders }) {
       }
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Failed to create account",
+        describeError(err, "Failed to create account"),
       );
     } finally {
       setLoading(false);
@@ -43,7 +44,7 @@ export function RegisterForm({ oauth }: { oauth: OAuthProviders }) {
     try {
       await signIn.social({ provider, callbackURL: "/dashboard" });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to sign up");
+      toast.error(describeError(err, "Failed to sign up"));
     }
   }
 

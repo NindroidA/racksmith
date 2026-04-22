@@ -541,11 +541,11 @@ export async function requestOwnershipTransfer(
       await audit({
         userId: session.user.id,
         organizationId,
-        action: "ownership_transferred",
+        action: "ownership_transfer_revoked",
         entityType: "organization",
         entityId: organizationId,
         changes: {
-          stage: "email_failed",
+          reason: "email_failed",
           transferId: transfer.id,
           toUserId: target.user.id,
         },
@@ -556,11 +556,10 @@ export async function requestOwnershipTransfer(
     await audit({
       userId: session.user.id,
       organizationId,
-      action: "ownership_transferred",
+      action: "ownership_transfer_requested",
       entityType: "organization",
       entityId: organizationId,
       changes: {
-        stage: "requested",
         transferId: transfer.id,
         toUserId: target.user.id,
       },
@@ -680,11 +679,10 @@ export async function confirmOwnershipTransfer(
     await audit({
       userId: session.user.id,
       organizationId: transfer.organizationId,
-      action: "ownership_transferred",
+      action: "ownership_transfer_accepted",
       entityType: "organization",
       entityId: transfer.organizationId,
       changes: {
-        stage: "accepted",
         transferId: transfer.id,
         fromUserId: transfer.fromUserId,
         toUserId: transfer.toUserId,
@@ -720,11 +718,10 @@ export async function revokeOwnershipTransfer(
     await audit({
       userId: session.user.id,
       organizationId,
-      action: "ownership_transferred",
+      action: "ownership_transfer_revoked",
       entityType: "organization",
       entityId: organizationId,
       changes: {
-        stage: "revoked",
         transferId: transfer.id,
         toUserId: transfer.toUserId,
       },
@@ -780,11 +777,10 @@ export async function declineOwnershipTransfer(
     await audit({
       userId: session.user.id,
       organizationId: transfer.organizationId,
-      action: "ownership_transferred",
+      action: "ownership_transfer_declined",
       entityType: "organization",
       entityId: transfer.organizationId,
       changes: {
-        stage: "declined_by_recipient",
         transferId: transfer.id,
         fromUserId: transfer.fromUserId,
       },

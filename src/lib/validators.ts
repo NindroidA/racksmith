@@ -251,7 +251,11 @@ export const wizardStepSchema = z.enum(WIZARD_STEPS);
 
 export type WizardProfileInput = z.infer<typeof wizardProfileSchema>;
 export type WizardTopologyInput = z.infer<typeof wizardTopologySchema>;
+export type WizardTopologyDeviceInput = z.infer<
+  typeof wizardTopologyDeviceSchema
+>;
 export type WizardNetworkInput = z.infer<typeof wizardNetworkSchema>;
+export type WizardVlanLineInput = z.infer<typeof wizardVlanLineSchema>;
 export type WizardInputsValidated = z.infer<typeof wizardInputsSchema>;
 export type BuildPlanCreateInput = z.infer<typeof buildPlanCreateSchema>;
 // Literal-union types derived from the const arrays — re-exported so

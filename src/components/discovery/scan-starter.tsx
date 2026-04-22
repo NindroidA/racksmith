@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { Radar, AlertCircle, Loader2 } from "lucide-react";
+import { describeError } from "@/lib/error-message";
 
 type Props = {
   defaultSubnet?: string;
@@ -33,7 +34,7 @@ export function ScanStarter({ defaultSubnet, disabled }: Props) {
         toast.success("Scan started");
         router.refresh();
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to start scan");
+        setError(describeError(err, "Failed to start scan"));
       }
     });
   }

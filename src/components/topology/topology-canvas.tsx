@@ -32,6 +32,7 @@ import {
   autoLayout,
 } from "@/app/(dashboard)/topology/actions";
 import { useRouter } from "next/navigation";
+import { describeError } from "@/lib/error-message";
 
 export type TopologyDevice = {
   id: string;
@@ -231,7 +232,7 @@ function CanvasInner({ devices, connections }: Props) {
 
       toast.success("Downloaded", { id: "export" });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Export failed", {
+      toast.error(describeError(err, "Export failed"), {
         id: "export",
       });
     }

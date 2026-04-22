@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useEffect } from "react";
+import { useMemo, useState, useTransition, useEffect } from "react";
 import toast from "react-hot-toast";
 import { X } from "lucide-react";
 import { twMerge } from "tailwind-merge";
@@ -11,6 +11,7 @@ import {
   deleteConnection,
 } from "@/app/(dashboard)/topology/actions";
 import type { ConnectionInput } from "@/lib/validators";
+import { describeError } from "@/lib/error-message";
 
 const CABLE_TYPES = [
   { value: "ethernet", label: "Ethernet (copper)" },
@@ -101,44 +102,36 @@ export function ConnectionForm({
   const [deleting, setDeleting] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
-  const [sourceDeviceId, setSourceDeviceId] = useState(
-    () => buildInitialState(existing, prefilled).sourceDeviceId,
+  // Build the initial form shape once per existing/prefilled change. The
+  // eight useState slots below each pull from this memoized object; the
+  // useEffect below resets them all to this object's current fields when
+  // the dialog reopens with fresh props.
+  const initial = useMemo(
+    () => buildInitialState(existing, prefilled),
+    [existing, prefilled],
   );
-  const [targetDeviceId, setTargetDeviceId] = useState(
-    () => buildInitialState(existing, prefilled).targetDeviceId,
-  );
-  const [sourcePort, setSourcePort] = useState(
-    () => buildInitialState(existing, prefilled).sourcePort,
-  );
-  const [targetPort, setTargetPort] = useState(
-    () => buildInitialState(existing, prefilled).targetPort,
-  );
-  const [cableType, setCableType] = useState(
-    () => buildInitialState(existing, prefilled).cableType,
-  );
-  const [bandwidth, setBandwidth] = useState(
-    () => buildInitialState(existing, prefilled).bandwidth,
-  );
-  const [vlan, setVlan] = useState(
-    () => buildInitialState(existing, prefilled).vlan,
-  );
-  const [description, setDescription] = useState(
-    () => buildInitialState(existing, prefilled).description,
-  );
+
+  const [sourceDeviceId, setSourceDeviceId] = useState(initial.sourceDeviceId);
+  const [targetDeviceId, setTargetDeviceId] = useState(initial.targetDeviceId);
+  const [sourcePort, setSourcePort] = useState(initial.sourcePort);
+  const [targetPort, setTargetPort] = useState(initial.targetPort);
+  const [cableType, setCableType] = useState(initial.cableType);
+  const [bandwidth, setBandwidth] = useState(initial.bandwidth);
+  const [vlan, setVlan] = useState(initial.vlan);
+  const [description, setDescription] = useState(initial.description);
 
   // Reset when dialog reopens with new context
   useEffect(() => {
     if (!open) return;
-    const next = buildInitialState(existing, prefilled);
-    setSourceDeviceId(next.sourceDeviceId);
-    setTargetDeviceId(next.targetDeviceId);
-    setSourcePort(next.sourcePort);
-    setTargetPort(next.targetPort);
-    setCableType(next.cableType);
-    setBandwidth(next.bandwidth);
-    setVlan(next.vlan);
-    setDescription(next.description);
-  }, [open, existing, prefilled]);
+    setSourceDeviceId(initial.sourceDeviceId);
+    setTargetDeviceId(initial.targetDeviceId);
+    setSourcePort(initial.sourcePort);
+    setTargetPort(initial.targetPort);
+    setCableType(initial.cableType);
+    setBandwidth(initial.bandwidth);
+    setVlan(initial.vlan);
+    setDescription(initial.description);
+  }, [open, initial]);
 
   if (!open) return null;
 
@@ -169,9 +162,7 @@ export function ConnectionForm({
         onSaved?.();
         onClose();
       } catch (err) {
-        toast.error(
-          err instanceof Error ? err.message : "Something went wrong",
-        );
+        toast.error(describeError(err, "Something went wrong"));
       }
     });
   }
@@ -192,7 +183,7 @@ export function ConnectionForm({
       onSaved?.();
       onClose();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to delete");
+      toast.error(describeError(err, "Failed to delete"));
       setDeleting(false);
       setConfirmOpen(false);
     }

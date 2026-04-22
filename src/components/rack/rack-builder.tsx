@@ -16,6 +16,7 @@ import {
   removeDeviceFromRack,
 } from "@/app/(dashboard)/racks/actions";
 import { deleteDevice } from "@/app/(dashboard)/devices/actions";
+import { describeError } from "@/lib/error-message";
 
 type Props = {
   rackId: string;
@@ -66,7 +67,7 @@ export function RackBuilder({
         router.refresh();
       } catch (err) {
         toast.error(
-          err instanceof Error ? err.message : "Failed to place device",
+          describeError(err, "Failed to place device"),
         );
       }
     });
@@ -83,7 +84,7 @@ export function RackBuilder({
         toast.success("Device removed from rack");
         router.refresh();
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Failed to remove");
+        toast.error(describeError(err, "Failed to remove"));
       }
     });
   }
@@ -99,7 +100,7 @@ export function RackBuilder({
         toast.success("Device deleted");
         router.refresh();
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Failed to delete");
+        toast.error(describeError(err, "Failed to delete"));
       }
     });
   }

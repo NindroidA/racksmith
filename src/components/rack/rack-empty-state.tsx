@@ -11,6 +11,7 @@ import {
   type RackTemplate,
 } from "@/lib/templates/racks";
 import { createRackFromTemplate } from "@/app/(dashboard)/racks/actions";
+import { describeError } from "@/lib/error-message";
 
 export function RackEmptyState() {
   const router = useRouter();
@@ -32,7 +33,7 @@ export function RackEmptyState() {
         toast.success(`${t.name} created`);
         router.push(`/racks/${result.data.id}`);
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Something went wrong");
+        toast.error(describeError(err, "Something went wrong"));
         setSubmittingId(null);
       }
     });

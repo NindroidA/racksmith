@@ -17,6 +17,7 @@ import {
 } from "@/app/(dashboard)/network-tools/ipam/actions";
 import type { SubnetInput } from "@/lib/validators";
 import { advise, type AdvisorWarning } from "@/lib/ip/advisor";
+import { describeError } from "@/lib/error-message";
 
 type Props =
   | {
@@ -87,7 +88,7 @@ export function SubnetForm(props: Props) {
         }
       } catch (err) {
         toast.error(
-          err instanceof Error ? err.message : "Something went wrong",
+          describeError(err, "Something went wrong"),
         );
       }
     });
@@ -107,7 +108,7 @@ export function SubnetForm(props: Props) {
       toast.success("Subnet deleted");
       router.push("/network-tools/ipam");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to delete");
+      toast.error(describeError(err, "Failed to delete"));
       setDeleting(false);
       setConfirmOpen(false);
     }

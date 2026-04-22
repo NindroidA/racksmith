@@ -19,6 +19,7 @@ export type AuditAction =
   | "email_changed"
   | "scan_started"
   | "scan_completed"
+  | "scan_cancelled"
   | "device_imported"
   | "device_discovered"
   | "profile_saved"
@@ -34,7 +35,12 @@ export type AuditAction =
   | "member_role_changed"
   | "invitation_revoked"
   | "invitation_resent"
-  | "ownership_transferred";
+  | "invitation_accepted"
+  | "invitation_declined"
+  | "ownership_transfer_requested"
+  | "ownership_transfer_accepted"
+  | "ownership_transfer_declined"
+  | "ownership_transfer_revoked";
 
 export type AuditEntityType =
   | "user"

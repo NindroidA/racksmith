@@ -20,8 +20,15 @@ const ACTION_LABELS: Record<string, string> = {
   email_changed: "Changed email",
   scan_started: "Started scan",
   scan_completed: "Completed scan",
+  scan_cancelled: "Cancelled scan",
   device_imported: "Imported devices",
   device_discovered: "Discovered device",
+  invitation_accepted: "Accepted invitation",
+  invitation_declined: "Declined invitation",
+  ownership_transfer_requested: "Requested ownership transfer",
+  ownership_transfer_accepted: "Accepted ownership transfer",
+  ownership_transfer_declined: "Declined ownership transfer",
+  ownership_transfer_revoked: "Revoked ownership transfer",
 };
 
 const ACTION_COLORS: Record<string, string> = {

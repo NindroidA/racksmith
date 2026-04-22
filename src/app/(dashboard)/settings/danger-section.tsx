@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { AlertTriangle, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { authClient } from "@/lib/auth-client";
+import { describeError } from "@/lib/error-message";
 
 type Props = { email: string };
 
@@ -31,7 +32,7 @@ export function DangerSection({ email }: Props) {
       toast.success("Account deleted");
       router.push("/");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed");
+      toast.error(describeError(err, "Failed"));
       setLoading(false);
     }
   }

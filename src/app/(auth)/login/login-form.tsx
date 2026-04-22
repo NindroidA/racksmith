@@ -9,6 +9,7 @@ import { signIn } from "@/lib/auth-client";
 import toast from "react-hot-toast";
 import type { OAuthProviders } from "@/lib/oauth-providers";
 import { GithubIcon, GoogleIcon } from "@/components/ui/oauth-icons";
+import { describeError } from "@/lib/error-message";
 
 export function LoginForm({ oauth }: { oauth: OAuthProviders }) {
   const router = useRouter();
@@ -29,7 +30,7 @@ export function LoginForm({ oauth }: { oauth: OAuthProviders }) {
         router.push("/dashboard");
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to sign in");
+      toast.error(describeError(err, "Failed to sign in"));
     } finally {
       setLoading(false);
     }
@@ -39,7 +40,7 @@ export function LoginForm({ oauth }: { oauth: OAuthProviders }) {
     try {
       await signIn.social({ provider, callbackURL: "/dashboard" });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to sign in");
+      toast.error(describeError(err, "Failed to sign in"));
     }
   }
 

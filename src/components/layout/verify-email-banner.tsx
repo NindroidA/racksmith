@@ -5,6 +5,7 @@ import Link from "next/link";
 import { AlertCircle, X } from "lucide-react";
 import toast from "react-hot-toast";
 import { authClient } from "@/lib/auth-client";
+import { describeError } from "@/lib/error-message";
 
 type Props = { email: string };
 
@@ -29,7 +30,7 @@ export function VerifyEmailBanner({ email }: Props) {
         toast.success(`Verification link sent to ${email}`);
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed");
+      toast.error(describeError(err, "Failed"));
     } finally {
       setLoading(false);
     }

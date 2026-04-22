@@ -14,25 +14,28 @@ import {
   type ParsedCidr,
   type VlsmAllocation,
 } from "@/lib/ip";
+import { describeError } from "@/lib/error-message";
 
 export function SubnetCalcClient() {
   const [cidr, setCidr] = useState("192.168.1.0/24");
 
   const result = useMemo<
-    | { ok: true; details: ParsedCidr }
-    | { ok: false; error: string }
+    { ok: true; details: ParsedCidr } | { ok: false; error: string }
   >(() => {
     const trimmed = cidr.trim();
     if (!trimmed) return { ok: false, error: "" };
     if (!isValidCidr(trimmed)) {
-      return { ok: false, error: "Invalid CIDR. Try 192.168.1.0/24 or 2001:db8::/48." };
+      return {
+        ok: false,
+        error: "Invalid CIDR. Try 192.168.1.0/24 or 2001:db8::/48.",
+      };
     }
     try {
       return { ok: true, details: calculateCidr(trimmed) };
     } catch (err) {
       return {
         ok: false,
-        error: err instanceof Error ? err.message : "Couldn't parse",
+        error: describeError(err, "Couldn't parse"),
       };
     }
   }, [cidr]);
@@ -90,7 +93,11 @@ function ResultCard({ details }: { details: ParsedCidr }) {
     ...(details.kind === "ipv4"
       ? [
           { label: "Netmask", value: ipv4NetMask(details.prefix), mono: true },
-          { label: "Wildcard", value: ipv4Wildcard(details.prefix), mono: true },
+          {
+            label: "Wildcard",
+            value: ipv4Wildcard(details.prefix),
+            mono: true,
+          },
         ]
       : []),
     ...(details.firstUsable
@@ -120,14 +127,14 @@ function ResultCard({ details }: { details: ParsedCidr }) {
       <h2 className="mb-4 text-lg font-semibold text-white">Subnet details</h2>
       <dl className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
         {rows.map((r) => (
-          <div key={r.label} className="flex items-center justify-between gap-4">
+          <div
+            key={r.label}
+            className="flex items-center justify-between gap-4"
+          >
             <dt className="text-sm text-white/50">{r.label}</dt>
             <dd className="flex items-center gap-2">
               <span
-                className={twMerge(
-                  "text-sm text-white",
-                  r.mono && "font-mono",
-                )}
+                className={twMerge("text-sm text-white", r.mono && "font-mono")}
               >
                 {r.value}
               </span>
