@@ -127,10 +127,16 @@ bunx prisma studio         # Visual database browser
 
 **Phase 10 Teams / Organizations / RBAC — SHIPPED (R4 passed 2026-04-20).** See `.plans/2026-04-20/handoff-post-10f.md` for the full state + 10g follow-up list.
 
+**Phase 11 Public REST API (Racks + Devices) — SHIPPED.** See
+`.plans/2026-04-21/02-phase-11-rest-api-design.md` for the design and
+`.plans/2026-04-21/03-phase-11-rest-api-plan.md` for the implementation
+plan. Surface: `/api/v1/racks/*`, `/api/v1/devices/*`, `/api/v1/docs`,
+`/api/v1/openapi.json`. Auth via org-scoped API keys in Settings → API
+Keys. Phase 12 extends the pattern to Connections, Subnets, VLANs, IPAM.
+
 DO NOT build until explicitly scoped:
 - White-label branding, mobile app
 - SAML SSO in-house (deferred — landing copy says "OIDC at launch; SAML on request via WorkOS-style broker")
-- Public REST API (deferred until tier gating + rate limiting designed)
 - Monitoring integration / SNMP polling (out of scope for v1.5 + v2.0)
 
 ## Old Codebase Reference
