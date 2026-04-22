@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { withAdmin } from "@/lib/prisma-admin";
 import { withTenant } from "@/lib/prisma-tenant";
+import type { Plan } from "@/lib/tiers";
 
 /**
  * Test fixtures for the cross-tenant suite. Creates the full graph
@@ -40,7 +41,7 @@ export async function createTestUser(opts?: { email?: string; name?: string }) {
 export async function createTestOrganization(opts?: {
   name?: string;
   slug?: string;
-  plan?: string;
+  plan?: Plan;
 }) {
   const id = nextId("org");
   const slug = opts?.slug ?? id;
@@ -75,9 +76,13 @@ export async function createTestMembership(
 export async function seedOrgWithOwner(opts?: {
   orgName?: string;
   userEmail?: string;
+  plan?: Plan;
 }): Promise<TestContext> {
   const user = await createTestUser({ email: opts?.userEmail });
-  const organization = await createTestOrganization({ name: opts?.orgName });
+  const organization = await createTestOrganization({
+    name: opts?.orgName,
+    plan: opts?.plan,
+  });
   await createTestMembership(user.id, organization.id, "owner");
   await withAdmin((tx) =>
     tx.user.update({

@@ -117,7 +117,8 @@ export type LimitResource =
   | "devices"
   | "subnets"
   | "vlans"
-  | "plans";
+  | "plans"
+  | "apiKeys";
 export type LimitCheckOk = {
   ok: true;
   plan: Plan;
@@ -136,7 +137,7 @@ export type LimitCheck = LimitCheckOk | LimitCheckDenied;
 
 async function checkLimit(
   organizationId: string,
-  resource: LimitResource,
+  resource: Exclude<LimitResource, "apiKeys">,
   current: number,
 ): Promise<LimitCheck> {
   const plan = await getOrganizationPlan(organizationId);
@@ -265,6 +266,50 @@ export async function canCreatePlanLocked(
     where: { organizationId, status: "draft" },
   });
   return checkLimit(organizationId, "plans", current);
+}
+
+/**
+ * Tier-gate check for API-key creation, serialized via the same advisory
+ * lock pattern so concurrent creates can't both see "under cap" and both
+ * succeed. Mirrors `canCreateDeviceLocked`. Call inside
+ * `withTenant(orgId, (tx) => canCreateApiKeyLocked(tx, orgId))` — the
+ * lock is transaction-scoped. The Free tier message is custom because
+ * `apiKeyMax = 0` there (generic "includes 0 API keys" reads as a bug);
+ * paid tiers fall through to the shared `checkLimit` path. Only counts
+ * active (non-revoked) keys toward the cap.
+ */
+export async function canCreateApiKeyLocked(
+  tx: Prisma.TransactionClient,
+  organizationId: string,
+): Promise<LimitCheck> {
+  await acquireTenantResourceLock(tx, organizationId, "apiKeys");
+  const plan = await getOrganizationPlan(organizationId);
+  const limit = TIER_LIMITS[plan].apiKeyMax;
+  const current = await tx.apiKey.count({
+    where: { organizationId, revokedAt: null },
+  });
+
+  if (limit === 0) {
+    return {
+      ok: false,
+      reason: `The ${TIER_LIMITS[plan].label} tier does not include API access. Upgrade to Pro or Business to create API keys.`,
+      plan,
+      current,
+      limit,
+      resource: "apiKeys",
+    };
+  }
+  if (current >= limit) {
+    return {
+      ok: false,
+      reason: `The ${TIER_LIMITS[plan].label} tier includes ${limit} API keys. You already have ${current}.`,
+      plan,
+      current,
+      limit,
+      resource: "apiKeys",
+    };
+  }
+  return { ok: true, plan, current, limit };
 }
 
 // ─── Feature gates (boolean tier capabilities) ─────────────────────
