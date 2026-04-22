@@ -40,7 +40,10 @@ export type AuditAction =
   | "ownership_transfer_requested"
   | "ownership_transfer_accepted"
   | "ownership_transfer_declined"
-  | "ownership_transfer_revoked";
+  | "ownership_transfer_revoked"
+  | "api_key_created"
+  | "api_key_revoked"
+  | "api_key_auto_revoked";
 
 export type AuditEntityType =
   | "user"
@@ -58,7 +61,8 @@ export type AuditEntityType =
   | "recommendation"
   | "organization"
   | "invitation"
-  | "member";
+  | "member"
+  | "api_key";
 
 type AuditInput = {
   userId: string;
