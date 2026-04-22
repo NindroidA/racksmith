@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { withAdmin } from "@/lib/prisma-admin";
 import { withTenant } from "@/lib/prisma-tenant";
+import { generateApiKey } from "@/lib/api/api-key-crypto";
 import type { Plan } from "@/lib/tiers";
 
 /**
@@ -117,6 +118,44 @@ export async function createTestRack(
       },
     }),
   );
+}
+
+/**
+ * Seed an ApiKey row for the rack/device/… integration suites. ApiKey is a
+ * non-tenant table (RLS not FORCED — keys are looked up globally by hash
+ * before org resolution), so `withAdmin` is the correct wrapper per the same
+ * convention as `createTestUser` / `createTestOrganization`.
+ *
+ * Returns the persisted row plus the cleartext — callers pass the cleartext
+ * as a Bearer token; the server re-hashes via `hashApiKey` and matches
+ * against `ApiKey.hash`.
+ */
+export async function createTestApiKey(
+  organizationId: string,
+  createdByUserId: string,
+  opts?: {
+    role?: "member" | "admin";
+    name?: string;
+    revoked?: boolean;
+    expiresAt?: Date | null;
+  },
+) {
+  const { cleartext, hash, prefix } = generateApiKey();
+  const key = await withAdmin((tx) =>
+    tx.apiKey.create({
+      data: {
+        organizationId,
+        createdByUserId,
+        name: opts?.name ?? "test-key",
+        role: opts?.role ?? "member",
+        prefix,
+        hash,
+        revokedAt: opts?.revoked ? new Date() : null,
+        expiresAt: opts?.expiresAt ?? null,
+      },
+    }),
+  );
+  return { key, cleartext };
 }
 
 export async function createTestDevice(
