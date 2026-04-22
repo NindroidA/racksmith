@@ -16,25 +16,46 @@ export function RegisterForm({ oauth }: { oauth: OAuthProviders }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
   const hasOAuth = oauth.github || oauth.google;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setEmailError(null);
+    setPasswordError(null);
+
+    if (password !== confirmPassword) {
+      setPasswordError("Passwords don't match");
+      return;
+    }
+
     setLoading(true);
 
     try {
       const result = await signUp.email({ name, email, password });
       if (result.error) {
+        const msg = (result.error.message ?? "").toLowerCase();
+        const code = (result.error as { code?: string }).code ?? "";
+        if (
+          code === "USER_ALREADY_EXISTS" ||
+          (msg.includes("already") && msg.includes("exist")) ||
+          msg.includes("already in use")
+        ) {
+          setEmailError(
+            "An account with this email already exists. Try signing in instead.",
+          );
+          return;
+        }
         toast.error(result.error.message || "Failed to create account");
       } else {
         toast.success("Account created!");
         router.push("/dashboard");
       }
     } catch (err) {
-      toast.error(
-        describeError(err, "Failed to create account"),
-      );
+      toast.error(describeError(err, "Failed to create account"));
     } finally {
       setLoading(false);
     }
@@ -130,13 +151,23 @@ export function RegisterForm({ oauth }: { oauth: OAuthProviders }) {
                 id="email"
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (emailError) setEmailError(null);
+                }}
                 className="glass-input w-full rounded-lg py-2.5 pl-10 pr-4 text-sm"
                 placeholder="you@example.com"
                 autoComplete="email"
+                aria-invalid={emailError ? true : undefined}
+                aria-describedby={emailError ? "email-error" : undefined}
                 required
               />
             </div>
+            {emailError && (
+              <p id="email-error" className="mt-1.5 text-xs text-accent-red">
+                {emailError}
+              </p>
+            )}
           </div>
 
           <div>
@@ -152,7 +183,10 @@ export function RegisterForm({ oauth }: { oauth: OAuthProviders }) {
                 id="password"
                 type="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (passwordError) setPasswordError(null);
+                }}
                 className="glass-input w-full rounded-lg py-2.5 pl-10 pr-4 text-sm"
                 placeholder="Min 8 characters"
                 autoComplete="new-password"
@@ -160,6 +194,39 @@ export function RegisterForm({ oauth }: { oauth: OAuthProviders }) {
                 required
               />
             </div>
+          </div>
+
+          <div>
+            <label
+              htmlFor="confirmPassword"
+              className="mb-1.5 block text-sm font-medium text-white/70"
+            >
+              Confirm Password
+            </label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" />
+              <input
+                id="confirmPassword"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => {
+                  setConfirmPassword(e.target.value);
+                  if (passwordError) setPasswordError(null);
+                }}
+                className="glass-input w-full rounded-lg py-2.5 pl-10 pr-4 text-sm"
+                placeholder="Re-enter password"
+                autoComplete="new-password"
+                minLength={8}
+                aria-invalid={passwordError ? true : undefined}
+                aria-describedby={passwordError ? "password-error" : undefined}
+                required
+              />
+            </div>
+            {passwordError && (
+              <p id="password-error" className="mt-1.5 text-xs text-accent-red">
+                {passwordError}
+              </p>
+            )}
           </div>
 
           <button
