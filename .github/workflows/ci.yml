@@ -67,8 +67,11 @@ jobs:
       - name: Test
         run: bun run test --run
 
-      - name: Integration tests
-        run: bun run test:integration
+      # NOTE: integration suite (bun run test:integration) is local-only for
+      # now — it depends on a restricted DB role (racksmith_test_app,
+      # NOSUPERUSER NOBYPASSRLS) on port 5433 that only exists in the local
+      # docker-compose.test.yml container. Getting it CI-compatible needs
+      # role creation + env plumbing — tracked for Phase 12.
 
       - name: Build
         run: bun run build
