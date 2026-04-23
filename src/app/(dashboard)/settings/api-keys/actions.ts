@@ -38,31 +38,34 @@ export async function createApiKey(
 
     const { session, organizationId } = await requireMember("admin");
 
-    // Tier-gated advisory-locked count check. Must run inside withTenant
-    // even though ApiKey is non-tenant — the helper's advisory lock is
-    // scoped to the org and uses the tx's session variables.
-    const denial = await withTenant(organizationId, (tx) =>
-      canCreateApiKeyLocked(tx, organizationId),
-    );
-    if (!denial.ok) return tierDenial(denial);
-
     const { cleartext, hash, prefix } = generateApiKey();
     const expiresAt = parsed.data.expiresInDays
       ? new Date(Date.now() + parsed.data.expiresInDays * 24 * 60 * 60 * 1000)
       : null;
 
-    const key = await prisma.apiKey.create({
-      data: {
-        organizationId,
-        createdByUserId: session.user.id,
-        name: parsed.data.name,
-        role: parsed.data.role,
-        prefix,
-        hash,
-        expiresAt,
-      },
-      select: { id: true },
+    // Tier-gated advisory-locked count + create. Both MUST run inside the
+    // same withTenant tx — pg_advisory_xact_lock is tx-scoped, so splitting
+    // the count check and the insert across two txs would release the lock
+    // between them and reintroduce a TOCTOU race at the tier cap.
+    const createResult = await withTenant(organizationId, async (tx) => {
+      const denial = await canCreateApiKeyLocked(tx, organizationId);
+      if (!denial.ok) return { ok: false as const, denial };
+      const key = await tx.apiKey.create({
+        data: {
+          organizationId,
+          createdByUserId: session.user.id,
+          name: parsed.data.name,
+          role: parsed.data.role,
+          prefix,
+          hash,
+          expiresAt,
+        },
+        select: { id: true },
+      });
+      return { ok: true as const, key };
     });
+    if (!createResult.ok) return tierDenial(createResult.denial);
+    const key = createResult.key;
 
     await audit({
       userId: session.user.id,

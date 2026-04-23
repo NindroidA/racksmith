@@ -22,7 +22,7 @@ echo "==> Replaying RLS policies (auto-discovered from migrations)…"
 # runs before downstream edits (e.g. 10g ALTER POLICY). Any future phase that
 # adds RLS DDL is picked up automatically with no script change.
 rls_migrations=$(
-  grep -lE 'ROW LEVEL SECURITY|POLICY' prisma/migrations/*/migration.sql | sort
+  grep -lE 'ROW LEVEL SECURITY|POLICY' prisma/migrations/*/migration.sql | sort || true
 )
 if [ -z "$rls_migrations" ]; then
   echo "!! No RLS migrations found — expected at least the Phase-10 baseline." >&2

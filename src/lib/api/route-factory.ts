@@ -4,7 +4,12 @@ import { withTenant } from "@/lib/prisma-tenant";
 import { TIER_LIMITS } from "@/lib/tiers";
 import { requireApiKey, type ApiKeyAuthContext } from "./api-key-auth";
 import { checkAndRecord } from "./rate-limit";
-import { apiError, jsonResponse, type ApiError } from "./response";
+import {
+  apiError,
+  jsonResponse,
+  rateLimitHeaders,
+  type ApiError,
+} from "./response";
 import { prisma } from "@/lib/prisma";
 
 type HandlerArgs<TBody> = {
@@ -173,9 +178,7 @@ export function createApiRoute<TBody = unknown, TResp = unknown>(
         status: 204,
         headers: {
           "X-Request-Id": requestId,
-          "X-RateLimit-Limit": String(rateInfo.limit),
-          "X-RateLimit-Remaining": String(Math.max(0, rateInfo.remaining)),
-          "X-RateLimit-Reset": String(rateInfo.resetAt),
+          ...rateLimitHeaders(rateInfo),
         },
       });
     }
