@@ -4,10 +4,10 @@
   "private": true,
   "license": "MIT",
   "description": "Unified infrastructure documentation and visualization: racks, devices, network topology, auto-discovery.",
-  "homepage": "https://github.com/nindroid-systems/racksmith",
+  "homepage": "https://github.com/NindroidA/racksmith",
   "repository": {
     "type": "git",
-    "url": "https://github.com/nindroid-systems/racksmith.git"
+    "url": "https://github.com/NindroidA/racksmith.git"
   },
   "scripts": {
     "dev": "next dev --turbopack",
