@@ -529,8 +529,8 @@ export default function LandingPage() {
               key={tier.name}
               className={
                 tier.highlighted
-                  ? "glass-card relative rounded-2xl border border-primary/40 p-8 shadow-xl shadow-primary/10"
-                  : "glass-card relative rounded-2xl p-8 opacity-75"
+                  ? "glass-card relative rounded-2xl border border-primary/40 p-8 shadow-xl shadow-primary/10 hover:-translate-y-1"
+                  : "glass-card relative rounded-2xl p-8 opacity-75 hover:-translate-y-1"
               }
             >
               {tier.highlighted && (
