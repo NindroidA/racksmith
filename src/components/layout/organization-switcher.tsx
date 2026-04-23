@@ -177,7 +177,7 @@ export function OrganizationSwitcher({
             aria-label="Workspaces"
             onKeyDown={handleMenuKey}
             className={twMerge(
-              "glass-panel absolute z-50 mt-1.5 max-h-[60vh] overflow-auto rounded-xl py-1.5 shadow-xl",
+              "absolute z-50 mt-1.5 max-h-[60vh] overflow-auto rounded-xl border border-white/[0.18] bg-surface-raised py-1.5 shadow-[0_16px_64px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,255,255,0.08)]",
               collapsed ? "left-full ml-2 top-0 w-56" : "left-3 right-3",
             )}
           >

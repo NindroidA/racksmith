@@ -141,9 +141,8 @@ export function Sidebar({
             "bg-gradient-to-r from-[#0f1423] to-[#141829]",
             "border-y border-r border-white/[0.12]",
             "shadow-[4px_0_16px_rgba(0,0,0,0.45),inset_-1px_0_0_rgba(255,255,255,0.04)]",
-            "transition-[transform,background,border-color] duration-200 ease-out",
-            "group-hover:translate-x-[4px] group-hover:from-[#141829] group-hover:to-[#1a1f35] group-hover:border-white/25",
-            "group-active:translate-x-[1px]",
+            "transition-[background,border-color] duration-200 ease-out",
+            "group-hover:from-[#141829] group-hover:to-[#1a1f35] group-hover:border-white/25",
           )}
         >
           {collapsed ? (
@@ -155,7 +154,7 @@ export function Sidebar({
       </button>
 
       {/* Logo */}
-      <div className="flex h-16 items-center gap-3 px-4">
+      <div className="flex h-16 shrink-0 items-center gap-3 px-4">
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/20">
           <Wrench className="h-5 w-5 text-primary" />
         </div>
@@ -173,7 +172,7 @@ export function Sidebar({
 
       {/* Workspace switcher */}
       {activeOrgId && activeOrgName && (
-        <div className="mt-2">
+        <div className="mt-2 shrink-0">
           <OrganizationSwitcher
             collapsed={collapsed}
             activeOrgId={activeOrgId}
@@ -184,7 +183,7 @@ export function Sidebar({
       )}
 
       {/* Navigation */}
-      <nav className="mt-4 flex flex-1 flex-col gap-1 px-3">
+      <nav className="mt-4 flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto px-3 pb-2">
         {NAV_ITEMS.map((item, idx) => {
           const isActive =
             pathname === item.href || pathname?.startsWith(item.href + "/");
@@ -240,7 +239,7 @@ export function Sidebar({
       </nav>
 
       {/* Bottom actions */}
-      <div className="border-t border-white/10 p-3">
+      <div className="shrink-0 border-t border-white/10 p-3">
         <button
           onClick={() => signOut()}
           title={collapsed ? "Sign Out" : undefined}
