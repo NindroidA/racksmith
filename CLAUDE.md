@@ -64,8 +64,8 @@ bunx prisma studio         # Visual database browser
   - Every `requireMember*` reads `User.activeOrganizationId` fresh from DB (BA caches session.user fields; don't trust them for security checks).
 - **Multi-tenancy (Phase 10 onward):**
   - **Every Prisma query on a tenant-scoped table filters by `organizationId`** AND runs inside `withTenant(organizationId, async (tx) => {...})` from `src/lib/prisma-tenant.ts`. RLS is FORCED at DB level; unwrapped queries return empty in non-compat mode.
-  - **Tenant-scoped tables (must wrap):** Rack, Device, Subnet, Vlan, VlanAssignment, IpAssignment, DhcpRange, Connection, FloorPlan, DiscoveryScan, BuildPlan, RecommendationDismissal, AuditLog.
-  - **Non-tenant tables (don't wrap):** User, Member, Organization, Invitation, OwnershipTransfer, UserSettings, DeviceCatalog, Session, Account, Verification, TwoFactor.
+  - **Tenant-scoped tables (must wrap):** Rack, Device, Subnet, Vlan, VlanAssignment, IpAssignment, DhcpRange, Connection, FloorPlan, DiscoveryScan, BuildPlan, RecommendationDismissal, AuditLog, ApiRequestLog.
+  - **Non-tenant tables (don't wrap):** User, Member, Organization, Invitation, OwnershipTransfer, UserSettings, DeviceCatalog, Session, Account, Verification, TwoFactor, ApiKey.
   - **Tier-checked creates use the `canCreate*Locked(tx, orgId)` variants** from `src/lib/tiers.ts` inside `withTenant` — they acquire a `pg_advisory_xact_lock` so concurrent creates serialize against the cap. Non-locked `canCreate*` is only for read-only UI enablement.
   - **`withAdmin` bypass** in `src/lib/prisma-admin.ts` is reserved for integration test infrastructure only — `tests/integration/factories.ts` (builds fresh orgs/rows across tenants) and `tests/integration/cross-tenant-isolation.test.ts` (reads across tenants to verify RLS is engaged). `prisma/seed.ts` uses a raw `PrismaClient` (it owns the DB, RLS isn't engaged against the seed run). `src/app/onboarding/welcome/page.tsx` talks to Organization + Member with raw `prisma.$transaction` (non-tenant tables; no bypass required). Adding a non-test call site needs explicit sign-off.
   - **`audit()` wraps internally in `withTenant`** — just pass `organizationId`; no outer wrapping needed.
@@ -127,10 +127,16 @@ bunx prisma studio         # Visual database browser
 
 **Phase 10 Teams / Organizations / RBAC — SHIPPED (R4 passed 2026-04-20).** See `.plans/2026-04-20/handoff-post-10f.md` for the full state + 10g follow-up list.
 
+**Phase 11 Public REST API (Racks + Devices) — SHIPPED.** See
+`.plans/2026-04-21/02-phase-11-rest-api-design.md` for the design and
+`.plans/2026-04-21/03-phase-11-rest-api-plan.md` for the implementation
+plan. Surface: `/api/v1/racks/*`, `/api/v1/devices/*`, `/api/v1/docs`,
+`/api/v1/openapi.json`. Auth via org-scoped API keys in Settings → API
+Keys. Phase 12 extends the pattern to Connections, Subnets, VLANs, IPAM.
+
 DO NOT build until explicitly scoped:
 - White-label branding, mobile app
 - SAML SSO in-house (deferred — landing copy says "OIDC at launch; SAML on request via WorkOS-style broker")
-- Public REST API (deferred until tier gating + rate limiting designed)
 - Monitoring integration / SNMP polling (out of scope for v1.5 + v2.0)
 
 ## Old Codebase Reference

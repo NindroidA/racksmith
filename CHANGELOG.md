@@ -11,6 +11,29 @@ All notable changes to RackSmith are documented here. Format follows
 > pre-release work tracked on `main`. See
 > [`.plans/2026-04-18/01-new-direction-full-build.md`](.plans/2026-04-18/01-new-direction-full-build.md).
 
+## [2.1.0-beta] — 2026-04-22
+
+### Added
+- **Public REST API (beta)** at `/api/v1/`:
+  - Full CRUD for Racks (`GET/POST /api/v1/racks`, `GET/PATCH/DELETE /api/v1/racks/{id}`)
+  - Full CRUD for Devices (`GET/POST /api/v1/devices`, `GET/PATCH/DELETE /api/v1/devices/{id}`)
+  - Org-scoped API keys in Settings → API Keys (Pro: 5 keys / 120 req/min, Business: 50 keys / 1200 req/min)
+  - DB-backed sliding-window rate limiting with `X-RateLimit-*` response headers
+  - Scalar-rendered docs at `/api/v1/docs`; OpenAPI 3.1 spec at `/api/v1/openapi.json`
+  - Auto-revoke of API keys when their creator is removed from the org
+- New audit verbs: `api_key_created`, `api_key_revoked`, `api_key_auto_revoked`, and `api_key` entity type
+- `ApiKey` (non-tenant) + `ApiRequestLog` (tenant-scoped FORCE RLS) Prisma models
+
+### Fixed
+- `src/proxy.ts`: `/api/v1/*` now bypasses the session-cookie redirect — bearer-token clients can reach the API handlers
+- `next.config.ts`: per-route CSP carve-out for `/api/v1/docs` permits the Scalar CDN while keeping the global CSP strict
+- `scripts/prepare-test-db.sh`: now auto-discovers RLS migrations by pattern rather than hardcoded list — future phases with RLS land cleanly on the test DB
+- `scripts/audit-tenant-filter.ts`: `apiRequestLog` added to TENANT_MODELS so future queries on it get static-check coverage
+
+### Notes
+- v1 is **beta**. Breaking changes are possible until GA; monitor CHANGELOG entries tagged `api-v1-breaking`.
+- Anonymous IP-based rate limiting is the reverse proxy's responsibility (Caddy/nginx) and not implemented in-app.
+
 ### v2.0 Phase 10 — Teams / Organizations / RBAC (2026-04-19 → 2026-04-20)
 
 Multi-tenant foundation. Every resource in RackSmith now lives inside an

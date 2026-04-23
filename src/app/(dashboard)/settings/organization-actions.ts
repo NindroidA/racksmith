@@ -23,6 +23,7 @@ import { ASSIGNABLE_ROLES, isRole, type Role } from "@/lib/permissions";
 import { validateSlug } from "@/lib/slug";
 import { writeOrganizationSnapshot } from "@/lib/organization-export";
 import { OWNERSHIP_TRANSFER_TTL_MS } from "@/lib/ownership-transfer-constants";
+import { revokeKeysCreatedByUser } from "@/lib/api/key-lifecycle";
 
 const BASE_URL = process.env.BETTER_AUTH_URL || "http://localhost:3000";
 
@@ -178,17 +179,20 @@ export async function removeMember(memberId: string): Promise<ActionResult> {
       };
     }
 
-    // Atomic: delete the membership AND clear the target's activeOrganizationId
-    // in a single transaction. A partial failure would strand the user pointing
-    // at an org they can no longer access, which `requireMember` already handles
-    // defensively — but the transaction keeps the invariant clean.
-    await prisma.$transaction([
-      prisma.member.delete({ where: { id: idCheck.data } }),
-      prisma.user.updateMany({
+    // Atomic: delete the membership, clear the target's activeOrganizationId,
+    // and revoke any API keys the departing member created — all in one
+    // transaction. A partial failure would strand the user pointing at an
+    // org they can no longer access (defensively handled by `requireMember`)
+    // OR leave their API keys live after they lost access, which IS a
+    // security issue. Both invariants ride on the same tx boundary.
+    const revokedKeyIds = await prisma.$transaction(async (tx) => {
+      await tx.member.delete({ where: { id: idCheck.data } });
+      await tx.user.updateMany({
         where: { id: target.userId, activeOrganizationId: organizationId },
         data: { activeOrganizationId: null },
-      }),
-    ]);
+      });
+      return revokeKeysCreatedByUser(tx, organizationId, target.userId);
+    });
 
     await audit({
       userId: session.user.id,
@@ -198,6 +202,23 @@ export async function removeMember(memberId: string): Promise<ActionResult> {
       entityId: target.id,
       changes: { removedUserId: target.userId, role: target.role },
     });
+
+    // Per-key audit rows emitted after the tx commits: `audit()` opens its
+    // own `withTenant` transaction internally, so nesting here would fight
+    // over the same connection.
+    for (const keyId of revokedKeyIds) {
+      await audit({
+        userId: session.user.id,
+        organizationId,
+        action: "api_key_auto_revoked",
+        entityType: "api_key",
+        entityId: keyId,
+        changes: {
+          reason: "member_removed",
+          removedUserId: target.userId,
+        },
+      });
+    }
 
     revalidatePath("/settings");
     return { ok: true, data: undefined };

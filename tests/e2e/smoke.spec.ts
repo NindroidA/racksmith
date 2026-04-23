@@ -11,6 +11,7 @@ test.describe.serial("Auth + core CRUD smoke flow", () => {
     await page.getByPlaceholder("Your name").fill(TEST_NAME);
     await page.getByPlaceholder("you@example.com").fill(TEST_EMAIL);
     await page.getByPlaceholder("Min 8 characters").fill(TEST_PASSWORD);
+    await page.getByPlaceholder("Re-enter password").fill(TEST_PASSWORD);
     await page.getByRole("button", { name: "Create Account" }).click();
 
     await page.waitForURL("/dashboard", { timeout: 15_000 });

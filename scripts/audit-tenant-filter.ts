@@ -42,6 +42,7 @@ const TENANT_MODELS = [
   "buildPlan",
   "recommendationDismissal",
   "auditLog",
+  "apiRequestLog",
 ] as const;
 
 const READ_METHODS = [

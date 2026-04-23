@@ -4,10 +4,10 @@
   "private": true,
   "license": "MIT",
   "description": "Unified infrastructure documentation and visualization: racks, devices, network topology, auto-discovery.",
-  "homepage": "https://github.com/nindroid-systems/racksmith",
+  "homepage": "https://github.com/NindroidA/racksmith",
   "repository": {
     "type": "git",
-    "url": "https://github.com/nindroid-systems/racksmith.git"
+    "url": "https://github.com/NindroidA/racksmith.git"
   },
   "scripts": {
     "dev": "next dev --turbopack",
@@ -29,7 +29,9 @@
     "seed": "bun prisma/seed.ts"
   },
   "dependencies": {
+    "@asteasolutions/zod-to-openapi": "^8.5.0",
     "@prisma/client": "^6",
+    "@scalar/api-reference-react": "^0.9.25",
     "@xyflow/react": "^12.10.2",
     "better-auth": "^1.6.4",
     "cmdk": "^1.1.1",
@@ -51,6 +53,9 @@
     "@types/node": "^25.6.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "@vitest/coverage-v8": "^4.1.5",
+    "ajv": "^8.18.0",
+    "ajv-formats": "^3.0.1",
     "postcss": "^8.5.10",
     "prisma": "^6",
     "tailwindcss": "^4.2.2",

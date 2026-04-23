@@ -15,11 +15,24 @@ echo "==> Applying schema via prisma db push…"
 DATABASE_URL="$DSN" DIRECT_URL="$DSN" \
   bunx prisma db push --skip-generate --accept-data-loss
 
-echo "==> Replaying RLS policies (10b create → 10g strict)…"
-docker exec -i racksmith-db-test psql -U racksmith_test -d racksmith_test \
-  < prisma/migrations/20260419010000_phase_10_rls/migration.sql >/dev/null
-docker exec -i racksmith-db-test psql -U racksmith_test -d racksmith_test \
-  < prisma/migrations/20260420120000_phase_10g_rls_strict/migration.sql >/dev/null
+echo "==> Replaying RLS policies (auto-discovered from migrations)…"
+# Replay any migration whose SQL touches RLS DDL (ROW LEVEL SECURITY or POLICY).
+# Migrations are replayed in lexicographic order, which matches timestamp order
+# given Prisma's YYYYMMDDHHMMSS_name scheme — so policy creation (e.g. 10b)
+# runs before downstream edits (e.g. 10g ALTER POLICY). Any future phase that
+# adds RLS DDL is picked up automatically with no script change.
+rls_migrations=$(
+  grep -lE 'ROW LEVEL SECURITY|POLICY' prisma/migrations/*/migration.sql | sort || true
+)
+if [ -z "$rls_migrations" ]; then
+  echo "!! No RLS migrations found — expected at least the Phase-10 baseline." >&2
+  exit 1
+fi
+for mig in $rls_migrations; do
+  echo "    -> $mig"
+  docker exec -i racksmith-db-test psql -U racksmith_test -d racksmith_test \
+    < "$mig" >/dev/null
+done
 
 echo "==> Creating restricted app role (NOSUPERUSER NOBYPASSRLS)…"
 docker exec -i racksmith-db-test psql -U racksmith_test -d racksmith_test <<'SQL' >/dev/null

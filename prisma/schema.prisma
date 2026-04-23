@@ -48,6 +48,7 @@ model User {
   recommendationDismissals RecommendationDismissal[]
   initiatedOwnershipTransfers OwnershipTransfer[] @relation("OwnershipTransferFrom")
   pendingOwnershipTransfers   OwnershipTransfer[] @relation("OwnershipTransferTo")
+  createdApiKeys  ApiKey[]
 }
 
 model Session {
@@ -143,6 +144,10 @@ model Organization {
   recommendationDismissals RecommendationDismissal[]
   auditLogs      AuditLog[]
   ownershipTransfers OwnershipTransfer[]
+
+  // Phase 11 — Public REST API
+  apiKeys         ApiKey[]
+  apiRequestLogs  ApiRequestLog[]
 
   @@index([slug])
 }
@@ -579,4 +584,50 @@ model DeviceCatalog {
   isDefault    Boolean @default(true)
 
   @@unique([manufacturer, model])
+}
+
+// ─── Public REST API (Phase 11) ─────────────────
+
+// API keys for the public REST API (/api/v1/*). Non-tenant-scoped because
+// the initial lookup-by-hash runs before org resolution — mirrors Better
+// Auth's Session pattern. Org scoping kicks in once we've resolved the
+// key's organizationId and call `withTenant`. See CLAUDE.md "Non-tenant
+// tables" list + `.plans/2026-04-21/02-phase-11-rest-api-design.md` §2.
+model ApiKey {
+  id              String    @id @default(cuid())
+  organizationId  String
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  name            String    // 1–60 chars human label
+  prefix          String    // "rs_live_abcd" — first 12 chars, non-secret
+  hash            String    @unique  // hex SHA-256(full key)
+  role            String    // "member" | "admin" — API keys cap at admin
+  createdByUserId String
+  createdBy       User      @relation(fields: [createdByUserId], references: [id], onDelete: Cascade)
+  createdAt       DateTime  @default(now())
+  lastUsedAt      DateTime?
+  revokedAt       DateTime?
+  expiresAt       DateTime?
+
+  requestLogs     ApiRequestLog[]
+
+  @@index([organizationId, revokedAt])
+}
+
+// Per-request log for the public API. Feeds the rate-limit sliding window
+// and doubles as a usage log. Tenant-scoped (FORCE RLS); rate-limit counts
+// run inside `withTenant(organizationId, …)` after auth resolves the org.
+model ApiRequestLog {
+  id              String   @id @default(cuid())
+  organizationId  String
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  apiKeyId        String
+  apiKey          ApiKey   @relation(fields: [apiKeyId], references: [id], onDelete: Cascade)
+  method          String   // "GET" | "POST" | "PATCH" | "DELETE"
+  path            String   // "/api/v1/devices"
+  status          Int
+  weight          Int      @default(1)
+  createdAt       DateTime @default(now())
+
+  @@index([apiKeyId, createdAt])
+  @@index([organizationId, createdAt])
 }

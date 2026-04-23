@@ -29,6 +29,9 @@ const ACTION_LABELS: Record<string, string> = {
   ownership_transfer_accepted: "Accepted ownership transfer",
   ownership_transfer_declined: "Declined ownership transfer",
   ownership_transfer_revoked: "Revoked ownership transfer",
+  api_key_created: "Created API key",
+  api_key_revoked: "Revoked API key",
+  api_key_auto_revoked: "Auto-revoked API key (member removed)",
 };
 
 const ACTION_COLORS: Record<string, string> = {
