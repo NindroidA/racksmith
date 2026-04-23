@@ -82,11 +82,6 @@ jobs:
     name: Playwright smoke tests
     runs-on: ubuntu-latest
     needs: check
-    # Smoke suite surfaces a hydration mismatch under turbopack + the
-    # current register-form flow in CI that doesn't reproduce locally.
-    # Non-blocking while the root cause is investigated — artifacts still
-    # upload on failure for debugging.
-    continue-on-error: true
 
     services:
       postgres:

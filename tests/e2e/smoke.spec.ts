@@ -1,9 +1,32 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 
 const RUN_ID = Date.now().toString(36);
 const TEST_EMAIL = `e2e-${RUN_ID}@racksmith.local`;
 const TEST_PASSWORD = "e2e-smoke-pass-987654";
 const TEST_NAME = "E2E Smoke";
+
+// After a fresh signup, a new user traverses two onboarding gates:
+//   1. /onboarding/welcome — auto-creates a personal org + shows a "Skip to
+//      dashboard" link. Server-side redirect from /dashboard lands here when
+//      User.activeOrganizationId is null.
+//   2. Profile quiz modal on /dashboard — rendered by DashboardShell as a
+//      fixed-inset overlay (z-65) when User.profileCompletedAt is null. If
+//      left open, it intercepts pointer events on every dashboard route.
+//
+// Gate 1 is handled in test 1 (registration) so that Dashboard heading is
+// reachable. Gate 2 is dismissed at the start of test 2 (post-login) rather
+// than in test 1 — attempting to click the quiz's Skip button during the
+// /dashboard route's first compile in turbopack dev mode is flaky (streaming
+// SSR + Fast Refresh can flicker the modal and detach the button mid-click).
+// By test 2, /dashboard is already compiled, the modal click is stable, and
+// saveProfile stamps profileCompletedAt so the modal won't appear in tests 3/4.
+async function dismissProfileQuizIfOpen(page: Page) {
+  const dialog = page.getByRole("dialog", { name: /welcome to racksmith/i });
+  if (await dialog.isVisible({ timeout: 3_000 }).catch(() => false)) {
+    await dialog.getByRole("button", { name: /skip.*explore/i }).click();
+    await expect(dialog).toBeHidden({ timeout: 10_000 });
+  }
+}
 
 test.describe.serial("Auth + core CRUD smoke flow", () => {
   test("register a new account and land on the dashboard", async ({ page }) => {
@@ -14,10 +37,22 @@ test.describe.serial("Auth + core CRUD smoke flow", () => {
     await page.getByPlaceholder("Re-enter password").fill(TEST_PASSWORD);
     await page.getByRole("button", { name: "Create Account" }).click();
 
-    await page.waitForURL("/dashboard", { timeout: 15_000 });
-    await expect(
-      page.getByRole("heading", { name: "Dashboard" }),
-    ).toBeVisible();
+    // Gate 1: /onboarding/welcome auto-creates the user's org on first load,
+    // then renders a "Skip to dashboard" link. URL-based checks race against
+    // Next.js streaming SSR (URL can flick to /dashboard then back to
+    // /onboarding/welcome before content renders), so wait for content instead.
+    const welcomeLink = page.getByRole("link", { name: /skip to dashboard/i });
+    const dashboardHeading = page.getByRole("heading", { name: "Dashboard" });
+    await Promise.race([
+      welcomeLink.waitFor({ state: "visible", timeout: 20_000 }),
+      dashboardHeading.waitFor({ state: "visible", timeout: 20_000 }),
+    ]);
+    if (await welcomeLink.isVisible().catch(() => false)) {
+      await welcomeLink.click();
+      await dashboardHeading.waitFor({ state: "visible", timeout: 20_000 });
+    }
+
+    await expect(dashboardHeading).toBeVisible();
   });
 
   test("create a rack from the rack-creation page", async ({ page }) => {
@@ -26,8 +61,13 @@ test.describe.serial("Auth + core CRUD smoke flow", () => {
     await page.getByPlaceholder("Enter your password").fill(TEST_PASSWORD);
     await page.getByRole("button", { name: "Sign In" }).click();
     await page.waitForURL("/dashboard");
+    await dismissProfileQuizIfOpen(page);
 
     await page.goto("/racks/new");
+    // Next.js client-side transitions can briefly keep the previous page's DOM
+    // alongside the new one — waiting for network idle ensures the old form
+    // has detached before we match placeholders (see strict-mode ambiguity).
+    await page.waitForLoadState("networkidle");
     await page.getByPlaceholder(/Main Rack/i).fill("Smoke Test Rack");
 
     // sizeU is the number input — find it via type
@@ -36,8 +76,15 @@ test.describe.serial("Auth + core CRUD smoke flow", () => {
 
     await page.getByRole("button", { name: /create|save/i }).click();
 
-    // Lands on /racks/{id}
-    await page.waitForURL(/\/racks\/[a-z0-9]+$/, { timeout: 10_000 });
+    // Lands on /racks/{id}. Explicitly exclude /racks/new from the match —
+    // otherwise waitForURL resolves against our current URL before the server
+    // action's router.push fires, and the next assertion races with navigation.
+    await page.waitForURL(
+      (url) =>
+        /^\/racks\/[a-z0-9]+$/.test(url.pathname) &&
+        url.pathname !== "/racks/new",
+      { timeout: 15_000 },
+    );
     await expect(
       page.getByRole("heading", { name: "Smoke Test Rack" }),
     ).toBeVisible();
@@ -51,6 +98,7 @@ test.describe.serial("Auth + core CRUD smoke flow", () => {
     await page.waitForURL("/dashboard");
 
     await page.goto("/devices/new");
+    await page.waitForLoadState("networkidle");
     await page.getByPlaceholder(/Main Switch/i).fill("Smoke Switch");
 
     // Select device type "switch"
@@ -62,8 +110,17 @@ test.describe.serial("Auth + core CRUD smoke flow", () => {
       .first()
       .click();
 
-    await page.waitForURL(/\/devices(?:\/[^/]+)?$/, { timeout: 15_000 });
+    // Lands on /devices/{id}. Same trap as test 2 — the naive
+    // /\/devices(?:\/[^/]+)?$/ pattern matches /devices/new and resolves
+    // before the server action has pushed the new URL.
+    await page.waitForURL(
+      (url) =>
+        /^\/devices\/[^/]+$/.test(url.pathname) &&
+        url.pathname !== "/devices/new",
+      { timeout: 15_000 },
+    );
     await page.goto("/devices");
+    await page.waitForLoadState("networkidle");
     await expect(page.getByText("Smoke Switch")).toBeVisible();
   });
 
