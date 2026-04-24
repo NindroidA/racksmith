@@ -69,6 +69,18 @@ const FEATURES = [
 
 const SCREENSHOTS = [
   {
+    src: "/screenshots/dashboard.png",
+    title: "Dashboard",
+    description:
+      "Live counts, recent activity, and recommendations across your entire fleet at a glance.",
+  },
+  {
+    src: "/screenshots/rack-builder.png",
+    title: "Rack Builder",
+    description:
+      "Drag devices into U-slot precision. Live utilization. Search the catalog without leaving the page.",
+  },
+  {
     src: "/screenshots/topology.png",
     title: "Network Topology",
     description:
