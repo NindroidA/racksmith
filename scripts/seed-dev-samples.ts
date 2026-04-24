@@ -440,7 +440,9 @@ async function main() {
 main()
   .catch((err) => {
     console.error(err);
-    process.exit(1);
+    // Set exitCode instead of calling process.exit so the .finally below
+    // gets to $disconnect before the event loop drains.
+    process.exitCode = 1;
   })
   .finally(async () => {
     await prisma.$disconnect();
