@@ -18,6 +18,7 @@ import {
   X,
 } from "lucide-react";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
+import { Select, SelectOption } from "@/components/ui/select";
 import { ASSIGNABLE_ROLES, roleLabel, type Role } from "@/lib/permissions";
 import { OWNERSHIP_TRANSFER_TTL_DAYS } from "@/lib/ownership-transfer-constants";
 import {
@@ -522,21 +523,21 @@ export function OrganizationSection({
                     Owner
                   </span>
                 ) : canManageMembers && !isViewer ? (
-                  <select
+                  <Select
                     aria-label={`Change role for ${m.user.name ?? m.user.email}`}
                     value={m.role}
                     disabled={rowPending || memberPending}
-                    onChange={(e) =>
-                      changeRole(m.id, e.target.value as Exclude<Role, "owner">)
+                    onValueChange={(v) =>
+                      changeRole(m.id, v as Exclude<Role, "owner">)
                     }
-                    className="glass-input rounded-md px-2 py-1 text-xs disabled:opacity-50"
+                    className="px-2 py-1 text-xs"
                   >
                     {ASSIGNABLE_ROLES.map((r) => (
-                      <option key={r} value={r} className="bg-neutral-900">
+                      <SelectOption key={r} value={r}>
                         {roleLabel(r)}
-                      </option>
+                      </SelectOption>
                     ))}
-                  </select>
+                  </Select>
                 ) : (
                   <span
                     aria-label={roleLabel(m.role)}
@@ -624,21 +625,20 @@ export function OrganizationSection({
               >
                 Role
               </label>
-              <select
+              <Select
                 id="invite-role"
                 value={inviteRole}
-                onChange={(e) =>
-                  setInviteRole(e.target.value as Exclude<Role, "owner">)
+                onValueChange={(v) =>
+                  setInviteRole(v as Exclude<Role, "owner">)
                 }
                 disabled={invitePending}
-                className="glass-input w-full rounded-lg px-2 py-2 text-sm disabled:opacity-50"
               >
                 {ASSIGNABLE_ROLES.map((r) => (
-                  <option key={r} value={r} className="bg-neutral-900">
+                  <SelectOption key={r} value={r}>
                     {roleLabel(r)}
-                  </option>
+                  </SelectOption>
                 ))}
-              </select>
+              </Select>
             </div>
             <button
               type="submit"

@@ -11,6 +11,7 @@ import { DeviceGraphic, U_ASPECT } from "@/components/rack/device-graphic";
 import { InlineHelp } from "@/components/ui/inline-help";
 import { AdvancedAccordion } from "@/components/ui/advanced-accordion";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
+import { Select, SelectOption } from "@/components/ui/select";
 import {
   createDevice,
   updateDevice,
@@ -143,9 +144,7 @@ export function DeviceForm(props: Props) {
           router.refresh();
         }
       } catch (err) {
-        toast.error(
-          describeError(err, "Something went wrong"),
-        );
+        toast.error(describeError(err, "Something went wrong"));
       }
     });
   }
@@ -227,18 +226,17 @@ export function DeviceForm(props: Props) {
               >
                 Type <span className="text-accent-red">*</span>
               </label>
-              <select
+              <Select
                 id="deviceType"
                 value={deviceType}
-                onChange={(e) => setDeviceType(e.target.value as DeviceType)}
-                className="glass-input w-full rounded-lg px-3 py-2.5 text-sm"
+                onValueChange={(v) => setDeviceType(v as DeviceType)}
               >
                 {DEVICE_TYPE_OPTIONS.map((t) => (
-                  <option key={t} value={t} className="bg-neutral-900">
+                  <SelectOption key={t} value={t}>
                     {DEVICE_TYPE_LABELS[t]}
-                  </option>
+                  </SelectOption>
                 ))}
-              </select>
+              </Select>
             </div>
           </div>
 
@@ -251,21 +249,19 @@ export function DeviceForm(props: Props) {
               >
                 Manufacturer
               </label>
-              <select
+              <Select
                 id="manufacturer"
                 value={manufacturer.toLowerCase()}
-                onChange={(e) => setManufacturer(e.target.value)}
-                className="glass-input w-full rounded-lg px-3 py-2.5 text-sm"
+                onValueChange={setManufacturer}
+                placeholder="(none)"
               >
-                <option value="" className="bg-neutral-900">
-                  (none)
-                </option>
+                <SelectOption value="">(none)</SelectOption>
                 {MANUFACTURER_OPTIONS.map((m) => (
-                  <option key={m} value={m} className="bg-neutral-900">
+                  <SelectOption key={m} value={m}>
                     {m}
-                  </option>
+                  </SelectOption>
                 ))}
-              </select>
+              </Select>
             </div>
             <div>
               <label
@@ -418,21 +414,19 @@ export function DeviceForm(props: Props) {
                 >
                   Rack
                 </label>
-                <select
+                <Select
                   id="rackId"
                   value={rackId}
-                  onChange={(e) => setRackId(e.target.value)}
-                  className="glass-input w-full rounded-lg px-3 py-2.5 text-sm"
+                  onValueChange={setRackId}
+                  placeholder="Unracked"
                 >
-                  <option value="" className="bg-neutral-900">
-                    Unracked
-                  </option>
+                  <SelectOption value="">Unracked</SelectOption>
                   {props.racks.map((r) => (
-                    <option key={r.id} value={r.id} className="bg-neutral-900">
+                    <SelectOption key={r.id} value={r.id}>
                       {r.name} ({r.sizeU}U)
-                    </option>
+                    </SelectOption>
                   ))}
-                </select>
+                </Select>
               </div>
               <div>
                 <label

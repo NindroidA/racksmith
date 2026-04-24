@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowLeft, Download, FileText } from "lucide-react";
 import { requireMember } from "@/lib/auth-helpers";
 import { withTenant } from "@/lib/prisma-tenant";
+import { AuditFilters } from "./audit-filters";
 
 const PAGE_SIZE = 50;
 
@@ -126,63 +127,11 @@ export default async function AuditPage({
         </a>
       </div>
 
-      <form
-        method="get"
-        className="glass-card mb-4 flex flex-wrap gap-3 rounded-xl p-4"
-      >
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium uppercase tracking-wider text-white/40">
-            Action
-          </label>
-          <select
-            name="action"
-            defaultValue={actionFilter}
-            className="glass-input rounded-lg px-3 py-2 text-sm"
-          >
-            <option value="">All actions</option>
-            {Object.entries(ACTION_LABELS).map(([v, label]) => (
-              <option key={v} value={v}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium uppercase tracking-wider text-white/40">
-            Entity
-          </label>
-          <select
-            name="entity"
-            defaultValue={entityFilter}
-            className="glass-input rounded-lg px-3 py-2 text-sm"
-          >
-            <option value="">All entities</option>
-            <option value="rack">Rack</option>
-            <option value="device">Device</option>
-            <option value="connection">Connection</option>
-            <option value="discovery_scan">Discovery scan</option>
-            <option value="user">Account</option>
-          </select>
-        </div>
-        <div className="flex items-end">
-          <button
-            type="submit"
-            className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary/90"
-          >
-            Apply
-          </button>
-        </div>
-        {(actionFilter || entityFilter) && (
-          <div className="flex items-end">
-            <Link
-              href="/settings/audit"
-              className="rounded-lg bg-white/[0.06] px-4 py-2 text-sm font-medium text-white/60 transition-colors hover:bg-white/[0.1]"
-            >
-              Clear
-            </Link>
-          </div>
-        )}
-      </form>
+      <AuditFilters
+        actionFilter={actionFilter}
+        entityFilter={entityFilter}
+        actionLabels={ACTION_LABELS}
+      />
 
       {logs.length === 0 ? (
         <div className="glass-card rounded-xl p-12 text-center">

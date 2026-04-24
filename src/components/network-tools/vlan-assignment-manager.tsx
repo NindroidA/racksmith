@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import { twMerge } from "tailwind-merge";
 import { Plus, Trash2, X } from "lucide-react";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
+import { Select, SelectOption } from "@/components/ui/select";
 import {
   assignVlanToDevice,
   removeVlanAssignment,
@@ -146,21 +147,18 @@ export function VlanAssignmentManager({
               >
                 Device
               </label>
-              <select
+              <Select
                 id="vlan-assign-device"
                 value={deviceId}
-                onChange={(e) => setDeviceId(e.target.value)}
-                className="glass-input w-full rounded-lg px-3 py-2 text-sm"
+                onValueChange={setDeviceId}
+                placeholder="(pick a device)"
               >
-                <option value="" className="bg-neutral-900">
-                  (pick a device)
-                </option>
                 {devices.map((d) => (
-                  <option key={d.id} value={d.id} className="bg-neutral-900">
+                  <SelectOption key={d.id} value={d.id}>
                     {d.name} ({d.deviceType})
-                  </option>
+                  </SelectOption>
                 ))}
-              </select>
+              </Select>
             </div>
             <div>
               <label
@@ -169,18 +167,18 @@ export function VlanAssignmentManager({
               >
                 Mode
               </label>
-              <select
+              <Select
                 id="vlan-assign-mode"
                 value={mode}
-                onChange={(e) => setMode(e.target.value as Mode)}
-                className="glass-input w-full rounded-lg px-3 py-2 text-sm capitalize"
+                onValueChange={(v) => setMode(v as Mode)}
+                className="capitalize"
               >
                 {VLAN_ASSIGN_MODES.map((m) => (
-                  <option key={m} value={m} className="bg-neutral-900">
+                  <SelectOption key={m} value={m}>
                     {m}
-                  </option>
+                  </SelectOption>
                 ))}
-              </select>
+              </Select>
             </div>
             <div>
               <label

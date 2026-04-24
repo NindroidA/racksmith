@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { InlineHelp } from "@/components/ui/inline-help";
+import { Select, SelectOption } from "@/components/ui/select";
 import type { NetworkInput, VlanLine } from "@/lib/plan/wizard-types";
 import { VLAN_PURPOSES as VLAN_PURPOSE_VALUES } from "@/lib/validators";
 
@@ -136,22 +137,20 @@ export function WizardStepNetwork({ value, disabled, onBack, onNext }: Props) {
                   className="glass-input rounded-lg px-2 py-1.5 text-sm text-white"
                   aria-label={`VLAN ${idx + 1} name`}
                 />
-                <select
+                <Select
                   value={row.purpose}
-                  onChange={(e) =>
-                    updateRow(idx, {
-                      purpose: e.target.value as VlanLine["purpose"],
-                    })
+                  onValueChange={(v) =>
+                    updateRow(idx, { purpose: v as VlanLine["purpose"] })
                   }
-                  className="glass-input rounded-lg px-2 py-1.5 text-sm text-white"
+                  className="px-2 py-1.5 text-sm"
                   aria-label={`VLAN ${idx + 1} purpose`}
                 >
                   {VLAN_PURPOSES.map((p) => (
-                    <option key={p} value={p}>
+                    <SelectOption key={p} value={p}>
                       {p}
-                    </option>
+                    </SelectOption>
                   ))}
-                </select>
+                </Select>
                 <input
                   type="number"
                   min={0}

@@ -8,6 +8,7 @@ import { twMerge } from "tailwind-merge";
 import { ArrowLeft, Save, Trash2 } from "lucide-react";
 import { COLOR_TAG_MAP, COLOR_TAGS, type ColorTag } from "@/types";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
+import { Select, SelectOption } from "@/components/ui/select";
 import {
   createVlan,
   updateVlan,
@@ -81,9 +82,7 @@ export function VlanForm(props: Props) {
           router.refresh();
         }
       } catch (err) {
-        toast.error(
-          describeError(err, "Something went wrong"),
-        );
+        toast.error(describeError(err, "Something went wrong"));
       }
     });
   }
@@ -210,18 +209,17 @@ export function VlanForm(props: Props) {
           >
             Purpose
           </label>
-          <select
+          <Select
             id="purpose"
             value={purpose}
-            onChange={(e) => setPurpose(e.target.value as Purpose)}
-            className="glass-input w-full rounded-lg px-3 py-2.5 text-sm"
+            onValueChange={(v) => setPurpose(v as Purpose)}
           >
             {VLAN_PURPOSES.map((p) => (
-              <option key={p} value={p} className="bg-neutral-900">
+              <SelectOption key={p} value={p}>
                 {PURPOSE_LABELS[p]}
-              </option>
+              </SelectOption>
             ))}
-          </select>
+          </Select>
         </div>
 
         <div>

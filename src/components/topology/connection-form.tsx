@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import { X } from "lucide-react";
 import { twMerge } from "tailwind-merge";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
+import { Select, SelectOption } from "@/components/ui/select";
 import {
   createConnection,
   updateConnection,
@@ -217,22 +218,18 @@ export function ConnectionForm({
               <label className="mb-1.5 block text-xs font-medium text-white/60">
                 Source Device
               </label>
-              <select
+              <Select
                 value={sourceDeviceId}
-                onChange={(e) => setSourceDeviceId(e.target.value)}
-                required
+                onValueChange={setSourceDeviceId}
                 disabled={!!existing}
-                className="glass-input w-full rounded-lg px-3 py-2 text-sm disabled:opacity-60"
+                placeholder="Pick source…"
               >
-                <option value="" className="bg-neutral-900">
-                  Pick source...
-                </option>
                 {devices.map((d) => (
-                  <option key={d.id} value={d.id} className="bg-neutral-900">
+                  <SelectOption key={d.id} value={d.id}>
                     {d.name}
-                  </option>
+                  </SelectOption>
                 ))}
-              </select>
+              </Select>
             </div>
             <div>
               <label className="mb-1.5 block text-xs font-medium text-white/60">
@@ -256,24 +253,20 @@ export function ConnectionForm({
               <label className="mb-1.5 block text-xs font-medium text-white/60">
                 Target Device
               </label>
-              <select
+              <Select
                 value={targetDeviceId}
-                onChange={(e) => setTargetDeviceId(e.target.value)}
-                required
+                onValueChange={setTargetDeviceId}
                 disabled={!!existing}
-                className="glass-input w-full rounded-lg px-3 py-2 text-sm disabled:opacity-60"
+                placeholder="Pick target…"
               >
-                <option value="" className="bg-neutral-900">
-                  Pick target...
-                </option>
                 {devices
                   .filter((d) => d.id !== sourceDeviceId)
                   .map((d) => (
-                    <option key={d.id} value={d.id} className="bg-neutral-900">
+                    <SelectOption key={d.id} value={d.id}>
                       {d.name}
-                    </option>
+                    </SelectOption>
                   ))}
-              </select>
+              </Select>
             </div>
             <div>
               <label className="mb-1.5 block text-xs font-medium text-white/60">
@@ -297,37 +290,25 @@ export function ConnectionForm({
               <label className="mb-1.5 block text-xs font-medium text-white/60">
                 Cable Type
               </label>
-              <select
-                value={cableType}
-                onChange={(e) => setCableType(e.target.value)}
-                className="glass-input w-full rounded-lg px-3 py-2 text-sm"
-              >
+              <Select value={cableType} onValueChange={setCableType}>
                 {CABLE_TYPES.map((t) => (
-                  <option
-                    key={t.value}
-                    value={t.value}
-                    className="bg-neutral-900"
-                  >
+                  <SelectOption key={t.value} value={t.value}>
                     {t.label}
-                  </option>
+                  </SelectOption>
                 ))}
-              </select>
+              </Select>
             </div>
             <div>
               <label className="mb-1.5 block text-xs font-medium text-white/60">
                 Bandwidth
               </label>
-              <select
-                value={bandwidth}
-                onChange={(e) => setBandwidth(e.target.value)}
-                className="glass-input w-full rounded-lg px-3 py-2 text-sm"
-              >
+              <Select value={bandwidth} onValueChange={setBandwidth}>
                 {BANDWIDTH_PRESETS.map((b) => (
-                  <option key={b} value={b} className="bg-neutral-900">
+                  <SelectOption key={b} value={b}>
                     {b || "(none)"}
-                  </option>
+                  </SelectOption>
                 ))}
-              </select>
+              </Select>
             </div>
             <div>
               <label className="mb-1.5 block text-xs font-medium text-white/60">

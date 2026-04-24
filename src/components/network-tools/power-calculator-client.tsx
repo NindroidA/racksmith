@@ -5,6 +5,7 @@ import { Plus, Trash2, Battery, Zap, Power } from "lucide-react";
 import { twMerge } from "tailwind-merge";
 import { InlineHelp } from "@/components/ui/inline-help";
 import { AdvancedAccordion } from "@/components/ui/advanced-accordion";
+import { Select, SelectOption } from "@/components/ui/select";
 import {
   COMMON_PDU_CIRCUITS,
   calculatePduCapacity,
@@ -220,23 +221,20 @@ function PduPanel() {
           <InlineHelp htmlFor="pdu-circuit" term="PDU">
             Circuit
           </InlineHelp>
-          <select
+          <Select
             id="pdu-circuit"
             value={circuit.label}
-            onChange={(e) => {
-              const next = COMMON_PDU_CIRCUITS.find(
-                (c) => c.label === e.target.value,
-              );
+            onValueChange={(v) => {
+              const next = COMMON_PDU_CIRCUITS.find((c) => c.label === v);
               if (next) setCircuit(next);
             }}
-            className="glass-input w-full rounded-lg px-3 py-2 text-white"
           >
             {COMMON_PDU_CIRCUITS.map((c) => (
-              <option key={c.label} value={c.label}>
+              <SelectOption key={c.label} value={c.label}>
                 {c.label}
-              </option>
+              </SelectOption>
             ))}
-          </select>
+          </Select>
 
           <InlineHelp htmlFor="pdu-load" className="mt-4">
             Continuous load (W)

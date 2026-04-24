@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Zap, Users, Building2 } from "lucide-react";
 import { twMerge } from "tailwind-merge";
 import { InlineHelp } from "@/components/ui/inline-help";
+import { Select, SelectOption } from "@/components/ui/select";
 import {
   SITE_TYPE_LABELS,
   UPLINK_LABELS,
@@ -145,18 +146,17 @@ export function WizardStepProfile({ value, disabled, onNext }: Props) {
             <InlineHelp htmlFor="uplink-speed" term="UPLINK">
               Uplink speed
             </InlineHelp>
-            <select
+            <Select
               id="uplink-speed"
               value={uplinkSpeed}
-              onChange={(e) => setUplinkSpeed(e.target.value as UplinkSpeed)}
-              className="glass-input w-full rounded-lg px-3 py-2 text-white"
+              onValueChange={(v) => setUplinkSpeed(v as UplinkSpeed)}
             >
               {(Object.keys(UPLINK_LABELS) as UplinkSpeed[]).map((s) => (
-                <option key={s} value={s}>
+                <SelectOption key={s} value={s}>
                   {UPLINK_LABELS[s]}
-                </option>
+                </SelectOption>
               ))}
-            </select>
+            </Select>
           </div>
 
           <div>

@@ -101,9 +101,10 @@ test.describe.serial("Auth + core CRUD smoke flow", () => {
     await page.waitForLoadState("networkidle");
     await page.getByPlaceholder(/Main Switch/i).fill("Smoke Switch");
 
-    // Select device type "switch"
-    const typeSelect = page.locator("select").first();
-    await typeSelect.selectOption({ value: "switch" });
+    // Select device type "switch" via the custom combobox (not a native
+    // <select>, so `selectOption` doesn't apply).
+    await page.getByRole("combobox", { name: /Type/i }).click();
+    await page.getByRole("option", { name: "Switch", exact: true }).click();
 
     await page
       .getByRole("button", { name: /create device|save/i })
