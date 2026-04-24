@@ -3,6 +3,7 @@
 import { useId, useMemo, useRef, useState } from "react";
 import { Cable, Plus, Trash2 } from "lucide-react";
 import { twMerge } from "tailwind-merge";
+import { Select, SelectOption } from "@/components/ui/select";
 import {
   CABLE_SPECS,
   buildBom,
@@ -131,42 +132,38 @@ export function CableEstimatorClient() {
               {evaluated.map(({ row, result }) => (
                 <tr key={row.id} className="border-t border-white/[0.04]">
                   <td className="px-2 py-2">
-                    <select
+                    <Select
                       value={row.cableType}
-                      onChange={(e) =>
-                        updateRow(row.id, {
-                          cableType: e.target.value as CableMediaType,
-                        })
+                      onValueChange={(v) =>
+                        updateRow(row.id, { cableType: v as CableMediaType })
                       }
                       aria-label="Cable type"
-                      className="glass-input rounded-lg px-2 py-1.5 text-sm text-white"
+                      className="px-2 py-1.5 text-sm"
                     >
                       {(Object.keys(CABLE_SPECS) as CableMediaType[]).map(
                         (t) => (
-                          <option key={t} value={t}>
+                          <SelectOption key={t} value={t}>
                             {CABLE_SPECS[t].label}
-                          </option>
+                          </SelectOption>
                         ),
                       )}
-                    </select>
+                    </Select>
                   </td>
                   <td className="px-2 py-2">
-                    <select
+                    <Select
                       value={row.linkSpeed}
-                      onChange={(e) =>
-                        updateRow(row.id, {
-                          linkSpeed: e.target.value as LinkSpeed,
-                        })
+                      onValueChange={(v) =>
+                        updateRow(row.id, { linkSpeed: v as LinkSpeed })
                       }
                       aria-label="Link speed"
-                      className="glass-input rounded-lg px-2 py-1.5 text-sm text-white"
+                      className="px-2 py-1.5 text-sm"
                     >
                       {SPEED_OPTIONS.map((s) => (
-                        <option key={s} value={s}>
+                        <SelectOption key={s} value={s}>
                           {s}
-                        </option>
+                        </SelectOption>
                       ))}
-                    </select>
+                    </Select>
                   </td>
                   <td className="px-2 py-2">
                     <input

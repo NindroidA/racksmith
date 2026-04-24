@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import toast from "react-hot-toast";
 import { Copy, Check, FileCode, AlertTriangle } from "lucide-react";
+import { Select, SelectOption } from "@/components/ui/select";
 import {
   generateConfig,
   VENDOR_LABELS,
@@ -119,19 +120,14 @@ export function ConfigGenClient({ devices, vlans }: Props) {
           >
             Device
           </label>
-          <select
-            id="device"
-            value={deviceId}
-            onChange={(e) => setDeviceId(e.target.value)}
-            className="glass-input w-full rounded-lg px-3 py-2.5 text-sm"
-          >
+          <Select id="device" value={deviceId} onValueChange={setDeviceId}>
             {devices.map((d) => (
-              <option key={d.id} value={d.id} className="bg-neutral-900">
+              <SelectOption key={d.id} value={d.id}>
                 {d.name}
                 {d.manufacturer ? ` (${d.manufacturer})` : ""}
-              </option>
+              </SelectOption>
             ))}
-          </select>
+          </Select>
         </div>
         <fieldset>
           <legend className="mb-1.5 block text-sm font-medium text-white/70">

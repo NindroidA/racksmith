@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import { Plus, Copy, Check } from "lucide-react";
 import { createApiKey } from "./actions";
 import { describeError } from "@/lib/error-message";
+import { Select, SelectOption } from "@/components/ui/select";
 
 type Props = { disabled?: boolean };
 
@@ -84,37 +85,35 @@ export function ApiKeyCreateDialog({ disabled }: Props) {
                   <label className="mb-1.5 block text-xs font-medium text-white/60">
                     Role
                   </label>
-                  <select
+                  <Select
                     value={role}
-                    onChange={(e) => setRole(e.target.value as "member" | "admin")}
-                    className="glass-input w-full rounded-lg px-3 py-2 text-sm"
+                    onValueChange={(v) => setRole(v as "member" | "admin")}
                   >
-                    <option value="member" className="bg-neutral-900">
+                    <SelectOption value="member">
                       Member (read + create)
-                    </option>
-                    <option value="admin" className="bg-neutral-900">
+                    </SelectOption>
+                    <SelectOption value="admin">
                       Admin (full CRUD, including delete)
-                    </option>
-                  </select>
+                    </SelectOption>
+                  </Select>
                 </div>
                 <div>
                   <label className="mb-1.5 block text-xs font-medium text-white/60">
                     Expires
                   </label>
-                  <select
-                    value={expiresInDays ?? "never"}
-                    onChange={(e) =>
-                      setExpiresInDays(
-                        e.target.value === "never" ? null : Number(e.target.value),
-                      )
+                  <Select
+                    value={
+                      expiresInDays == null ? "never" : String(expiresInDays)
                     }
-                    className="glass-input w-full rounded-lg px-3 py-2 text-sm"
+                    onValueChange={(v) =>
+                      setExpiresInDays(v === "never" ? null : Number(v))
+                    }
                   >
-                    <option value="never" className="bg-neutral-900">Never</option>
-                    <option value="30" className="bg-neutral-900">30 days</option>
-                    <option value="90" className="bg-neutral-900">90 days</option>
-                    <option value="365" className="bg-neutral-900">1 year</option>
-                  </select>
+                    <SelectOption value="never">Never</SelectOption>
+                    <SelectOption value="30">30 days</SelectOption>
+                    <SelectOption value="90">90 days</SelectOption>
+                    <SelectOption value="365">1 year</SelectOption>
+                  </Select>
                 </div>
                 <div className="flex gap-2 pt-2">
                   <button
@@ -140,8 +139,11 @@ export function ApiKeyCreateDialog({ disabled }: Props) {
                   Your new API key
                 </h2>
                 <div className="rounded-lg border border-accent-orange/40 bg-accent-orange/10 p-3 text-xs text-accent-orange">
-                  <strong>This is the only time you&apos;ll see this key.</strong> Copy
-                  it now — after you close this window it can never be retrieved.
+                  <strong>
+                    This is the only time you&apos;ll see this key.
+                  </strong>{" "}
+                  Copy it now — after you close this window it can never be
+                  retrieved.
                 </div>
                 <div className="glass-input overflow-hidden rounded-lg p-3 font-mono text-xs text-white break-all">
                   {revealed}
@@ -155,7 +157,11 @@ export function ApiKeyCreateDialog({ disabled }: Props) {
                     }}
                     className="inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-xs font-medium text-white hover:bg-primary/90"
                   >
-                    {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                    {copied ? (
+                      <Check className="h-3.5 w-3.5" />
+                    ) : (
+                      <Copy className="h-3.5 w-3.5" />
+                    )}
                     {copied ? "Copied" : "Copy"}
                   </button>
                   <button

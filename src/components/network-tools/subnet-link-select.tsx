@@ -5,6 +5,7 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 import { Plus, Unlink } from "lucide-react";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
+import { Select, SelectOption } from "@/components/ui/select";
 import { linkSubnetToVlan } from "@/app/(dashboard)/network-tools/vlans/actions";
 
 type ConfirmTarget = { subnetId: string; cidr: string } | null;
@@ -69,21 +70,19 @@ export function SubnetLinkSelect({
         <h2 className="text-lg font-semibold text-white">Linked subnets</h2>
         {available.length > 0 && (
           <div className="flex items-center gap-2">
-            <select
+            <Select
               value={selectId}
-              onChange={(e) => setSelectId(e.target.value)}
-              className="glass-input rounded-lg px-3 py-1.5 text-xs"
+              onValueChange={setSelectId}
               disabled={pending}
+              placeholder="Pick a subnet to link…"
+              className="px-3 py-1.5 text-xs"
             >
-              <option value="" className="bg-neutral-900">
-                Pick a subnet to link…
-              </option>
               {available.map((s) => (
-                <option key={s.id} value={s.id} className="bg-neutral-900">
+                <SelectOption key={s.id} value={s.id}>
                   {s.cidr} ({s.name})
-                </option>
+                </SelectOption>
               ))}
-            </select>
+            </Select>
             <button
               type="button"
               onClick={() => selectId && link(selectId)}

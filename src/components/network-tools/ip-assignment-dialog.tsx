@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import { X, Trash2, Wand2 } from "lucide-react";
 import { useFocusTrap } from "@/hooks/use-focus-trap";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
+import { Select, SelectOption } from "@/components/ui/select";
 import {
   createIpAssignment,
   updateIpAssignment,
@@ -199,18 +200,13 @@ export function IpAssignmentDialog({
                 >
                   Status
                 </label>
-                <select
-                  id="status"
-                  value={status}
-                  onChange={(e) => setStatus(e.target.value)}
-                  className="glass-input w-full rounded-lg px-3 py-2.5 text-sm"
-                >
+                <Select id="status" value={status} onValueChange={setStatus}>
                   {IP_ASSIGNMENT_STATUSES.map((s) => (
-                    <option key={s} value={s} className="bg-neutral-900">
+                    <SelectOption key={s} value={s}>
                       {s}
-                    </option>
+                    </SelectOption>
                   ))}
-                </select>
+                </Select>
               </div>
               <div>
                 <label
@@ -219,21 +215,19 @@ export function IpAssignmentDialog({
                 >
                   Device
                 </label>
-                <select
+                <Select
                   id="device"
                   value={deviceId}
-                  onChange={(e) => setDeviceId(e.target.value)}
-                  className="glass-input w-full rounded-lg px-3 py-2.5 text-sm"
+                  onValueChange={setDeviceId}
+                  placeholder="(none)"
                 >
-                  <option value="" className="bg-neutral-900">
-                    (none)
-                  </option>
+                  <SelectOption value="">(none)</SelectOption>
                   {devices.map((d) => (
-                    <option key={d.id} value={d.id} className="bg-neutral-900">
+                    <SelectOption key={d.id} value={d.id}>
                       {d.name}
-                    </option>
+                    </SelectOption>
                   ))}
-                </select>
+                </Select>
               </div>
             </div>
 

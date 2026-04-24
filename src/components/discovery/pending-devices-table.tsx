@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import { twMerge } from "tailwind-merge";
 import { Check, X, Link2, CircleCheckBig } from "lucide-react";
 import { DEVICE_TYPE_LABELS, type DeviceType } from "@/types";
+import { Select, SelectOption } from "@/components/ui/select";
 import {
   approveDiscovery,
   assignToExistingDevice,
@@ -62,7 +63,7 @@ export function PendingDevicesTable({ hosts, devices }: Props) {
       const result = await assignToExistingDevice(
         host.scanId,
         host.ip,
-        deviceId
+        deviceId,
       );
       if (!result.ok) {
         toast.error(result.error);
@@ -131,9 +132,7 @@ export function PendingDevicesTable({ hosts, devices }: Props) {
                 >
                   <td className="px-4 py-3 font-mono text-white">{host.ip}</td>
                   <td className="px-4 py-3 text-white/80">
-                    {host.hostname || (
-                      <span className="text-white/30">—</span>
-                    )}
+                    {host.hostname || <span className="text-white/30">—</span>}
                     {host.mac && (
                       <div className="mt-0.5 font-mono text-[10px] text-white/40">
                         {host.mac}
@@ -168,28 +167,20 @@ export function PendingDevicesTable({ hosts, devices }: Props) {
                   <td className="px-4 py-3">
                     {isAssigning ? (
                       <div className="flex items-center justify-end gap-2">
-                        <select
-                          onChange={(e) => {
-                            if (e.target.value) {
-                              handleAssign(host, e.target.value);
-                            }
+                        <Select
+                          value=""
+                          onValueChange={(v) => {
+                            if (v) handleAssign(host, v);
                           }}
-                          defaultValue=""
-                          className="glass-input rounded-md px-2 py-1 text-xs"
+                          placeholder="Pick device…"
+                          className="px-2 py-1 text-xs"
                         >
-                          <option value="" className="bg-neutral-900">
-                            Pick device...
-                          </option>
                           {devices.map((d) => (
-                            <option
-                              key={d.id}
-                              value={d.id}
-                              className="bg-neutral-900"
-                            >
+                            <SelectOption key={d.id} value={d.id}>
                               {d.name}
-                            </option>
+                            </SelectOption>
                           ))}
-                        </select>
+                        </Select>
                         <button
                           onClick={() => setAssignTarget(null)}
                           className="text-xs text-white/50 hover:text-white/80"
@@ -213,7 +204,7 @@ export function PendingDevicesTable({ hosts, devices }: Props) {
                           disabled={pending || devices.length === 0}
                           className={twMerge(
                             "flex items-center gap-1 rounded-md bg-white/[0.06] px-2 py-1 text-xs font-medium text-white/80 hover:bg-white/[0.12]",
-                            (pending || devices.length === 0) && "opacity-40"
+                            (pending || devices.length === 0) && "opacity-40",
                           )}
                           title="Assign to an existing device"
                         >

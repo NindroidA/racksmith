@@ -6,6 +6,7 @@ import { twMerge } from "tailwind-merge";
 import { Search, HardDrive } from "lucide-react";
 import { DEVICE_TYPE_LABELS, type DeviceType } from "@/types";
 import { DeviceGraphic, U_ASPECT } from "@/components/rack/device-graphic";
+import { Select, SelectOption } from "@/components/ui/select";
 
 export type DeviceRow = {
   id: string;
@@ -166,36 +167,34 @@ export function DeviceListClient({ devices }: Props) {
           </div>
 
           {/* Type filter dropdown */}
-          <select
+          <Select
             value={typeFilter ?? ""}
-            onChange={(e) => setTypeFilter(e.target.value || null)}
-            className="glass-input rounded-lg px-3 py-1.5 text-xs font-medium"
+            onValueChange={(v) => setTypeFilter(v || null)}
+            placeholder="All types"
+            className="px-3 py-1.5 text-xs font-medium"
           >
-            <option value="" className="bg-neutral-900">
-              All types
-            </option>
+            <SelectOption value="">All types</SelectOption>
             {TYPES.map((t) => (
-              <option key={t} value={t} className="bg-neutral-900">
+              <SelectOption key={t} value={t}>
                 {DEVICE_TYPE_LABELS[t]}
-              </option>
+              </SelectOption>
             ))}
-          </select>
+          </Select>
 
           {manufacturers.length > 0 && (
-            <select
+            <Select
               value={mfrFilter ?? ""}
-              onChange={(e) => setMfrFilter(e.target.value || null)}
-              className="glass-input rounded-lg px-3 py-1.5 text-xs font-medium"
+              onValueChange={(v) => setMfrFilter(v || null)}
+              placeholder="All manufacturers"
+              className="px-3 py-1.5 text-xs font-medium"
             >
-              <option value="" className="bg-neutral-900">
-                All manufacturers
-              </option>
+              <SelectOption value="">All manufacturers</SelectOption>
               {manufacturers.map((m) => (
-                <option key={m} value={m} className="bg-neutral-900">
+                <SelectOption key={m} value={m}>
                   {m}
-                </option>
+                </SelectOption>
               ))}
-            </select>
+            </Select>
           )}
 
           {activeFilterCount > 0 && (
