@@ -172,6 +172,7 @@ export function DeviceListClient({ devices }: Props) {
             onValueChange={(v) => setTypeFilter(v || null)}
             placeholder="All types"
             className="px-3 py-1.5 text-xs font-medium"
+            aria-label="Filter by device type"
           >
             <SelectOption value="">All types</SelectOption>
             {TYPES.map((t) => (
@@ -187,6 +188,7 @@ export function DeviceListClient({ devices }: Props) {
               onValueChange={(v) => setMfrFilter(v || null)}
               placeholder="All manufacturers"
               className="px-3 py-1.5 text-xs font-medium"
+              aria-label="Filter by manufacturer"
             >
               <SelectOption value="">All manufacturers</SelectOption>
               {manufacturers.map((m) => (

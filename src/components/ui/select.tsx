@@ -294,7 +294,7 @@ export function Select({
 
   return (
     <SelectContext.Provider value={ctxValue}>
-      {name && <input type="hidden" name={name} value={value} />}
+      {name && !disabled && <input type="hidden" name={name} value={value} />}
       <button
         ref={triggerRef}
         id={triggerId}
@@ -436,7 +436,10 @@ export function SelectOption({ value, disabled, children }: SelectOptionProps) {
       ? String(children)
       : extractText(children);
 
-  useEffect(() => {
+  // useLayoutEffect so options are registered before first paint — avoids a
+  // visible flash where the trigger shows the placeholder instead of the
+  // selected option's label on initial mount.
+  useLayoutEffect(() => {
     registerOption({ id, value, label, disabled: !!disabled });
     return () => unregisterOption(id);
   }, [id, value, label, disabled, registerOption, unregisterOption]);

@@ -43,9 +43,15 @@ test.describe.serial("Auth + core CRUD smoke flow", () => {
     // /onboarding/welcome before content renders), so wait for content instead.
     const welcomeLink = page.getByRole("link", { name: /skip to dashboard/i });
     const dashboardHeading = page.getByRole("heading", { name: "Dashboard" });
+    // Catch the losing branch so its rejection after the race resolves
+    // doesn't surface as an unhandled rejection and flakify the run.
     await Promise.race([
-      welcomeLink.waitFor({ state: "visible", timeout: 20_000 }),
-      dashboardHeading.waitFor({ state: "visible", timeout: 20_000 }),
+      welcomeLink
+        .waitFor({ state: "visible", timeout: 20_000 })
+        .catch(() => undefined),
+      dashboardHeading
+        .waitFor({ state: "visible", timeout: 20_000 })
+        .catch(() => undefined),
     ]);
     if (await welcomeLink.isVisible().catch(() => false)) {
       await welcomeLink.click();

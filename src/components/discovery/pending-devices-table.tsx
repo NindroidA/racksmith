@@ -174,6 +174,7 @@ export function PendingDevicesTable({ hosts, devices }: Props) {
                           }}
                           placeholder="Pick device…"
                           className="px-2 py-1 text-xs"
+                          aria-label={`Assign ${host.ip} to existing device`}
                         >
                           {devices.map((d) => (
                             <SelectOption key={d.id} value={d.id}>

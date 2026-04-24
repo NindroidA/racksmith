@@ -197,10 +197,9 @@ async function main() {
     select: { id: true },
   });
   if (!org) {
-    console.error(
+    throw new Error(
       `Dev workspace not found (slug=${DEV_ORG_SLUG}). Run "bun run db:seed" first.`,
     );
-    process.exit(1);
   }
 
   const userId = "devuser0000000000000000000000000";
@@ -264,7 +263,7 @@ async function main() {
   }
 
   console.log("Creating subnet + VLAN…");
-  const vlanId = await asTenant(org.id, async (tx) => {
+  await asTenant(org.id, async (tx) => {
     const vlan = await tx.vlan.create({
       data: {
         userId,
@@ -290,9 +289,7 @@ async function main() {
         vlanId: vlan.id,
       },
     });
-    return vlan.id;
   });
-  void vlanId;
 
   console.log("Creating connections…");
   const conns: Array<{
@@ -308,16 +305,16 @@ async function main() {
       srcPort: "9",
       tgt: "sw-core-01",
       tgtPort: "1",
-      cableType: "sfp+",
-      bandwidth: "10GbE",
+      cableType: "sfp",
+      bandwidth: "10G",
     },
     {
       src: "sw-core-01",
       srcPort: "24",
       tgt: "sw-core-02",
       tgtPort: "48",
-      cableType: "sfp+",
-      bandwidth: "10GbE",
+      cableType: "sfp",
+      bandwidth: "10G",
     },
     {
       src: "sw-core-01",
@@ -325,7 +322,7 @@ async function main() {
       tgt: "srv-app-01",
       tgtPort: "eno1",
       cableType: "ethernet",
-      bandwidth: "1GbE",
+      bandwidth: "1G",
     },
     {
       src: "sw-core-01",
@@ -333,22 +330,26 @@ async function main() {
       tgt: "srv-app-02",
       tgtPort: "eno1",
       cableType: "ethernet",
-      bandwidth: "1GbE",
+      bandwidth: "1G",
     },
     {
       src: "sw-core-02",
       srcPort: "47",
       tgt: "sw-access-01",
       tgtPort: "24",
-      cableType: "sfp+",
-      bandwidth: "10GbE",
+      cableType: "sfp",
+      bandwidth: "10G",
     },
   ];
   await asTenant(org.id, async (tx) => {
     for (const c of conns) {
       const srcId = deviceByName.get(c.src);
       const tgtId = deviceByName.get(c.tgt);
-      if (!srcId || !tgtId) continue;
+      if (!srcId || !tgtId) {
+        throw new Error(
+          `Connection references unknown device(s): src="${c.src}" (${srcId ? "found" : "missing"}), tgt="${c.tgt}" (${tgtId ? "found" : "missing"})`,
+        );
+      }
       await tx.connection.create({
         data: {
           userId,

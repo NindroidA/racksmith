@@ -82,10 +82,14 @@ export function ApiKeyCreateDialog({ disabled }: Props) {
                   />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-xs font-medium text-white/60">
+                  <label
+                    htmlFor="api-key-role"
+                    className="mb-1.5 block text-xs font-medium text-white/60"
+                  >
                     Role
                   </label>
                   <Select
+                    id="api-key-role"
                     value={role}
                     onValueChange={(v) => setRole(v as "member" | "admin")}
                   >
@@ -98,10 +102,14 @@ export function ApiKeyCreateDialog({ disabled }: Props) {
                   </Select>
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-xs font-medium text-white/60">
+                  <label
+                    htmlFor="api-key-expires"
+                    className="mb-1.5 block text-xs font-medium text-white/60"
+                  >
                     Expires
                   </label>
                   <Select
+                    id="api-key-expires"
                     value={
                       expiresInDays == null ? "never" : String(expiresInDays)
                     }
