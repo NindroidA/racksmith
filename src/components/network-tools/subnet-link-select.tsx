@@ -76,6 +76,7 @@ export function SubnetLinkSelect({
               disabled={pending}
               placeholder="Pick a subnet to link…"
               className="px-3 py-1.5 text-xs"
+              aria-label="Subnet to link"
             >
               {available.map((s) => (
                 <SelectOption key={s.id} value={s.id}>

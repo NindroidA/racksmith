@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Select, SelectOption } from "@/components/ui/select";
 
@@ -22,6 +22,12 @@ export function AuditFilters({
 }: Props) {
   const [action, setAction] = useState(actionFilter);
   const [entity, setEntity] = useState(entityFilter);
+
+  // Clear link uses client-side navigation, so this component stays mounted
+  // while the URL search params change. Sync local state from props whenever
+  // the incoming filters shift so the Select triggers reflect the URL.
+  useEffect(() => setAction(actionFilter), [actionFilter]);
+  useEffect(() => setEntity(entityFilter), [entityFilter]);
 
   return (
     <form

@@ -138,6 +138,10 @@ export function ConnectionForm({
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!sourceDeviceId || !targetDeviceId) {
+      toast.error("Pick both a source and target device");
+      return;
+    }
     const input: ConnectionInput = {
       sourceDeviceId,
       sourcePort: sourcePort.trim(),

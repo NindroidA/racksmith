@@ -333,8 +333,8 @@ export default function LandingPage() {
             <Image
               src="/screenshots/rack-builder.png"
               alt="RackSmith rack builder showing a populated rack with drag-and-drop devices"
-              width={1470}
-              height={1110}
+              width={1440}
+              height={900}
               className="rounded-xl"
               priority
             />
@@ -440,8 +440,8 @@ export default function LandingPage() {
                 <Image
                   src={shot.src}
                   alt={shot.title}
-                  width={1470}
-                  height={728}
+                  width={1440}
+                  height={900}
                   className="rounded-xl"
                 />
               </div>
