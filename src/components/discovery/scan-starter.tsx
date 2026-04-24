@@ -46,7 +46,13 @@ export function ScanStarter({ defaultSubnet, disabled }: Props) {
         <h2 className="text-lg font-semibold text-white">Scan a network</h2>
       </div>
 
-      <div className="flex flex-col gap-3 md:flex-row md:items-start">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (!pending && !disabled) handleStart();
+        }}
+        className="flex flex-col gap-3 md:flex-row md:items-start"
+      >
         <div className="flex-1">
           <label
             htmlFor="subnet"
@@ -71,23 +77,24 @@ export function ScanStarter({ defaultSubnet, disabled }: Props) {
         </div>
 
         <button
-          onClick={handleStart}
+          type="submit"
           disabled={pending || disabled}
+          aria-busy={pending}
           className="mt-0 flex items-center gap-2 self-stretch rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-white transition-all hover:bg-primary/90 disabled:opacity-50 md:mt-[22px] md:self-start"
         >
           {pending ? (
             <>
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
               Starting...
             </>
           ) : (
             <>
-              <Radar className="h-4 w-4" />
+              <Radar className="h-4 w-4" aria-hidden />
               Start Scan
             </>
           )}
         </button>
-      </div>
+      </form>
 
       {error && (
         <div className="mt-3 flex items-start gap-2 rounded-lg border border-accent-red/30 bg-accent-red/10 p-3 text-sm text-accent-red">

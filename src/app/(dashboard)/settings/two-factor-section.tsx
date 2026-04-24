@@ -181,13 +181,15 @@ export function TwoFactorSection({ initialEnabled }: Props) {
       {enabled && stage === "idle" && !disableOpen && !regenOpen && (
         <div className="flex flex-wrap gap-2">
           <button
+            type="button"
             onClick={() => setRegenOpen(true)}
             className="inline-flex items-center gap-2 rounded-lg bg-white/[0.06] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/[0.1]"
           >
-            <RefreshCw className="h-4 w-4" />
+            <RefreshCw className="h-4 w-4" aria-hidden />
             Regenerate backup codes
           </button>
           <button
+            type="button"
             onClick={() => setDisableOpen(true)}
             className="inline-flex items-center gap-2 rounded-lg border border-accent-red/40 bg-accent-red/10 px-4 py-2.5 text-sm font-medium text-accent-red transition-colors hover:bg-accent-red/15"
           >
@@ -198,10 +200,14 @@ export function TwoFactorSection({ initialEnabled }: Props) {
 
       {enabled && disableOpen && (
         <form onSubmit={handleDisable} className="flex flex-col gap-3">
-          <label className="text-sm font-medium text-white/70">
+          <label
+            htmlFor="twofa-disable-pw"
+            className="text-sm font-medium text-white/70"
+          >
             Confirm with your password
           </label>
           <input
+            id="twofa-disable-pw"
             type="password"
             value={disablePassword}
             onChange={(e) => setDisablePassword(e.target.value)}
@@ -236,10 +242,14 @@ export function TwoFactorSection({ initialEnabled }: Props) {
           <p className="text-sm text-white/60">
             Old backup codes will stop working immediately.
           </p>
-          <label className="text-sm font-medium text-white/70">
+          <label
+            htmlFor="twofa-regen-pw"
+            className="text-sm font-medium text-white/70"
+          >
             Confirm with your password
           </label>
           <input
+            id="twofa-regen-pw"
             type="password"
             value={regenPassword}
             onChange={(e) => setRegenPassword(e.target.value)}
@@ -271,20 +281,25 @@ export function TwoFactorSection({ initialEnabled }: Props) {
 
       {!enabled && stage === "idle" && (
         <button
+          type="button"
           onClick={() => setStage("password")}
           className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary/90"
         >
-          <ShieldCheck className="h-4 w-4" />
+          <ShieldCheck className="h-4 w-4" aria-hidden />
           Enable 2FA
         </button>
       )}
 
       {!enabled && stage === "password" && (
         <form onSubmit={handleStart} className="flex flex-col gap-3">
-          <label className="text-sm font-medium text-white/70">
+          <label
+            htmlFor="twofa-start-pw"
+            className="text-sm font-medium text-white/70"
+          >
             Confirm with your password to begin
           </label>
           <input
+            id="twofa-start-pw"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -323,11 +338,17 @@ export function TwoFactorSection({ initialEnabled }: Props) {
               6-digit code below.
             </p>
             <div className="flex flex-col items-center gap-3 md:flex-row md:items-start">
-              <div className="rounded-lg bg-white p-3">
+              <div
+                className="rounded-lg bg-white p-3"
+                role="img"
+                aria-label="QR code for authenticator app setup. Scan or use the manual key below."
+              >
                 <QRCodeSVG value={totpUri} size={160} level="M" />
               </div>
               <div className="flex-1 text-xs">
-                <p className="mb-2 font-medium text-white/60">Can&apos;t scan?</p>
+                <p className="mb-2 font-medium text-white/60">
+                  Can&apos;t scan?
+                </p>
                 <p className="mb-1 text-white/40">Enter this key manually:</p>
                 <code className="break-all rounded bg-white/[0.06] p-2 font-mono text-xs text-white/80">
                   {new URL(totpUri).searchParams.get("secret")}
@@ -337,10 +358,14 @@ export function TwoFactorSection({ initialEnabled }: Props) {
           </div>
 
           <form onSubmit={handleVerify} className="flex flex-col gap-3">
-            <label className="text-sm font-medium text-white/70">
+            <label
+              htmlFor="twofa-verify-code"
+              className="text-sm font-medium text-white/70"
+            >
               6-digit code from your app
             </label>
             <input
+              id="twofa-verify-code"
               value={verifyCode}
               onChange={(e) =>
                 setVerifyCode(e.target.value.replace(/\D/g, "").slice(0, 6))

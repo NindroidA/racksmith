@@ -134,14 +134,16 @@ export function ScanHistory({ scans }: Props) {
                 <td className="px-4 py-3">
                   <div className="flex items-center justify-end">
                     <button
+                      type="button"
                       onClick={() =>
                         setConfirmTarget({ id: scan.id, subnet: scan.subnet })
                       }
                       disabled={pending || isRunning}
-                      className="rounded p-1 text-white/40 transition-colors hover:bg-accent-red/20 hover:text-accent-red disabled:opacity-30"
+                      aria-label={`Delete scan for ${scan.subnet}`}
+                      className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded p-1 text-white/40 transition-colors hover:bg-accent-red/20 hover:text-accent-red disabled:opacity-30"
                       title="Delete scan"
                     >
-                      <Trash2 className="h-3.5 w-3.5" />
+                      <Trash2 className="h-3.5 w-3.5" aria-hidden />
                     </button>
                   </div>
                 </td>

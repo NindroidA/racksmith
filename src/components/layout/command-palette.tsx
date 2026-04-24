@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { Command } from "cmdk";
 import { motion, AnimatePresence } from "framer-motion";
+import { useFocusTrap } from "@/hooks/use-focus-trap";
 import {
   LayoutDashboard,
   Server,
@@ -44,6 +45,8 @@ export function CommandPalette() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(open, dialogRef);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -271,9 +274,7 @@ export function CommandPalette() {
             await signOut();
           } catch (err) {
             const { default: toast } = await import("react-hot-toast");
-            toast.error(
-              describeError(err, "Failed to sign out"),
-            );
+            toast.error(describeError(err, "Failed to sign out"));
           }
         },
       },
@@ -306,6 +307,7 @@ export function CommandPalette() {
           className="fixed inset-0 z-[70] flex items-start justify-center bg-black/60 p-4 pt-[20vh] backdrop-blur-sm"
         >
           <motion.div
+            ref={dialogRef}
             onClick={(e) => e.stopPropagation()}
             initial={{ opacity: 0, scale: 0.97, y: -8 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}

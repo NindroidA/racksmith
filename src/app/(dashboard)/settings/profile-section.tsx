@@ -91,9 +91,15 @@ export function ProfileSection({ initialName, email, emailVerified }: Props) {
       </p>
 
       <form onSubmit={handleNameSave} className="mb-6 flex flex-col gap-2">
-        <label className="text-sm font-medium text-white/70">Name</label>
+        <label
+          htmlFor="profile-name"
+          className="text-sm font-medium text-white/70"
+        >
+          Name
+        </label>
         <div className="flex gap-2">
           <input
+            id="profile-name"
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="glass-input flex-1 rounded-lg px-4 py-2.5 text-sm"
@@ -103,6 +109,7 @@ export function ProfileSection({ initialName, email, emailVerified }: Props) {
           <button
             type="submit"
             disabled={isPending || name === initialName || !name.trim()}
+            aria-busy={isPending}
             className="rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary/90 disabled:opacity-40"
           >
             {isPending ? "Saving…" : "Save"}
@@ -111,7 +118,12 @@ export function ProfileSection({ initialName, email, emailVerified }: Props) {
       </form>
 
       <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium text-white/70">Email</label>
+        <label
+          htmlFor="profile-new-email"
+          className="text-sm font-medium text-white/70"
+        >
+          Email
+        </label>
         <div className="mb-3 flex items-center gap-2 rounded-lg border border-white/[0.06] bg-white/[0.02] px-4 py-2.5 text-sm">
           <Mail className="h-4 w-4 text-white/40" />
           <span className="text-white">{email}</span>
@@ -143,22 +155,25 @@ export function ProfileSection({ initialName, email, emailVerified }: Props) {
 
         <form onSubmit={handleEmailChange} className="flex gap-2">
           <input
+            id="profile-new-email"
             type="email"
             value={newEmail}
             onChange={(e) => setNewEmail(e.target.value)}
             placeholder="new@example.com"
+            aria-describedby="profile-email-hint"
             className="glass-input flex-1 rounded-lg px-4 py-2.5 text-sm"
             autoComplete="email"
           />
           <button
             type="submit"
             disabled={emailLoading || !newEmail || newEmail === email}
+            aria-busy={emailLoading}
             className="rounded-lg bg-white/[0.06] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/[0.1] disabled:opacity-40"
           >
             {emailLoading ? "Requesting…" : "Change email"}
           </button>
         </form>
-        <p className="text-xs text-white/40">
+        <p id="profile-email-hint" className="text-xs text-white/40">
           We&apos;ll send a confirmation link to your current email.
         </p>
       </div>

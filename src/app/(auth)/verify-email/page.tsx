@@ -3,7 +3,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Wrench, CheckCircle2, AlertCircle } from "lucide-react";
 
 function VerifyResult() {
@@ -65,21 +65,28 @@ function VerifyResult() {
 }
 
 export default function VerifyEmailPage() {
+  const reduceMotion = useReducedMotion();
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: reduceMotion ? 0 : 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
+      transition={{ duration: reduceMotion ? 0 : 0.4 }}
     >
       <div className="glass-panel rounded-2xl p-8">
         <div className="mb-8 flex flex-col items-center">
           <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20">
-            <Wrench className="h-7 w-7 text-primary" />
+            <Wrench className="h-7 w-7 text-primary" aria-hidden />
           </div>
-          <h1 className="gradient-text text-2xl font-bold">RackSmith</h1>
+          <p className="gradient-text text-2xl font-bold">RackSmith</p>
         </div>
 
-        <Suspense fallback={null}>
+        <Suspense
+          fallback={
+            <div className="flex justify-center py-8">
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary/30 border-t-primary" />
+            </div>
+          }
+        >
           <VerifyResult />
         </Suspense>
       </div>

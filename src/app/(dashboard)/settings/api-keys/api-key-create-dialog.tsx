@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useId, useRef, useState, useTransition } from "react";
 import toast from "react-hot-toast";
-import { Plus, Copy, Check } from "lucide-react";
+import { Plus, Copy, Check, X } from "lucide-react";
 import { createApiKey } from "./actions";
 import { describeError } from "@/lib/error-message";
 import { Select, SelectOption } from "@/components/ui/select";
+import { useFocusTrap } from "@/hooks/use-focus-trap";
 
 type Props = { disabled?: boolean };
 
@@ -17,6 +18,20 @@ export function ApiKeyCreateDialog({ disabled }: Props) {
   const [pending, start] = useTransition();
   const [revealed, setRevealed] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const titleId = useId();
+  useFocusTrap(open, dialogRef);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && !pending) close();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+    // close is stable within this component; pending determines dismissability
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, pending]);
 
   const close = () => {
     setOpen(false);
@@ -56,27 +71,47 @@ export function ApiKeyCreateDialog({ disabled }: Props) {
       {open && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
-          onClick={close}
+          onClick={() => !pending && close()}
         >
           <div
+            ref={dialogRef}
             className="glass-panel w-full max-w-md rounded-2xl p-6"
             onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={titleId}
           >
             {!revealed ? (
               <form id="api-key-create" onSubmit={submit} className="space-y-4">
-                <h2 className="text-lg font-semibold text-white">
-                  Create API key
-                </h2>
+                <div className="flex items-center justify-between">
+                  <h2 id={titleId} className="text-lg font-semibold text-white">
+                    Create API key
+                  </h2>
+                  <button
+                    type="button"
+                    onClick={close}
+                    aria-label="Close dialog"
+                    disabled={pending}
+                    className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded p-1 text-white/50 hover:bg-white/10 hover:text-white disabled:opacity-50"
+                  >
+                    <X className="h-4 w-4" aria-hidden />
+                  </button>
+                </div>
                 <div>
-                  <label className="mb-1.5 block text-xs font-medium text-white/60">
+                  <label
+                    htmlFor="api-key-name"
+                    className="mb-1.5 block text-xs font-medium text-white/60"
+                  >
                     Name
                   </label>
                   <input
+                    id="api-key-name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     required
                     minLength={1}
                     maxLength={60}
+                    autoFocus
                     className="glass-input w-full rounded-lg px-3 py-2 text-sm"
                     placeholder="MSP onboarding integration"
                   />
@@ -135,6 +170,7 @@ export function ApiKeyCreateDialog({ disabled }: Props) {
                     type="submit"
                     form="api-key-create"
                     disabled={pending}
+                    aria-busy={pending}
                     className="rounded-lg bg-primary px-4 py-2 text-xs font-medium text-white hover:bg-primary/90 disabled:opacity-50"
                   >
                     {pending ? "Creating…" : "Create key"}
@@ -142,8 +178,8 @@ export function ApiKeyCreateDialog({ disabled }: Props) {
                 </div>
               </form>
             ) : (
-              <div className="space-y-4">
-                <h2 className="text-lg font-semibold text-white">
+              <div className="space-y-4" role="status" aria-live="assertive">
+                <h2 id={titleId} className="text-lg font-semibold text-white">
                   Your new API key
                 </h2>
                 <div className="rounded-lg border border-accent-orange/40 bg-accent-orange/10 p-3 text-xs text-accent-orange">

@@ -214,12 +214,21 @@ const TECH_STACK: { name: string; classes: string }[] = [
 export default function LandingPage() {
   return (
     <div className="min-h-screen">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-white"
+      >
+        Skip to main content
+      </a>
       {/* Nav */}
-      <nav className="fixed top-0 z-50 w-full border-b border-white/[0.08] bg-[#0a0e1a]/75 backdrop-blur-xl">
+      <nav
+        aria-label="Main"
+        className="fixed top-0 z-50 w-full border-b border-white/[0.08] bg-[#0a0e1a]/75 backdrop-blur-xl"
+      >
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/20">
-              <Wrench className="h-5 w-5 text-primary" />
+              <Wrench className="h-5 w-5 text-primary" aria-hidden />
             </div>
             <span className="gradient-text text-lg font-bold">RackSmith</span>
           </div>
@@ -268,7 +277,10 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero */}
-      <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pb-20 pt-32 text-center">
+      <section
+        id="main-content"
+        className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pb-20 pt-32 text-center"
+      >
         {/* Background orbs */}
         <div
           className="pointer-events-none absolute -left-40 top-20 h-96 w-96 rounded-full opacity-30 blur-3xl"
@@ -476,6 +488,7 @@ export default function LandingPage() {
                 {COMPARISON.columns.map((c, i) => (
                   <th
                     key={c}
+                    scope="col"
                     className={`p-4 text-center font-semibold ${
                       i === 0 ? "text-primary" : "text-white/70"
                     }`}
@@ -488,7 +501,12 @@ export default function LandingPage() {
             <tbody className="divide-y divide-white/[0.05]">
               {COMPARISON.rows.map((row) => (
                 <tr key={row.label}>
-                  <td className="p-4 text-sm text-white/70">{row.label}</td>
+                  <th
+                    scope="row"
+                    className="p-4 text-left text-sm font-normal text-white/70"
+                  >
+                    {row.label}
+                  </th>
                   {row.values.map((v, i) => (
                     <td
                       key={i}
@@ -498,13 +516,23 @@ export default function LandingPage() {
                     >
                       {typeof v === "boolean" ? (
                         v ? (
-                          <Check
-                            className={`mx-auto h-5 w-5 ${
-                              i === 0 ? "text-accent-green" : "text-white/40"
-                            }`}
-                          />
+                          <>
+                            <Check
+                              className={`mx-auto h-5 w-5 ${
+                                i === 0 ? "text-accent-green" : "text-white/40"
+                              }`}
+                              aria-hidden
+                            />
+                            <span className="sr-only">Yes</span>
+                          </>
                         ) : (
-                          <X className="mx-auto h-5 w-5 text-white/20" />
+                          <>
+                            <X
+                              className="mx-auto h-5 w-5 text-white/20"
+                              aria-hidden
+                            />
+                            <span className="sr-only">No</span>
+                          </>
                         )
                       ) : (
                         <span

@@ -1,6 +1,6 @@
 import { requireMember } from "@/lib/auth-helpers";
 import { RackForm } from "@/components/rack/rack-form";
-import { canCreateRack } from "@/lib/tiers";
+import { canCreateRack, TIER_LIMITS } from "@/lib/tiers";
 import { TierLimitBanner } from "@/components/tier/limit-banner";
 
 export default async function NewRackPage() {
@@ -11,7 +11,7 @@ export default async function NewRackPage() {
     return (
       <TierLimitBanner
         resource="racks"
-        planLabel={check.plan === "free" ? "Free" : check.plan}
+        planLabel={TIER_LIMITS[check.plan].label}
         current={check.current}
         limit={check.limit}
         backHref="/racks"

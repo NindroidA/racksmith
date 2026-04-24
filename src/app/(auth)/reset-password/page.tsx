@@ -3,7 +3,7 @@
 import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Wrench, Lock, AlertCircle } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import toast from "react-hot-toast";
@@ -47,9 +47,7 @@ function ResetPasswordInner() {
         router.push("/login");
       }
     } catch (err) {
-      toast.error(
-        describeError(err, "Failed to reset password"),
-      );
+      toast.error(describeError(err, "Failed to reset password"));
     } finally {
       setLoading(false);
     }
@@ -83,10 +81,12 @@ function ResetPasswordInner() {
     <div className="glass-panel rounded-2xl p-8">
       <div className="mb-8 flex flex-col items-center">
         <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20">
-          <Wrench className="h-7 w-7 text-primary" />
+          <Wrench className="h-7 w-7 text-primary" aria-hidden />
         </div>
-        <h1 className="gradient-text text-2xl font-bold">RackSmith</h1>
-        <p className="mt-1 text-sm text-white/50">Choose a new password</p>
+        <p className="gradient-text text-2xl font-bold">RackSmith</p>
+        <h1 className="mt-1 text-sm font-normal text-white/50">
+          Choose a new password
+        </h1>
       </div>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -139,6 +139,7 @@ function ResetPasswordInner() {
         <button
           type="submit"
           disabled={loading}
+          aria-busy={loading}
           className="mt-2 w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white transition-all hover:bg-primary/90 disabled:opacity-50"
         >
           {loading ? "Updating…" : "Update password"}
@@ -149,13 +150,20 @@ function ResetPasswordInner() {
 }
 
 export default function ResetPasswordPage() {
+  const reduceMotion = useReducedMotion();
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: reduceMotion ? 0 : 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
+      transition={{ duration: reduceMotion ? 0 : 0.4 }}
     >
-      <Suspense fallback={null}>
+      <Suspense
+        fallback={
+          <div className="glass-panel flex items-center justify-center rounded-2xl p-8">
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary/30 border-t-primary" />
+          </div>
+        }
+      >
         <ResetPasswordInner />
       </Suspense>
     </motion.div>

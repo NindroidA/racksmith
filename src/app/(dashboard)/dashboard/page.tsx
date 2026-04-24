@@ -131,12 +131,12 @@ export default async function DashboardPage() {
       <div className="mt-8">
         <h2 className="mb-4 text-lg font-semibold text-white">Quick Actions</h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <a
+          <Link
             href="/racks/new"
             className="glass-card flex items-center gap-4 rounded-xl p-5"
           >
             <div className="rounded-lg bg-accent-blue/20 p-3">
-              <Server className="h-5 w-5 text-accent-blue" />
+              <Server className="h-5 w-5 text-accent-blue" aria-hidden />
             </div>
             <div>
               <p className="font-medium text-white">Add Rack</p>
@@ -144,13 +144,13 @@ export default async function DashboardPage() {
                 Create a new rack configuration
               </p>
             </div>
-          </a>
-          <a
+          </Link>
+          <Link
             href="/devices/new"
             className="glass-card flex items-center gap-4 rounded-xl p-5"
           >
             <div className="rounded-lg bg-accent-purple/20 p-3">
-              <HardDrive className="h-5 w-5 text-accent-purple" />
+              <HardDrive className="h-5 w-5 text-accent-purple" aria-hidden />
             </div>
             <div>
               <p className="font-medium text-white">Add Device</p>
@@ -158,13 +158,13 @@ export default async function DashboardPage() {
                 Add a device to your inventory
               </p>
             </div>
-          </a>
-          <a
+          </Link>
+          <Link
             href="/discovery"
             className="glass-card flex items-center gap-4 rounded-xl p-5"
           >
             <div className="rounded-lg bg-accent-cyan/20 p-3">
-              <Network className="h-5 w-5 text-accent-cyan" />
+              <Network className="h-5 w-5 text-accent-cyan" aria-hidden />
             </div>
             <div>
               <p className="font-medium text-white">Scan Network</p>
@@ -172,7 +172,7 @@ export default async function DashboardPage() {
                 Discover devices on your network
               </p>
             </div>
-          </a>
+          </Link>
         </div>
       </div>
     </div>
