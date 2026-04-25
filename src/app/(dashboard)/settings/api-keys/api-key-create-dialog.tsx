@@ -25,6 +25,9 @@ export function ApiKeyCreateDialog({ disabled }: Props) {
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
+      // Bail when a nested control (e.g. <Select> closing its listbox)
+      // already consumed the Escape, otherwise we'd dismiss the dialog too.
+      if (e.defaultPrevented) return;
       if (e.key === "Escape" && !pending) close();
     };
     window.addEventListener("keydown", onKey);

@@ -117,6 +117,9 @@ export function ConnectionForm({
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
+      // Bail when a nested control (e.g. <Select> closing its listbox)
+      // already consumed the Escape, otherwise we'd dismiss the dialog too.
+      if (e.defaultPrevented) return;
       if (e.key === "Escape" && !pending && !deleting) onClose();
     };
     window.addEventListener("keydown", onKey);
@@ -217,7 +220,9 @@ export function ConnectionForm({
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
-      onClick={onClose}
+      onClick={() => {
+        if (!pending && !deleting) onClose();
+      }}
     >
       <div
         ref={dialogRef}

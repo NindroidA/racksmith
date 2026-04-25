@@ -25,8 +25,15 @@ export function useFocusTrap(
         (el) => el.offsetParent !== null,
       );
 
-    const focusables = getFocusable();
-    focusables[0]?.focus({ preventScroll: true });
+    // Prefer an element marked with `autofocus` so callers like
+    // ApiKeyCreateDialog can land focus on the name input instead of the
+    // close button (the first focusable in tab order).
+    const autofocusEl = container.querySelector<HTMLElement>("[autofocus]");
+    if (autofocusEl?.offsetParent != null) {
+      autofocusEl.focus({ preventScroll: true });
+    } else {
+      getFocusable()[0]?.focus({ preventScroll: true });
+    }
 
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Tab") return;
