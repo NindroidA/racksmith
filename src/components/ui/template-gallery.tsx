@@ -36,16 +36,22 @@ export function TemplateGallery<T extends Item>({
   const prevFocusRef = useRef<HTMLElement | null>(null);
   const titleId = useId();
 
-  // Capture the trigger BEFORE useFocusTrap moves focus into the dialog.
-  // Must come first in hook order so this useEffect runs before the trap's.
+  // Capture the trigger BEFORE useFocusTrap moves focus into the dialog —
+  // this useEffect must come first in hook order so it runs before the
+  // trap's. Cleanup restores the previous body overflow + focus on close
+  // OR unmount, which avoids both clobbering another modal's lock and
+  // stranding the body in `overflow: hidden` if the gallery unmounts open.
   useEffect(() => {
-    if (open) {
-      prevFocusRef.current = document.activeElement as HTMLElement | null;
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
+    if (!open) return;
+
+    prevFocusRef.current = document.activeElement as HTMLElement | null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
       prevFocusRef.current?.focus();
-    }
+    };
   }, [open]);
 
   useFocusTrap(open, dialogRef);

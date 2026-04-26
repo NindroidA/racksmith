@@ -90,7 +90,6 @@ export function DangerSection({ email }: Props) {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                autoFocus
                 autoComplete="current-password"
                 className="glass-input w-full rounded-lg px-4 py-2.5 text-sm"
               />
