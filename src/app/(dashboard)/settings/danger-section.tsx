@@ -67,10 +67,14 @@ export function DangerSection({ email }: Props) {
           </p>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-white/70">
+            <label
+              htmlFor="danger-password"
+              className="text-sm font-medium text-white/70"
+            >
               Current password
             </label>
             <input
+              id="danger-password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -80,7 +84,10 @@ export function DangerSection({ email }: Props) {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-white/70">
+            <label
+              htmlFor="danger-confirm"
+              className="text-sm font-medium text-white/70"
+            >
               Type{" "}
               <code className="rounded bg-white/[0.06] px-1.5 py-0.5 font-mono text-xs text-white">
                 {expected}
@@ -88,23 +95,38 @@ export function DangerSection({ email }: Props) {
               to confirm
             </label>
             <input
+              id="danger-confirm"
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
+              aria-invalid={confirm.length > 0 && !confirmMatches}
+              aria-describedby="danger-confirm-hint"
               className="glass-input rounded-lg px-4 py-2.5 text-sm"
               placeholder={expected}
               autoComplete="off"
             />
+            <p
+              id="danger-confirm-hint"
+              aria-live="polite"
+              className="min-h-[1em] text-xs text-accent-red"
+            >
+              {confirm.length > 0 && !confirmMatches
+                ? `Doesn't match. Type exactly: ${expected}`
+                : ""}
+            </p>
           </div>
 
           <div className="mt-2 flex items-center gap-2">
             <button
+              type="button"
               onClick={handleDelete}
               disabled={!confirmMatches || !password || loading}
+              aria-busy={loading}
               className="rounded-lg bg-accent-red px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent-red/90 disabled:opacity-40"
             >
               {loading ? "Deleting…" : "Delete my account"}
             </button>
             <button
+              type="button"
               onClick={() => {
                 setOpen(false);
                 setPassword("");

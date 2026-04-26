@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Wrench, ShieldCheck, KeyRound } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import toast from "react-hot-toast";
@@ -11,6 +11,7 @@ import { describeError } from "@/lib/error-message";
 
 export default function TwoFactorVerifyPage() {
   const router = useRouter();
+  const reduceMotion = useReducedMotion();
   const [code, setCode] = useState("");
   const [trustDevice, setTrustDevice] = useState(false);
   const [useBackup, setUseBackup] = useState(false);
@@ -46,19 +47,19 @@ export default function TwoFactorVerifyPage() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: reduceMotion ? 0 : 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
+      transition={{ duration: reduceMotion ? 0 : 0.4 }}
     >
       <div className="glass-panel rounded-2xl p-8">
         <div className="mb-8 flex flex-col items-center">
           <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20">
-            <Wrench className="h-7 w-7 text-primary" />
+            <Wrench className="h-7 w-7 text-primary" aria-hidden />
           </div>
-          <h1 className="gradient-text text-2xl font-bold">RackSmith</h1>
-          <p className="mt-1 text-sm text-white/50">
+          <p className="gradient-text text-2xl font-bold">RackSmith</p>
+          <h1 className="mt-1 text-sm font-normal text-white/50">
             {useBackup ? "Enter a backup code" : "Two-factor verification"}
-          </p>
+          </h1>
         </div>
 
         <div className="mb-5 flex items-center justify-center gap-2 text-sm text-white/60">
@@ -86,6 +87,9 @@ export default function TwoFactorVerifyPage() {
             placeholder={useBackup ? "XXXX-XXXX" : "000000"}
             inputMode={useBackup ? "text" : "numeric"}
             autoComplete="one-time-code"
+            aria-label={
+              useBackup ? "Backup code" : "Six digit authenticator code"
+            }
             autoFocus
             required
           />
@@ -97,14 +101,13 @@ export default function TwoFactorVerifyPage() {
               onChange={(e) => setTrustDevice(e.target.checked)}
               className="h-4 w-4 cursor-pointer accent-primary"
             />
-            <span className="text-white/80">
-              Trust this device for 30 days
-            </span>
+            <span className="text-white/80">Trust this device for 30 days</span>
           </label>
 
           <button
             type="submit"
             disabled={loading || !code.trim()}
+            aria-busy={loading}
             className="mt-2 w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white transition-all hover:bg-primary/90 disabled:opacity-50"
           >
             {loading ? "Verifying…" : "Verify and sign in"}

@@ -52,12 +52,19 @@ export function PreferencesSection({ initial }: Props) {
 
       <form onSubmit={handleSave} className="flex flex-col gap-5">
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-white/70">
+          <label
+            htmlFor="pref-default-subnet"
+            className="text-sm font-medium text-white/70"
+          >
             Default subnet for auto-discovery
           </label>
           <div className="relative">
-            <Network className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" />
+            <Network
+              className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30"
+              aria-hidden
+            />
             <input
+              id="pref-default-subnet"
               value={defaultSubnet}
               onChange={(e) => setDefaultSubnet(e.target.value)}
               className="glass-input w-full rounded-lg py-2.5 pl-10 pr-4 text-sm font-mono"

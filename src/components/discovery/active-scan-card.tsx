@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useReducedMotion } from "framer-motion";
 import toast from "react-hot-toast";
 import { Loader2, X } from "lucide-react";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
@@ -15,6 +16,7 @@ type Props = {
 
 export function ActiveScanCard({ scanId, subnet, startedAt }: Props) {
   const router = useRouter();
+  const reduceMotion = useReducedMotion();
   const [elapsed, setElapsed] = useState(
     Math.floor((Date.now() - new Date(startedAt).getTime()) / 1000),
   );
@@ -69,7 +71,10 @@ export function ActiveScanCard({ scanId, subnet, startedAt }: Props) {
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="relative">
-            <Loader2 className="h-6 w-6 animate-spin text-accent-green" />
+            <Loader2
+              className={`h-6 w-6 text-accent-green ${reduceMotion ? "" : "animate-spin"}`}
+              aria-hidden
+            />
           </div>
           <div>
             <div className="text-sm font-semibold text-white">
@@ -83,18 +88,28 @@ export function ActiveScanCard({ scanId, subnet, startedAt }: Props) {
           </div>
         </div>
         <button
+          type="button"
           onClick={() => setConfirmOpen(true)}
           disabled={pending}
           className="flex items-center gap-1.5 rounded-lg border border-accent-red/30 bg-accent-red/10 px-3 py-1.5 text-xs font-medium text-accent-red transition-all hover:bg-accent-red/20 disabled:opacity-50"
         >
-          <X className="h-3.5 w-3.5" />
+          <X className="h-3.5 w-3.5" aria-hidden />
           Cancel
         </button>
       </div>
 
       {/* Subtle progress bar (indeterminate since nmap doesn't stream progress) */}
-      <div className="mt-4 h-1 overflow-hidden rounded-full bg-accent-green/10">
-        <div className="h-full w-1/3 animate-[scan-slide_2s_ease-in-out_infinite] rounded-full bg-accent-green/60" />
+      <div
+        role="progressbar"
+        aria-label={`Scan in progress for ${subnet}`}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuetext="Running"
+        className="mt-4 h-1 overflow-hidden rounded-full bg-accent-green/10"
+      >
+        <div
+          className={`h-full w-1/3 rounded-full bg-accent-green/60 ${reduceMotion ? "" : "animate-[scan-slide_2s_ease-in-out_infinite]"}`}
+        />
       </div>
 
       <style>{`

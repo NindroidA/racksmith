@@ -1,6 +1,6 @@
 import { requireMember } from "@/lib/auth-helpers";
 import { withTenant } from "@/lib/prisma-tenant";
-import { canCreateSubnet } from "@/lib/tiers";
+import { canCreateSubnet, TIER_LIMITS } from "@/lib/tiers";
 import { SubnetForm } from "@/components/network-tools/subnet-form";
 import { TierLimitBanner } from "@/components/tier/limit-banner";
 
@@ -12,7 +12,7 @@ export default async function NewSubnetPage() {
     return (
       <TierLimitBanner
         resource="subnets"
-        planLabel={check.plan === "free" ? "Free" : check.plan}
+        planLabel={TIER_LIMITS[check.plan].label}
         current={check.current}
         limit={check.limit}
         backHref="/network-tools/ipam"

@@ -50,7 +50,15 @@ export function PendingDevicesTable({ hosts, devices }: Props) {
     startTransition(async () => {
       const result = await approveDiscovery(host.scanId, host.ip);
       if (!result.ok) {
-        toast.error(result.error);
+        // Tier-cap denials carry a `limit` payload. Give the user a
+        // longer-lived toast with an upgrade hint so they can act on it.
+        if (result.limit) {
+          toast.error(`${result.error} Upgrade your plan to add more.`, {
+            duration: 6000,
+          });
+        } else {
+          toast.error(result.error);
+        }
         return;
       }
       toast.success(`Added ${host.hostname || host.ip} to inventory`);
@@ -82,7 +90,9 @@ export function PendingDevicesTable({ hosts, devices }: Props) {
         toast.error(result.error);
         return;
       }
-      toast.success("Ignored");
+      toast.success(
+        `${host.hostname || host.ip} ignored — it won't appear unless you rescan.`,
+      );
       router.refresh();
     });
   }
@@ -192,33 +202,43 @@ export function PendingDevicesTable({ hosts, devices }: Props) {
                     ) : (
                       <div className="flex items-center justify-end gap-1.5">
                         <button
+                          type="button"
                           onClick={() => handleApprove(host)}
                           disabled={pending}
+                          aria-label={`Add ${host.ip} to inventory`}
                           className="flex items-center gap-1 rounded-md bg-accent-green/20 px-2 py-1 text-xs font-medium text-accent-green hover:bg-accent-green/30 disabled:opacity-50"
                           title="Add as new device to inventory"
                         >
-                          <Check className="h-3 w-3" />
+                          <Check className="h-3 w-3" aria-hidden />
                           Add
                         </button>
                         <button
+                          type="button"
                           onClick={() => setAssignTarget(host.ip)}
                           disabled={pending || devices.length === 0}
+                          aria-label={`Assign ${host.ip} to existing device`}
                           className={twMerge(
                             "flex items-center gap-1 rounded-md bg-white/[0.06] px-2 py-1 text-xs font-medium text-white/80 hover:bg-white/[0.12]",
                             (pending || devices.length === 0) && "opacity-40",
                           )}
-                          title="Assign to an existing device"
+                          title={
+                            devices.length === 0
+                              ? "No devices in inventory to assign to"
+                              : "Assign to an existing device"
+                          }
                         >
-                          <Link2 className="h-3 w-3" />
+                          <Link2 className="h-3 w-3" aria-hidden />
                           Assign
                         </button>
                         <button
+                          type="button"
                           onClick={() => handleIgnore(host)}
                           disabled={pending}
+                          aria-label={`Ignore ${host.ip}`}
                           className="flex items-center gap-1 rounded-md bg-white/[0.03] px-2 py-1 text-xs font-medium text-white/60 hover:bg-white/[0.08] hover:text-white/90 disabled:opacity-50"
                           title="Ignore this host"
                         >
-                          <X className="h-3 w-3" />
+                          <X className="h-3 w-3" aria-hidden />
                         </button>
                       </div>
                     )}

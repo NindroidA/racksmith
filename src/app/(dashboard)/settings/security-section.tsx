@@ -36,7 +36,11 @@ function formatBrowser(ua?: string | null) {
   return "";
 }
 
-export function SecuritySection({ currentSessionId }: { currentSessionId: string }) {
+export function SecuritySection({
+  currentSessionId,
+}: {
+  currentSessionId: string;
+}) {
   const router = useRouter();
   const [current, setCurrent] = useState("");
   const [next, setNext] = useState("");
@@ -159,10 +163,14 @@ export function SecuritySection({ currentSessionId }: { currentSessionId: string
         className="mb-8 flex flex-col gap-3"
       >
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-white/70">
+          <label
+            htmlFor="security-current-pw"
+            className="text-sm font-medium text-white/70"
+          >
             Current password
           </label>
           <input
+            id="security-current-pw"
             type="password"
             value={current}
             onChange={(e) => setCurrent(e.target.value)}
@@ -173,10 +181,14 @@ export function SecuritySection({ currentSessionId }: { currentSessionId: string
         </div>
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-white/70">
+            <label
+              htmlFor="security-new-pw"
+              className="text-sm font-medium text-white/70"
+            >
               New password
             </label>
             <input
+              id="security-new-pw"
               type="password"
               value={next}
               onChange={(e) => setNext(e.target.value)}
@@ -188,10 +200,14 @@ export function SecuritySection({ currentSessionId }: { currentSessionId: string
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-white/70">
+            <label
+              htmlFor="security-confirm-pw"
+              className="text-sm font-medium text-white/70"
+            >
               Confirm new password
             </label>
             <input
+              id="security-confirm-pw"
               type="password"
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
@@ -206,6 +222,7 @@ export function SecuritySection({ currentSessionId }: { currentSessionId: string
           <button
             type="submit"
             disabled={pwLoading}
+            aria-busy={pwLoading}
             className="rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary/90 disabled:opacity-40"
           >
             {pwLoading ? "Changing…" : "Change password"}
@@ -223,6 +240,7 @@ export function SecuritySection({ currentSessionId }: { currentSessionId: string
           </h3>
           {sessions.length > 1 && (
             <button
+              type="button"
               onClick={handleRevokeOthers}
               className="text-xs text-white/50 transition-colors hover:text-white"
             >
@@ -264,8 +282,10 @@ export function SecuritySection({ currentSessionId }: { currentSessionId: string
                 </div>
                 {!s.current && (
                   <button
+                    type="button"
                     onClick={() => handleRevoke(s.token)}
                     disabled={revokeLoading === s.token}
+                    aria-label={`Sign out session on ${formatUserAgent(s.userAgent)}`}
                     className="text-xs text-white/50 transition-colors hover:text-accent-red disabled:opacity-40"
                   >
                     {revokeLoading === s.token ? "…" : "Sign out"}
@@ -279,10 +299,11 @@ export function SecuritySection({ currentSessionId }: { currentSessionId: string
 
       <div className="mt-6 border-t border-white/[0.06] pt-4">
         <button
+          type="button"
           onClick={handleSignOutAll}
           className="flex items-center gap-2 text-sm text-white/50 transition-colors hover:text-accent-red"
         >
-          <LogOut className="h-4 w-4" />
+          <LogOut className="h-4 w-4" aria-hidden />
           Sign out everywhere (including this device)
         </button>
       </div>

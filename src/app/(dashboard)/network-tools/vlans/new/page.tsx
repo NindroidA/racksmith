@@ -1,5 +1,5 @@
 import { requireMember } from "@/lib/auth-helpers";
-import { canCreateVlan } from "@/lib/tiers";
+import { canCreateVlan, TIER_LIMITS } from "@/lib/tiers";
 import { VlanForm } from "@/components/network-tools/vlan-form";
 import { TierLimitBanner } from "@/components/tier/limit-banner";
 
@@ -11,7 +11,7 @@ export default async function NewVlanPage() {
     return (
       <TierLimitBanner
         resource="VLANs"
-        planLabel={check.plan === "free" ? "Free" : check.plan}
+        planLabel={TIER_LIMITS[check.plan].label}
         current={check.current}
         limit={check.limit}
         backHref="/network-tools/vlans"

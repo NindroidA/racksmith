@@ -1,11 +1,19 @@
 "use client";
 
-import { useMemo, useState, useTransition, useEffect } from "react";
+import {
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+  useEffect,
+} from "react";
 import toast from "react-hot-toast";
 import { X } from "lucide-react";
 import { twMerge } from "tailwind-merge";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
 import { Select, SelectOption } from "@/components/ui/select";
+import { useFocusTrap } from "@/hooks/use-focus-trap";
 import {
   createConnection,
   updateConnection,
@@ -102,6 +110,21 @@ export function ConnectionForm({
   const [pending, startTransition] = useTransition();
   const [deleting, setDeleting] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const titleId = useId();
+  useFocusTrap(open, dialogRef);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      // Bail when a nested control (e.g. <Select> closing its listbox)
+      // already consumed the Escape, otherwise we'd dismiss the dialog too.
+      if (e.defaultPrevented) return;
+      if (e.key === "Escape" && !pending && !deleting) onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, pending, deleting, onClose]);
 
   // Build the initial form shape once per existing/prefilled change. The
   // eight useState slots below each pull from this memoized object; the
@@ -197,21 +220,29 @@ export function ConnectionForm({
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
-      onClick={onClose}
+      onClick={() => {
+        if (!pending && !deleting) onClose();
+      }}
     >
       <div
+        ref={dialogRef}
         className="glass-panel w-full max-w-xl rounded-2xl p-6"
         onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
       >
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-white">
+          <h2 id={titleId} className="text-lg font-semibold text-white">
             {existing ? "Edit Connection" : "New Connection"}
           </h2>
           <button
+            type="button"
             onClick={onClose}
-            className="rounded p-1 text-white/50 hover:bg-white/10 hover:text-white"
+            aria-label="Close dialog"
+            className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded p-1 text-white/50 hover:bg-white/10 hover:text-white"
           >
-            <X className="h-4 w-4" />
+            <X className="h-4 w-4" aria-hidden />
           </button>
         </div>
 
@@ -219,10 +250,14 @@ export function ConnectionForm({
           {/* Source */}
           <div className="grid grid-cols-[1fr_120px] gap-3">
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-white/60">
+              <label
+                htmlFor="conn-source-device"
+                className="mb-1.5 block text-xs font-medium text-white/60"
+              >
                 Source Device
               </label>
               <Select
+                id="conn-source-device"
                 value={sourceDeviceId}
                 onValueChange={setSourceDeviceId}
                 disabled={!!existing}
@@ -254,10 +289,14 @@ export function ConnectionForm({
           {/* Target */}
           <div className="grid grid-cols-[1fr_120px] gap-3">
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-white/60">
+              <label
+                htmlFor="conn-target-device"
+                className="mb-1.5 block text-xs font-medium text-white/60"
+              >
                 Target Device
               </label>
               <Select
+                id="conn-target-device"
                 value={targetDeviceId}
                 onValueChange={setTargetDeviceId}
                 disabled={!!existing}
@@ -291,10 +330,17 @@ export function ConnectionForm({
           {/* Cable type + bandwidth + VLAN */}
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-white/60">
+              <label
+                htmlFor="conn-cable-type"
+                className="mb-1.5 block text-xs font-medium text-white/60"
+              >
                 Cable Type
               </label>
-              <Select value={cableType} onValueChange={setCableType}>
+              <Select
+                id="conn-cable-type"
+                value={cableType}
+                onValueChange={setCableType}
+              >
                 {CABLE_TYPES.map((t) => (
                   <SelectOption key={t.value} value={t.value}>
                     {t.label}
