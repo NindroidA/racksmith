@@ -32,6 +32,11 @@ function UsageRow({
       <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/[0.04]">
         {limit !== null && (
           <div
+            role="progressbar"
+            aria-valuenow={pct}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label={`${label}: ${current} of ${limit}`}
             className={`h-full rounded-full transition-all ${
               atLimit
                 ? "bg-accent-red"
@@ -89,8 +94,8 @@ export function UsageSection({ usage }: Props) {
             You&apos;ve hit a Free-tier limit
           </div>
           <p className="text-sm text-white/60">
-            Upgrade to Pro ($9/mo) for unlimited sites and racks, team
-            members, API access, and PDF/CSV/SVG exports.
+            Upgrade to Pro ($9/mo) for unlimited sites and racks, team members,
+            API access, and PDF/CSV/SVG exports.
           </p>
           <Link
             href="/#pricing"

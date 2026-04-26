@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useId, useRef, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
@@ -33,6 +33,27 @@ export function TemplateGallery<T extends Item>({
   emptyMessage = "No templates available.",
 }: Props<T>) {
   const dialogRef = useRef<HTMLDivElement | null>(null);
+  const prevFocusRef = useRef<HTMLElement | null>(null);
+  const titleId = useId();
+
+  // Capture the trigger BEFORE useFocusTrap moves focus into the dialog —
+  // this useEffect must come first in hook order so it runs before the
+  // trap's. Cleanup restores the previous body overflow + focus on close
+  // OR unmount, which avoids both clobbering another modal's lock and
+  // stranding the body in `overflow: hidden` if the gallery unmounts open.
+  useEffect(() => {
+    if (!open) return;
+
+    prevFocusRef.current = document.activeElement as HTMLElement | null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      prevFocusRef.current?.focus();
+    };
+  }, [open]);
+
   useFocusTrap(open, dialogRef);
 
   useEffect(() => {
@@ -43,16 +64,6 @@ export function TemplateGallery<T extends Item>({
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [open, onOpenChange]);
-
-  useEffect(() => {
-    if (!open) return;
-    const prev = document.activeElement as HTMLElement | null;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "";
-      prev?.focus();
-    };
-  }, [open]);
 
   if (typeof document === "undefined") return null;
 
@@ -73,7 +84,7 @@ export function TemplateGallery<T extends Item>({
             tabIndex={-1}
             role="dialog"
             aria-modal="true"
-            aria-labelledby="gallery-title"
+            aria-labelledby={titleId}
             initial={{ opacity: 0, scale: 0.96, y: 8 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 8 }}
@@ -83,10 +94,7 @@ export function TemplateGallery<T extends Item>({
           >
             <header className="flex items-start justify-between gap-4 border-b border-white/[0.08] p-6">
               <div>
-                <h2
-                  id="gallery-title"
-                  className="text-xl font-semibold text-white"
-                >
+                <h2 id={titleId} className="text-xl font-semibold text-white">
                   {title}
                 </h2>
                 {subtitle && (

@@ -138,6 +138,7 @@ export function OrganizationSwitcher({
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="menu"
         aria-expanded={open}
+        aria-busy={pending}
         aria-label={
           collapsed
             ? `Workspace: ${activeOrgName}. Open switcher.`
@@ -201,7 +202,7 @@ export function OrganizationSwitcher({
                   onClick={() => switchTo(m.id)}
                   disabled={pending}
                   className={twMerge(
-                    "flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors hover:bg-white/[0.06] focus-visible:bg-white/[0.06] focus-visible:outline-none disabled:opacity-50",
+                    "flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors hover:bg-white/[0.06] focus-visible:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent-blue/50 disabled:opacity-50",
                     isActive ? "text-white" : "text-white/70",
                   )}
                 >
@@ -235,7 +236,7 @@ export function OrganizationSwitcher({
               href="/settings?tab=organization&action=create"
               role="menuitem"
               onClick={() => setOpen(false)}
-              className="flex w-full items-center gap-2 px-3 py-2 text-sm text-white/70 transition-colors hover:bg-white/[0.06] hover:text-white focus-visible:bg-white/[0.06] focus-visible:outline-none"
+              className="flex w-full items-center gap-2 px-3 py-2 text-sm text-white/70 transition-colors hover:bg-white/[0.06] hover:text-white focus-visible:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent-blue/50"
             >
               <Plus className="h-4 w-4" aria-hidden />
               Create organization
@@ -247,7 +248,7 @@ export function OrganizationSwitcher({
               href="/settings?tab=organization"
               role="menuitem"
               onClick={() => setOpen(false)}
-              className="flex w-full items-center gap-2 px-3 py-2 text-sm text-white/70 transition-colors hover:bg-white/[0.06] hover:text-white focus-visible:bg-white/[0.06] focus-visible:outline-none"
+              className="flex w-full items-center gap-2 px-3 py-2 text-sm text-white/70 transition-colors hover:bg-white/[0.06] hover:text-white focus-visible:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent-blue/50"
             >
               <SettingsIcon className="h-4 w-4" aria-hidden />
               Workspace settings

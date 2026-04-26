@@ -30,7 +30,7 @@ export default async function ApiKeysPage() {
             RackSmith with your tooling.
           </p>
           <Link
-            href="/settings/billing"
+            href="/#pricing"
             className="inline-block rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90"
           >
             Upgrade
@@ -61,7 +61,8 @@ export default async function ApiKeysPage() {
             <Key className="h-6 w-6 text-primary" /> API keys
           </h1>
           <p className="mt-1 text-sm text-white/60">
-            Using {activeCount} of {limits.apiKeyMax} keys on your {limits.label} plan.
+            Using {activeCount} of {limits.apiKeyMax} keys on your{" "}
+            {limits.label} plan.
           </p>
         </div>
         <ApiKeyCreateDialog disabled={activeCount >= limits.apiKeyMax} />
@@ -90,13 +91,17 @@ export default async function ApiKeysPage() {
               {keys.map((k) => (
                 <tr key={k.id} className="hover:bg-white/[0.02]">
                   <td className="px-4 py-3 text-white">{k.name}</td>
-                  <td className="px-4 py-3 font-mono text-xs text-white/70">{k.prefix}…</td>
+                  <td className="px-4 py-3 font-mono text-xs text-white/70">
+                    {k.prefix}…
+                  </td>
                   <td className="px-4 py-3 text-white/70">{k.role}</td>
                   <td className="px-4 py-3 text-xs text-white/50">
                     {new Date(k.createdAt).toLocaleDateString()}
                   </td>
                   <td className="px-4 py-3 text-xs text-white/50">
-                    {k.lastUsedAt ? new Date(k.lastUsedAt).toLocaleDateString() : "—"}
+                    {k.lastUsedAt
+                      ? new Date(k.lastUsedAt).toLocaleDateString()
+                      : "—"}
                   </td>
                   <td className="px-4 py-3 text-xs">
                     {k.revokedAt ? (

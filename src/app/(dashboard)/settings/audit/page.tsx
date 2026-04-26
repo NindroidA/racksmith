@@ -142,6 +142,7 @@ export default async function AuditPage({
       ) : (
         <div className="glass-card overflow-hidden rounded-xl">
           <table className="w-full text-sm">
+            <caption className="sr-only">Audit log entries</caption>
             <thead>
               <tr className="border-b border-white/[0.06] text-xs uppercase tracking-wider text-white/40">
                 <th className="px-4 py-3 text-left font-medium">When</th>

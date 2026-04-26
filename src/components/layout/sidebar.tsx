@@ -203,7 +203,7 @@ export function Sidebar({
                 href={item.href}
                 title={collapsed ? item.label : undefined}
                 className={twMerge(
-                  "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
+                  "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/50",
                   isActive
                     ? "bg-primary/15 text-white"
                     : "text-white/60 hover:bg-white/[0.06] hover:text-white/90",

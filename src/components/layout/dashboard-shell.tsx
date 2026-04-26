@@ -39,6 +39,7 @@ export function DashboardShell({
         memberships={memberships}
       />
       <main
+        aria-label="Page content"
         className={twMerge(
           "flex-1 p-8 transition-[margin] duration-300",
           collapsed ? "ml-[72px]" : "ml-[240px]",
