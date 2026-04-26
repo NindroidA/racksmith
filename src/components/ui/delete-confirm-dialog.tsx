@@ -156,6 +156,7 @@ export function DeleteConfirmDialog({
                         handleConfirm();
                       }
                     }}
+                    autoFocus
                     autoComplete="off"
                     autoCorrect="off"
                     autoCapitalize="off"

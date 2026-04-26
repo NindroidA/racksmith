@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useId, useState, type ReactNode } from "react";
 import { ChevronRight } from "lucide-react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { twMerge } from "tailwind-merge";
@@ -22,6 +22,7 @@ export function AdvancedAccordion({
   const reduced = useReducedMotion();
   const duration = reduced ? 0 : 0.2;
   const chevronDuration = reduced ? 0 : 0.15;
+  const contentId = useId();
 
   return (
     <div
@@ -31,6 +32,7 @@ export function AdvancedAccordion({
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
+        aria-controls={contentId}
         className="flex w-full items-center justify-between rounded-lg px-4 py-2.5 text-left text-sm font-medium text-white/70 transition-colors hover:bg-white/[0.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/50"
       >
         <span>{label}</span>
@@ -46,6 +48,7 @@ export function AdvancedAccordion({
         {open && (
           <motion.div
             key="content"
+            id={contentId}
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}

@@ -149,13 +149,19 @@ export function DeviceListClient({ devices }: Props) {
 
         <div className="flex flex-wrap items-center gap-2">
           {/* Racked state filter */}
-          <div className="flex items-center gap-1 rounded-lg bg-white/[0.04] p-0.5">
+          <div
+            role="group"
+            aria-label="Filter by rack status"
+            className="flex items-center gap-1 rounded-lg bg-white/[0.04] p-0.5"
+          >
             {(["all", "racked", "unracked"] as const).map((v) => (
               <button
                 key={v}
+                type="button"
                 onClick={() => setRackedFilter(v)}
+                aria-pressed={rackedFilter === v}
                 className={twMerge(
-                  "rounded-md px-2.5 py-1 text-xs font-medium capitalize transition-colors",
+                  "rounded-md px-2.5 py-1 text-xs font-medium capitalize transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/50",
                   rackedFilter === v
                     ? "bg-white/[0.1] text-white"
                     : "text-white/50 hover:text-white/80",
@@ -212,7 +218,12 @@ export function DeviceListClient({ devices }: Props) {
             </button>
           )}
 
-          <span className="ml-auto text-xs text-white/40">
+          <span
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+            className="ml-auto text-xs text-white/40"
+          >
             {shownCount === totalCount
               ? `${totalCount} total`
               : `${shownCount} of ${totalCount}`}
@@ -235,7 +246,9 @@ export function DeviceListClient({ devices }: Props) {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-white/10 text-left text-xs uppercase tracking-wider text-white/40">
-                <th className="w-28 px-4 py-3 font-medium">Preview</th>
+                <th scope="col" className="w-28 px-4 py-3 font-medium">
+                  Preview
+                </th>
                 <SortableHeader
                   label="Name"
                   active={sortKey === "name"}
@@ -260,7 +273,9 @@ export function DeviceListClient({ devices }: Props) {
                   desc={sortDesc}
                   onClick={() => toggleSort("rack")}
                 />
-                <th className="px-4 py-3 font-medium">IP</th>
+                <th scope="col" className="px-4 py-3 font-medium">
+                  IP
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/[0.05]">
@@ -344,16 +359,25 @@ function SortableHeader({
   onClick: () => void;
 }) {
   return (
-    <th className="px-4 py-3 font-medium">
+    <th
+      scope="col"
+      aria-sort={active ? (desc ? "descending" : "ascending") : "none"}
+      className="px-4 py-3 font-medium"
+    >
       <button
+        type="button"
         onClick={onClick}
         className={twMerge(
-          "flex items-center gap-1 uppercase transition-colors",
+          "flex items-center gap-1 rounded uppercase transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/50",
           active ? "text-white" : "hover:text-white/80",
         )}
       >
         {label}
-        {active && <span className="text-[9px]">{desc ? "▼" : "▲"}</span>}
+        {active && (
+          <span className="text-[9px]" aria-hidden>
+            {desc ? "▼" : "▲"}
+          </span>
+        )}
       </button>
     </th>
   );

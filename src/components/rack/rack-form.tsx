@@ -6,8 +6,8 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 import { twMerge } from "tailwind-merge";
 import { ArrowLeft, Save, Trash2 } from "lucide-react";
-import { COLOR_TAG_MAP, COLOR_TAGS } from "@/types";
 import type { ColorTag } from "@/types";
+import { ColorTagPicker } from "@/components/ui/color-tag-picker";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
 import {
   createRack,
@@ -70,9 +70,7 @@ export function RackForm(props: Props) {
           router.refresh();
         }
       } catch (err) {
-        toast.error(
-          describeError(err, "Something went wrong"),
-        );
+        toast.error(describeError(err, "Something went wrong"));
       }
     });
   }
@@ -234,33 +232,11 @@ export function RackForm(props: Props) {
           />
         </div>
 
-        {/* Color Tag */}
-        <div>
-          <label className="mb-2 block text-sm font-medium text-white/70">
-            Color Tag
-          </label>
-          <div className="flex flex-wrap gap-2">
-            {COLOR_TAGS.map((tag) => (
-              <button
-                key={tag}
-                type="button"
-                onClick={() => setColorTag(tag)}
-                className={twMerge(
-                  "flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium capitalize transition-all",
-                  colorTag === tag
-                    ? "bg-white/[0.08] ring-2 ring-white/20"
-                    : "bg-white/[0.03] hover:bg-white/[0.06]",
-                )}
-              >
-                <span
-                  className="h-4 w-4 rounded-full"
-                  style={{ backgroundColor: COLOR_TAG_MAP[tag] }}
-                />
-                <span className="text-white/80">{tag}</span>
-              </button>
-            ))}
-          </div>
-        </div>
+        <ColorTagPicker
+          label="Color Tag"
+          value={colorTag}
+          onChange={setColorTag}
+        />
       </div>
 
       {/* Actions */}
