@@ -122,6 +122,9 @@ export function VlanMatrix({ vlans, switches }: Props) {
                 </th>
                 {switches.map((s) => {
                   const covered = set.has(s.id);
+                  const cellLabel = covered
+                    ? `${v.name} assigned to ${s.name}`
+                    : `${v.name} not assigned to ${s.name}`;
                   return (
                     <td
                       key={s.id}
@@ -130,11 +133,9 @@ export function VlanMatrix({ vlans, switches }: Props) {
                       )}
                     >
                       <span
-                        title={
-                          covered
-                            ? `${v.name} assigned to ${s.name}`
-                            : `${v.name} not assigned to ${s.name}`
-                        }
+                        role="img"
+                        aria-label={cellLabel}
+                        title={cellLabel}
                         className={twMerge(
                           "inline-flex h-6 w-6 items-center justify-center rounded text-xs",
                           covered

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Plus, Trash2 } from "lucide-react";
 import { InlineHelp } from "@/components/ui/inline-help";
 import { Select, SelectOption } from "@/components/ui/select";
 import type { NetworkInput, VlanLine } from "@/lib/plan/wizard-types";
@@ -112,72 +112,75 @@ export function WizardStepNetwork({ value, disabled, onBack, onNext }: Props) {
           </p>
         ) : (
           <ul className="space-y-3">
-            {vlans.map((row, idx) => (
-              <li
-                key={idx}
-                className="grid grid-cols-1 gap-3 rounded-lg border border-white/[0.06] p-3 sm:grid-cols-[80px_1fr_140px_120px_36px]"
-              >
-                <input
-                  type="number"
-                  min={1}
-                  max={4094}
-                  value={row.vlanId}
-                  onChange={(e) =>
-                    updateRow(idx, { vlanId: Number(e.target.value) || 1 })
-                  }
-                  className="glass-input rounded-lg px-2 py-1.5 text-sm text-white"
-                  aria-label={`VLAN ${idx + 1} ID`}
-                />
-                <input
-                  type="text"
-                  value={row.name}
-                  onChange={(e) => updateRow(idx, { name: e.target.value })}
-                  maxLength={40}
-                  placeholder="VLAN name"
-                  className="glass-input rounded-lg px-2 py-1.5 text-sm text-white"
-                  aria-label={`VLAN ${idx + 1} name`}
-                />
-                <Select
-                  value={row.purpose}
-                  onValueChange={(v) =>
-                    updateRow(idx, { purpose: v as VlanLine["purpose"] })
-                  }
-                  className="px-2 py-1.5 text-sm"
-                  aria-label={`VLAN ${idx + 1} purpose`}
+            {vlans.map((row, idx) => {
+              const rowLabel = row.name || `row ${idx + 1}`;
+              return (
+                <li
+                  key={`${row.vlanId}-${idx}`}
+                  className="grid grid-cols-1 gap-3 rounded-lg border border-white/[0.06] p-3 sm:grid-cols-[80px_1fr_140px_120px_36px]"
                 >
-                  {VLAN_PURPOSES.map((p) => (
-                    <SelectOption key={p} value={p}>
-                      {p}
-                    </SelectOption>
-                  ))}
-                </Select>
-                <input
-                  type="number"
-                  min={0}
-                  max={255}
-                  value={row.subnetSuffix}
-                  onChange={(e) =>
-                    updateRow(idx, {
-                      subnetSuffix: Math.max(
-                        0,
-                        Math.min(255, Number(e.target.value) || 0),
-                      ),
-                    })
-                  }
-                  className="glass-input rounded-lg px-2 py-1.5 text-sm text-white"
-                  aria-label={`VLAN ${idx + 1} subnet suffix`}
-                  title="Replaces the third octet of the parent CIDR (parent /16 → x.y.SUFFIX.0/24)"
-                />
-                <button
-                  type="button"
-                  onClick={() => removeRow(idx)}
-                  aria-label={`Remove VLAN ${row.name}`}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg text-white/40 transition-colors hover:bg-red-500/10 hover:text-red-400"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              </li>
-            ))}
+                  <input
+                    type="number"
+                    min={1}
+                    max={4094}
+                    value={row.vlanId}
+                    onChange={(e) =>
+                      updateRow(idx, { vlanId: Number(e.target.value) || 1 })
+                    }
+                    className="glass-input rounded-lg px-2 py-1.5 text-sm text-white"
+                    aria-label={`VLAN ID for ${rowLabel}`}
+                  />
+                  <input
+                    type="text"
+                    value={row.name}
+                    onChange={(e) => updateRow(idx, { name: e.target.value })}
+                    maxLength={40}
+                    placeholder="VLAN name"
+                    className="glass-input rounded-lg px-2 py-1.5 text-sm text-white"
+                    aria-label={`Name for VLAN ${row.vlanId}`}
+                  />
+                  <Select
+                    value={row.purpose}
+                    onValueChange={(v) =>
+                      updateRow(idx, { purpose: v as VlanLine["purpose"] })
+                    }
+                    className="px-2 py-1.5 text-sm"
+                    aria-label={`Purpose for VLAN ${row.vlanId}`}
+                  >
+                    {VLAN_PURPOSES.map((p) => (
+                      <SelectOption key={p} value={p}>
+                        {p}
+                      </SelectOption>
+                    ))}
+                  </Select>
+                  <input
+                    type="number"
+                    min={0}
+                    max={255}
+                    value={row.subnetSuffix}
+                    onChange={(e) =>
+                      updateRow(idx, {
+                        subnetSuffix: Math.max(
+                          0,
+                          Math.min(255, Number(e.target.value) || 0),
+                        ),
+                      })
+                    }
+                    className="glass-input rounded-lg px-2 py-1.5 text-sm text-white"
+                    aria-label={`Subnet suffix for VLAN ${row.vlanId}`}
+                    title="Replaces the third octet of the parent CIDR (parent /16 → x.y.SUFFIX.0/24)"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeRow(idx)}
+                    aria-label={`Remove VLAN ${rowLabel}`}
+                    className="flex h-9 w-9 items-center justify-center rounded-lg text-white/40 transition-colors hover:bg-red-500/10 hover:text-red-400"
+                  >
+                    <Trash2 className="h-4 w-4" aria-hidden />
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         )}
       </section>
@@ -186,17 +189,17 @@ export function WizardStepNetwork({ value, disabled, onBack, onNext }: Props) {
         <button
           type="button"
           onClick={onBack}
-          className="btn-secondary rounded-lg px-5 py-2.5 text-sm font-medium"
+          className="btn-secondary inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium"
         >
-          ← Back
+          <ArrowLeft className="h-4 w-4" aria-hidden /> Back
         </button>
         <button
           type="button"
           onClick={submit}
           disabled={disabled || !valid}
-          className="btn-primary rounded-lg px-5 py-2.5 text-sm font-medium"
+          className="btn-primary inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium"
         >
-          Review →
+          Review <ArrowRight className="h-4 w-4" aria-hidden />
         </button>
       </div>
     </fieldset>

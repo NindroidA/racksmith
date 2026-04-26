@@ -14,15 +14,22 @@ export default async function RecommendationsPage() {
     await getRecommendations(organizationId);
 
   // Render dismissed items as info-severity cards so the UI is consistent.
-  const dismissedShells: Recommendation[] = dismissals.map((d) => ({
-    ruleKey: d.ruleKey,
-    entityKey: d.entityKey,
-    severity: "info",
-    title: `Dismissed: ${d.ruleKey} for ${d.entityKey}`,
-    detail: d.expiresAt
-      ? `Snoozed until ${d.expiresAt.toLocaleString()}.`
-      : "Dismissed permanently. Restore to bring it back.",
-  }));
+  // Convert kebab-case rule keys to a readable Title Case label so users
+  // don't see internal slugs like "subnet-utilization-high" verbatim.
+  const dismissedShells: Recommendation[] = dismissals.map((d) => {
+    const humanRuleKey = d.ruleKey
+      .replace(/[-_]/g, " ")
+      .replace(/\b\w/g, (c) => c.toUpperCase());
+    return {
+      ruleKey: d.ruleKey,
+      entityKey: d.entityKey,
+      severity: "info",
+      title: `Dismissed: ${humanRuleKey}`,
+      detail: d.expiresAt
+        ? `Snoozed until ${d.expiresAt.toLocaleString()}.`
+        : "Dismissed permanently. Restore to bring it back.",
+    };
+  });
 
   return (
     <div>
@@ -41,7 +48,10 @@ export default async function RecommendationsPage() {
 
         <aside>
           <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-white/40">
-            Dismissed ({dismissedShells.length})
+            Dismissed{" "}
+            <span aria-label={`(${dismissedShells.length})`}>
+              ({dismissedShells.length})
+            </span>
           </h2>
           {dismissedShells.length === 0 ? (
             <p className="text-xs text-white/50">

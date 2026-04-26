@@ -110,6 +110,7 @@ export function ConnectionForm({
   const [pending, startTransition] = useTransition();
   const [deleting, setDeleting] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [submitAttempted, setSubmitAttempted] = useState(false);
   const dialogRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
   useFocusTrap(open, dialogRef);
@@ -155,12 +156,14 @@ export function ConnectionForm({
     setBandwidth(initial.bandwidth);
     setVlan(initial.vlan);
     setDescription(initial.description);
+    setSubmitAttempted(false);
   }, [open, initial]);
 
   if (!open) return null;
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setSubmitAttempted(true);
     if (!sourceDeviceId || !targetDeviceId) {
       toast.error("Pick both a source and target device");
       return;
@@ -262,6 +265,12 @@ export function ConnectionForm({
                 onValueChange={setSourceDeviceId}
                 disabled={!!existing}
                 placeholder="Pick source…"
+                aria-invalid={submitAttempted && !sourceDeviceId}
+                aria-describedby={
+                  submitAttempted && !sourceDeviceId
+                    ? "conn-source-error"
+                    : undefined
+                }
               >
                 {devices.map((d) => (
                   <SelectOption key={d.id} value={d.id}>
@@ -269,6 +278,15 @@ export function ConnectionForm({
                   </SelectOption>
                 ))}
               </Select>
+              {submitAttempted && !sourceDeviceId && (
+                <p
+                  id="conn-source-error"
+                  role="alert"
+                  className="mt-1 text-xs text-accent-red"
+                >
+                  Pick a source device.
+                </p>
+              )}
             </div>
             <div>
               <label className="mb-1.5 block text-xs font-medium text-white/60">
@@ -301,6 +319,12 @@ export function ConnectionForm({
                 onValueChange={setTargetDeviceId}
                 disabled={!!existing}
                 placeholder="Pick target…"
+                aria-invalid={submitAttempted && !targetDeviceId}
+                aria-describedby={
+                  submitAttempted && !targetDeviceId
+                    ? "conn-target-error"
+                    : undefined
+                }
               >
                 {devices
                   .filter((d) => d.id !== sourceDeviceId)
@@ -310,6 +334,15 @@ export function ConnectionForm({
                     </SelectOption>
                   ))}
               </Select>
+              {submitAttempted && !targetDeviceId && (
+                <p
+                  id="conn-target-error"
+                  role="alert"
+                  className="mt-1 text-xs text-accent-red"
+                >
+                  Pick a target device.
+                </p>
+              )}
             </div>
             <div>
               <label className="mb-1.5 block text-xs font-medium text-white/60">

@@ -141,6 +141,14 @@ export function PlanWizardShell({
         inputs={inputs}
       />
 
+      {/* Announce step transitions to assistive tech — the visual stepper
+          shows aria-current on the active button, but the content body
+          swaps via AnimatePresence with no live announcement. */}
+      <p aria-live="polite" aria-atomic="true" className="sr-only">
+        Step {STEPS.findIndex((s) => s.key === step) + 1} of {STEPS.length}:{" "}
+        {STEPS.find((s) => s.key === step)?.label}
+      </p>
+
       <div className="mt-8">
         <AnimatePresence mode="wait">
           <motion.div

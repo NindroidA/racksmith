@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Zap, Users, Building2 } from "lucide-react";
+import { ArrowRight, Building2, Users, Zap } from "lucide-react";
 import { twMerge } from "tailwind-merge";
 import { InlineHelp } from "@/components/ui/inline-help";
 import { Select, SelectOption } from "@/components/ui/select";
@@ -193,9 +193,9 @@ export function WizardStepProfile({ value, disabled, onNext }: Props) {
           type="button"
           onClick={submit}
           disabled={disabled || deviceCount <= 0}
-          className="btn-primary rounded-lg px-5 py-2.5 text-sm font-medium"
+          className="btn-primary inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium"
         >
-          Generate topology →
+          Generate topology <ArrowRight className="h-4 w-4" aria-hidden />
         </button>
       </div>
     </fieldset>

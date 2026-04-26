@@ -114,7 +114,7 @@ function PoePanel() {
                   value={line.label}
                   onChange={(e) => updateLine(idx, { label: e.target.value })}
                   className="glass-input rounded-lg px-2 py-1.5 text-sm text-white"
-                  aria-label={`Line ${idx + 1} label`}
+                  aria-label={`Device class name, row ${idx + 1}`}
                 />
                 <input
                   type="number"
@@ -126,7 +126,7 @@ function PoePanel() {
                     })
                   }
                   className="glass-input rounded-lg px-2 py-1.5 text-sm text-white"
-                  aria-label={`Line ${idx + 1} count`}
+                  aria-label={`Count for ${line.label || `row ${idx + 1}`}`}
                 />
                 <input
                   type="number"
@@ -139,7 +139,7 @@ function PoePanel() {
                     })
                   }
                   className="glass-input rounded-lg px-2 py-1.5 text-sm text-white"
-                  aria-label={`Line ${idx + 1} watts each`}
+                  aria-label={`Watts each for ${line.label || `row ${idx + 1}`}`}
                 />
                 <button
                   type="button"
