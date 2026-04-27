@@ -5,7 +5,10 @@ import {
   singleDeviceResponseSchema,
   updateDeviceBodySchema,
 } from "@/lib/api/schemas/device";
-import { errorEnvelopeSchema } from "@/lib/api/schemas/shared";
+import {
+  commonErrorResponses,
+  notFoundResponse,
+} from "@/lib/api/schemas/shared";
 import { withTenant } from "@/lib/prisma-tenant";
 import { audit } from "@/lib/audit";
 import { apiError } from "@/lib/api/response";
@@ -95,7 +98,8 @@ export const PATCH = createApiRoute({
       const data: Record<string, unknown> = {};
       if (body.name !== undefined) data.name = body.name;
       if (body.deviceType !== undefined) data.deviceType = body.deviceType;
-      if (body.manufacturer !== undefined) data.manufacturer = body.manufacturer;
+      if (body.manufacturer !== undefined)
+        data.manufacturer = body.manufacturer;
       if (body.model !== undefined) data.model = body.model;
       if (body.sizeU !== undefined) data.sizeU = body.sizeU;
       if (body.portCount !== undefined) data.portCount = body.portCount;
@@ -118,7 +122,11 @@ export const PATCH = createApiRoute({
       return { kind: "ok" as const, device };
     });
     if (result.kind === "bad_rack")
-      return apiError("not_found", "rackId not found in this organization", 404);
+      return apiError(
+        "not_found",
+        "rackId not found in this organization",
+        404,
+      );
     if (result.kind === "not_found" || !result.device)
       return apiError("not_found", "Device not found", 404);
 
@@ -148,7 +156,8 @@ export const DELETE = createApiRoute({
         where: { id: p.data.id, organizationId: ctx.organizationId },
       }),
     );
-    if (result.count === 0) return apiError("not_found", "Device not found", 404);
+    if (result.count === 0)
+      return apiError("not_found", "Device not found", 404);
 
     await audit({
       userId: ctx.userId,
@@ -173,10 +182,8 @@ registry.registerPath({
       description: "OK",
       content: { "application/json": { schema: singleDeviceResponseSchema } },
     },
-    404: {
-      description: "Not found",
-      content: { "application/json": { schema: errorEnvelopeSchema } },
-    },
+    ...commonErrorResponses,
+    ...notFoundResponse,
   },
 });
 registry.registerPath({
@@ -196,10 +203,8 @@ registry.registerPath({
       description: "OK",
       content: { "application/json": { schema: singleDeviceResponseSchema } },
     },
-    404: {
-      description: "Not found",
-      content: { "application/json": { schema: errorEnvelopeSchema } },
-    },
+    ...commonErrorResponses,
+    ...notFoundResponse,
   },
 });
 registry.registerPath({
@@ -210,9 +215,7 @@ registry.registerPath({
   request: { params: paramsSchema },
   responses: {
     204: { description: "Deleted" },
-    404: {
-      description: "Not found",
-      content: { "application/json": { schema: errorEnvelopeSchema } },
-    },
+    ...commonErrorResponses,
+    ...notFoundResponse,
   },
 });
