@@ -214,9 +214,10 @@ export default async function DeviceDetailPage({
               </p>
             ) : (
               <ul className="space-y-2">
-                {connections.map((c, i) => (
+                {connections.map((c) => (
                   <li
-                    key={i}
+                    key={`${c.peer.id}:${c.port || ""}:${c.peerPort || ""}`}
+                    aria-label={`Connected to ${c.peer.name} via ${c.cable}${c.port ? ` from port ${c.port}` : ""}${c.peerPort ? ` to peer port ${c.peerPort}` : ""}`}
                     className="flex items-center justify-between rounded-lg bg-white/[0.03] px-3 py-2 text-sm"
                   >
                     <Link
@@ -225,7 +226,10 @@ export default async function DeviceDetailPage({
                     >
                       {c.peer.name}
                     </Link>
-                    <span className="font-mono text-xs text-white/50">
+                    <span
+                      aria-hidden
+                      className="font-mono text-xs text-white/50"
+                    >
                       {c.port || "—"} → {c.peerPort || "—"} · {c.cable}
                     </span>
                   </li>
@@ -245,7 +249,8 @@ export default async function DeviceDetailPage({
               </h2>
               <Link
                 href={`/racks/${device.rack.id}`}
-                className="block rounded-lg bg-white/[0.04] p-3 transition-colors hover:bg-white/[0.08]"
+                aria-label={`View rack: ${device.rack.name}`}
+                className="block rounded-lg bg-white/[0.04] p-3 transition-colors hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/50"
               >
                 <div className="text-sm font-medium text-white">
                   {device.rack.name}
@@ -305,7 +310,10 @@ export default async function DeviceDetailPage({
                   <div>
                     <dt className="text-xs text-white/50">Discovered</dt>
                     <dd className="text-sm text-white">
-                      {device.discoveredAt.toLocaleString()}
+                      {device.discoveredAt.toLocaleString("en-US", {
+                        dateStyle: "medium",
+                        timeStyle: "short",
+                      })}
                     </dd>
                   </div>
                 )}
@@ -313,7 +321,10 @@ export default async function DeviceDetailPage({
                   <div>
                     <dt className="text-xs text-white/50">Last Seen</dt>
                     <dd className="text-sm text-white">
-                      {device.lastSeen.toLocaleString()}
+                      {device.lastSeen.toLocaleString("en-US", {
+                        dateStyle: "medium",
+                        timeStyle: "short",
+                      })}
                     </dd>
                   </div>
                 )}

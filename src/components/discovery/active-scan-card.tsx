@@ -31,14 +31,31 @@ export function ActiveScanCard({ scanId, subnet, startedAt }: Props) {
     return () => clearInterval(t);
   }, []);
 
-  // Poll scan status every 2s
+  // Poll scan status every 2s. When the scan reaches a terminal state we
+  // announce the result via toast — react-hot-toast renders role=status
+  // aria-live="polite", so screen readers learn the scan finished without
+  // needing a dedicated live region (the active-scan card itself unmounts
+  // immediately after router.refresh, so it can't host the announcement).
   useEffect(() => {
     const poll = setInterval(async () => {
       try {
         const res = await fetch(`/api/discovery/scan?id=${scanId}`);
         if (!res.ok) return;
-        const data = await res.json();
-        if (data.status === "completed" || data.status === "failed") {
+        const data = (await res.json()) as {
+          status?: string;
+          hostsFound?: number;
+          hostsNew?: number;
+          error?: string | null;
+        };
+        if (data.status === "completed") {
+          const newCount = data.hostsNew ?? 0;
+          const totalCount = data.hostsFound ?? 0;
+          toast.success(
+            `Scan complete. ${newCount} new host${newCount === 1 ? "" : "s"} (of ${totalCount} found).`,
+          );
+          router.refresh();
+        } else if (data.status === "failed") {
+          toast.error(data.error || "Scan failed.");
           router.refresh();
         }
       } catch {
@@ -111,13 +128,6 @@ export function ActiveScanCard({ scanId, subnet, startedAt }: Props) {
           className={`h-full w-1/3 rounded-full bg-accent-green/60 ${reduceMotion ? "" : "animate-[scan-slide_2s_ease-in-out_infinite]"}`}
         />
       </div>
-
-      <style>{`
-        @keyframes scan-slide {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(400%); }
-        }
-      `}</style>
 
       <DeleteConfirmDialog
         open={confirmOpen}

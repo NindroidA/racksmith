@@ -276,6 +276,17 @@ body {
   }
 }
 
+/* Indeterminate progress used by ActiveScanCard. nmap doesn't stream
+   progress so we just slide a bar across the track to convey "running". */
+@keyframes scan-slide {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(400%);
+  }
+}
+
 /* ─── Autofill (keep password-manager functional, kill the yellow) ─── */
 
 input:-webkit-autofill,

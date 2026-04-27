@@ -2,11 +2,27 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useReducedMotion } from "framer-motion";
 import toast from "react-hot-toast";
 import { twMerge } from "tailwind-merge";
-import { Trash2, History, AlertCircle, CheckCircle2 } from "lucide-react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  History,
+  Loader2,
+  Trash2,
+} from "lucide-react";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
 import { deleteScan } from "@/app/(dashboard)/discovery/actions";
+
+// Friendlier copy for the database enum so users see "Done" instead of
+// "completed" / "failed" / "running" / "pending".
+const STATUS_LABELS: Record<string, string> = {
+  completed: "Done",
+  failed: "Failed",
+  running: "Scanning…",
+  pending: "Queued",
+};
 
 type ConfirmTarget = { id: string; subnet: string } | null;
 
@@ -29,6 +45,7 @@ type Props = {
 
 export function ScanHistory({ scans }: Props) {
   const router = useRouter();
+  const reduceMotion = useReducedMotion();
   const [pending, startTransition] = useTransition();
   const [confirmTarget, setConfirmTarget] = useState<ConfirmTarget>(null);
 
@@ -64,14 +81,27 @@ export function ScanHistory({ scans }: Props) {
   return (
     <div className="glass-card overflow-hidden rounded-xl">
       <table className="w-full text-sm">
+        <caption className="sr-only">Recent network scans</caption>
         <thead>
           <tr className="border-b border-white/10 text-left text-xs uppercase tracking-wider text-white/40">
-            <th className="px-4 py-3 font-medium">Subnet</th>
-            <th className="px-4 py-3 font-medium">Status</th>
-            <th className="px-4 py-3 font-medium">Found</th>
-            <th className="px-4 py-3 font-medium">Duration</th>
-            <th className="px-4 py-3 font-medium">When</th>
-            <th className="px-4 py-3 text-right font-medium">Action</th>
+            <th scope="col" className="px-4 py-3 font-medium">
+              Subnet
+            </th>
+            <th scope="col" className="px-4 py-3 font-medium">
+              Status
+            </th>
+            <th scope="col" className="px-4 py-3 font-medium">
+              Found
+            </th>
+            <th scope="col" className="px-4 py-3 font-medium">
+              Duration
+            </th>
+            <th scope="col" className="px-4 py-3 font-medium">
+              When
+            </th>
+            <th scope="col" className="px-4 py-3 text-right font-medium">
+              Action
+            </th>
           </tr>
         </thead>
         <tbody className="divide-y divide-white/[0.05]">
@@ -100,10 +130,18 @@ export function ScanHistory({ scans }: Props) {
                     )}
                   >
                     {scan.status === "completed" && (
-                      <CheckCircle2 className="h-3 w-3" />
+                      <CheckCircle2 className="h-3 w-3" aria-hidden />
                     )}
-                    {isFailed && <AlertCircle className="h-3 w-3" />}
-                    {scan.status}
+                    {isFailed && (
+                      <AlertCircle className="h-3 w-3" aria-hidden />
+                    )}
+                    {isRunning && (
+                      <Loader2
+                        className={`h-3 w-3 ${reduceMotion ? "" : "animate-spin"}`}
+                        aria-hidden
+                      />
+                    )}
+                    {STATUS_LABELS[scan.status] ?? scan.status}
                   </span>
                   {isFailed && scan.error && (
                     <div className="mt-1 max-w-sm truncate text-[10px] text-accent-red/70">

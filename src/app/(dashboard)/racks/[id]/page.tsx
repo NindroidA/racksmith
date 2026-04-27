@@ -144,7 +144,15 @@ export default async function RackDetailPage({
             {usedU}/{rack.sizeU}U · {utilizationPct}%
           </span>
         </div>
-        <div className="h-2 overflow-hidden rounded-full bg-white/[0.06]">
+        <div
+          role="progressbar"
+          aria-valuenow={utilizationPct}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuetext={`${usedU} of ${rack.sizeU}U used (${utilizationPct}%)`}
+          aria-label="Rack utilization"
+          className="h-2 overflow-hidden rounded-full bg-white/[0.06]"
+        >
           <div
             className="h-full rounded-full transition-all"
             style={{
