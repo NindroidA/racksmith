@@ -1,12 +1,13 @@
 import { describe, expect, it } from "vitest";
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
-import { buildOpenApiSpec } from "@/lib/api/openapi-registry";
-// side-effect: register all routes' paths
-import "@/app/api/v1/racks/route";
-import "@/app/api/v1/racks/[id]/route";
-import "@/app/api/v1/devices/route";
-import "@/app/api/v1/devices/[id]/route";
+import { buildOpenApiSpec, registry } from "@/lib/api/openapi-registry";
+import { registerV1Routes } from "@/lib/api/v1-routes";
+
+// Idempotent — populates the singleton registry exactly once across the
+// test file. Replaces the four side-effect route imports we used before
+// the explicit registration refactor.
+registerV1Routes(registry);
 
 describe("OpenAPI contract", () => {
   it("produces a valid OpenAPI 3.1 document", () => {
@@ -19,7 +20,9 @@ describe("OpenAPI contract", () => {
   it("every path has at least one response schema", () => {
     const spec = buildOpenApiSpec();
     for (const [path, methods] of Object.entries(spec.paths ?? {})) {
-      for (const [method, op] of Object.entries(methods as Record<string, unknown>)) {
+      for (const [method, op] of Object.entries(
+        methods as Record<string, unknown>,
+      )) {
         if (typeof op !== "object" || !op) continue;
         expect(
           (op as { responses?: unknown }).responses,
@@ -47,7 +50,9 @@ describe("OpenAPI contract", () => {
     const spec = buildOpenApiSpec();
     const ajv = new Ajv({ strict: false });
     addFormats(ajv);
-    const rackSchema = (spec.components?.schemas as Record<string, unknown> | undefined)?.Rack;
+    const rackSchema = (
+      spec.components?.schemas as Record<string, unknown> | undefined
+    )?.Rack;
     expect(rackSchema).toBeDefined();
     const validate = ajv.compile(rackSchema as object);
     const sample = {
@@ -65,7 +70,9 @@ describe("OpenAPI contract", () => {
     const spec = buildOpenApiSpec();
     const ajv = new Ajv({ strict: false });
     addFormats(ajv);
-    const deviceSchema = (spec.components?.schemas as Record<string, unknown> | undefined)?.Device;
+    const deviceSchema = (
+      spec.components?.schemas as Record<string, unknown> | undefined
+    )?.Device;
     expect(deviceSchema).toBeDefined();
     const validate = ajv.compile(deviceSchema as object);
     const sample = {

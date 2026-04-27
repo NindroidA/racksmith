@@ -34,12 +34,12 @@ export async function createDevice(
     const data = parsed.data;
 
     if (data.rackId && data.positionU != null) {
-      const valid = await validateRackPlacement(
+      const valid = await validateRackPlacement({
         organizationId,
-        data.rackId,
-        data.sizeU,
-        data.positionU,
-      );
+        rackId: data.rackId,
+        sizeU: data.sizeU,
+        positionU: data.positionU,
+      });
       if (!valid.ok) return valid;
     }
 
@@ -115,13 +115,13 @@ export async function updateDevice(
     if (!existing) return { ok: false, error: "Device not found" };
 
     if (data.rackId && data.positionU != null) {
-      const valid = await validateRackPlacement(
+      const valid = await validateRackPlacement({
         organizationId,
-        data.rackId,
-        data.sizeU,
-        data.positionU,
-        id,
-      );
+        rackId: data.rackId,
+        sizeU: data.sizeU,
+        positionU: data.positionU,
+        excludeDeviceId: id,
+      });
       if (!valid.ok) return valid;
     }
 

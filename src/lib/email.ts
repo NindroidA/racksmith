@@ -7,16 +7,22 @@ type SendEmailInput = {
   text: string;
 };
 
-const FROM =
-  process.env.RACKSMITH_EMAIL_FROM || "RackSmith <noreply@racksmith.local>";
+// Read at call-time so test env mutations and runtime reconfiguration
+// (e.g. swapping the dev sender) take effect without reimport.
+function getFromAddress(): string {
+  return (
+    process.env.RACKSMITH_EMAIL_FROM || "RackSmith <noreply@racksmith.local>"
+  );
+}
 
 export async function sendEmail(input: SendEmailInput): Promise<void> {
   const apiKey = process.env.RESEND_API_KEY;
+  const from = getFromAddress();
 
   if (!apiKey) {
     console.log("\n─── [RackSmith dev-mode email] ─────────────");
     console.log(`To:      ${input.to}`);
-    console.log(`From:    ${FROM}`);
+    console.log(`From:    ${from}`);
     console.log(`Subject: ${input.subject}`);
     console.log("");
     console.log(input.text);
@@ -31,7 +37,7 @@ export async function sendEmail(input: SendEmailInput): Promise<void> {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: FROM,
+      from,
       to: [input.to],
       subject: input.subject,
       html: input.html,

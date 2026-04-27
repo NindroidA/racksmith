@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
-import { requireApiMember } from "@/lib/auth-helpers";
+import { z } from "zod";
+import { createApiRoute } from "@/lib/api/route-factory";
+import { apiError } from "@/lib/api/response";
 import { withTenant } from "@/lib/prisma-tenant";
 import { audit } from "@/lib/audit";
 import { runPingScan, validateCidr, cidrHostCount } from "@/lib/discovery/nmap";
@@ -7,132 +8,155 @@ import { completeScan } from "@/lib/discovery/scan-completion";
 
 export const dynamic = "force-dynamic";
 
+const MAX_HOSTS = 65_536; // /16 cap
+
+const startScanBodySchema = z.object({ subnet: z.string().min(1) }).strict();
+
+const startScanResponseSchema = z.object({ scanId: z.string() });
+
+const scanProgressResponseSchema = z.object({
+  id: z.string(),
+  subnet: z.string(),
+  status: z.string(),
+  hostsFound: z.number(),
+  hostsNew: z.number(),
+  hostsKnown: z.number(),
+  duration: z.number().nullable(),
+  error: z.string().nullable(),
+  startedAt: z.string().nullable(),
+  completedAt: z.string().nullable(),
+  results: z.unknown(),
+});
+
 /**
  * POST /api/discovery/scan
  * Body: { subnet: string }
  * Creates a DiscoveryScan record, kicks off nmap in background, returns scan id.
  * Client polls GET /api/discovery/scan?id=... for progress.
  */
-export async function POST(req: Request) {
-  const guard = await requireApiMember("member");
-  if (guard instanceof NextResponse) return guard;
-  const { session, organizationId } = guard;
+export const POST = createApiRoute({
+  method: "POST",
+  auth: "session-member",
+  bodySchema: startScanBodySchema,
+  responseSchema: startScanResponseSchema,
+  summary: "Start a discovery scan",
+  handler: async ({ body, ctx }) => {
+    const validated = validateCidr(body.subnet);
+    if (!validated) {
+      return apiError(
+        "validation_failed",
+        "Invalid CIDR. Use format like 192.168.1.0/24",
+        400,
+      );
+    }
 
-  const body = await req.json().catch(() => null);
-  const subnet = typeof body?.subnet === "string" ? body.subnet : "";
-  const validated = validateCidr(subnet);
-  if (!validated) {
-    return NextResponse.json(
-      { error: "Invalid CIDR. Use format like 192.168.1.0/24" },
-      { status: 400 },
+    const hostCount = cidrHostCount(validated);
+    if (hostCount > MAX_HOSTS) {
+      return apiError(
+        "validation_failed",
+        `Subnet too large (${hostCount} hosts). Max supported is /16 (${MAX_HOSTS.toLocaleString()} hosts).`,
+        400,
+      );
+    }
+
+    // One active scan per organization at a time. The factory's apiError
+    // envelope can't carry the existing scan's id; the dashboard reads the
+    // active scan directly from its server query, so the id isn't required
+    // in the conflict response.
+    const existing = await withTenant(ctx.organizationId, (tx) =>
+      tx.discoveryScan.findFirst({
+        where: {
+          organizationId: ctx.organizationId,
+          status: { in: ["pending", "running"] },
+        },
+        select: { id: true },
+      }),
     );
-  }
+    if (existing) {
+      return apiError(
+        "conflict",
+        "A scan is already in progress. Cancel it first.",
+        409,
+      );
+    }
 
-  // Safety: cap at /16 (65K hosts) to prevent accidental huge scans
-  const hostCount = cidrHostCount(validated);
-  if (hostCount > 65536) {
-    return NextResponse.json(
-      {
-        error: `Subnet too large (${hostCount} hosts). Max supported is /16 (65,536 hosts).`,
-      },
-      { status: 400 },
-    );
-  }
+    const scan = await withTenant(ctx.organizationId, async (tx) => {
+      const created = await tx.discoveryScan.create({
+        data: {
+          userId: ctx.userId,
+          organizationId: ctx.organizationId,
+          subnet: validated,
+          status: "running",
+          startedAt: new Date(),
+        },
+        select: { id: true },
+      });
+      await audit({
+        userId: ctx.userId,
+        organizationId: ctx.organizationId,
+        action: "scan_started",
+        entityType: "discovery_scan",
+        entityId: created.id,
+        metadata: { subnet: validated, hostCount },
+        tx,
+      });
+      return created;
+    });
 
-  // Rate limit: one active scan per user at a time
-  const existing = await withTenant(organizationId, (tx) =>
-    tx.discoveryScan.findFirst({
-      where: {
-        organizationId,
-        status: { in: ["pending", "running"] },
-      },
-    }),
-  );
-  if (existing) {
-    return NextResponse.json(
-      {
-        error: "A scan is already in progress. Cancel it first.",
-        scanId: existing.id,
-      },
-      { status: 409 },
-    );
-  }
-
-  const scan = await withTenant(organizationId, async (tx) => {
-    const created = await tx.discoveryScan.create({
-      data: {
-        userId: session.user.id,
-        organizationId,
+    // Fire-and-forget the nmap process. completeScan handles the post-run
+    // matching, persistence, audit, and partial-update recovery branch.
+    runPingScan(validated, (result) =>
+      completeScan({
+        scanId: scan.id,
+        organizationId: ctx.organizationId,
+        userId: ctx.userId,
         subnet: validated,
-        status: "running",
-        startedAt: new Date(),
-      },
-      select: { id: true },
-    });
-    await audit({
-      userId: session.user.id,
-      organizationId,
-      action: "scan_started",
-      entityType: "discovery_scan",
-      entityId: created.id,
-      metadata: { subnet: validated, hostCount },
-      tx,
-    });
-    return created;
-  });
+        result,
+      }),
+    );
 
-  // Fire-and-forget the actual nmap process. Callback hands off to
-  // `completeScan` which owns matching, persistence, audit, and the
-  // partial-update recovery branch.
-  runPingScan(validated, (result) =>
-    completeScan({
-      scanId: scan.id,
-      organizationId,
-      userId: session.user.id,
-      subnet: validated,
-      result,
-    }),
-  );
-
-  return NextResponse.json({ scanId: scan.id });
-}
+    return { scanId: scan.id };
+  },
+});
 
 /**
  * GET /api/discovery/scan?id=...
  * Returns current status of a scan. Client polls until status reaches a
  * terminal value: `completed` | `failed` | `cancelled`.
  */
-export async function GET(req: Request) {
-  const guard = await requireApiMember("member");
-  if (guard instanceof NextResponse) return guard;
-  const { organizationId } = guard;
+export const GET = createApiRoute({
+  method: "GET",
+  auth: "session-member",
+  responseSchema: scanProgressResponseSchema,
+  summary: "Fetch scan progress",
+  handler: async ({ ctx, searchParams }) => {
+    const id = searchParams.get("id");
+    if (!id) {
+      return apiError("validation_failed", "Missing id query param", 400);
+    }
 
-  const id = new URL(req.url).searchParams.get("id");
-  if (!id) {
-    return NextResponse.json({ error: "Missing id" }, { status: 400 });
-  }
+    const scan = await withTenant(ctx.organizationId, (tx) =>
+      tx.discoveryScan.findFirst({
+        where: { id, organizationId: ctx.organizationId },
+      }),
+    );
 
-  const scan = await withTenant(organizationId, (tx) =>
-    tx.discoveryScan.findFirst({
-      where: { id, organizationId },
-    }),
-  );
+    if (!scan) {
+      return apiError("not_found", "Scan not found", 404);
+    }
 
-  if (!scan) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
-  }
-
-  return NextResponse.json({
-    id: scan.id,
-    subnet: scan.subnet,
-    status: scan.status,
-    hostsFound: scan.hostsFound,
-    hostsNew: scan.hostsNew,
-    hostsKnown: scan.hostsKnown,
-    duration: scan.duration,
-    error: scan.error,
-    startedAt: scan.startedAt,
-    completedAt: scan.completedAt,
-    results: scan.results,
-  });
-}
+    return {
+      id: scan.id,
+      subnet: scan.subnet,
+      status: scan.status,
+      hostsFound: scan.hostsFound,
+      hostsNew: scan.hostsNew,
+      hostsKnown: scan.hostsKnown,
+      duration: scan.duration,
+      error: scan.error,
+      startedAt: scan.startedAt?.toISOString() ?? null,
+      completedAt: scan.completedAt?.toISOString() ?? null,
+      results: scan.results,
+    };
+  },
+});

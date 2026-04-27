@@ -1,11 +1,10 @@
-import { buildOpenApiSpec } from "@/lib/api/openapi-registry";
-// Side-effect imports — importing each route file runs its
-// `registry.registerPath(...)` calls. Without this, the spec would be
-// empty (no paths registered).
-import "@/app/api/v1/racks/route";
-import "@/app/api/v1/racks/[id]/route";
-import "@/app/api/v1/devices/route";
-import "@/app/api/v1/devices/[id]/route";
+import { buildOpenApiSpec, registry } from "@/lib/api/openapi-registry";
+import { registerV1Routes } from "@/lib/api/v1-routes";
+
+// Register every v1 route's OpenAPI descriptors against the shared
+// registry once per worker. registerV1Routes is idempotent per registry
+// instance, so HMR reloads don't duplicate entries.
+registerV1Routes(registry);
 
 export const dynamic = "force-static"; // spec is a pure function of code; cacheable
 

@@ -23,7 +23,11 @@ import {
   verificationEmail,
 } from "./email-templates";
 
-const BASE_URL = process.env.BETTER_AUTH_URL || "http://localhost:3000";
+// Read at call-time so test env mutations and runtime reconfiguration
+// (e.g. preview deploys) take effect without reimport.
+function getBaseUrl(): string {
+  return process.env.BETTER_AUTH_URL || "http://localhost:3000";
+}
 
 // Access control: extends BA's defaults with a read-only `viewer` role.
 // BA's `newRole({})` types as `Role<never>` — incompatible with the
@@ -50,7 +54,7 @@ export const auth = betterAuth({
     minPasswordLength: 8,
     maxPasswordLength: 128,
     sendResetPassword: async ({ user, url }) => {
-      const resetUrl = url.startsWith("http") ? url : `${BASE_URL}${url}`;
+      const resetUrl = url.startsWith("http") ? url : `${getBaseUrl()}${url}`;
       const tpl = passwordResetEmail(resetUrl);
       await sendEmail({ to: user.email, ...tpl });
     },
@@ -65,7 +69,7 @@ export const auth = betterAuth({
         : `${url}${url.includes("?") ? "&" : "?"}callbackURL=/verify-email`;
       const verifyUrl = withCallback.startsWith("http")
         ? withCallback
-        : `${BASE_URL}${withCallback}`;
+        : `${getBaseUrl()}${withCallback}`;
       const tpl = verificationEmail(verifyUrl);
       await sendEmail({ to: user.email, ...tpl });
     },
@@ -120,7 +124,7 @@ export const auth = betterAuth({
       invitationLimit: 50,
       invitationExpiresIn: 60 * 60 * 24 * 7, // 7 days
       sendInvitationEmail: async (data) => {
-        const acceptUrl = `${BASE_URL}/invite/${data.id}`;
+        const acceptUrl = `${getBaseUrl()}/invite/${data.id}`;
         const inviterName =
           (data as { inviter?: { user?: { name?: string } } }).inviter?.user
             ?.name ?? "A teammate";
@@ -176,7 +180,9 @@ export const auth = betterAuth({
         newEmail: string;
         url: string;
       }) => {
-        const verifyUrl = url.startsWith("http") ? url : `${BASE_URL}${url}`;
+        const verifyUrl = url.startsWith("http")
+          ? url
+          : `${getBaseUrl()}${url}`;
         const tpl = verificationEmail(verifyUrl);
         await sendEmail({
           to: newEmail,

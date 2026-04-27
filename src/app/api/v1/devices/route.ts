@@ -1,5 +1,5 @@
+import type { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { createApiRoute } from "@/lib/api/route-factory";
-import { registry } from "@/lib/api/openapi-registry";
 import {
   createDeviceBodySchema,
   listDevicesQuerySchema,
@@ -11,48 +11,12 @@ import { withTenant } from "@/lib/prisma-tenant";
 import { audit } from "@/lib/audit";
 import { canCreateDeviceLocked } from "@/lib/tiers";
 import { apiError } from "@/lib/api/response";
-import type { DeviceType } from "@/types";
+import { serializeDevice } from "@/lib/api/serializers/device";
 
-// Map a Prisma Device row to the public API shape. Whitelist-only — excludes
-// userId, organizationId, updatedAt, notes, isManual, discoveredAt, lastSeen,
-// osFingerprint, canvasX, canvasY (see src/lib/api/schemas/device.ts).
 // TODO Phase 12: positionU collision with rack.sizeU + existing devices
 // is currently NOT validated at the API layer (dashboard does it via
 // src/lib/rack-placement.ts). Add positionU-fit check here when we wire
 // up more fine-grained validation.
-function serializeDevice(row: {
-  id: string;
-  name: string;
-  deviceType: string;
-  manufacturer: string;
-  model: string;
-  sizeU: number;
-  portCount: number;
-  powerWatts: number | null;
-  rackId: string | null;
-  positionU: number | null;
-  ipAddress: string | null;
-  macAddress: string | null;
-  hostname: string | null;
-  createdAt: Date;
-}) {
-  return {
-    id: row.id,
-    name: row.name,
-    deviceType: row.deviceType as DeviceType,
-    manufacturer: row.manufacturer,
-    model: row.model,
-    sizeU: row.sizeU,
-    portCount: row.portCount,
-    powerWatts: row.powerWatts,
-    rackId: row.rackId,
-    positionU: row.positionU,
-    ipAddress: row.ipAddress,
-    macAddress: row.macAddress,
-    hostname: row.hostname,
-    createdAt: row.createdAt.toISOString(),
-  };
-}
 
 export const GET = createApiRoute({
   method: "GET",
@@ -185,44 +149,48 @@ export const POST = createApiRoute({
   },
 });
 
-// Register the route paths with OpenAPI. These descriptors feed Scalar docs.
-registry.registerPath({
-  method: "get",
-  path: "/api/v1/devices",
-  summary: "List devices",
-  security: [{ bearerAuth: [] }],
-  request: { query: listDevicesQuerySchema },
-  responses: {
-    200: {
-      description: "Paginated devices",
-      content: {
-        "application/json": { schema: listDevicesResponseSchema },
+// Register the route paths with OpenAPI. Called explicitly from
+// `src/lib/api/v1-routes.ts` rather than as a module-load side effect so
+// the dependency is visible and tests can register against a fresh registry.
+export function registerRoutes(registry: OpenAPIRegistry): void {
+  registry.registerPath({
+    method: "get",
+    path: "/api/v1/devices",
+    summary: "List devices",
+    security: [{ bearerAuth: [] }],
+    request: { query: listDevicesQuerySchema },
+    responses: {
+      200: {
+        description: "Paginated devices",
+        content: {
+          "application/json": { schema: listDevicesResponseSchema },
+        },
       },
+      ...commonErrorResponses,
     },
-    ...commonErrorResponses,
-  },
-});
+  });
 
-registry.registerPath({
-  method: "post",
-  path: "/api/v1/devices",
-  summary: "Create a device",
-  security: [{ bearerAuth: [] }],
-  request: {
-    body: {
-      required: true,
-      content: {
-        "application/json": { schema: createDeviceBodySchema },
+  registry.registerPath({
+    method: "post",
+    path: "/api/v1/devices",
+    summary: "Create a device",
+    security: [{ bearerAuth: [] }],
+    request: {
+      body: {
+        required: true,
+        content: {
+          "application/json": { schema: createDeviceBodySchema },
+        },
       },
     },
-  },
-  responses: {
-    201: {
-      description: "Created",
-      content: {
-        "application/json": { schema: singleDeviceResponseSchema },
+    responses: {
+      201: {
+        description: "Created",
+        content: {
+          "application/json": { schema: singleDeviceResponseSchema },
+        },
       },
+      ...commonErrorResponses,
     },
-    ...commonErrorResponses,
-  },
-});
+  });
+}

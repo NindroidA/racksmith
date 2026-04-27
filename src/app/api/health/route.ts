@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { createApiRoute } from "@/lib/api/route-factory";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -15,7 +15,6 @@ type HealthStatus = {
 };
 
 const bootedAt = Date.now();
-const VERSION = process.env.npm_package_version || "0.0.0";
 
 async function checkDatabase() {
   const start = Date.now();
@@ -46,22 +45,33 @@ async function checkMigrations() {
   }
 }
 
-export async function GET() {
-  const [database, migrations] = await Promise.all([
-    checkDatabase(),
-    checkMigrations(),
-  ]);
+export const GET = createApiRoute({
+  method: "GET",
+  auth: "public",
+  responseShape: "passthrough",
+  summary: "Service health probe",
+  description:
+    "Public health probe. Returns 200 with status `ok`/`degraded` when the database is reachable, 503 with status `down` when it is not. Suitable as a load-balancer health check.",
+  handler: async () => {
+    const [database, migrations] = await Promise.all([
+      checkDatabase(),
+      checkMigrations(),
+    ]);
 
-  const critical = database.ok;
-  const allOk = critical && migrations.ok;
+    const critical = database.ok;
+    const allOk = critical && migrations.ok;
 
-  const body: HealthStatus = {
-    status: allOk ? "ok" : critical ? "degraded" : "down",
-    timestamp: new Date().toISOString(),
-    uptimeSec: Math.floor((Date.now() - bootedAt) / 1000),
-    version: VERSION,
-    checks: { database, migrations },
-  };
+    const body: HealthStatus = {
+      status: allOk ? "ok" : critical ? "degraded" : "down",
+      timestamp: new Date().toISOString(),
+      uptimeSec: Math.floor((Date.now() - bootedAt) / 1000),
+      version: process.env.npm_package_version || "0.0.0",
+      checks: { database, migrations },
+    };
 
-  return NextResponse.json(body, { status: critical ? 200 : 503 });
-}
+    return new Response(JSON.stringify(body), {
+      status: critical ? 200 : 503,
+      headers: { "Content-Type": "application/json" },
+    });
+  },
+});

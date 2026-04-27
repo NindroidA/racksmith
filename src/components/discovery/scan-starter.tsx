@@ -28,7 +28,9 @@ export function ScanStarter({ defaultSubnet, disabled }: Props) {
         });
         const data = await res.json();
         if (!res.ok) {
-          setError(data.error || "Failed to start scan");
+          // /api/discovery/scan returns the v1 error envelope:
+          // { error: { code, message, fields, requestId } }
+          setError(data?.error?.message || "Failed to start scan");
           return;
         }
         toast.success("Scan started — this page will update when complete.");

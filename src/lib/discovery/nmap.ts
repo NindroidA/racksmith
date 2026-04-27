@@ -21,17 +21,29 @@ export type DiscoveredHost = {
   status: "up" | "down";
 };
 
-export type NmapScanResult = {
-  hosts: DiscoveredHost[];
-  durationSec: number;
-  rawOutput: string; // For debugging / displaying in scan history
-};
+/**
+ * Tagged outcome of a ping scan. The discriminator is `kind` rather than
+ * structural ("error" in result) so callers do `result.kind === "error"`
+ * — easier to grep, and the success branch can grow fields without
+ * risking false-positive structural matches.
+ */
+export type NmapScanOutcome =
+  | {
+      kind: "ok";
+      hosts: DiscoveredHost[];
+      durationSec: number;
+      rawOutput: string; // For debugging / displaying in scan history
+    }
+  | { kind: "error"; error: string };
 
 // Override with RACKSMITH_NMAP_BIN if the binary lives outside $PATH or under
 // a custom path (e.g. /opt/homebrew/bin/nmap on Apple Silicon). Default
 // resolves through $PATH, which works on every Linux distro and Intel macOS
-// Homebrew install.
-const NMAP_BIN = process.env.RACKSMITH_NMAP_BIN ?? "nmap";
+// Homebrew install. Read at call-time so test env mutations and runtime
+// reconfiguration take effect without reimport (matches `tiers.ts`).
+function getNmapBin(): string {
+  return process.env.RACKSMITH_NMAP_BIN ?? "nmap";
+}
 
 /**
  * Validate a CIDR string (IPv4 only for v1). Returns sanitized form or null.
@@ -59,7 +71,7 @@ export function validateCidr(input: string): string | null {
 
 export async function isNmapAvailable(): Promise<boolean> {
   return new Promise((resolve) => {
-    const proc = spawn(NMAP_BIN, ["--version"], { stdio: "ignore" });
+    const proc = spawn(getNmapBin(), ["--version"], { stdio: "ignore" });
     proc.on("close", (code) => resolve(code === 0));
     proc.on("error", () => resolve(false));
   });
@@ -76,12 +88,22 @@ export async function isNmapAvailable(): Promise<boolean> {
  */
 export function runPingScan(
   subnet: string,
-  onComplete: (result: NmapScanResult | { error: string }) => void,
+  onComplete: (outcome: NmapScanOutcome) => void,
   signal?: AbortSignal,
 ): void {
+  // Spawn errors can fire both `error` and `close` (with non-zero code) for
+  // the same failure — the `finished` flag guarantees `onComplete` runs at
+  // most once so callers don't see duplicate scan-completion writes.
+  let finished = false;
+  const fire = (outcome: NmapScanOutcome) => {
+    if (finished) return;
+    finished = true;
+    onComplete(outcome);
+  };
+
   const validated = validateCidr(subnet);
   if (!validated) {
-    onComplete({ error: `Invalid CIDR: ${subnet}` });
+    fire({ kind: "error", error: `Invalid CIDR: ${subnet}` });
     return;
   }
 
@@ -92,7 +114,7 @@ export function runPingScan(
   // --host-timeout 10s: per-host cap so scans don't hang
   const args = ["-sn", "-oG", "-", "--host-timeout", "10s", validated];
 
-  const proc = spawn(NMAP_BIN, args);
+  const proc = spawn(getNmapBin(), args);
   let stdout = "";
   let stderr = "";
 
@@ -108,7 +130,8 @@ export function runPingScan(
   });
 
   proc.on("error", (err) => {
-    onComplete({
+    fire({
+      kind: "error",
       error: err.message.includes("ENOENT")
         ? "nmap binary not found. Install nmap on the server to enable discovery."
         : `nmap failed to start: ${err.message}`,
@@ -117,14 +140,15 @@ export function runPingScan(
 
   proc.on("close", (code) => {
     if (code !== 0 && code !== null) {
-      onComplete({
+      fire({
+        kind: "error",
         error: `nmap exited with code ${code}. ${stderr.trim() || ""}`.trim(),
       });
       return;
     }
     const hosts = parseGrepableOutput(stdout);
     const durationSec = Math.round((Date.now() - startedAt) / 1000);
-    onComplete({ hosts, durationSec, rawOutput: stdout });
+    fire({ kind: "ok", hosts, durationSec, rawOutput: stdout });
   });
 }
 
