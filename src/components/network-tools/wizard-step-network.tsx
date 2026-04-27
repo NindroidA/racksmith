@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Plus, Trash2 } from "lucide-react";
 import { InlineHelp } from "@/components/ui/inline-help";
 import { Select, SelectOption } from "@/components/ui/select";
@@ -32,6 +32,14 @@ export function WizardStepNetwork({ value, disabled, onBack, onNext }: Props) {
   const [vlans, setVlans] = useState<VlanLine[]>(
     value?.vlans ? [...value.vlans] : [...STARTER_VLANS],
   );
+  // Parallel array of stable keys so React reconciliation survives both
+  // row removal (the row beneath shouldn't reuse the removed row's DOM)
+  // and edits to the user-controlled `vlanId` (which can't double as a key
+  // — it changes every keystroke).
+  const rowIdCounterRef = useRef(0);
+  const [rowKeys, setRowKeys] = useState<string[]>(() =>
+    vlans.map(() => `vlan-row-${rowIdCounterRef.current++}`),
+  );
 
   const addRow = () => {
     setVlans((prev) => [
@@ -43,10 +51,12 @@ export function WizardStepNetwork({ value, disabled, onBack, onNext }: Props) {
         subnetSuffix: nextSuffix(prev),
       },
     ]);
+    setRowKeys((prev) => [...prev, `vlan-row-${rowIdCounterRef.current++}`]);
   };
 
   const removeRow = (idx: number) => {
     setVlans((prev) => prev.filter((_, i) => i !== idx));
+    setRowKeys((prev) => prev.filter((_, i) => i !== idx));
   };
 
   const updateRow = (idx: number, patch: Partial<VlanLine>) => {
@@ -116,7 +126,7 @@ export function WizardStepNetwork({ value, disabled, onBack, onNext }: Props) {
               const rowLabel = row.name || `row ${idx + 1}`;
               return (
                 <li
-                  key={`${row.vlanId}-${idx}`}
+                  key={rowKeys[idx]}
                   className="grid grid-cols-1 gap-3 rounded-lg border border-white/[0.06] p-3 sm:grid-cols-[80px_1fr_140px_120px_36px]"
                 >
                   <input

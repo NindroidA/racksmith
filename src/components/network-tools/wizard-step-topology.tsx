@@ -116,7 +116,7 @@ export function WizardStepTopology({
             const selected = selectedIdx.has(idx);
             return (
               <button
-                key={deviceSig(dev)}
+                key={`${deviceSig(dev)}-${idx}`}
                 type="button"
                 onClick={() => toggle(idx)}
                 aria-pressed={selected}
