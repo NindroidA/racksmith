@@ -31,7 +31,7 @@ export function ScanStarter({ defaultSubnet, disabled }: Props) {
           setError(data.error || "Failed to start scan");
           return;
         }
-        toast.success("Scan started");
+        toast.success("Scan started — this page will update when complete.");
         router.refresh();
       } catch (err) {
         setError(describeError(err, "Failed to start scan"));

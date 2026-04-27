@@ -120,12 +120,24 @@ export function PendingDevicesTable({ hosts, devices }: Props) {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-white/10 text-left text-xs uppercase tracking-wider text-white/40">
-              <th className="px-4 py-3 font-medium">IP</th>
-              <th className="px-4 py-3 font-medium">Hostname</th>
-              <th className="px-4 py-3 font-medium">Type (guess)</th>
-              <th className="px-4 py-3 font-medium">Open Ports</th>
-              <th className="px-4 py-3 font-medium">From Scan</th>
-              <th className="px-4 py-3 text-right font-medium">Action</th>
+              <th scope="col" className="px-4 py-3 font-medium">
+                IP
+              </th>
+              <th scope="col" className="px-4 py-3 font-medium">
+                Hostname
+              </th>
+              <th scope="col" className="px-4 py-3 font-medium">
+                Type (guess)
+              </th>
+              <th scope="col" className="px-4 py-3 font-medium">
+                Open Ports
+              </th>
+              <th scope="col" className="px-4 py-3 font-medium">
+                From Scan
+              </th>
+              <th scope="col" className="px-4 py-3 text-right font-medium">
+                Action
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/[0.05]">
@@ -216,7 +228,11 @@ export function PendingDevicesTable({ hosts, devices }: Props) {
                           type="button"
                           onClick={() => setAssignTarget(host.ip)}
                           disabled={pending || devices.length === 0}
-                          aria-label={`Assign ${host.ip} to existing device`}
+                          aria-label={
+                            devices.length === 0
+                              ? `Cannot assign ${host.ip} — no devices in inventory`
+                              : `Assign ${host.ip} to existing device`
+                          }
                           className={twMerge(
                             "flex items-center gap-1 rounded-md bg-white/[0.06] px-2 py-1 text-xs font-medium text-white/80 hover:bg-white/[0.12]",
                             (pending || devices.length === 0) && "opacity-40",

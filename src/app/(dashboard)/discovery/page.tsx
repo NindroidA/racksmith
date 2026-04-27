@@ -123,9 +123,12 @@ export default async function DiscoveryPage() {
 
         <ScanStarter defaultSubnet={defaultSubnet} disabled={!!activeScan} />
 
-        <section>
+        <section aria-labelledby="discovery-pending-heading">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-white/50">
+            <h2
+              id="discovery-pending-heading"
+              className="text-sm font-semibold uppercase tracking-wider text-white/50"
+            >
               Pending devices
             </h2>
             <span className="text-xs text-white/40">
@@ -138,9 +141,12 @@ export default async function DiscoveryPage() {
           />
         </section>
 
-        <section>
+        <section aria-labelledby="discovery-history-heading">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-white/50">
+            <h2
+              id="discovery-history-heading"
+              className="text-sm font-semibold uppercase tracking-wider text-white/50"
+            >
               Scan history
             </h2>
             <span className="text-xs text-white/40">Last 20 scans</span>

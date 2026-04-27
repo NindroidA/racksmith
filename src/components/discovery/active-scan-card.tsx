@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useReducedMotion } from "framer-motion";
 import toast from "react-hot-toast";
@@ -31,14 +31,40 @@ export function ActiveScanCard({ scanId, subnet, startedAt }: Props) {
     return () => clearInterval(t);
   }, []);
 
-  // Poll scan status every 2s
+  // Poll scan status every 2s. When the scan reaches a terminal state we
+  // announce the result via toast — react-hot-toast renders role=status
+  // aria-live="polite", so screen readers learn the scan finished without
+  // needing a dedicated live region (the active-scan card itself unmounts
+  // immediately after router.refresh, so it can't host the announcement).
+  // The terminatedRef guard fires the announcement exactly once even if
+  // the next interval tick lands before React unmounts the component.
+  const terminatedRef = useRef(false);
   useEffect(() => {
     const poll = setInterval(async () => {
+      if (terminatedRef.current) return;
       try {
         const res = await fetch(`/api/discovery/scan?id=${scanId}`);
         if (!res.ok) return;
-        const data = await res.json();
-        if (data.status === "completed" || data.status === "failed") {
+        const data = (await res.json()) as {
+          status?: string;
+          hostsFound?: number;
+          hostsNew?: number;
+          error?: string | null;
+        };
+        if (terminatedRef.current) return;
+        if (data.status === "completed") {
+          terminatedRef.current = true;
+          clearInterval(poll);
+          const newCount = data.hostsNew ?? 0;
+          const totalCount = data.hostsFound ?? 0;
+          toast.success(
+            `Scan complete. ${newCount} new host${newCount === 1 ? "" : "s"} (of ${totalCount} found).`,
+          );
+          router.refresh();
+        } else if (data.status === "failed") {
+          terminatedRef.current = true;
+          clearInterval(poll);
+          toast.error(data.error || "Scan failed.");
           router.refresh();
         }
       } catch {
@@ -111,13 +137,6 @@ export function ActiveScanCard({ scanId, subnet, startedAt }: Props) {
           className={`h-full w-1/3 rounded-full bg-accent-green/60 ${reduceMotion ? "" : "animate-[scan-slide_2s_ease-in-out_infinite]"}`}
         />
       </div>
-
-      <style>{`
-        @keyframes scan-slide {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(400%); }
-        }
-      `}</style>
 
       <DeleteConfirmDialog
         open={confirmOpen}
