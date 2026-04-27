@@ -87,8 +87,13 @@ describe("parseCsv — RFC-4180-ish parser", () => {
       ["c", "d"],
     ]);
   });
-  it("preserves trailing-cell content with no newline at EOF", () => {
-    expect(parseCsv("a,b,c")).toEqual([["a", "b", "c"]]);
+  it("preserves the final row when there's no trailing newline at EOF", () => {
+    // Distinct from the single-row case: the final "c,d" must still emit a
+    // row even though no \n separator appears after it.
+    expect(parseCsv("a,b\nc,d")).toEqual([
+      ["a", "b"],
+      ["c", "d"],
+    ]);
   });
 });
 
