@@ -31,18 +31,28 @@ export type ActionRunner = <T>(
  */
 export function useOrgAction(start: TransitionStartFunction): ActionRunner {
   const router = useRouter();
-  return <T,>(action: () => Promise<ActionResult<T>>, opts: RunOptions = {}) => {
+  return <T>(action: () => Promise<ActionResult<T>>, opts: RunOptions = {}) => {
     start(async () => {
-      const result = await action();
-      opts.onSettled?.();
-      if (!result.ok) {
-        toast.error(result.error);
+      try {
+        const result = await action();
+        if (!result.ok) {
+          toast.error(result.error);
+          opts.onError?.();
+          return;
+        }
+        if (opts.okMessage) toast.success(opts.okMessage);
+        opts.onSuccess?.();
+        if (!opts.noRefresh) router.refresh();
+      } catch {
+        // Server actions normally return ActionResult, but a network failure
+        // or unhandled throw inside `withActionEnvelope` can still surface
+        // here as a rejection. Treat it as a generic failure so callers don't
+        // get an unhandled rejection and `onSettled` always runs.
+        toast.error("Something went wrong. Please try again.");
         opts.onError?.();
-        return;
+      } finally {
+        opts.onSettled?.();
       }
-      if (opts.okMessage) toast.success(opts.okMessage);
-      opts.onSuccess?.();
-      if (!opts.noRefresh) router.refresh();
     });
   };
 }

@@ -29,9 +29,16 @@ export async function completeScan(args: CompleteScanArgs): Promise<void> {
 
   try {
     if ("error" in result) {
+      // Conditional update — if the scan was cancelled in flight, the row
+      // is already in a terminal state (`status: "cancelled"`) and we must
+      // not overwrite it. Same pattern below for the success branch.
       await withTenant(organizationId, (tx) =>
-        tx.discoveryScan.update({
-          where: { id: scanId },
+        tx.discoveryScan.updateMany({
+          where: {
+            id: scanId,
+            organizationId,
+            status: { in: ["pending", "running"] },
+          },
           data: {
             status: "failed",
             error: result.error,
@@ -66,9 +73,13 @@ export async function completeScan(args: CompleteScanArgs): Promise<void> {
     const hostsNew = enriched.filter((h) => h.match.kind === "new").length;
     const hostsKnown = enriched.filter((h) => h.match.kind === "known").length;
 
-    await withTenant(organizationId, (tx) =>
-      tx.discoveryScan.update({
-        where: { id: scanId },
+    const writeResult = await withTenant(organizationId, (tx) =>
+      tx.discoveryScan.updateMany({
+        where: {
+          id: scanId,
+          organizationId,
+          status: { in: ["pending", "running"] },
+        },
         data: {
           status: "completed",
           hostsFound: enriched.length,
@@ -80,6 +91,11 @@ export async function completeScan(args: CompleteScanArgs): Promise<void> {
         },
       }),
     );
+    // count===0 means the user cancelled (or otherwise terminated) the scan
+    // between dispatch and this callback. Skip the audit + device updates
+    // so we don't grow the scan_completed log with a row that semantically
+    // never completed.
+    if (writeResult.count === 0) return;
 
     await audit({
       userId,
@@ -97,20 +113,43 @@ export async function completeScan(args: CompleteScanArgs): Promise<void> {
     });
 
     // Refresh lastSeen on matched devices so the inventory page reflects
-    // the most recent successful scan. Backfill hostname when missing.
-    await withTenant(organizationId, async (tx) => {
-      for (const h of enriched) {
-        if (h.match.kind === "known") {
-          await tx.device.update({
-            where: { id: h.match.deviceId },
-            data: {
-              lastSeen: new Date(),
-              ...(h.hostname ? { hostname: h.hostname } : {}),
-            },
-          });
-        }
+    // the most recent successful scan. Two writes:
+    //   1. Bulk `updateMany` for lastSeen across every matched id (one query).
+    //   2. Per-device hostname backfill (Promise.all) only when hostname is
+    //      missing. Skipped if no hosts had hostname data.
+    const lastSeenAt = new Date();
+    const knownDeviceIds = Array.from(
+      new Set(
+        enriched.flatMap((h) =>
+          h.match.kind === "known" ? [h.match.deviceId] : [],
+        ),
+      ),
+    );
+    const hostnameUpdates = new Map<string, string>();
+    for (const h of enriched) {
+      if (h.match.kind === "known" && h.hostname) {
+        hostnameUpdates.set(h.match.deviceId, h.hostname);
       }
-    });
+    }
+
+    if (knownDeviceIds.length > 0) {
+      await withTenant(organizationId, async (tx) => {
+        await tx.device.updateMany({
+          where: { id: { in: knownDeviceIds }, organizationId },
+          data: { lastSeen: lastSeenAt },
+        });
+        if (hostnameUpdates.size > 0) {
+          await Promise.all(
+            Array.from(hostnameUpdates.entries()).map(([deviceId, hostname]) =>
+              tx.device.update({
+                where: { id: deviceId },
+                data: { hostname },
+              }),
+            ),
+          );
+        }
+      });
+    }
   } catch (err) {
     // Post-processing failed mid-flight — the DB may be partially updated
     // (some Device upserts committed before the throw). Best-effort mark
@@ -118,12 +157,19 @@ export async function completeScan(args: CompleteScanArgs): Promise<void> {
     // also fails, we still want a trail, so log both errors.
     console.error("Scan post-processing failed:", err);
     try {
+      // Same conditional update as above — never overwrite a terminal
+      // status (cancelled/failed/completed) with our recovery write.
       await withTenant(organizationId, (tx) =>
-        tx.discoveryScan.update({
-          where: { id: scanId },
+        tx.discoveryScan.updateMany({
+          where: {
+            id: scanId,
+            organizationId,
+            status: { in: ["pending", "running"] },
+          },
           data: {
             status: "failed",
-            error: err instanceof Error ? err.message : "Post-processing failed",
+            error:
+              err instanceof Error ? err.message : "Post-processing failed",
             completedAt: new Date(),
           },
         }),
