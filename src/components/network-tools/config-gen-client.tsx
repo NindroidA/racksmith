@@ -170,6 +170,7 @@ export function ConfigGenClient({ devices, vlans }: Props) {
         <div
           id="vendor-output-panel"
           role="tabpanel"
+          tabIndex={0}
           aria-labelledby={`vendor-tab-${output.vendor}`}
           className="glass-card rounded-xl"
         >

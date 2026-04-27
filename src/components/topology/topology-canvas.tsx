@@ -255,6 +255,7 @@ function CanvasInner({ devices, connections }: Props) {
   }
 
   const deviceOptions = devices.map((d) => ({ id: d.id, name: d.name }));
+  const selectedCount = nodes.filter((n) => n.selected).length;
 
   return (
     <>
@@ -262,25 +263,28 @@ function CanvasInner({ devices, connections }: Props) {
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <button
+            type="button"
             onClick={handleAddConnection}
-            className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-white transition-all hover:bg-primary/90"
+            className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-white transition-all hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/50"
           >
-            <Plus className="h-3.5 w-3.5" />
+            <Plus className="h-3.5 w-3.5" aria-hidden />
             Add Connection
           </button>
           <button
+            type="button"
             onClick={handleAutoLayout}
             disabled={pending}
             className="glass-button flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
           >
-            <LayoutGrid className="h-3.5 w-3.5" />
+            <LayoutGrid className="h-3.5 w-3.5" aria-hidden />
             Auto-Layout
           </button>
           <button
+            type="button"
             onClick={handleExport}
             className="glass-button flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-white"
           >
-            <Download className="h-3.5 w-3.5" />
+            <Download className="h-3.5 w-3.5" aria-hidden />
             Export PNG
           </button>
         </div>
@@ -317,11 +321,20 @@ function CanvasInner({ devices, connections }: Props) {
         </div>
       </div>
 
+      {/* Selection announce — sr-only live region so screen reader users
+          hear how many nodes are currently selected on the canvas. */}
+      <p aria-live="polite" className="sr-only">
+        {selectedCount > 0
+          ? `${selectedCount} device${selectedCount === 1 ? "" : "s"} selected`
+          : "No devices selected"}
+      </p>
+
       <div
         ref={canvasRef}
         className="h-[calc(100vh-16rem)] overflow-hidden rounded-2xl border-2 border-white/10 bg-[#0a0e1a]"
       >
         <ReactFlow
+          aria-label="Network topology canvas"
           nodes={nodes}
           edges={edges}
           onNodesChange={handleNodesChange}

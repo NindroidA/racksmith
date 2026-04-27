@@ -47,6 +47,7 @@ type SelectProps = {
   children: ReactNode;
   "aria-label"?: string;
   "aria-describedby"?: string;
+  "aria-invalid"?: boolean;
 };
 
 /**
@@ -72,6 +73,7 @@ export function Select({
   children,
   "aria-label": ariaLabel,
   "aria-describedby": ariaDescribedBy,
+  "aria-invalid": ariaInvalid,
 }: SelectProps) {
   const reactId = useId();
   const triggerId = id ?? reactId;
@@ -306,6 +308,7 @@ export function Select({
         aria-activedescendant={open ? (activeId ?? undefined) : undefined}
         aria-label={ariaLabel}
         aria-describedby={ariaDescribedBy}
+        aria-invalid={ariaInvalid}
         aria-disabled={disabled || undefined}
         disabled={disabled}
         onClick={() => setOpen((v) => !v)}

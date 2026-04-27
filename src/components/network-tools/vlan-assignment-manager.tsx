@@ -210,15 +210,16 @@ export function VlanAssignmentManager({
             </div>
           </div>
 
-          <label className="mt-3 flex items-center gap-2 text-xs text-white/60">
+          <div className="mt-3 flex items-center gap-2 text-xs text-white/60">
             <input
+              id="tagged-flag"
               type="checkbox"
               checked={tagged}
               onChange={(e) => setTagged(e.target.checked)}
               className="h-3.5 w-3.5 rounded accent-primary"
             />
-            Tagged (802.1Q)
-          </label>
+            <label htmlFor="tagged-flag">Tagged (802.1Q)</label>
+          </div>
         </form>
       )}
 

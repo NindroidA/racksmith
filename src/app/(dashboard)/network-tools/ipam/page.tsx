@@ -47,6 +47,7 @@ export default async function IpamPage() {
           {subnets.length > 0 && (
             <a
               href="/api/ipam/export?format=csv"
+              download="racksmith-ipam.csv"
               className="glass-button flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-white"
             >
               <Download className="h-4 w-4" aria-hidden />
@@ -123,7 +124,14 @@ export default async function IpamPage() {
                       </span>
                     )}
                   </div>
-                  <div className="h-1 w-full overflow-hidden rounded-full bg-white/[0.06]">
+                  <div
+                    role="progressbar"
+                    aria-valuenow={Math.round(utilization)}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-label={`${s.name} utilization: ${Math.round(utilization)}%`}
+                    className="h-1 w-full overflow-hidden rounded-full bg-white/[0.06]"
+                  >
                     <div
                       className="h-full rounded-full bg-accent-cyan/60"
                       style={{ width: `${utilization}%` }}

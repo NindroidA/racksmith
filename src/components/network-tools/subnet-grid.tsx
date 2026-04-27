@@ -5,7 +5,12 @@ import { twMerge } from "tailwind-merge";
 import { bigIntToIp, calculateCidr, ipToBigInt } from "@/lib/ip";
 import type { AssignmentLite, DhcpRangeLite } from "./subnet-types";
 
-const MAX_RENDERED_CELLS = 1024;
+// Cap the rendered grid at /24 (256 hosts). Larger subnets fall back to the
+// assignment list, which is the richer interaction anyway, and keeps each
+// cell at a tappable size on touch devices (per WCAG 2.5.5).
+const MAX_RENDERED_CELLS = 256;
+// Below this cell count, force a 44×44 minimum tap target on every cell.
+const COMPACT_GRID_THRESHOLD = 64;
 
 type Props = {
   subnetCidr: string;
@@ -72,7 +77,7 @@ export function SubnetGrid({
       <div
         className="grid gap-1"
         style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
-        role="grid"
+        role="group"
         aria-label="Subnet address grid"
       >
         {cells.map((cell) => (
@@ -80,6 +85,7 @@ export function SubnetGrid({
             key={cell.ip}
             cell={cell}
             onClick={() => onCellClick(cell.ip)}
+            compact={cells.length <= COMPACT_GRID_THRESHOLD}
           />
         ))}
       </div>
@@ -129,7 +135,15 @@ function buildCells(
   return cells;
 }
 
-function CellButton({ cell, onClick }: { cell: Cell; onClick: () => void }) {
+function CellButton({
+  cell,
+  onClick,
+  compact,
+}: {
+  cell: Cell;
+  onClick: () => void;
+  compact: boolean;
+}) {
   const label = describeCell(cell);
   const { className, canClick } = styleForCell(cell.state);
   return (
@@ -141,6 +155,7 @@ function CellButton({ cell, onClick }: { cell: Cell; onClick: () => void }) {
       aria-label={label}
       className={twMerge(
         "relative flex aspect-square items-center justify-center rounded text-[9px] font-mono transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/50",
+        compact && "min-h-[44px] min-w-[44px]",
         className,
       )}
     >
@@ -219,7 +234,10 @@ function Legend() {
     { className: "bg-accent-red/35 ring-1 ring-accent-red", label: "Conflict" },
   ];
   return (
-    <ul className="flex flex-wrap items-center gap-3 text-xs text-white/50">
+    <ul
+      aria-label="Grid legend"
+      className="flex flex-wrap items-center gap-3 text-xs text-white/50"
+    >
       {items.map((it) => (
         <li key={it.label} className="flex items-center gap-1.5">
           <span className={`h-3 w-3 rounded ${it.className}`} aria-hidden />

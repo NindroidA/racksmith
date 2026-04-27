@@ -1,6 +1,14 @@
 "use client";
 
-import { Server, Layers, HardDrive, Tag, Globe, Loader2 } from "lucide-react";
+import {
+  ArrowLeft,
+  Globe,
+  HardDrive,
+  Layers,
+  Loader2,
+  Server,
+  Tag,
+} from "lucide-react";
 import type { WizardInputs } from "@/lib/plan/wizard-types";
 
 type Props = {
@@ -112,14 +120,16 @@ export function WizardStepReview({
           type="button"
           onClick={onBack}
           disabled={pending}
-          className="btn-secondary rounded-lg px-5 py-2.5 text-sm font-medium"
+          className="btn-secondary inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium"
         >
-          ← Back
+          <ArrowLeft className="h-4 w-4" aria-hidden /> Back
         </button>
         <button
           type="button"
           onClick={onApply}
           disabled={disabled || incomplete || pending}
+          aria-busy={pending}
+          aria-describedby="apply-status"
           className="btn-primary inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium"
         >
           {pending && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
@@ -127,6 +137,9 @@ export function WizardStepReview({
           <Layers className="h-4 w-4" aria-hidden />
         </button>
       </div>
+      <p id="apply-status" aria-live="polite" className="sr-only">
+        {pending ? "Applying plan, please wait." : ""}
+      </p>
     </div>
   );
 }

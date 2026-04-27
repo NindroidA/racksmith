@@ -67,11 +67,21 @@ export function SubnetCalcClient() {
           onChange={(e) => setCidr(e.target.value)}
           autoFocus
           spellCheck={false}
+          aria-invalid={!result.ok && cidr.trim() !== ""}
+          aria-describedby={
+            !result.ok && cidr.trim() !== "" ? "cidr-error" : undefined
+          }
           className="glass-input w-full rounded-lg px-4 py-3 font-mono text-base"
           placeholder="192.168.1.0/24"
         />
         {!result.ok && cidr.trim() !== "" && (
-          <p className="mt-2 text-sm text-accent-red">{result.error}</p>
+          <p
+            id="cidr-error"
+            role="alert"
+            className="mt-2 text-sm text-accent-red"
+          >
+            {result.error}
+          </p>
         )}
       </div>
 
@@ -213,6 +223,7 @@ function VlsmSplitter({ parent }: { parent: ParsedCidr }) {
               value={r.name}
               onChange={(e) => update(r.id, { name: e.target.value })}
               placeholder="Segment name (e.g. Users, IoT)"
+              aria-label={`Segment ${r.id} name`}
               className="glass-input rounded-lg px-3 py-2 text-sm"
               maxLength={40}
             />
@@ -221,6 +232,7 @@ function VlsmSplitter({ parent }: { parent: ParsedCidr }) {
               value={r.hosts}
               onChange={(e) => update(r.id, { hosts: e.target.value })}
               placeholder="hosts"
+              aria-label={`Segment ${r.name || r.id} host count`}
               min={0}
               max={1_000_000}
               className="glass-input rounded-lg px-3 py-2 font-mono text-sm"

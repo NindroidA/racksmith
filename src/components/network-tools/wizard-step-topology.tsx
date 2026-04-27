@@ -1,7 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Server, Wifi, Shield, HardDrive, Layers } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  HardDrive,
+  Layers,
+  Server,
+  Shield,
+  Wifi,
+} from "lucide-react";
 import { twMerge } from "tailwind-merge";
 import { InlineHelp } from "@/components/ui/inline-help";
 import type {
@@ -17,6 +25,12 @@ const ICON_BY_TYPE: Record<RecommendedDevice["deviceType"], typeof Server> = {
   server: HardDrive,
   other: Wifi,
 };
+
+// Stable identity signature — used both as React `key` and to match
+// previously-selected entries when resuming the wizard.
+function deviceSig(d: RecommendedDevice): string {
+  return `${d.manufacturer}::${d.model}::${d.deviceType}::${d.sizeU}::${d.portCount}`;
+}
 
 type Props = {
   profile: ProfileInput | undefined;
@@ -102,7 +116,7 @@ export function WizardStepTopology({
             const selected = selectedIdx.has(idx);
             return (
               <button
-                key={idx}
+                key={`${deviceSig(dev)}-${idx}`}
                 type="button"
                 onClick={() => toggle(idx)}
                 aria-pressed={selected}
@@ -172,9 +186,9 @@ export function WizardStepTopology({
         <button
           type="button"
           onClick={onBack}
-          className="btn-secondary rounded-lg px-5 py-2.5 text-sm font-medium"
+          className="btn-secondary inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium"
         >
-          ← Back
+          <ArrowLeft className="h-4 w-4" aria-hidden /> Back
         </button>
         <button
           type="button"
@@ -182,9 +196,9 @@ export function WizardStepTopology({
           disabled={
             disabled || selectedIdx.size === 0 || rackName.trim() === ""
           }
-          className="btn-primary rounded-lg px-5 py-2.5 text-sm font-medium"
+          className="btn-primary inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium"
         >
-          Plan VLAN + IP →
+          Plan VLAN + IP <ArrowRight className="h-4 w-4" aria-hidden />
         </button>
       </div>
     </fieldset>
@@ -201,12 +215,10 @@ function initialIndices(
   value: TopologyInput | undefined,
 ): number[] {
   if (!value) return recommended.map((_, i) => i);
-  const sig = (d: RecommendedDevice) =>
-    `${d.manufacturer}::${d.model}::${d.deviceType}::${d.sizeU}::${d.portCount}`;
-  const savedSigs = new Set(value.selected.map(sig));
+  const savedSigs = new Set(value.selected.map(deviceSig));
   const out: number[] = [];
   recommended.forEach((d, i) => {
-    if (savedSigs.has(sig(d))) out.push(i);
+    if (savedSigs.has(deviceSig(d))) out.push(i);
   });
   return out;
 }

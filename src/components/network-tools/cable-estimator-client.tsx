@@ -262,7 +262,11 @@ function NotesList({
   );
   if (notes.length === 0) return null;
   return (
-    <ul className="mt-4 space-y-2">
+    <ul
+      aria-live="polite"
+      aria-label="Cable run advisories"
+      className="mt-4 space-y-2"
+    >
       {notes.map((n) => (
         <li
           key={n.key}
