@@ -1,5 +1,5 @@
+import type { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { createApiRoute } from "@/lib/api/route-factory";
-import { registry } from "@/lib/api/openapi-registry";
 import {
   createRackBodySchema,
   listRacksQuerySchema,
@@ -11,33 +11,7 @@ import { withTenant } from "@/lib/prisma-tenant";
 import { audit } from "@/lib/audit";
 import { canCreateRackLocked } from "@/lib/tiers";
 import { apiError } from "@/lib/api/response";
-import type { ColorTag } from "@/types";
-
-// Map a Prisma Rack row to the public API shape.
-// - colorTag → color (field rename)
-// - location "" → null (nullability boundary)
-// - createdAt Date → ISO string (matches rackResponseSchema's transform output)
-// Both mappings are documented at src/lib/api/schemas/rack.ts top. The cast
-// of colorTag to ColorTag is safe: writes go through createRackBodySchema
-// which already validates against COLOR_TAGS, and responseSchema.parse in
-// the route factory re-validates at runtime before responding.
-function serializeRack(row: {
-  id: string;
-  name: string;
-  sizeU: number;
-  location: string;
-  colorTag: string;
-  createdAt: Date;
-}) {
-  return {
-    id: row.id,
-    name: row.name,
-    sizeU: row.sizeU,
-    location: row.location === "" ? null : row.location,
-    color: row.colorTag as ColorTag,
-    createdAt: row.createdAt.toISOString(),
-  };
-}
+import { serializeRack } from "@/lib/api/serializers/rack";
 
 export const GET = createApiRoute({
   method: "GET",
@@ -134,44 +108,48 @@ export const POST = createApiRoute({
   },
 });
 
-// Register the route paths with OpenAPI. These descriptors feed Scalar docs.
-registry.registerPath({
-  method: "get",
-  path: "/api/v1/racks",
-  summary: "List racks",
-  security: [{ bearerAuth: [] }],
-  request: { query: listRacksQuerySchema },
-  responses: {
-    200: {
-      description: "Paginated racks",
-      content: {
-        "application/json": { schema: listRacksResponseSchema },
+// Register the route paths with OpenAPI. Called explicitly from
+// `src/lib/api/v1-routes.ts` rather than as a module-load side effect so
+// the dependency is visible and tests can register against a fresh registry.
+export function registerRoutes(registry: OpenAPIRegistry): void {
+  registry.registerPath({
+    method: "get",
+    path: "/api/v1/racks",
+    summary: "List racks",
+    security: [{ bearerAuth: [] }],
+    request: { query: listRacksQuerySchema },
+    responses: {
+      200: {
+        description: "Paginated racks",
+        content: {
+          "application/json": { schema: listRacksResponseSchema },
+        },
       },
+      ...commonErrorResponses,
     },
-    ...commonErrorResponses,
-  },
-});
+  });
 
-registry.registerPath({
-  method: "post",
-  path: "/api/v1/racks",
-  summary: "Create a rack",
-  security: [{ bearerAuth: [] }],
-  request: {
-    body: {
-      required: true,
-      content: {
-        "application/json": { schema: createRackBodySchema },
+  registry.registerPath({
+    method: "post",
+    path: "/api/v1/racks",
+    summary: "Create a rack",
+    security: [{ bearerAuth: [] }],
+    request: {
+      body: {
+        required: true,
+        content: {
+          "application/json": { schema: createRackBodySchema },
+        },
       },
     },
-  },
-  responses: {
-    201: {
-      description: "Created",
-      content: {
-        "application/json": { schema: singleRackResponseSchema },
+    responses: {
+      201: {
+        description: "Created",
+        content: {
+          "application/json": { schema: singleRackResponseSchema },
+        },
       },
+      ...commonErrorResponses,
     },
-    ...commonErrorResponses,
-  },
-});
+  });
+}

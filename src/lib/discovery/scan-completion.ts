@@ -3,14 +3,14 @@ import "server-only";
 import { audit } from "@/lib/audit";
 import { withTenant } from "@/lib/prisma-tenant";
 import { guessDeviceType, matchHost } from "./matcher";
-import type { NmapScanResult } from "./nmap";
+import type { NmapScanOutcome } from "./nmap";
 
 type CompleteScanArgs = {
   scanId: string;
   organizationId: string;
   userId: string;
   subnet: string;
-  result: NmapScanResult | { error: string };
+  result: NmapScanOutcome;
 };
 
 /**
@@ -28,7 +28,7 @@ export async function completeScan(args: CompleteScanArgs): Promise<void> {
   const { scanId, organizationId, userId, subnet, result } = args;
 
   try {
-    if ("error" in result) {
+    if (result.kind === "error") {
       // Conditional update — if the scan was cancelled in flight, the row
       // is already in a terminal state (`status: "cancelled"`) and we must
       // not overwrite it. Same pattern below for the success branch.

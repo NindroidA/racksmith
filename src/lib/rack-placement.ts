@@ -4,23 +4,29 @@ import { withTenant } from "./prisma-tenant";
 
 export type PlacementCheck = { ok: true } | { ok: false; error: string };
 
+export type RackPlacementInput = {
+  organizationId: string;
+  rackId: string;
+  sizeU: number;
+  positionU: number;
+  /** When moving an existing device, pass its id so its own slots don't
+   *  count as a collision. Omit for fresh placements. */
+  excludeDeviceId?: string;
+};
+
 /**
  * Verify that installing a device of `sizeU` at `positionU` in `rackId` is
  * legal — both fits inside the rack's height and doesn't collide with any
- * already-installed device's slot range. Pass `excludeDeviceId` when moving
- * an existing device to skip its own current slots.
+ * already-installed device's slot range.
  *
  * Tenant-scoped: the rack and any installed devices must belong to
  * `organizationId`. Wrapped in `withTenant` so RLS enforces the boundary
  * even if the caller forgot to.
  */
 export async function validateRackPlacement(
-  organizationId: string,
-  rackId: string,
-  sizeU: number,
-  positionU: number,
-  excludeDeviceId?: string,
+  input: RackPlacementInput,
 ): Promise<PlacementCheck> {
+  const { organizationId, rackId, sizeU, positionU, excludeDeviceId } = input;
   const { rack, installed } = await withTenant(organizationId, async (tx) => {
     const rack = await tx.rack.findFirst({
       where: { id: rackId, organizationId },

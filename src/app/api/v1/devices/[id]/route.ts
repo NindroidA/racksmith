@@ -1,6 +1,6 @@
 import { z } from "zod";
+import type { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { createApiRoute } from "@/lib/api/route-factory";
-import { registry } from "@/lib/api/openapi-registry";
 import {
   singleDeviceResponseSchema,
   updateDeviceBodySchema,
@@ -13,45 +13,9 @@ import { withTenant } from "@/lib/prisma-tenant";
 import { audit } from "@/lib/audit";
 import { apiError } from "@/lib/api/response";
 import { cuidSchema } from "@/lib/validators";
-import type { DeviceType } from "@/types";
+import { serializeDevice } from "@/lib/api/serializers/device";
 
 const paramsSchema = z.object({ id: cuidSchema });
-
-// Identical to serializeDevice in ../route.ts. Copy-paste until Phase 12
-// when more resources make a shared helper worthwhile.
-function serializeDevice(row: {
-  id: string;
-  name: string;
-  deviceType: string;
-  manufacturer: string;
-  model: string;
-  sizeU: number;
-  portCount: number;
-  powerWatts: number | null;
-  rackId: string | null;
-  positionU: number | null;
-  ipAddress: string | null;
-  macAddress: string | null;
-  hostname: string | null;
-  createdAt: Date;
-}) {
-  return {
-    id: row.id,
-    name: row.name,
-    deviceType: row.deviceType as DeviceType,
-    manufacturer: row.manufacturer,
-    model: row.model,
-    sizeU: row.sizeU,
-    portCount: row.portCount,
-    powerWatts: row.powerWatts,
-    rackId: row.rackId,
-    positionU: row.positionU,
-    ipAddress: row.ipAddress,
-    macAddress: row.macAddress,
-    hostname: row.hostname,
-    createdAt: row.createdAt.toISOString(),
-  };
-}
 
 export const GET = createApiRoute({
   method: "GET",
@@ -171,51 +135,53 @@ export const DELETE = createApiRoute({
   },
 });
 
-registry.registerPath({
-  method: "get",
-  path: "/api/v1/devices/{id}",
-  summary: "Fetch a device",
-  security: [{ bearerAuth: [] }],
-  request: { params: paramsSchema },
-  responses: {
-    200: {
-      description: "OK",
-      content: { "application/json": { schema: singleDeviceResponseSchema } },
+export function registerRoutes(registry: OpenAPIRegistry): void {
+  registry.registerPath({
+    method: "get",
+    path: "/api/v1/devices/{id}",
+    summary: "Fetch a device",
+    security: [{ bearerAuth: [] }],
+    request: { params: paramsSchema },
+    responses: {
+      200: {
+        description: "OK",
+        content: { "application/json": { schema: singleDeviceResponseSchema } },
+      },
+      ...commonErrorResponses,
+      ...notFoundResponse,
     },
-    ...commonErrorResponses,
-    ...notFoundResponse,
-  },
-});
-registry.registerPath({
-  method: "patch",
-  path: "/api/v1/devices/{id}",
-  summary: "Update a device",
-  security: [{ bearerAuth: [] }],
-  request: {
-    params: paramsSchema,
-    body: {
-      required: true,
-      content: { "application/json": { schema: updateDeviceBodySchema } },
+  });
+  registry.registerPath({
+    method: "patch",
+    path: "/api/v1/devices/{id}",
+    summary: "Update a device",
+    security: [{ bearerAuth: [] }],
+    request: {
+      params: paramsSchema,
+      body: {
+        required: true,
+        content: { "application/json": { schema: updateDeviceBodySchema } },
+      },
     },
-  },
-  responses: {
-    200: {
-      description: "OK",
-      content: { "application/json": { schema: singleDeviceResponseSchema } },
+    responses: {
+      200: {
+        description: "OK",
+        content: { "application/json": { schema: singleDeviceResponseSchema } },
+      },
+      ...commonErrorResponses,
+      ...notFoundResponse,
     },
-    ...commonErrorResponses,
-    ...notFoundResponse,
-  },
-});
-registry.registerPath({
-  method: "delete",
-  path: "/api/v1/devices/{id}",
-  summary: "Delete a device (admin+)",
-  security: [{ bearerAuth: [] }],
-  request: { params: paramsSchema },
-  responses: {
-    204: { description: "Deleted" },
-    ...commonErrorResponses,
-    ...notFoundResponse,
-  },
-});
+  });
+  registry.registerPath({
+    method: "delete",
+    path: "/api/v1/devices/{id}",
+    summary: "Delete a device (admin+)",
+    security: [{ bearerAuth: [] }],
+    request: { params: paramsSchema },
+    responses: {
+      204: { description: "Deleted" },
+      ...commonErrorResponses,
+      ...notFoundResponse,
+    },
+  });
+}

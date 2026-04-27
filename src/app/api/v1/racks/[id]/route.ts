@@ -1,6 +1,6 @@
 import { z } from "zod";
+import type { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { createApiRoute } from "@/lib/api/route-factory";
-import { registry } from "@/lib/api/openapi-registry";
 import {
   singleRackResponseSchema,
   updateRackBodySchema,
@@ -13,30 +13,9 @@ import { withTenant } from "@/lib/prisma-tenant";
 import { audit } from "@/lib/audit";
 import { apiError } from "@/lib/api/response";
 import { cuidSchema } from "@/lib/validators";
-import type { ColorTag } from "@/types";
+import { serializeRack } from "@/lib/api/serializers/rack";
 
 const paramsSchema = z.object({ id: cuidSchema });
-
-// Same mapping as /api/v1/racks/route.ts serializeRack — copy rather than
-// extract a helper since only two call sites exist. Phase 12 (more resources)
-// can refactor if the pattern repeats.
-function serializeRack(row: {
-  id: string;
-  name: string;
-  sizeU: number;
-  location: string;
-  colorTag: string;
-  createdAt: Date;
-}) {
-  return {
-    id: row.id,
-    name: row.name,
-    sizeU: row.sizeU,
-    location: row.location === "" ? null : row.location,
-    color: row.colorTag as ColorTag,
-    createdAt: row.createdAt.toISOString(),
-  };
-}
 
 export const GET = createApiRoute({
   method: "GET",
@@ -127,51 +106,53 @@ export const DELETE = createApiRoute({
   },
 });
 
-registry.registerPath({
-  method: "get",
-  path: "/api/v1/racks/{id}",
-  summary: "Fetch a rack",
-  security: [{ bearerAuth: [] }],
-  request: { params: paramsSchema },
-  responses: {
-    200: {
-      description: "OK",
-      content: { "application/json": { schema: singleRackResponseSchema } },
+export function registerRoutes(registry: OpenAPIRegistry): void {
+  registry.registerPath({
+    method: "get",
+    path: "/api/v1/racks/{id}",
+    summary: "Fetch a rack",
+    security: [{ bearerAuth: [] }],
+    request: { params: paramsSchema },
+    responses: {
+      200: {
+        description: "OK",
+        content: { "application/json": { schema: singleRackResponseSchema } },
+      },
+      ...commonErrorResponses,
+      ...notFoundResponse,
     },
-    ...commonErrorResponses,
-    ...notFoundResponse,
-  },
-});
-registry.registerPath({
-  method: "patch",
-  path: "/api/v1/racks/{id}",
-  summary: "Update a rack",
-  security: [{ bearerAuth: [] }],
-  request: {
-    params: paramsSchema,
-    body: {
-      required: true,
-      content: { "application/json": { schema: updateRackBodySchema } },
+  });
+  registry.registerPath({
+    method: "patch",
+    path: "/api/v1/racks/{id}",
+    summary: "Update a rack",
+    security: [{ bearerAuth: [] }],
+    request: {
+      params: paramsSchema,
+      body: {
+        required: true,
+        content: { "application/json": { schema: updateRackBodySchema } },
+      },
     },
-  },
-  responses: {
-    200: {
-      description: "OK",
-      content: { "application/json": { schema: singleRackResponseSchema } },
+    responses: {
+      200: {
+        description: "OK",
+        content: { "application/json": { schema: singleRackResponseSchema } },
+      },
+      ...commonErrorResponses,
+      ...notFoundResponse,
     },
-    ...commonErrorResponses,
-    ...notFoundResponse,
-  },
-});
-registry.registerPath({
-  method: "delete",
-  path: "/api/v1/racks/{id}",
-  summary: "Delete a rack (admin+)",
-  security: [{ bearerAuth: [] }],
-  request: { params: paramsSchema },
-  responses: {
-    204: { description: "Deleted" },
-    ...commonErrorResponses,
-    ...notFoundResponse,
-  },
-});
+  });
+  registry.registerPath({
+    method: "delete",
+    path: "/api/v1/racks/{id}",
+    summary: "Delete a rack (admin+)",
+    security: [{ bearerAuth: [] }],
+    request: { params: paramsSchema },
+    responses: {
+      204: { description: "Deleted" },
+      ...commonErrorResponses,
+      ...notFoundResponse,
+    },
+  });
+}

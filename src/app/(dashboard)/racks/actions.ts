@@ -207,13 +207,13 @@ export async function placeExistingDevice(
 
     if (!device) return { ok: false, error: "Device not found" };
 
-    const valid = await validateRackPlacement(
+    const valid = await validateRackPlacement({
       organizationId,
       rackId,
-      device.sizeU,
+      sizeU: device.sizeU,
       positionU,
-      deviceId,
-    );
+      excludeDeviceId: deviceId,
+    });
     if (!valid.ok) return valid;
 
     await withTenant(organizationId, (tx) =>
@@ -257,12 +257,12 @@ export async function placeCatalogDevice(
 
     if (!catalog) return { ok: false, error: "Catalog device not found" };
 
-    const valid = await validateRackPlacement(
+    const valid = await validateRackPlacement({
       organizationId,
       rackId,
-      catalog.sizeU,
+      sizeU: catalog.sizeU,
       positionU,
-    );
+    });
     if (!valid.ok) return valid;
 
     const result = await withTenant(organizationId, async (tx) => {
