@@ -6,6 +6,7 @@ import {
   listDevicesResponseSchema,
   singleDeviceResponseSchema,
 } from "@/lib/api/schemas/device";
+import { commonErrorResponses } from "@/lib/api/schemas/shared";
 import { withTenant } from "@/lib/prisma-tenant";
 import { audit } from "@/lib/audit";
 import { canCreateDeviceLocked } from "@/lib/tiers";
@@ -162,7 +163,11 @@ export const POST = createApiRoute({
     if (created.kind === "denied")
       return apiError("tier_limit_reached", created.reason, 403);
     if (created.kind === "bad_rack")
-      return apiError("not_found", "rackId not found in this organization", 404);
+      return apiError(
+        "not_found",
+        "rackId not found in this organization",
+        404,
+      );
     await audit({
       userId: ctx.userId,
       organizationId: ctx.organizationId,
@@ -194,6 +199,7 @@ registry.registerPath({
         "application/json": { schema: listDevicesResponseSchema },
       },
     },
+    ...commonErrorResponses,
   },
 });
 
@@ -217,5 +223,6 @@ registry.registerPath({
         "application/json": { schema: singleDeviceResponseSchema },
       },
     },
+    ...commonErrorResponses,
   },
 });

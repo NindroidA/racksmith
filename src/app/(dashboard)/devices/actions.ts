@@ -12,7 +12,7 @@ import {
 } from "@/lib/action-helpers";
 import { validateRackPlacement } from "@/lib/rack-placement";
 import type { ActionResult } from "@/lib/action-types";
-import { canCreateDeviceLocked } from "@/lib/tiers";
+import { canCreateDeviceLocked, TIER_LIMITS } from "@/lib/tiers";
 import {
   deviceSchema,
   deviceImportRowSchema,
@@ -285,8 +285,32 @@ export async function importDevices(
       };
     }
 
-    const result = await withTenant(organizationId, (tx) =>
-      tx.device.createMany({
+    const outcome = await withTenant(organizationId, async (tx) => {
+      const check = await canCreateDeviceLocked(tx, organizationId);
+      if (!check.ok) return { kind: "denied" as const, check };
+
+      // Bulk-aware headroom check: canCreateDeviceLocked only proves we can
+      // create one more, not N more. If the import would push us past the
+      // cap, deny upfront with a message naming the headroom — same shape as
+      // checkLimit so tierDenial() picks it up unchanged.
+      if (Number.isFinite(check.limit)) {
+        const headroom = check.limit - check.current;
+        if (toInsert.length > headroom) {
+          return {
+            kind: "denied" as const,
+            check: {
+              ok: false as const,
+              reason: `Importing ${toInsert.length} devices would exceed your ${TIER_LIMITS[check.plan].label} tier cap of ${check.limit}. You currently have ${check.current}; ${headroom} slot${headroom === 1 ? "" : "s"} available.`,
+              plan: check.plan,
+              current: check.current,
+              limit: check.limit,
+              resource: "devices" as const,
+            },
+          };
+        }
+      }
+
+      const insertResult = await tx.device.createMany({
         data: toInsert.map((row) => ({
           userId: session.user.id,
           organizationId,
@@ -303,9 +327,11 @@ export async function importDevices(
           hostname: row.hostname || null,
           isManual: true,
         })),
-      }),
-    );
-    const created = result.count;
+      });
+      return { kind: "ok" as const, count: insertResult.count };
+    });
+    if (outcome.kind === "denied") return tierDenial(outcome.check);
+    const created = outcome.count;
 
     await audit({
       userId: session.user.id,

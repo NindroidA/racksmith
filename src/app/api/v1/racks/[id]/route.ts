@@ -5,7 +5,10 @@ import {
   singleRackResponseSchema,
   updateRackBodySchema,
 } from "@/lib/api/schemas/rack";
-import { errorEnvelopeSchema } from "@/lib/api/schemas/shared";
+import {
+  commonErrorResponses,
+  notFoundResponse,
+} from "@/lib/api/schemas/shared";
 import { withTenant } from "@/lib/prisma-tenant";
 import { audit } from "@/lib/audit";
 import { apiError } from "@/lib/api/response";
@@ -135,10 +138,8 @@ registry.registerPath({
       description: "OK",
       content: { "application/json": { schema: singleRackResponseSchema } },
     },
-    404: {
-      description: "Not found",
-      content: { "application/json": { schema: errorEnvelopeSchema } },
-    },
+    ...commonErrorResponses,
+    ...notFoundResponse,
   },
 });
 registry.registerPath({
@@ -158,10 +159,8 @@ registry.registerPath({
       description: "OK",
       content: { "application/json": { schema: singleRackResponseSchema } },
     },
-    404: {
-      description: "Not found",
-      content: { "application/json": { schema: errorEnvelopeSchema } },
-    },
+    ...commonErrorResponses,
+    ...notFoundResponse,
   },
 });
 registry.registerPath({
@@ -172,9 +171,7 @@ registry.registerPath({
   request: { params: paramsSchema },
   responses: {
     204: { description: "Deleted" },
-    404: {
-      description: "Not found",
-      content: { "application/json": { schema: errorEnvelopeSchema } },
-    },
+    ...commonErrorResponses,
+    ...notFoundResponse,
   },
 });

@@ -66,6 +66,12 @@ export function ActiveScanCard({ scanId, subnet, startedAt }: Props) {
           clearInterval(poll);
           toast.error(data.error || "Scan failed.");
           router.refresh();
+        } else if (data.status === "cancelled") {
+          // Terminal but not an error — performCancel already toasted on
+          // the action result. Just stop polling so we don't fire again.
+          terminatedRef.current = true;
+          clearInterval(poll);
+          router.refresh();
         }
       } catch {
         // ignore polling errors

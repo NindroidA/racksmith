@@ -164,7 +164,7 @@ model OwnershipTransfer {
   fromUser       User     @relation("OwnershipTransferFrom", fields: [fromUserId], references: [id], onDelete: Cascade)
   toUserId       String
   toUser         User     @relation("OwnershipTransferTo", fields: [toUserId], references: [id], onDelete: Cascade)
-  status         String   @default("pending")  // pending | accepted | revoked | expired
+  status         String   @default("pending")  // pending | accepted | declined | revoked | expired
   expiresAt      DateTime
   acceptedAt     DateTime?
   revokedAt      DateTime?
@@ -469,7 +469,7 @@ model DiscoveryScan {
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   subnet     String
-  status     String @default("pending")
+  status     String @default("pending") // pending | running | completed | failed | cancelled
   hostsFound Int    @default(0)
   hostsNew   Int    @default(0)
   hostsKnown Int    @default(0)

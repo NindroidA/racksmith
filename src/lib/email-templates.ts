@@ -28,6 +28,9 @@ const WRAP = (body: string) => `<!doctype html>
 </html>`;
 
 export function passwordResetEmail(resetUrl: string) {
+  // Escape into HTML even though the URL is server-generated — defense in
+  // depth, and keeps all four templates consistent.
+  const safeResetUrl = escapeHtml(resetUrl);
   return {
     subject: `Reset your ${BRAND} password`,
     html: WRAP(`
@@ -35,17 +38,18 @@ export function passwordResetEmail(resetUrl: string) {
       <p style="color:#cbd5e1;line-height:1.6;margin:0 0 24px;">
         Click the button below to choose a new password. This link expires in 1 hour.
       </p>
-      <a href="${resetUrl}" style="display:inline-block;background:#3b82f6;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:500;">Reset password</a>
+      <a href="${safeResetUrl}" style="display:inline-block;background:#3b82f6;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:500;">Reset password</a>
       <p style="color:#64748b;font-size:13px;line-height:1.6;margin:24px 0 0;">
         If you didn't request this, ignore this email — your password stays the same.
       </p>
-      <p style="color:#64748b;font-size:12px;word-break:break-all;margin:16px 0 0;">${resetUrl}</p>
+      <p style="color:#64748b;font-size:12px;word-break:break-all;margin:16px 0 0;">${safeResetUrl}</p>
     `),
     text: `Reset your ${BRAND} password\n\nOpen this link to choose a new password (expires in 1 hour):\n${resetUrl}\n\nIf you didn't request this, ignore this email.`,
   };
 }
 
 export function verificationEmail(verifyUrl: string) {
+  const safeVerifyUrl = escapeHtml(verifyUrl);
   return {
     subject: `Verify your ${BRAND} email`,
     html: WRAP(`
@@ -53,8 +57,8 @@ export function verificationEmail(verifyUrl: string) {
       <p style="color:#cbd5e1;line-height:1.6;margin:0 0 24px;">
         Click the button to confirm your email address.
       </p>
-      <a href="${verifyUrl}" style="display:inline-block;background:#3b82f6;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:500;">Verify email</a>
-      <p style="color:#64748b;font-size:12px;word-break:break-all;margin:24px 0 0;">${verifyUrl}</p>
+      <a href="${safeVerifyUrl}" style="display:inline-block;background:#3b82f6;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:500;">Verify email</a>
+      <p style="color:#64748b;font-size:12px;word-break:break-all;margin:24px 0 0;">${safeVerifyUrl}</p>
     `),
     text: `Welcome to ${BRAND}\n\nConfirm your email:\n${verifyUrl}`,
   };

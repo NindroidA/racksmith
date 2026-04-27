@@ -1,12 +1,13 @@
 "use client";
 
 import {
+  useEffect,
   useId,
   useMemo,
+  useReducer,
   useRef,
   useState,
   useTransition,
-  useEffect,
 } from "react";
 import toast from "react-hot-toast";
 import { X } from "lucide-react";
@@ -88,6 +89,19 @@ function buildInitialState(
   };
 }
 
+type FormAction =
+  | { type: "set"; field: keyof FormState; value: string }
+  | { type: "reset"; state: FormState };
+
+function formReducer(state: FormState, action: FormAction): FormState {
+  switch (action.type) {
+    case "set":
+      return { ...state, [action.field]: action.value };
+    case "reset":
+      return action.state;
+  }
+}
+
 type Props = {
   open: boolean;
   onClose: () => void;
@@ -128,34 +142,21 @@ export function ConnectionForm({
   }, [open, pending, deleting, onClose]);
 
   // Build the initial form shape once per existing/prefilled change. The
-  // eight useState slots below each pull from this memoized object; the
-  // useEffect below resets them all to this object's current fields when
-  // the dialog reopens with fresh props.
+  // reducer holds all eight fields as one object; the effect below dispatches
+  // a single reset when the dialog reopens with fresh props.
   const initial = useMemo(
     () => buildInitialState(existing, prefilled),
     [existing, prefilled],
   );
 
-  const [sourceDeviceId, setSourceDeviceId] = useState(initial.sourceDeviceId);
-  const [targetDeviceId, setTargetDeviceId] = useState(initial.targetDeviceId);
-  const [sourcePort, setSourcePort] = useState(initial.sourcePort);
-  const [targetPort, setTargetPort] = useState(initial.targetPort);
-  const [cableType, setCableType] = useState(initial.cableType);
-  const [bandwidth, setBandwidth] = useState(initial.bandwidth);
-  const [vlan, setVlan] = useState(initial.vlan);
-  const [description, setDescription] = useState(initial.description);
+  const [form, dispatch] = useReducer(formReducer, initial);
+  const setField = (field: keyof FormState) => (value: string) =>
+    dispatch({ type: "set", field, value });
 
   // Reset when dialog reopens with new context
   useEffect(() => {
     if (!open) return;
-    setSourceDeviceId(initial.sourceDeviceId);
-    setTargetDeviceId(initial.targetDeviceId);
-    setSourcePort(initial.sourcePort);
-    setTargetPort(initial.targetPort);
-    setCableType(initial.cableType);
-    setBandwidth(initial.bandwidth);
-    setVlan(initial.vlan);
-    setDescription(initial.description);
+    dispatch({ type: "reset", state: initial });
     setSubmitAttempted(false);
   }, [open, initial]);
 
@@ -164,19 +165,19 @@ export function ConnectionForm({
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSubmitAttempted(true);
-    if (!sourceDeviceId || !targetDeviceId) {
+    if (!form.sourceDeviceId || !form.targetDeviceId) {
       toast.error("Pick both a source and target device");
       return;
     }
     const input: ConnectionInput = {
-      sourceDeviceId,
-      sourcePort: sourcePort.trim(),
-      targetDeviceId,
-      targetPort: targetPort.trim(),
-      cableType: cableType as ConnectionInput["cableType"],
-      bandwidth: bandwidth.trim() || null,
-      vlan: vlan.trim() || null,
-      description: description.trim(),
+      sourceDeviceId: form.sourceDeviceId,
+      sourcePort: form.sourcePort.trim(),
+      targetDeviceId: form.targetDeviceId,
+      targetPort: form.targetPort.trim(),
+      cableType: form.cableType as ConnectionInput["cableType"],
+      bandwidth: form.bandwidth.trim() || null,
+      vlan: form.vlan.trim() || null,
+      description: form.description.trim(),
       cableLengthFt: null,
     };
 
@@ -261,13 +262,13 @@ export function ConnectionForm({
               </label>
               <Select
                 id="conn-source-device"
-                value={sourceDeviceId}
-                onValueChange={setSourceDeviceId}
+                value={form.sourceDeviceId}
+                onValueChange={setField("sourceDeviceId")}
                 disabled={!!existing}
                 placeholder="Pick source…"
-                aria-invalid={submitAttempted && !sourceDeviceId}
+                aria-invalid={submitAttempted && !form.sourceDeviceId}
                 aria-describedby={
-                  submitAttempted && !sourceDeviceId
+                  submitAttempted && !form.sourceDeviceId
                     ? "conn-source-error"
                     : undefined
                 }
@@ -278,7 +279,7 @@ export function ConnectionForm({
                   </SelectOption>
                 ))}
               </Select>
-              {submitAttempted && !sourceDeviceId && (
+              {submitAttempted && !form.sourceDeviceId && (
                 <p
                   id="conn-source-error"
                   role="alert"
@@ -294,8 +295,8 @@ export function ConnectionForm({
               </label>
               <input
                 type="text"
-                value={sourcePort}
-                onChange={(e) => setSourcePort(e.target.value)}
+                value={form.sourcePort}
+                onChange={(e) => setField("sourcePort")(e.target.value)}
                 className="glass-input w-full rounded-lg px-3 py-2 font-mono text-sm"
                 placeholder="e.g. 1, Gi1/0/24"
                 maxLength={50}
@@ -315,26 +316,26 @@ export function ConnectionForm({
               </label>
               <Select
                 id="conn-target-device"
-                value={targetDeviceId}
-                onValueChange={setTargetDeviceId}
+                value={form.targetDeviceId}
+                onValueChange={setField("targetDeviceId")}
                 disabled={!!existing}
                 placeholder="Pick target…"
-                aria-invalid={submitAttempted && !targetDeviceId}
+                aria-invalid={submitAttempted && !form.targetDeviceId}
                 aria-describedby={
-                  submitAttempted && !targetDeviceId
+                  submitAttempted && !form.targetDeviceId
                     ? "conn-target-error"
                     : undefined
                 }
               >
                 {devices
-                  .filter((d) => d.id !== sourceDeviceId)
+                  .filter((d) => d.id !== form.sourceDeviceId)
                   .map((d) => (
                     <SelectOption key={d.id} value={d.id}>
                       {d.name}
                     </SelectOption>
                   ))}
               </Select>
-              {submitAttempted && !targetDeviceId && (
+              {submitAttempted && !form.targetDeviceId && (
                 <p
                   id="conn-target-error"
                   role="alert"
@@ -350,8 +351,8 @@ export function ConnectionForm({
               </label>
               <input
                 type="text"
-                value={targetPort}
-                onChange={(e) => setTargetPort(e.target.value)}
+                value={form.targetPort}
+                onChange={(e) => setField("targetPort")(e.target.value)}
                 className="glass-input w-full rounded-lg px-3 py-2 font-mono text-sm"
                 placeholder="e.g. 1"
                 maxLength={50}
@@ -371,8 +372,8 @@ export function ConnectionForm({
               </label>
               <Select
                 id="conn-cable-type"
-                value={cableType}
-                onValueChange={setCableType}
+                value={form.cableType}
+                onValueChange={setField("cableType")}
               >
                 {CABLE_TYPES.map((t) => (
                   <SelectOption key={t.value} value={t.value}>
@@ -385,7 +386,10 @@ export function ConnectionForm({
               <label className="mb-1.5 block text-xs font-medium text-white/60">
                 Bandwidth
               </label>
-              <Select value={bandwidth} onValueChange={setBandwidth}>
+              <Select
+                value={form.bandwidth}
+                onValueChange={setField("bandwidth")}
+              >
                 {BANDWIDTH_PRESETS.map((b) => (
                   <SelectOption key={b} value={b}>
                     {b || "(none)"}
@@ -399,8 +403,8 @@ export function ConnectionForm({
               </label>
               <input
                 type="text"
-                value={vlan}
-                onChange={(e) => setVlan(e.target.value)}
+                value={form.vlan}
+                onChange={(e) => setField("vlan")(e.target.value)}
                 className="glass-input w-full rounded-lg px-3 py-2 font-mono text-sm"
                 placeholder="10"
                 maxLength={50}
@@ -416,8 +420,8 @@ export function ConnectionForm({
             </label>
             <input
               type="text"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              value={form.description}
+              onChange={(e) => setField("description")(e.target.value)}
               className="glass-input w-full rounded-lg px-3 py-2 text-sm"
               placeholder="Trunk uplink, patch cable to AP, etc."
               maxLength={500}

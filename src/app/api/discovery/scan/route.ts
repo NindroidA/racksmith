@@ -3,7 +3,7 @@ import { requireApiMember } from "@/lib/auth-helpers";
 import { withTenant } from "@/lib/prisma-tenant";
 import { audit } from "@/lib/audit";
 import { runPingScan, validateCidr, cidrHostCount } from "@/lib/discovery/nmap";
-import { matchHost, guessDeviceType } from "@/lib/discovery/matcher";
+import { completeScan } from "@/lib/discovery/scan-completion";
 
 export const dynamic = "force-dynamic";
 
@@ -81,133 +81,26 @@ export async function POST(req: Request) {
     return created;
   });
 
-  // Fire-and-forget the actual nmap process. Callback writes results to DB
-  // when done. We don't await it — return scan id immediately.
-  runPingScan(validated, async (result) => {
-    try {
-      if ("error" in result) {
-        await withTenant(organizationId, (tx) =>
-          tx.discoveryScan.update({
-            where: { id: scan.id },
-            data: {
-              status: "failed",
-              error: result.error,
-              completedAt: new Date(),
-            },
-          }),
-        );
-        return;
-      }
-
-      // Match against user's existing devices
-      const devices = await withTenant(organizationId, (tx) =>
-        tx.device.findMany({
-          where: { organizationId },
-          select: {
-            id: true,
-            name: true,
-            ipAddress: true,
-            macAddress: true,
-            hostname: true,
-          },
-        }),
-      );
-
-      const enriched = result.hosts.map((host) => {
-        const match = matchHost(host, devices);
-        return {
-          ...host,
-          match,
-          typeGuess: guessDeviceType(host),
-          // Per-host action state; set when user approves/ignores/assigns
-          actionState: "pending" as const,
-        };
-      });
-
-      const hostsNew = enriched.filter((h) => h.match.kind === "new").length;
-      const hostsKnown = enriched.filter(
-        (h) => h.match.kind === "known",
-      ).length;
-
-      await withTenant(organizationId, (tx) =>
-        tx.discoveryScan.update({
-          where: { id: scan.id },
-          data: {
-            status: "completed",
-            hostsFound: enriched.length,
-            hostsNew,
-            hostsKnown,
-            duration: result.durationSec,
-            results: { hosts: enriched },
-            completedAt: new Date(),
-          },
-        }),
-      );
-
-      await audit({
-        userId: session.user.id,
-        organizationId,
-        action: "scan_completed",
-        entityType: "discovery_scan",
-        entityId: scan.id,
-        metadata: {
-          subnet: validated,
-          hostsFound: enriched.length,
-          hostsNew,
-          hostsKnown,
-          duration: result.durationSec,
-        },
-      });
-
-      // Update lastSeen on matched devices
-      await withTenant(organizationId, async (tx) => {
-        for (const h of enriched) {
-          if (h.match.kind === "known") {
-            await tx.device.update({
-              where: { id: h.match.deviceId },
-              data: {
-                lastSeen: new Date(),
-                // Update network details from discovery if missing
-                ...(h.hostname ? { hostname: h.hostname } : {}),
-              },
-            });
-          }
-        }
-      });
-    } catch (err) {
-      // Post-processing failed mid-flight — the DB may be partially updated
-      // (some Device upserts committed before the throw). Best-effort mark
-      // the scan row as failed so the UI stops polling; if *that* update
-      // also fails, we still want a trail, so log both errors.
-      console.error("Scan post-processing failed:", err);
-      try {
-        await withTenant(organizationId, (tx) =>
-          tx.discoveryScan.update({
-            where: { id: scan.id },
-            data: {
-              status: "failed",
-              error:
-                err instanceof Error ? err.message : "Post-processing failed",
-              completedAt: new Date(),
-            },
-          }),
-        );
-      } catch (recoveryErr) {
-        console.error(
-          "[discovery.scan] recovery update also failed",
-          { scanId: scan.id },
-          recoveryErr,
-        );
-      }
-    }
-  });
+  // Fire-and-forget the actual nmap process. Callback hands off to
+  // `completeScan` which owns matching, persistence, audit, and the
+  // partial-update recovery branch.
+  runPingScan(validated, (result) =>
+    completeScan({
+      scanId: scan.id,
+      organizationId,
+      userId: session.user.id,
+      subnet: validated,
+      result,
+    }),
+  );
 
   return NextResponse.json({ scanId: scan.id });
 }
 
 /**
  * GET /api/discovery/scan?id=...
- * Returns current status of a scan. Client polls until status=completed|failed.
+ * Returns current status of a scan. Client polls until status reaches a
+ * terminal value: `completed` | `failed` | `cancelled`.
  */
 export async function GET(req: Request) {
   const guard = await requireApiMember("member");

@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import { twMerge } from "tailwind-merge";
 import {
   AlertCircle,
+  Ban,
   CheckCircle2,
   History,
   Loader2,
@@ -16,12 +17,13 @@ import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
 import { deleteScan } from "@/app/(dashboard)/discovery/actions";
 
 // Friendlier copy for the database enum so users see "Done" instead of
-// "completed" / "failed" / "running" / "pending".
+// "completed" / "failed" / "running" / "pending" / "cancelled".
 const STATUS_LABELS: Record<string, string> = {
   completed: "Done",
   failed: "Failed",
   running: "Scanning…",
   pending: "Queued",
+  cancelled: "Cancelled",
 };
 
 type ConfirmTarget = { id: string; subnet: string } | null;
@@ -107,6 +109,7 @@ export function ScanHistory({ scans }: Props) {
         <tbody className="divide-y divide-white/[0.05]">
           {scans.map((scan) => {
             const isFailed = scan.status === "failed";
+            const isCancelled = scan.status === "cancelled";
             const isRunning =
               scan.status === "running" || scan.status === "pending";
             const when = scan.completedAt ?? scan.startedAt;
@@ -126,6 +129,7 @@ export function ScanHistory({ scans }: Props) {
                       scan.status === "completed" &&
                         "bg-accent-green/15 text-accent-green",
                       isFailed && "bg-accent-red/15 text-accent-red",
+                      isCancelled && "bg-white/[0.08] text-white/60",
                       isRunning && "bg-primary/15 text-primary",
                     )}
                   >
@@ -135,6 +139,7 @@ export function ScanHistory({ scans }: Props) {
                     {isFailed && (
                       <AlertCircle className="h-3 w-3" aria-hidden />
                     )}
+                    {isCancelled && <Ban className="h-3 w-3" aria-hidden />}
                     {isRunning && (
                       <Loader2
                         className={`h-3 w-3 ${reduceMotion ? "" : "animate-spin"}`}

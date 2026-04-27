@@ -3,7 +3,7 @@ import { FileText } from "lucide-react";
 import { requireMember } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
 import { getUsageSummary } from "@/lib/tiers";
-import { type Role } from "@/lib/permissions";
+import { isRole, type Role } from "@/lib/permissions";
 import { ProfileSection } from "./profile-section";
 import { SecuritySection } from "./security-section";
 import { TwoFactorSection } from "./two-factor-section";
@@ -81,11 +81,11 @@ export default async function SettingsPage({
         {organization && (
           <OrganizationSection
             organization={organization}
-            viewerRole={role as Role}
+            viewerRole={role}
             viewerUserId={session.user.id}
             members={members.map((m) => ({
               id: m.id,
-              role: m.role as Role,
+              role: isRole(m.role) ? m.role : "viewer",
               joinedAt: m.createdAt,
               user: m.user,
             }))}

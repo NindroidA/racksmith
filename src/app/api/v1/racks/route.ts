@@ -6,6 +6,7 @@ import {
   listRacksResponseSchema,
   singleRackResponseSchema,
 } from "@/lib/api/schemas/rack";
+import { commonErrorResponses } from "@/lib/api/schemas/shared";
 import { withTenant } from "@/lib/prisma-tenant";
 import { audit } from "@/lib/audit";
 import { canCreateRackLocked } from "@/lib/tiers";
@@ -147,6 +148,7 @@ registry.registerPath({
         "application/json": { schema: listRacksResponseSchema },
       },
     },
+    ...commonErrorResponses,
   },
 });
 
@@ -170,5 +172,6 @@ registry.registerPath({
         "application/json": { schema: singleRackResponseSchema },
       },
     },
+    ...commonErrorResponses,
   },
 });

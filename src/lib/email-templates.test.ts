@@ -17,6 +17,18 @@ describe("passwordResetEmail", () => {
   it("subject mentions the brand", () => {
     expect(passwordResetEmail("x").subject).toMatch(/RackSmith/);
   });
+  it("escapes URL ampersands in HTML body but not in text", () => {
+    // Defense in depth — even though reset URLs are server-generated, all
+    // four templates now run URLs through escapeHtml for consistency.
+    const url = "https://example.com/reset?token=abc&more=1";
+    const out = passwordResetEmail(url);
+    expect(out.html).toContain(
+      "https://example.com/reset?token=abc&amp;more=1",
+    );
+    expect(out.html).not.toContain("?token=abc&more=1");
+    expect(out.text).toContain(url);
+    expect(out.text).not.toContain("&amp;");
+  });
 });
 
 describe("verificationEmail", () => {
@@ -24,6 +36,15 @@ describe("verificationEmail", () => {
     const url = "https://example.com/verify?token=xyz";
     const out = verificationEmail(url);
     expect(out.html).toContain(url);
+    expect(out.text).toContain(url);
+  });
+  it("escapes URL ampersands in HTML body but not in text", () => {
+    const url = "https://example.com/verify?token=xyz&ref=email";
+    const out = verificationEmail(url);
+    expect(out.html).toContain(
+      "https://example.com/verify?token=xyz&amp;ref=email",
+    );
+    expect(out.html).not.toContain("?token=xyz&ref=email");
     expect(out.text).toContain(url);
   });
 });

@@ -19,7 +19,7 @@ import {
 } from "@/lib/action-helpers";
 import type { ActionResult } from "@/lib/action-types";
 import { cuidSchema } from "@/lib/validators";
-import { ASSIGNABLE_ROLES, isRole, type Role } from "@/lib/permissions";
+import { ASSIGNABLE_ROLES, isRole } from "@/lib/permissions";
 import { validateSlug } from "@/lib/slug";
 import { writeOrganizationSnapshot } from "@/lib/organization-export";
 import { OWNERSHIP_TRANSFER_TTL_MS } from "@/lib/ownership-transfer-constants";
@@ -141,7 +141,9 @@ export async function updateMemberRole(
 
     await prisma.member.update({
       where: { id: parsed.data.memberId },
-      data: { role: parsed.data.role as Role },
+      // parsed.data.role is already AssignableRole (Zod-validated) — strict
+      // subset of Role, so no cast needed when writing to the string column.
+      data: { role: parsed.data.role },
     });
 
     await audit({
@@ -792,7 +794,7 @@ export async function declineOwnershipTransfer(
 
     await prisma.ownershipTransfer.update({
       where: { id: transfer.id },
-      data: { status: "revoked", revokedAt: new Date() },
+      data: { status: "declined", revokedAt: new Date() },
     });
 
     await audit({

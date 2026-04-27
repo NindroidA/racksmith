@@ -2,15 +2,15 @@ import "server-only";
 import { prisma } from "@/lib/prisma";
 import { hashApiKey } from "./api-key-crypto";
 import { apiError, type ApiError } from "./response";
-import { TIER_LIMITS, type Plan } from "@/lib/tiers";
-import { roleHasAccess, type Role } from "@/lib/permissions";
+import { isPlan, TIER_LIMITS, type Plan } from "@/lib/tiers";
+import { isRole, roleHasAccess, type Role } from "@/lib/permissions";
 
 export type ApiKeyAuthContext = {
   organizationId: string;
-  userId: string;           // createdByUserId — used for audit rows on mutations
+  userId: string; // createdByUserId — used for audit rows on mutations
   role: "member" | "admin"; // API keys cap at admin
   plan: Plan;
-  apiKeyId: string;         // for ApiRequestLog + audit correlation
+  apiKeyId: string; // for ApiRequestLog + audit correlation
 };
 
 export function parseAuthHeader(header: string | null): string | null {
@@ -38,12 +38,18 @@ export function isRevoked(revokedAt: Date | null): boolean {
 export async function requireApiKey(
   req: Request,
   requiredRole: "member" | "admin",
-): Promise<{ ok: true; ctx: ApiKeyAuthContext } | { ok: false; error: ApiError }> {
+): Promise<
+  { ok: true; ctx: ApiKeyAuthContext } | { ok: false; error: ApiError }
+> {
   const token = parseAuthHeader(req.headers.get("authorization"));
   if (!token) {
     return {
       ok: false,
-      error: apiError("unauthorized", "Missing or malformed Authorization header", 401),
+      error: apiError(
+        "unauthorized",
+        "Missing or malformed Authorization header",
+        401,
+      ),
     };
   }
 
@@ -69,9 +75,13 @@ export async function requireApiKey(
   }
 
   // Resolve effective plan — paid plans with expired planExpiresAt downgrade
-  // to free. Matches the behavior in tiers.ts getOrganizationPlan.
+  // to free. Matches the behavior in tiers.ts getOrganizationPlan. Plan is
+  // a free-form string at the DB layer; unknown values fall back to "free"
+  // (no API access on the free tier, so this fails closed).
   const now = Date.now();
-  const rawPlan = key.organization.plan as Plan;
+  const rawPlan: Plan = isPlan(key.organization.plan)
+    ? key.organization.plan
+    : "free";
   const plan: Plan =
     key.organization.planExpiresAt &&
     key.organization.planExpiresAt.getTime() < now &&
@@ -90,7 +100,7 @@ export async function requireApiKey(
     };
   }
 
-  const keyRole = key.role as Role;
+  const keyRole: Role = isRole(key.role) ? key.role : "viewer";
   if (!roleHasAccess(keyRole, requiredRole)) {
     return {
       ok: false,
