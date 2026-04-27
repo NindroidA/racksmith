@@ -18,13 +18,8 @@ export async function GET(request: Request) {
 
   // Tier gate: Free can export PNG only; CSV/JSON gated to Pro+.
   const allowed = await canExportFormat(organizationId, format);
-  if (!allowed) {
-    return NextResponse.json(
-      {
-        error: `${format.toUpperCase()} export requires the Pro or Business tier.`,
-      },
-      { status: 402 },
-    );
+  if (!allowed.ok) {
+    return NextResponse.json({ error: allowed.reason }, { status: 402 });
   }
 
   const { total, assignments } = await withTenant(

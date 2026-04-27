@@ -1,9 +1,6 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
-import { twMerge } from "tailwind-merge";
 import {
   Building2,
   Crown,
@@ -17,10 +14,17 @@ import {
   UserMinus,
   X,
 } from "lucide-react";
+import { twMerge } from "tailwind-merge";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
 import { Select, SelectOption } from "@/components/ui/select";
-import { ASSIGNABLE_ROLES, roleLabel, type Role } from "@/lib/permissions";
+import { useOrgAction } from "@/hooks/use-org-action";
 import { OWNERSHIP_TRANSFER_TTL_DAYS } from "@/lib/ownership-transfer-constants";
+import {
+  ASSIGNABLE_ROLES,
+  isRole,
+  roleLabel,
+  type Role,
+} from "@/lib/permissions";
 import {
   deleteOrganization,
   inviteMember,
@@ -109,7 +113,6 @@ export function OrganizationSection({
   pendingTransfer,
   scrollIntoView = false,
 }: Props) {
-  const router = useRouter();
   const [name, setName] = useState(organization.name);
   const [slug, setSlug] = useState(organization.slug);
   const [renamePending, startRename] = useTransition();
@@ -133,6 +136,13 @@ export function OrganizationSection({
   const [transferPending, startTransfer] = useTransition();
   const [revokeTransferOpen, setRevokeTransferOpen] = useState(false);
 
+  const runRename = useOrgAction(startRename);
+  const runSlug = useOrgAction(startSlug);
+  const runMember = useOrgAction(startMember);
+  const runDelete = useOrgAction(startDelete);
+  const runInvite = useOrgAction(startInvite);
+  const runTransfer = useOrgAction(startTransfer);
+
   const canEditGeneral = viewerRole === "admin" || viewerRole === "owner";
   const canManageMembers = canEditGeneral;
   const canInvite = canManageMembers;
@@ -154,42 +164,24 @@ export function OrganizationSection({
   const submitRename = () => {
     const trimmed = name.trim();
     if (trimmed === organization.name) return;
-    startRename(async () => {
-      const result = await renameOrganization({ name: trimmed });
-      if (!result.ok) {
-        toast.error(result.error);
-        return;
-      }
-      toast.success("Organization renamed");
-      router.refresh();
+    runRename(() => renameOrganization({ name: trimmed }), {
+      okMessage: "Organization renamed",
     });
   };
 
   const submitSlug = () => {
     const trimmed = slug.trim();
     if (trimmed === organization.slug) return;
-    startSlug(async () => {
-      const result = await updateOrganizationSlug({ slug: trimmed });
-      if (!result.ok) {
-        toast.error(result.error);
-        return;
-      }
-      toast.success("Slug updated");
-      router.refresh();
+    runSlug(() => updateOrganizationSlug({ slug: trimmed }), {
+      okMessage: "Slug updated",
     });
   };
 
   const changeRole = (memberId: string, newRole: Exclude<Role, "owner">) => {
     setPendingMemberId(memberId);
-    startMember(async () => {
-      const result = await updateMemberRole({ memberId, role: newRole });
-      setPendingMemberId(null);
-      if (!result.ok) {
-        toast.error(result.error);
-        return;
-      }
-      toast.success("Role updated");
-      router.refresh();
+    runMember(() => updateMemberRole({ memberId, role: newRole }), {
+      okMessage: "Role updated",
+      onSettled: () => setPendingMemberId(null),
     });
   };
 
@@ -197,31 +189,24 @@ export function OrganizationSection({
     if (!removeMemberTarget) return;
     const targetId = removeMemberTarget.id;
     setPendingMemberId(targetId);
-    startMember(async () => {
-      const result = await removeMember(targetId);
-      setPendingMemberId(null);
-      if (!result.ok) {
-        toast.error(result.error);
+    runMember(() => removeMember(targetId), {
+      okMessage: "Member removed",
+      onSettled: () => {
+        setPendingMemberId(null);
         setRemoveMemberTarget(null);
-        return;
-      }
-      toast.success("Member removed");
-      setRemoveMemberTarget(null);
-      router.refresh();
+      },
     });
   };
 
   const performDelete = () => {
-    startDelete(async () => {
-      const result = await deleteOrganization({ confirmName: name });
-      if (!result.ok) {
-        toast.error(result.error);
-        return;
-      }
-      toast.success("Organization deleted");
+    runDelete(() => deleteOrganization({ confirmName: name }), {
+      okMessage: "Organization deleted",
+      noRefresh: true,
       // Server cleared activeOrganizationId — next nav will hit
       // /onboarding/welcome which picks another membership.
-      window.location.href = "/onboarding/welcome";
+      onSuccess: () => {
+        window.location.href = "/onboarding/welcome";
+      },
     });
   };
 
@@ -229,28 +214,18 @@ export function OrganizationSection({
     e.preventDefault();
     const trimmed = inviteEmail.trim().toLowerCase();
     if (!trimmed) return;
-    startInvite(async () => {
-      const result = await inviteMember({ email: trimmed, role: inviteRole });
-      if (!result.ok) {
-        toast.error(result.error);
-        return;
-      }
-      toast.success(`Invitation sent to ${trimmed}`);
-      setInviteEmail("");
-      router.refresh();
+    runInvite(() => inviteMember({ email: trimmed, role: inviteRole }), {
+      okMessage: `Invitation sent to ${trimmed}`,
+      onSuccess: () => setInviteEmail(""),
     });
   };
 
   const doResendInvite = (id: string) => {
     setPendingInviteId(id);
-    startInvite(async () => {
-      const result = await resendInvitation(id);
-      setPendingInviteId(null);
-      if (!result.ok) {
-        toast.error(result.error);
-        return;
-      }
-      toast.success("Invitation re-sent");
+    runInvite(() => resendInvitation(id), {
+      okMessage: "Invitation re-sent",
+      onSettled: () => setPendingInviteId(null),
+      noRefresh: true,
     });
   };
 
@@ -258,51 +233,31 @@ export function OrganizationSection({
     if (!revokeInviteTarget) return;
     const id = revokeInviteTarget.id;
     setPendingInviteId(id);
-    startInvite(async () => {
-      const result = await revokeInvitation(id);
-      setPendingInviteId(null);
-      if (!result.ok) {
-        toast.error(result.error);
+    runInvite(() => revokeInvitation(id), {
+      okMessage: "Invitation revoked",
+      onSettled: () => {
+        setPendingInviteId(null);
         setRevokeInviteTarget(null);
-        return;
-      }
-      toast.success("Invitation revoked");
-      setRevokeInviteTarget(null);
-      router.refresh();
+      },
     });
   };
 
   const confirmTransfer = () => {
     if (!transferTarget) return;
     const id = transferTarget.id;
-    startTransfer(async () => {
-      const result = await requestOwnershipTransfer(id);
-      if (!result.ok) {
-        toast.error(result.error);
-        setTransferTarget(null);
-        return;
-      }
-      toast.success(
-        `Confirmation email sent to ${transferTarget.user.email}. They have ${OWNERSHIP_TRANSFER_TTL_DAYS} day${OWNERSHIP_TRANSFER_TTL_DAYS === 1 ? "" : "s"} to accept.`,
-      );
-      setTransferTarget(null);
-      router.refresh();
+    const recipientEmail = transferTarget.user.email;
+    runTransfer(() => requestOwnershipTransfer(id), {
+      okMessage: `Confirmation email sent to ${recipientEmail}. They have ${OWNERSHIP_TRANSFER_TTL_DAYS} day${OWNERSHIP_TRANSFER_TTL_DAYS === 1 ? "" : "s"} to accept.`,
+      onSettled: () => setTransferTarget(null),
     });
   };
 
   const doRevokeTransfer = () => {
     if (!pendingTransfer) return;
     const id = pendingTransfer.id;
-    startTransfer(async () => {
-      const result = await revokeOwnershipTransfer(id);
-      if (!result.ok) {
-        toast.error(result.error);
-        setRevokeTransferOpen(false);
-        return;
-      }
-      toast.success("Transfer canceled");
-      setRevokeTransferOpen(false);
-      router.refresh();
+    runTransfer(() => revokeOwnershipTransfer(id), {
+      okMessage: "Transfer canceled",
+      onSettled: () => setRevokeTransferOpen(false),
     });
   };
 
@@ -672,7 +627,7 @@ export function OrganizationSection({
                       <div className="min-w-0 flex-1">
                         <div className="truncate text-white">{inv.email}</div>
                         <div className="text-xs text-white/40">
-                          {roleLabel(inv.role as Role)} ·{" "}
+                          {roleLabel(isRole(inv.role) ? inv.role : "viewer")} ·{" "}
                           {expired ? (
                             <span className="text-accent-red">expired</span>
                           ) : (

@@ -243,7 +243,7 @@ export async function cancelScan(scanId: string): Promise<ActionResult> {
           status: { in: ["pending", "running"] },
         },
         data: {
-          status: "failed",
+          status: "cancelled",
           error: "Cancelled by user",
           completedAt: new Date(),
         },

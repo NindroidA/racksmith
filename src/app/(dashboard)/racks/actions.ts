@@ -5,7 +5,7 @@ import { requireMember } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
 import { withTenant } from "@/lib/prisma-tenant";
 import { audit } from "@/lib/audit";
-import { canCreateRackLocked } from "@/lib/tiers";
+import { canCreateDeviceLocked, canCreateRackLocked } from "@/lib/tiers";
 import { getRackTemplate } from "@/lib/templates/racks";
 import {
   handleZodError,
@@ -265,8 +265,10 @@ export async function placeCatalogDevice(
     );
     if (!valid.ok) return valid;
 
-    const device = await withTenant(organizationId, (tx) =>
-      tx.device.create({
+    const result = await withTenant(organizationId, async (tx) => {
+      const check = await canCreateDeviceLocked(tx, organizationId);
+      if (!check.ok) return { kind: "denied" as const, check };
+      const device = await tx.device.create({
         data: {
           userId: session.user.id,
           organizationId,
@@ -281,8 +283,11 @@ export async function placeCatalogDevice(
           powerWatts: catalog.powerWatts,
         },
         select: { id: true },
-      }),
-    );
+      });
+      return { kind: "ok" as const, device };
+    });
+    if (result.kind === "denied") return tierDenial(result.check);
+    const { device } = result;
 
     await audit({
       userId: session.user.id,

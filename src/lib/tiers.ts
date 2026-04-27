@@ -6,7 +6,12 @@ import { acquireTenantResourceLock, withTenant } from "./prisma-tenant";
 
 // ─── Tier definitions ───────────────────────────────────────────────
 
-export type Plan = "free" | "pro" | "business";
+export const PLANS = ["free", "pro", "business"] as const;
+export type Plan = (typeof PLANS)[number];
+
+export function isPlan(value: string): value is Plan {
+  return (PLANS as readonly string[]).includes(value);
+}
 
 export const TIER_LIMITS = {
   free: {
@@ -134,6 +139,21 @@ export type LimitCheckDenied = {
   resource: LimitResource;
 };
 export type LimitCheck = LimitCheckOk | LimitCheckDenied;
+
+// Feature gates use the same `{ ok, plan, reason? }` envelope so call sites
+// branch on `result.ok` regardless of whether they're checking a count limit
+// (LimitCheck) or a boolean capability (FeatureCheck). Symmetric shapes
+// reduce the cognitive overhead at every API/server-action boundary.
+export type FeatureCheckOk = {
+  ok: true;
+  plan: Plan;
+};
+export type FeatureCheckDenied = {
+  ok: false;
+  plan: Plan;
+  reason: string;
+};
+export type FeatureCheck = FeatureCheckOk | FeatureCheckDenied;
 
 async function checkLimit(
   organizationId: string,
@@ -315,22 +335,33 @@ export async function canCreateApiKeyLocked(
 // ─── Feature gates (boolean tier capabilities) ─────────────────────
 
 /**
- * Per-tier feature gates that aren't a count limit. Returns true when the
- * organization's effective plan grants the capability.
+ * Per-tier feature gates that aren't a count limit. Returns a `FeatureCheck`
+ * so the call site can surface the denial reason (matches the shape used by
+ * the count-based `canCreate*` helpers).
  */
 export async function canExportAuditLog(
   organizationId: string,
-): Promise<boolean> {
+): Promise<FeatureCheck> {
   const plan = await getOrganizationPlan(organizationId);
-  return TIER_LIMITS[plan].auditLogExport;
+  if (TIER_LIMITS[plan].auditLogExport) return { ok: true, plan };
+  return {
+    ok: false,
+    plan,
+    reason: `Audit log export requires the Pro or Business tier. This organization is on ${TIER_LIMITS[plan].label}.`,
+  };
 }
 
 export async function canExportFormat(
   organizationId: string,
   format: string,
-): Promise<boolean> {
+): Promise<FeatureCheck> {
   const plan = await getOrganizationPlan(organizationId);
-  return TIER_LIMITS[plan].exports.includes(format);
+  if (TIER_LIMITS[plan].exports.includes(format)) return { ok: true, plan };
+  return {
+    ok: false,
+    plan,
+    reason: `${format.toUpperCase()} export requires the Pro or Business tier. This organization is on ${TIER_LIMITS[plan].label}.`,
+  };
 }
 
 export type UsageSummary = {

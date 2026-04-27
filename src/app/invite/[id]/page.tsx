@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Building2, Mail, Wrench } from "lucide-react";
 import { getSession } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
-import { roleLabel, type Role } from "@/lib/permissions";
+import { isRole, roleLabel } from "@/lib/permissions";
 import { InviteAcceptForm } from "./invite-accept-form";
 
 /**
@@ -97,7 +97,7 @@ export default async function InviteAcceptPage({
         </span>{" "}
         invited you to join as{" "}
         <span className="font-medium text-white">
-          {roleLabel(invitation.role as Role)}
+          {roleLabel(isRole(invitation.role) ? invitation.role : "viewer")}
         </span>
         .
       </p>

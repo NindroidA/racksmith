@@ -15,14 +15,8 @@ export async function GET(request: Request) {
 
   // Gate by tier — Free has audit *viewing* but not bulk export.
   const allowed = await canExportAuditLog(organizationId);
-  if (!allowed) {
-    return NextResponse.json(
-      {
-        error:
-          "Audit log export requires the Pro or Business tier. Upgrade to enable bulk export.",
-      },
-      { status: 402 },
-    );
+  if (!allowed.ok) {
+    return NextResponse.json({ error: allowed.reason }, { status: 402 });
   }
 
   const url = new URL(request.url);

@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { NextResponse } from "next/server";
 import { auth } from "./auth";
 import { prisma } from "./prisma";
-import { roleHasAccess, type Role } from "./permissions";
+import { isRole, roleHasAccess, type Role } from "./permissions";
 
 export async function getSession() {
   const session = await auth.api.getSession({
@@ -96,7 +96,13 @@ export async function requireMember(
     // points there — bounce them to welcome to pick another membership.
     redirect("/onboarding/welcome");
   }
-  const role = member.role as Role;
+  // Member.role is a free-form string at the DB layer. Validate it through
+  // the type guard so downstream callers get a `Role`-typed value without
+  // bypassing the union check. Unknown values fall back to "viewer" — the
+  // safest possible role — so a corrupt row can't accidentally pass an
+  // admin gate. (Realistically only the seeder writes these, but we keep
+  // the boundary tight regardless.)
+  const role: Role = isRole(member.role) ? member.role : "viewer";
   if (!roleHasAccess(role, minRole)) {
     throw new ForbiddenError(
       `This action requires ${minRole} or higher. You are ${role}.`,
@@ -137,7 +143,7 @@ export async function requireApiMember(minRole: Role = "member") {
   if (!member) {
     return NextResponse.json({ error: "Not a member" }, { status: 403 });
   }
-  const role = member.role as Role;
+  const role: Role = isRole(member.role) ? member.role : "viewer";
   if (!roleHasAccess(role, minRole)) {
     return NextResponse.json(
       { error: `This action requires ${minRole} or higher.` },
