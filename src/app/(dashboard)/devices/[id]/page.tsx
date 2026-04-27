@@ -76,12 +76,14 @@ export default async function DeviceDetailPage({
 
   const connections = [
     ...device.sourceConnections.map((c) => ({
+      id: c.id,
       peer: c.targetDevice,
       port: c.sourcePort,
       peerPort: c.targetPort,
       cable: c.cableType,
     })),
     ...device.targetConnections.map((c) => ({
+      id: c.id,
       peer: c.sourceDevice,
       port: c.targetPort,
       peerPort: c.sourcePort,
@@ -216,7 +218,7 @@ export default async function DeviceDetailPage({
               <ul className="space-y-2">
                 {connections.map((c) => (
                   <li
-                    key={`${c.peer.id}:${c.port || ""}:${c.peerPort || ""}`}
+                    key={c.id}
                     aria-label={`Connected to ${c.peer.name} via ${c.cable}${c.port ? ` from port ${c.port}` : ""}${c.peerPort ? ` to peer port ${c.peerPort}` : ""}`}
                     className="flex items-center justify-between rounded-lg bg-white/[0.03] px-3 py-2 text-sm"
                   >
