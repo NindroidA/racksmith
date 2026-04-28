@@ -34,6 +34,11 @@ function formReducer(state: FormState, action: FormAction): FormState {
       return { ...state, ...action.payload };
     case "reset":
       return action.state;
+    default:
+      // Discriminated-union exhaustiveness is enforced at compile time;
+      // the default belt is for runtime safety if a caller bypasses the
+      // type system (e.g. via `any` or untyped JS).
+      return state;
   }
 }
 

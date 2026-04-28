@@ -98,6 +98,8 @@ function formReducer(state: FormState, action: FormAction): FormState {
       return { ...state, [action.field]: action.value };
     case "reset":
       return action.state;
+    default:
+      return state;
   }
 }
 

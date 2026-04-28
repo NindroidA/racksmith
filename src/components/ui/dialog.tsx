@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useFocusTrap } from "@/hooks/use-focus-trap";
@@ -66,21 +66,24 @@ export function Dialog({
   children,
 }: Props) {
   const panelRef = useRef<HTMLDivElement | null>(null);
-  // Capture the element that triggered the open so focus can return to it
-  // on close. Capturing in an effect (after open flips to true) is too
-  // late — by then the dialog has already moved focus inside itself.
+  // Captures the element that triggered the open so focus returns there on
+  // close. The capture must beat useFocusTrap's effect — that effect runs
+  // useEffect-class, so a useLayoutEffect here fires synchronously after
+  // commit and before any useEffect, including useFocusTrap's. Capturing
+  // in useEffect (or *after* useFocusTrap) would record an element inside
+  // the panel that the trap had already focused — never the opener.
   const returnFocusRef = useRef<HTMLElement | null>(null);
   const reduceMotion = useReducedMotion();
 
   useFocusTrap(open, panelRef);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!open) return;
     returnFocusRef.current = document.activeElement as HTMLElement | null;
     return () => {
       // On unmount or close, hand focus back to the opener if it's still in
-      // the document. Use a microtask to defer until after Framer's exit
-      // animation has settled the DOM.
+      // the document. Use a microtask to defer until DOM mutations from
+      // the exit animation have settled.
       const target = returnFocusRef.current;
       if (target && document.contains(target)) {
         queueMicrotask(() => target.focus({ preventScroll: true }));

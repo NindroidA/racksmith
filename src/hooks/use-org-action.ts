@@ -11,8 +11,9 @@ type RunOptions<T> = {
    * Called on the happy path before `router.refresh()`. Receives the
    * action's `data` payload — handy for create-then-navigate flows that
    * need the new row's id (`onSuccess: (data) => router.push(`/x/${data.id}`)`).
-   * Existing zero-arg callbacks remain compatible: TypeScript permits
-   * passing a wider-arity function as a narrower-arity one.
+   * Existing zero-arg callbacks remain compatible: TypeScript allows a
+   * callback that accepts fewer parameters where one accepting more is
+   * expected, since extra arguments are simply ignored at the call.
    */
   onSuccess?: (data: T) => void;
   onError?: () => void;

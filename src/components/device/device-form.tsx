@@ -45,6 +45,8 @@ function formReducer(state: FormState, action: FormAction): FormState {
       return { ...state, ...action.payload };
     case "reset":
       return action.state;
+    default:
+      return state;
   }
 }
 
