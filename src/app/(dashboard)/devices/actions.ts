@@ -165,7 +165,7 @@ export async function updateDevice(
 
 export async function deleteDevice(id: string): Promise<ActionResult> {
   return withActionEnvelope(async () => {
-    const { session, organizationId } = await requireMember("member");
+    const { session, organizationId } = await requireMember("admin");
 
     const result = await withTenant(organizationId, async (tx) => {
       const device = await tx.device.findFirst({
