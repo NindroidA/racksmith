@@ -1,4 +1,4 @@
-import { OWNERSHIP_TRANSFER_TTL_DAYS } from "./ownership-transfer-constants";
+import { OWNERSHIP_TRANSFER_TTL_DAYS } from "../ownership-transfer-constants";
 
 const BRAND = "RackSmith";
 

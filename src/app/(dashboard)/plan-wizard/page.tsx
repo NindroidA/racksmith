@@ -43,7 +43,7 @@ export default async function PlanWizardListPage({ searchParams }: PageProps) {
         </div>
         {tier.ok ? (
           <Link
-            href="/network-tools/plan-wizard/new"
+            href="/plan-wizard/new"
             className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/50"
           >
             <Plus className="h-4 w-4" aria-hidden /> New plan
@@ -92,7 +92,7 @@ export default async function PlanWizardListPage({ searchParams }: PageProps) {
               </div>
               <div className="min-w-0 flex-1">
                 <Link
-                  href={`/network-tools/plan-wizard/${p.id}`}
+                  href={`/plan-wizard/${p.id}`}
                   className="font-medium text-white hover:underline"
                 >
                   {p.name}
@@ -110,7 +110,7 @@ export default async function PlanWizardListPage({ searchParams }: PageProps) {
                 </div>
               </div>
               <Link
-                href={`/network-tools/plan-wizard/${p.id}`}
+                href={`/plan-wizard/${p.id}`}
                 className="inline-flex items-center gap-1 rounded-md border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-white/80 hover:bg-white/[0.08]"
               >
                 Open <ArrowRight className="h-3 w-3" aria-hidden />
@@ -132,7 +132,7 @@ function EmptyState() {
         Start a new plan to size racks, switches, VLANs, and IPs in one flow.
       </p>
       <Link
-        href="/network-tools/plan-wizard/new"
+        href="/plan-wizard/new"
         className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90"
       >
         <Plus className="h-3.5 w-3.5" aria-hidden /> Create your first plan

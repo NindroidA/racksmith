@@ -104,7 +104,7 @@ export default async function DashboardPage() {
 
       {/* Network tools summary */}
       <Link
-        href="/network-tools/ipam"
+        href="/ipam"
         className="glass-card mt-6 flex items-center gap-4 rounded-xl p-5"
       >
         <div className="rounded-lg bg-accent-cyan/20 p-3">

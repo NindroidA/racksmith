@@ -85,7 +85,7 @@ export async function createBuildPlan(
       changes: { name: parsed.data.name },
     });
 
-    revalidatePath("/network-tools/plan-wizard");
+    revalidatePath("/plan-wizard");
     return { ok: true, data: { id: created.id } };
   }, "Failed to create plan");
 }
@@ -154,7 +154,7 @@ async function saveWizardStep<Parsed>(
       changes: { step: stepKey, ...auditExtras(parsed.data) },
     });
 
-    revalidatePath(`/network-tools/plan-wizard/${plan.id}`);
+    revalidatePath(`/plan-wizard/${plan.id}`);
     return { ok: true, data: undefined };
   }, `Failed to save ${stepKey} step`);
 }
@@ -286,12 +286,12 @@ export async function applyBuildPlan(
       }),
     ]);
 
-    revalidatePath("/network-tools/plan-wizard");
+    revalidatePath("/plan-wizard");
     revalidatePath("/dashboard");
     revalidatePath("/racks");
     revalidatePath("/devices");
     revalidatePath("/network-tools/vlans");
-    revalidatePath("/network-tools/ipam");
+    revalidatePath("/ipam");
 
     return {
       ok: true,
@@ -327,7 +327,7 @@ export async function discardBuildPlan(planId: string): Promise<ActionResult> {
       entityId: idCheck.data,
     });
 
-    revalidatePath("/network-tools/plan-wizard");
+    revalidatePath("/plan-wizard");
     return { ok: true, data: undefined };
   }, "Failed to discard plan");
 }
@@ -353,7 +353,7 @@ export async function deleteBuildPlan(planId: string): Promise<ActionResult> {
       entityId: idCheck.data,
     });
 
-    revalidatePath("/network-tools/plan-wizard");
+    revalidatePath("/plan-wizard");
     return { ok: true, data: undefined };
   }, "Failed to delete plan");
 }

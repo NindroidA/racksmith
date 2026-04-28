@@ -7,7 +7,7 @@ import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
 import {
   createDhcpRange,
   deleteDhcpRange,
-} from "@/app/(dashboard)/network-tools/ipam/actions";
+} from "@/app/(dashboard)/ipam/actions";
 import type { DhcpRangeLite } from "./subnet-types";
 
 type ConfirmTarget = { id: string; range: string } | null;

@@ -15,7 +15,7 @@ import {
   createSubnet,
   updateSubnet,
   deleteSubnet,
-} from "@/app/(dashboard)/network-tools/ipam/actions";
+} from "@/app/(dashboard)/ipam/actions";
 import type { SubnetInput } from "@/lib/validators";
 import { advise, type AdvisorWarning } from "@/lib/ip/advisor";
 
@@ -104,12 +104,12 @@ export function SubnetForm(props: Props) {
       run(() => createSubnet(input), {
         okMessage: "Subnet created",
         noRefresh: true,
-        onSuccess: (data) => router.push(`/network-tools/ipam/${data.id}`),
+        onSuccess: (data) => router.push(`/ipam/${data.id}`),
       });
     } else {
       run(() => updateSubnet(props.subnetId, input), {
         okMessage: "Subnet updated",
-        onSuccess: () => router.push(`/network-tools/ipam/${props.subnetId}`),
+        onSuccess: () => router.push(`/ipam/${props.subnetId}`),
       });
     }
   }
@@ -119,7 +119,7 @@ export function SubnetForm(props: Props) {
     runDelete(() => deleteSubnet(props.subnetId), {
       okMessage: "Subnet deleted",
       noRefresh: true,
-      onSuccess: () => router.push("/network-tools/ipam"),
+      onSuccess: () => router.push("/ipam"),
       onError: () => setConfirmOpen(false),
     });
   }
@@ -133,8 +133,8 @@ export function SubnetForm(props: Props) {
       <Link
         href={
           props.mode === "edit"
-            ? `/network-tools/ipam/${props.subnetId}`
-            : "/network-tools/ipam"
+            ? `/ipam/${props.subnetId}`
+            : "/ipam"
         }
         className="mb-4 inline-flex items-center gap-2 text-sm text-white/60 transition-colors hover:text-white"
       >
@@ -302,8 +302,8 @@ export function SubnetForm(props: Props) {
           <Link
             href={
               props.mode === "edit"
-                ? `/network-tools/ipam/${props.subnetId}`
-                : "/network-tools/ipam"
+                ? `/ipam/${props.subnetId}`
+                : "/ipam"
             }
             className="glass-button rounded-lg px-4 py-2.5 text-sm font-medium text-white"
           >

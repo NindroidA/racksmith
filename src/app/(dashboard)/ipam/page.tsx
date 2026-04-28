@@ -66,7 +66,7 @@ export default async function IpamPage() {
             </div>
           ) : (
             <Link
-              href="/network-tools/ipam/new"
+              href="/ipam/new"
               className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white transition-all hover:bg-primary/90"
             >
               <Plus className="h-4 w-4" aria-hidden />
@@ -92,7 +92,7 @@ export default async function IpamPage() {
                   )
                 : 0;
             return (
-              <Link key={s.id} href={`/network-tools/ipam/${s.id}`}>
+              <Link key={s.id} href={`/ipam/${s.id}`}>
                 <div className="glass-card flex flex-col gap-3 rounded-xl p-5">
                   <div className="flex items-start justify-between">
                     <div>

@@ -12,7 +12,6 @@ import {
   defaultStatements,
 } from "better-auth/plugins/organization/access";
 import { prisma } from "./prisma";
-import { sendEmail } from "./email";
 import {
   getMembershipLimitForOrganization,
   getOrganizationLimitForUser,
@@ -20,8 +19,9 @@ import {
 import {
   organizationInviteEmail,
   passwordResetEmail,
+  sendEmail,
   verificationEmail,
-} from "./email-templates";
+} from "./email";
 
 // Read at call-time so test env mutations and runtime reconfiguration
 // (e.g. preview deploys) take effect without reimport.

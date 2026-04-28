@@ -11,7 +11,7 @@ import {
   saveNetworkStep,
   saveProfileStep,
   saveTopologyStep,
-} from "@/app/(dashboard)/network-tools/plan-wizard/actions";
+} from "@/app/(dashboard)/plan-wizard/actions";
 import type { ActionResult } from "@/lib/action-types";
 import {
   recommendRackSizeU,
