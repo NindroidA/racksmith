@@ -3,6 +3,10 @@ import { registerRoutes as registerRacks } from "@/app/api/v1/racks/route";
 import { registerRoutes as registerRackDetail } from "@/app/api/v1/racks/[id]/route";
 import { registerRoutes as registerDevices } from "@/app/api/v1/devices/route";
 import { registerRoutes as registerDeviceDetail } from "@/app/api/v1/devices/[id]/route";
+import { registerRoutes as registerSubnets } from "@/app/api/v1/subnets/route";
+import { registerRoutes as registerSubnetDetail } from "@/app/api/v1/subnets/[id]/route";
+import { registerRoutes as registerVlans } from "@/app/api/v1/vlans/route";
+import { registerRoutes as registerVlanDetail } from "@/app/api/v1/vlans/[id]/route";
 
 /**
  * Every v1 route's `registerRoutes` function. Adding a new endpoint?
@@ -16,6 +20,10 @@ const V1_ROUTE_REGISTRARS: Array<(registry: OpenAPIRegistry) => void> = [
   registerRackDetail,
   registerDevices,
   registerDeviceDetail,
+  registerSubnets,
+  registerSubnetDetail,
+  registerVlans,
+  registerVlanDetail,
 ];
 
 // Idempotent per registry instance — protects against double-call from
