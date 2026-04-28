@@ -50,7 +50,7 @@ export default async function SubnetDetailPage({
   return (
     <div className="mx-auto max-w-6xl space-y-6">
       <Link
-        href="/network-tools/ipam"
+        href="/ipam"
         className="inline-flex items-center gap-2 text-sm text-white/60 transition-colors hover:text-white"
       >
         <ArrowLeft className="h-4 w-4" aria-hidden />
@@ -68,7 +68,7 @@ export default async function SubnetDetailPage({
           )}
         </div>
         <Link
-          href={`/network-tools/ipam/${subnet.id}/edit`}
+          href={`/ipam/${subnet.id}/edit`}
           className="glass-button flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white"
         >
           <Pencil className="h-4 w-4" aria-hidden />

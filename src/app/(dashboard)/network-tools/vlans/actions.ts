@@ -441,7 +441,7 @@ export async function linkSubnetToVlan(
     });
 
     revalidatePath("/network-tools/vlans");
-    revalidatePath(`/network-tools/ipam/${subnetId}`);
+    revalidatePath(`/ipam/${subnetId}`);
     return { ok: true, data: undefined };
   }, "Failed to link subnet");
 }

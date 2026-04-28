@@ -11,7 +11,7 @@ import {
   updateIpAssignment,
   deleteIpAssignment,
   suggestNextIp,
-} from "@/app/(dashboard)/network-tools/ipam/actions";
+} from "@/app/(dashboard)/ipam/actions";
 import { IP_ASSIGNMENT_STATUSES } from "@/lib/validators";
 import type { AssignmentLite, DeviceLite } from "./subnet-types";
 import { describeError } from "@/lib/error-message";

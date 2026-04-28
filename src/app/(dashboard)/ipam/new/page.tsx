@@ -15,7 +15,7 @@ export default async function NewSubnetPage() {
         planLabel={TIER_LIMITS[check.plan].label}
         current={check.current}
         limit={check.limit}
-        backHref="/network-tools/ipam"
+        backHref="/ipam"
         backLabel="Back to IPAM"
       />
     );

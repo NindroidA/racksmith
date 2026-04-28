@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { OWNERSHIP_TRANSFER_TTL_DAYS } from "./ownership-transfer-constants";
+import { OWNERSHIP_TRANSFER_TTL_DAYS } from "../ownership-transfer-constants";
 import {
   organizationInviteEmail,
   ownershipTransferEmail,
   passwordResetEmail,
   verificationEmail,
-} from "./email-templates";
+} from "./templates";
 
 describe("passwordResetEmail", () => {
   it("includes the reset URL in both html and text", () => {

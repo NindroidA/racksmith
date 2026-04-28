@@ -44,16 +44,15 @@ const NAV_ITEMS: readonly NavItem[] = [
   { href: "/devices", label: "Devices", icon: HardDrive },
   { href: "/topology", label: "Topology", icon: Network },
   { href: "/discovery", label: "Discovery", icon: Radar },
+  // IPAM and Plan Wizard are full features (own data models, server actions,
+  // recommendation integrations) — promoted out of the Network Tools
+  // calculator bucket to top-level peers of Racks/Devices/Topology.
+  { href: "/ipam", label: "IPAM", icon: Globe },
+  { href: "/plan-wizard", label: "Plan Wizard", icon: Wand2 },
   {
     href: "/network-tools/subnet-calc",
     label: "Subnet Calc",
     icon: Calculator,
-    group: "Network Tools",
-  },
-  {
-    href: "/network-tools/ipam",
-    label: "IPAM",
-    icon: Globe,
     group: "Network Tools",
   },
   {
@@ -66,12 +65,6 @@ const NAV_ITEMS: readonly NavItem[] = [
     href: "/network-tools/config-gen",
     label: "Config Gen",
     icon: FileCode,
-    group: "Network Tools",
-  },
-  {
-    href: "/network-tools/plan-wizard",
-    label: "Plan Wizard",
-    icon: Wand2,
     group: "Network Tools",
   },
   {

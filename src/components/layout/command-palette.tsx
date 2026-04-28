@@ -130,11 +130,11 @@ export function CommandPalette() {
       {
         id: "nav-ipam",
         label: "Open IPAM",
-        hint: "/network-tools/ipam",
+        hint: "/ipam",
         icon: Globe,
         group: "Navigate",
         keywords: ["subnet", "ip", "dhcp"],
-        run: () => router.push("/network-tools/ipam"),
+        run: () => router.push("/ipam"),
       },
       {
         id: "nav-vlans",
@@ -157,11 +157,11 @@ export function CommandPalette() {
       {
         id: "nav-plan-wizard",
         label: "Open Plan Wizard",
-        hint: "/network-tools/plan-wizard",
+        hint: "/plan-wizard",
         icon: Wand2,
         group: "Navigate",
         keywords: ["plan", "wizard", "design", "blueprint", "build"],
-        run: () => router.push("/network-tools/plan-wizard"),
+        run: () => router.push("/plan-wizard"),
       },
       {
         id: "nav-power",
@@ -226,10 +226,10 @@ export function CommandPalette() {
       {
         id: "create-subnet",
         label: "New subnet",
-        hint: "/network-tools/ipam/new",
+        hint: "/ipam/new",
         icon: Plus,
         group: "Create",
-        run: () => router.push("/network-tools/ipam/new"),
+        run: () => router.push("/ipam/new"),
       },
       {
         id: "create-vlan",
@@ -242,11 +242,11 @@ export function CommandPalette() {
       {
         id: "create-build-plan",
         label: "New build plan",
-        hint: "/network-tools/plan-wizard/new",
+        hint: "/plan-wizard/new",
         icon: Plus,
         group: "Create",
         keywords: ["wizard", "design", "blueprint"],
-        run: () => router.push("/network-tools/plan-wizard/new"),
+        run: () => router.push("/plan-wizard/new"),
       },
       {
         id: "create-discovery",

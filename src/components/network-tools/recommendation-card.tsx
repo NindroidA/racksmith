@@ -63,7 +63,7 @@ function resourceHref(rec: Recommendation): string | null {
     case "device":
       return `/devices/${rec.resource.id}`;
     case "subnet":
-      return `/network-tools/ipam/${rec.resource.id}`;
+      return `/ipam/${rec.resource.id}`;
     case "vlan":
       return `/network-tools/vlans/${rec.resource.id}`;
     default:

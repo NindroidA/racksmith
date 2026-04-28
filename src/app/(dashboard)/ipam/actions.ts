@@ -102,7 +102,7 @@ export async function createSubnet(
       changes: { cidr: canonicalCidr, name: parsed.data.name },
     });
 
-    revalidatePath("/network-tools/ipam");
+    revalidatePath("/ipam");
     revalidatePath("/dashboard");
     return { ok: true, data: { id: result.subnet.id } };
   }, "Failed to create subnet");
@@ -174,8 +174,8 @@ export async function updateSubnet(
       changes: { cidr: canonicalCidr, name: parsed.data.name },
     });
 
-    revalidatePath("/network-tools/ipam");
-    revalidatePath(`/network-tools/ipam/${id}`);
+    revalidatePath("/ipam");
+    revalidatePath(`/ipam/${id}`);
     return { ok: true, data: undefined };
   }, "Failed to update subnet");
 }
@@ -200,7 +200,7 @@ export async function deleteSubnet(id: string): Promise<ActionResult> {
       entityId: id,
     });
 
-    revalidatePath("/network-tools/ipam");
+    revalidatePath("/ipam");
     revalidatePath("/dashboard");
     return { ok: true, data: undefined };
   }, "Failed to delete subnet");
@@ -276,7 +276,7 @@ export async function createDhcpRange(
       changes: { subnetId: result.subnetId, startIp, endIp },
     });
 
-    revalidatePath(`/network-tools/ipam/${result.subnetId}`);
+    revalidatePath(`/ipam/${result.subnetId}`);
     return { ok: true, data: { id: result.created.id } };
   }, "Failed to add DHCP range");
 }
@@ -308,7 +308,7 @@ export async function deleteDhcpRange(id: string): Promise<ActionResult> {
       entityId: id,
     });
 
-    revalidatePath(`/network-tools/ipam/${result.subnetId}`);
+    revalidatePath(`/ipam/${result.subnetId}`);
     return { ok: true, data: undefined };
   }, "Failed to delete range");
 }
@@ -399,7 +399,7 @@ export async function createIpAssignment(
       },
     });
 
-    revalidatePath(`/network-tools/ipam/${result.subnetId}`);
+    revalidatePath(`/ipam/${result.subnetId}`);
     revalidatePath("/dashboard");
     return { ok: true, data: { id: result.assignment.id } };
   }, "Failed to assign IP");
@@ -473,7 +473,7 @@ export async function updateIpAssignment(
       changes: { ipAddress, status: parsed.data.status },
     });
 
-    revalidatePath(`/network-tools/ipam/${result.subnetId}`);
+    revalidatePath(`/ipam/${result.subnetId}`);
     return { ok: true, data: undefined };
   }, "Failed to update assignment");
 }
@@ -505,7 +505,7 @@ export async function deleteIpAssignment(id: string): Promise<ActionResult> {
       entityId: id,
     });
 
-    revalidatePath(`/network-tools/ipam/${result.subnetId}`);
+    revalidatePath(`/ipam/${result.subnetId}`);
     revalidatePath("/dashboard");
     return { ok: true, data: undefined };
   }, "Failed to delete assignment");

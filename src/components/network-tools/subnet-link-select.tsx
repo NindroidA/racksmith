@@ -109,7 +109,7 @@ export function SubnetLinkSelect({
               className="flex items-center justify-between py-2 text-sm"
             >
               <Link
-                href={`/network-tools/ipam/${s.id}`}
+                href={`/ipam/${s.id}`}
                 className="font-mono text-white hover:text-primary"
               >
                 {s.cidr}

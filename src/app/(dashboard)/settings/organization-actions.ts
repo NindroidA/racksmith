@@ -5,11 +5,11 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
-import { sendEmail } from "@/lib/email";
 import {
   organizationInviteEmail,
   ownershipTransferEmail,
-} from "@/lib/email-templates";
+  sendEmail,
+} from "@/lib/email";
 import { requireMember, requireUser } from "@/lib/auth-helpers";
 import { audit } from "@/lib/audit";
 import {

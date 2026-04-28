@@ -9,7 +9,7 @@ export default async function NewBuildPlanPage() {
   const result = await createBuildPlan({ name: "Untitled plan" });
   if (!result.ok) {
     const params = new URLSearchParams({ error: result.error });
-    redirect(`/network-tools/plan-wizard?${params.toString()}`);
+    redirect(`/plan-wizard?${params.toString()}`);
   }
-  redirect(`/network-tools/plan-wizard/${result.data.id}`);
+  redirect(`/plan-wizard/${result.data.id}`);
 }
