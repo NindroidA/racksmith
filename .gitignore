@@ -66,6 +66,11 @@ scorecard.png
 # demo artifacts (ad-hoc screenshot tours; regenerable via Playwright MCP)
 .demo/
 
+# device-graphic reference imagery (vendor/copyrighted; used only as visual
+# source for SVG layouts — never traced, never committed). See plan
+# `.plans/2026-04-24/02-device-graphic-v2-plan.md`.
+.references/
+
 # claude code local (personal tool permissions / model prefs — team settings.json would be committed)
 .claude/settings.local.json
 .claude/scheduled_tasks.lock
