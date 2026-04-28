@@ -65,30 +65,16 @@ export const PATCH = createApiRoute({
     if (body.description !== undefined) data.description = body.description;
 
     const result = await withTenant(ctx.organizationId, async (tx) => {
-      const existing = await tx.connection.findFirst({
-        where: { id: p.data.id, organizationId: ctx.organizationId },
-        select: { sourceDeviceId: true, targetDeviceId: true },
-      });
-      if (!existing) return { kind: "notfound" as const };
-
-      // Self-loop check on the *post-merge* state. The schema's refine
-      // only catches "both sides set + equal in one body"; a single-
-      // side patch could still produce a loop relative to the existing
-      // row (e.g. PATCH sourceDeviceId to match the unchanged target).
-      const newSource = body.sourceDeviceId ?? existing.sourceDeviceId;
-      const newTarget = body.targetDeviceId ?? existing.targetDeviceId;
-      if (newSource === newTarget) {
-        return { kind: "self_loop" as const };
-      }
-
-      // Re-validate device ownership for any side that's actually
-      // changing. Skip the lookup when both sides are unchanged — the
-      // existing row already proves both endpoints belong to this org.
+      // Verify any device IDs in the body belong to this org. Cross-
+      // tenant or unknown id → 404 (not Prisma P2003 from the FK).
+      // Cheap: a single `count({ id: { in: [...] } })` against the
+      // tenant-scoped Device table — RLS hides anything outside the
+      // org so a count mismatch is the precise "unknown id" signal.
       const idsToCheck: string[] = [];
-      if (body.sourceDeviceId && body.sourceDeviceId !== existing.sourceDeviceId) {
+      if (body.sourceDeviceId !== undefined) {
         idsToCheck.push(body.sourceDeviceId);
       }
-      if (body.targetDeviceId && body.targetDeviceId !== existing.targetDeviceId) {
+      if (body.targetDeviceId !== undefined) {
         idsToCheck.push(body.targetDeviceId);
       }
       if (idsToCheck.length > 0) {
@@ -103,11 +89,65 @@ export const PATCH = createApiRoute({
         }
       }
 
+      // Self-loop guard — pushed into the UPDATE's WHERE clause so the
+      // invariant holds atomically at write time. Two concurrent single-
+      // side patches that each pass a stale pre-read check could
+      // otherwise both proceed and produce sourceDeviceId === target
+      // in the database. Postgres serializes UPDATEs via row lock, so
+      // the WHERE clause sees committed state at the moment of the
+      // update.
+      //
+      // When BOTH sides are set in one body, the schema's `.refine()`
+      // already proves they differ — we deliberately skip the row
+      // guards in that case. A WHERE clause like
+      //   `targetDeviceId != body.sourceDeviceId`
+      // would falsely reject a legitimate atomic endpoint swap (e.g.
+      // existing (A,B), body {source:B, target:A} — schema says B!=A,
+      // post-update (B,A) is non-loop, but the existing target B
+      // matches the new source B and the guard would block it).
+      type ConnUpdateWhere = {
+        id: string;
+        organizationId: string;
+        sourceDeviceId?: { not: string };
+        targetDeviceId?: { not: string };
+      };
+      const updateWhere: ConnUpdateWhere = {
+        id: p.data.id,
+        organizationId: ctx.organizationId,
+      };
+      if (
+        body.sourceDeviceId !== undefined &&
+        body.targetDeviceId === undefined
+      ) {
+        updateWhere.targetDeviceId = { not: body.sourceDeviceId };
+      }
+      if (
+        body.targetDeviceId !== undefined &&
+        body.sourceDeviceId === undefined
+      ) {
+        updateWhere.sourceDeviceId = { not: body.targetDeviceId };
+      }
+
       const updated = await tx.connection.updateMany({
-        where: { id: p.data.id, organizationId: ctx.organizationId },
+        where: updateWhere,
         data,
       });
-      if (updated.count === 0) return { kind: "notfound" as const };
+      if (updated.count === 0) {
+        // Disambiguate: row missing (404) vs. row exists but the self-
+        // loop guard rejected the write (400 self_loop). A second tiny
+        // findFirst against the unguarded id+org pair tells the two
+        // apart without a stale-read race — if the row is there now,
+        // the only way the update could have been rejected is the
+        // guard tripping.
+        const present = await tx.connection.findFirst({
+          where: { id: p.data.id, organizationId: ctx.organizationId },
+          select: { id: true },
+        });
+        return present
+          ? { kind: "self_loop" as const }
+          : { kind: "notfound" as const };
+      }
+
       const fresh = await tx.connection.findFirst({
         where: { id: p.data.id, organizationId: ctx.organizationId },
       });
@@ -221,7 +261,8 @@ export function registerRoutes(registry: OpenAPIRegistry): void {
   registry.registerPath({
     method: "delete",
     path: "/api/v1/connections/{id}",
-    summary: "Delete a connection (member+; non-destructive metadata carve-out)",
+    summary:
+      "Delete a connection (member+; non-destructive metadata carve-out)",
     security: [{ bearerAuth: [] }],
     request: { params: paramsSchema },
     responses: {

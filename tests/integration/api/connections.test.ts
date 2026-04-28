@@ -155,6 +155,41 @@ describe("/api/v1/connections", () => {
     expect((await res.json()).error.code).toBe("validation_failed");
   });
 
+  it("allows atomic endpoint swap (PATCH both sides at once with values that overlap existing)", async () => {
+    // Existing (A, B). Body swaps to (B, A). The schema's .refine()
+    // proves B !== A; post-update is (B, A), non-loop. A naive
+    // single-pass row guard like "targetDeviceId != body.sourceDeviceId"
+    // would falsely reject this because existing target IS B.
+    const { organization, user } = await seedOrgWithOwner({ plan: "pro" });
+    const { cleartext } = await createTestApiKey(organization.id, user.id);
+    const auth = { Authorization: `Bearer ${cleartext}` };
+    const a = await createTestDevice(organization.id, user.id);
+    const b = await createTestDevice(organization.id, user.id);
+
+    const createRes = await listPost(
+      new Request("http://x/api/v1/connections", {
+        method: "POST",
+        headers: { ...auth, "Content-Type": "application/json" },
+        body: JSON.stringify({ sourceDeviceId: a.id, targetDeviceId: b.id }),
+      }),
+      { params: Promise.resolve({}) },
+    );
+    const created = (await createRes.json()).connection;
+
+    const swapRes = await idPatch(
+      new Request(`http://x/api/v1/connections/${created.id}`, {
+        method: "PATCH",
+        headers: { ...auth, "Content-Type": "application/json" },
+        body: JSON.stringify({ sourceDeviceId: b.id, targetDeviceId: a.id }),
+      }),
+      { params: Promise.resolve({ id: created.id }) },
+    );
+    expect(swapRes.status).toBe(200);
+    const swapped = (await swapRes.json()).connection;
+    expect(swapped.sourceDeviceId).toBe(b.id);
+    expect(swapped.targetDeviceId).toBe(a.id);
+  });
+
   it("rejects PATCH that would create a self-loop relative to existing row", async () => {
     const { organization, user } = await seedOrgWithOwner({ plan: "pro" });
     const { cleartext } = await createTestApiKey(organization.id, user.id);

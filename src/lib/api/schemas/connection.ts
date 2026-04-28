@@ -117,3 +117,4 @@ registry.register("ConnectionResponse", singleConnectionResponseSchema);
 registry.register("ConnectionListResponse", listConnectionsResponseSchema);
 
 export { CABLE_TYPES };
+export type CableType = (typeof CABLE_TYPES)[number];

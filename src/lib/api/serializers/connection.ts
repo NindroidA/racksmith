@@ -1,7 +1,9 @@
+import type { CableType } from "../schemas/connection";
+
 /**
  * Public API row shape for `Connection`. Field names match Prisma 1:1 —
- * no renames. The cast of `cableType` to the literal-union enum is
- * trusted because writes route through `createConnectionBodySchema`
+ * no renames. The cast of `cableType` to the `CableType` literal union
+ * is trusted because writes route through `createConnectionBodySchema`
  * (validates against `CABLE_TYPES`); the route factory re-runs
  * `responseSchema.parse` before responding so any drift fails the
  * response, not the wire format.
@@ -25,13 +27,7 @@ export function serializeConnection(row: {
     sourcePort: row.sourcePort,
     targetDeviceId: row.targetDeviceId,
     targetPort: row.targetPort,
-    cableType: row.cableType as
-      | "ethernet"
-      | "fiber"
-      | "sfp"
-      | "dac"
-      | "power"
-      | "other",
+    cableType: row.cableType as CableType,
     cableLengthFt: row.cableLengthFt,
     vlan: row.vlan,
     bandwidth: row.bandwidth,
