@@ -3,19 +3,18 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import toast from "react-hot-toast";
 import { ArrowLeft, Save, Trash2 } from "lucide-react";
 import { type ColorTag } from "@/types";
 import { ColorTagPicker } from "@/components/ui/color-tag-picker";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
 import { Select, SelectOption } from "@/components/ui/select";
+import { useOrgAction } from "@/hooks/use-org-action";
 import {
   createVlan,
   updateVlan,
   deleteVlan,
 } from "@/app/(dashboard)/network-tools/vlans/actions";
 import { VLAN_PURPOSES, type VlanInput } from "@/lib/validators";
-import { describeError } from "@/lib/error-message";
 
 type Purpose = (typeof VLAN_PURPOSES)[number];
 
@@ -36,8 +35,10 @@ const PURPOSE_LABELS: Record<Purpose, string> = {
 export function VlanForm(props: Props) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
-  const [deleting, setDeleting] = useState(false);
+  const [deleting, startDelete] = useTransition();
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const run = useOrgAction(startTransition);
+  const runDelete = useOrgAction(startDelete);
 
   const [vlanId, setVlanId] = useState<number>(props.initial?.vlanId ?? 10);
   const [name, setName] = useState(props.initial?.name ?? "");
@@ -61,50 +62,28 @@ export function VlanForm(props: Props) {
       colorTag,
     };
 
-    startTransition(async () => {
-      try {
-        if (props.mode === "create") {
-          const result = await createVlan(input);
-          if (!result.ok) {
-            toast.error(result.error);
-            return;
-          }
-          toast.success("VLAN created");
-          router.push(`/network-tools/vlans/${result.data.id}`);
-        } else {
-          const result = await updateVlan(props.vlanRowId, input);
-          if (!result.ok) {
-            toast.error(result.error);
-            return;
-          }
-          toast.success("VLAN updated");
-          router.push(`/network-tools/vlans/${props.vlanRowId}`);
-          router.refresh();
-        }
-      } catch (err) {
-        toast.error(describeError(err, "Something went wrong"));
-      }
-    });
+    if (props.mode === "create") {
+      run(() => createVlan(input), {
+        okMessage: "VLAN created",
+        noRefresh: true,
+        onSuccess: (data) => router.push(`/network-tools/vlans/${data.id}`),
+      });
+    } else {
+      run(() => updateVlan(props.vlanRowId, input), {
+        okMessage: "VLAN updated",
+        onSuccess: () => router.push(`/network-tools/vlans/${props.vlanRowId}`),
+      });
+    }
   }
 
-  async function performDelete() {
+  function performDelete() {
     if (props.mode !== "edit") return;
-    setDeleting(true);
-    try {
-      const result = await deleteVlan(props.vlanRowId);
-      if (!result.ok) {
-        toast.error(result.error);
-        setDeleting(false);
-        setConfirmOpen(false);
-        return;
-      }
-      toast.success("VLAN deleted");
-      router.push("/network-tools/vlans");
-    } catch (err) {
-      toast.error(describeError(err, "Failed to delete"));
-      setDeleting(false);
-      setConfirmOpen(false);
-    }
+    runDelete(() => deleteVlan(props.vlanRowId), {
+      okMessage: "VLAN deleted",
+      noRefresh: true,
+      onSuccess: () => router.push("/network-tools/vlans"),
+      onError: () => setConfirmOpen(false),
+    });
   }
 
   return (

@@ -1,21 +1,51 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useReducer, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import toast from "react-hot-toast";
 import { twMerge } from "tailwind-merge";
 import { ArrowLeft, Save, Trash2 } from "lucide-react";
 import type { ColorTag } from "@/types";
 import { ColorTagPicker } from "@/components/ui/color-tag-picker";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
+import { useOrgAction } from "@/hooks/use-org-action";
 import {
   createRack,
   updateRack,
   deleteRack,
 } from "@/app/(dashboard)/racks/actions";
 import type { RackInput } from "@/lib/validators";
-import { describeError } from "@/lib/error-message";
+
+type FormState = {
+  name: string;
+  sizeU: number;
+  location: string;
+  description: string;
+  colorTag: ColorTag;
+};
+
+type FormAction =
+  | { type: "set"; payload: Partial<FormState> }
+  | { type: "reset"; state: FormState };
+
+function formReducer(state: FormState, action: FormAction): FormState {
+  switch (action.type) {
+    case "set":
+      return { ...state, ...action.payload };
+    case "reset":
+      return action.state;
+  }
+}
+
+function buildInitial(initial?: RackInput): FormState {
+  return {
+    name: initial?.name ?? "",
+    sizeU: initial?.sizeU ?? 42,
+    location: initial?.location ?? "",
+    description: initial?.description ?? "",
+    colorTag: (initial?.colorTag as ColorTag) ?? "blue",
+  };
+}
 
 type Props =
   | { mode: "create"; initial?: undefined; rackId?: undefined }
@@ -26,18 +56,18 @@ const SIZE_PRESETS = [4, 6, 9, 12, 15, 18, 22, 24, 27, 32, 36, 42, 47];
 export function RackForm(props: Props) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
-  const [deleting, setDeleting] = useState(false);
+  const [deleting, startDelete] = useTransition();
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const run = useOrgAction(startTransition);
+  const runDelete = useOrgAction(startDelete);
 
-  const [name, setName] = useState(props.initial?.name ?? "");
-  const [sizeU, setSizeU] = useState<number>(props.initial?.sizeU ?? 42);
-  const [location, setLocation] = useState(props.initial?.location ?? "");
-  const [description, setDescription] = useState(
-    props.initial?.description ?? "",
-  );
-  const [colorTag, setColorTag] = useState<ColorTag>(
-    (props.initial?.colorTag as ColorTag) ?? "blue",
-  );
+  const [form, dispatch] = useReducer(formReducer, props.initial, buildInitial);
+  const { name, sizeU, location, description, colorTag } = form;
+  const set = <K extends keyof FormState>(field: K, value: FormState[K]) =>
+    dispatch({
+      type: "set",
+      payload: { [field]: value } as Partial<FormState>,
+    });
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -49,50 +79,30 @@ export function RackForm(props: Props) {
       colorTag,
     };
 
-    startTransition(async () => {
-      try {
-        if (props.mode === "create") {
-          const result = await createRack(input);
-          if (!result.ok) {
-            toast.error(result.error);
-            return;
-          }
-          toast.success("Rack created");
-          router.push(`/racks/${result.data.id}`);
-        } else {
-          const result = await updateRack(props.rackId, input);
-          if (!result.ok) {
-            toast.error(result.error);
-            return;
-          }
-          toast.success("Rack updated");
-          router.push(`/racks/${props.rackId}`);
-          router.refresh();
-        }
-      } catch (err) {
-        toast.error(describeError(err, "Something went wrong"));
-      }
-    });
+    if (props.mode === "create") {
+      run(() => createRack(input), {
+        okMessage: "Rack created",
+        // Navigation triggers a fresh server-component render — no extra
+        // refresh needed.
+        noRefresh: true,
+        onSuccess: (data) => router.push(`/racks/${data.id}`),
+      });
+    } else {
+      run(() => updateRack(props.rackId, input), {
+        okMessage: "Rack updated",
+        onSuccess: () => router.push(`/racks/${props.rackId}`),
+      });
+    }
   }
 
-  async function performDelete() {
+  function performDelete() {
     if (props.mode !== "edit") return;
-    setDeleting(true);
-    try {
-      const result = await deleteRack(props.rackId);
-      if (!result.ok) {
-        toast.error(result.error);
-        setDeleting(false);
-        setConfirmOpen(false);
-        return;
-      }
-      toast.success("Rack deleted");
-      router.push("/racks");
-    } catch (err) {
-      toast.error(describeError(err, "Failed to delete"));
-      setDeleting(false);
-      setConfirmOpen(false);
-    }
+    runDelete(() => deleteRack(props.rackId), {
+      okMessage: "Rack deleted",
+      noRefresh: true,
+      onSuccess: () => router.push("/racks"),
+      onError: () => setConfirmOpen(false),
+    });
   }
 
   return (
@@ -133,7 +143,7 @@ export function RackForm(props: Props) {
             id="name"
             type="text"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => set("name", e.target.value)}
             className="glass-input w-full rounded-lg px-4 py-2.5 text-sm"
             placeholder="e.g. Main Rack, Closet A, Core Network"
             required
@@ -158,7 +168,7 @@ export function RackForm(props: Props) {
               type="number"
               value={sizeU}
               onChange={(e) =>
-                setSizeU(Math.max(1, parseInt(e.target.value) || 1))
+                set("sizeU", Math.max(1, parseInt(e.target.value) || 1))
               }
               className="glass-input w-24 rounded-lg px-4 py-2.5 text-sm"
               min={1}
@@ -170,7 +180,7 @@ export function RackForm(props: Props) {
                 <button
                   key={preset}
                   type="button"
-                  onClick={() => setSizeU(preset)}
+                  onClick={() => set("sizeU", preset)}
                   className={twMerge(
                     "rounded-md px-2.5 py-1 text-xs font-medium transition-all",
                     sizeU === preset
@@ -200,7 +210,7 @@ export function RackForm(props: Props) {
             id="location"
             type="text"
             value={location}
-            onChange={(e) => setLocation(e.target.value)}
+            onChange={(e) => set("location", e.target.value)}
             className="glass-input w-full rounded-lg px-4 py-2.5 text-sm"
             placeholder="e.g. Basement, MDF, Suite 300"
             maxLength={200}
@@ -221,7 +231,7 @@ export function RackForm(props: Props) {
           <textarea
             id="description"
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={(e) => set("description", e.target.value)}
             className="glass-input w-full resize-none rounded-lg px-4 py-2.5 text-sm"
             rows={3}
             placeholder="Optional notes about this rack"
@@ -235,7 +245,7 @@ export function RackForm(props: Props) {
         <ColorTagPicker
           label="Color Tag"
           value={colorTag}
-          onChange={setColorTag}
+          onChange={(value) => set("colorTag", value)}
         />
       </div>
 
