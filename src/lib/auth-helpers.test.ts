@@ -35,13 +35,7 @@ vi.mock("./prisma", () => ({
 
 import { auth } from "./auth";
 import { prisma } from "./prisma";
-import {
-  ForbiddenError,
-  requireApiMember,
-  requireApiUser,
-  requireMember,
-  requireUser,
-} from "./auth-helpers";
+import { ForbiddenError, requireMember, requireUser } from "./auth-helpers";
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -73,24 +67,6 @@ describe("requireUser", () => {
     const s = session();
     vi.mocked(auth.api.getSession).mockResolvedValue(s as never);
     await expect(requireUser()).resolves.toBe(s);
-  });
-});
-
-describe("requireApiUser", () => {
-  it("returns 401 NextResponse when no session", async () => {
-    vi.mocked(auth.api.getSession).mockResolvedValue(null);
-    const result = await requireApiUser();
-    expect(result).toBeInstanceOf(Response);
-    expect((result as Response).status).toBe(401);
-    const body = await (result as Response).json();
-    expect(body).toEqual({ error: "Unauthorized" });
-  });
-
-  it("returns the session when authenticated", async () => {
-    const s = session();
-    vi.mocked(auth.api.getSession).mockResolvedValue(s as never);
-    const result = await requireApiUser();
-    expect(result).toBe(s);
   });
 });
 
@@ -182,82 +158,6 @@ describe("requireMember", () => {
         select: { activeOrganizationId: true },
       }),
     );
-  });
-});
-
-describe("requireApiMember", () => {
-  it("returns 401 when no session", async () => {
-    vi.mocked(auth.api.getSession).mockResolvedValue(null);
-    const result = await requireApiMember();
-    expect(result).toBeInstanceOf(Response);
-    expect((result as Response).status).toBe(401);
-  });
-
-  it("returns 403 'No active organization' when user has no active org", async () => {
-    vi.mocked(auth.api.getSession).mockResolvedValue(session() as never);
-    vi.mocked(prisma.user.findUnique).mockResolvedValue({
-      activeOrganizationId: null,
-    } as never);
-    const result = await requireApiMember();
-    expect((result as Response).status).toBe(403);
-    expect(await (result as Response).json()).toEqual({
-      error: "No active organization",
-    });
-  });
-
-  it("returns 403 'Not a member' when active-org points at a non-membership", async () => {
-    vi.mocked(auth.api.getSession).mockResolvedValue(session() as never);
-    vi.mocked(prisma.user.findUnique).mockResolvedValue({
-      activeOrganizationId: "org_1",
-    } as never);
-    vi.mocked(prisma.member.findUnique).mockResolvedValue(null);
-    const result = await requireApiMember();
-    expect((result as Response).status).toBe(403);
-    expect(await (result as Response).json()).toEqual({ error: "Not a member" });
-  });
-
-  it("returns 403 with role-required message when role is below minRole", async () => {
-    vi.mocked(auth.api.getSession).mockResolvedValue(session() as never);
-    vi.mocked(prisma.user.findUnique).mockResolvedValue({
-      activeOrganizationId: "org_1",
-    } as never);
-    vi.mocked(prisma.member.findUnique).mockResolvedValue({
-      role: "member",
-    } as never);
-    const result = await requireApiMember("admin");
-    expect((result as Response).status).toBe(403);
-    const body = await (result as Response).json();
-    expect(body.error).toMatch(/admin or higher/);
-  });
-
-  it("returns guard when role meets minRole", async () => {
-    const s = session();
-    vi.mocked(auth.api.getSession).mockResolvedValue(s as never);
-    vi.mocked(prisma.user.findUnique).mockResolvedValue({
-      activeOrganizationId: "org_1",
-    } as never);
-    vi.mocked(prisma.member.findUnique).mockResolvedValue({
-      role: "admin",
-    } as never);
-    const result = await requireApiMember("admin");
-    expect(result).toEqual({
-      session: s,
-      organizationId: "org_1",
-      role: "admin",
-    });
-  });
-
-  it("defaults minRole to 'member'", async () => {
-    vi.mocked(auth.api.getSession).mockResolvedValue(session() as never);
-    vi.mocked(prisma.user.findUnique).mockResolvedValue({
-      activeOrganizationId: "org_1",
-    } as never);
-    vi.mocked(prisma.member.findUnique).mockResolvedValue({
-      role: "viewer",
-    } as never);
-    // viewer < member → 403
-    const result = await requireApiMember();
-    expect((result as Response).status).toBe(403);
   });
 });
 

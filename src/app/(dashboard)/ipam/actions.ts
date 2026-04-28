@@ -182,7 +182,7 @@ export async function updateSubnet(
 
 export async function deleteSubnet(id: string): Promise<ActionResult> {
   return withActionEnvelope(async () => {
-    const { session, organizationId } = await requireMember("member");
+    const { session, organizationId } = await requireMember("admin");
 
     const count = await withTenant(organizationId, async (tx) => {
       const result = await tx.subnet.deleteMany({
@@ -283,7 +283,7 @@ export async function createDhcpRange(
 
 export async function deleteDhcpRange(id: string): Promise<ActionResult> {
   return withActionEnvelope(async () => {
-    const { session, organizationId } = await requireMember("member");
+    const { session, organizationId } = await requireMember("admin");
 
     const result = await withTenant(organizationId, async (tx) => {
       const range = await tx.dhcpRange.findFirst({
@@ -480,7 +480,7 @@ export async function updateIpAssignment(
 
 export async function deleteIpAssignment(id: string): Promise<ActionResult> {
   return withActionEnvelope(async () => {
-    const { session, organizationId } = await requireMember("member");
+    const { session, organizationId } = await requireMember("admin");
 
     const result = await withTenant(organizationId, async (tx) => {
       const assignment = await tx.ipAssignment.findFirst({

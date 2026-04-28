@@ -157,7 +157,7 @@ export async function createRackFromTemplate(
 
 export async function deleteRack(id: string): Promise<ActionResult> {
   return withActionEnvelope(async () => {
-    const { session, organizationId } = await requireMember("member");
+    const { session, organizationId } = await requireMember("admin");
 
     const result = await withTenant(organizationId, (tx) =>
       tx.rack.deleteMany({

@@ -57,11 +57,11 @@ bunx prisma studio         # Visual database browser
 ### Architecture
 - **Server Components** for all authenticated pages
 - **Server Actions** for all mutations — validate with Zod via `safeParse` + `handleZodError` from `src/lib/action-helpers.ts`
-- **Auth helpers (Phase 10 onward):**
-  - `requireMember(role)` — tenant-scoped server actions / pages. Returns `{ session, organizationId, role }`. Throws `ForbiddenError` when rank too low.
-  - `requireApiMember(role)` — tenant-scoped API routes. Returns `NextResponse` 401/403 or guard object.
-  - `requireUser()` / `requireApiUser()` — user-only actions (profile, preferences, settings). Don't use for tenant-scoped work.
-  - Every `requireMember*` reads `User.activeOrganizationId` fresh from DB (BA caches session.user fields; don't trust them for security checks).
+- **Auth helpers:**
+  - **Server actions / pages** — `requireMember(role)` for tenant-scoped, `requireUser()` for user-only (profile, preferences). `requireMember` returns `{ session, organizationId, role }`; throws `ForbiddenError` when rank is too low (envelope catches and translates).
+  - **API routes** — declarative via `createApiRoute({ auth })` in `src/lib/api/route-factory.ts` (Phase 11 onward). Modes: `"public"` (health), `"member"`/`"admin"` (Bearer API key, paid surface — rate-limited + ApiRequestLog accounting), `"session-member"`/`"session-admin"` (cookie auth, internal/dashboard surface — no rate limit). Direct `requireApiUser`/`requireApiMember` calls were retired with this factory; don't reintroduce.
+  - **Destructive operation rank policy** — `DELETE` / `delete*` operations on tenant data require **admin** rank in both layers (API factory `auth: "admin"`, dashboard `requireMember("admin")`). The two intentional carve-outs are `removeDeviceFromRack` (un-rack ≠ delete; device row survives) and `deleteConnection` (non-destructive metadata) — both stay at `member`.
+  - Every `requireMember` reads `User.activeOrganizationId` fresh from DB (BA caches session.user fields; don't trust them for security checks).
 - **Multi-tenancy (Phase 10 onward):**
   - **Every Prisma query on a tenant-scoped table filters by `organizationId`** AND runs inside `withTenant(organizationId, async (tx) => {...})` from `src/lib/prisma-tenant.ts`. RLS is FORCED at DB level; unwrapped queries return empty in non-compat mode.
   - **Tenant-scoped tables (must wrap):** Rack, Device, Subnet, Vlan, VlanAssignment, IpAssignment, DhcpRange, Connection, FloorPlan, DiscoveryScan, BuildPlan, RecommendationDismissal, AuditLog, ApiRequestLog.

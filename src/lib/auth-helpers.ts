@@ -1,6 +1,5 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { NextResponse } from "next/server";
 import { auth } from "./auth";
 import { prisma } from "./prisma";
 import { isRole, roleHasAccess, type Role } from "./permissions";
@@ -16,24 +15,6 @@ export async function requireUser() {
   const session = await getSession();
   if (!session?.user) {
     redirect("/login");
-  }
-  return session;
-}
-
-/**
- * API-route counterpart to `requireUser`. Returns either the session or a
- * `NextResponse` 401 — never redirects, since fetch-style API consumers
- * expect JSON, not a 307 to /login.
- *
- * Usage:
- *   const guard = await requireApiUser();
- *   if (guard instanceof NextResponse) return guard;
- *   const session = guard;
- */
-export async function requireApiUser() {
-  const session = await getSession();
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   return session;
 }
@@ -109,46 +90,4 @@ export async function requireMember(
     );
   }
   return { session, organizationId: activeOrgId, role };
-}
-
-/**
- * API-route counterpart to `requireMember`. Returns either the guard object or
- * a `NextResponse` 401/403.
- */
-export async function requireApiMember(minRole: Role = "member") {
-  const session = await getSession();
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { activeOrganizationId: true },
-  });
-  const activeOrgId = user?.activeOrganizationId ?? null;
-  if (!activeOrgId) {
-    return NextResponse.json(
-      { error: "No active organization" },
-      { status: 403 },
-    );
-  }
-  const member = await prisma.member.findUnique({
-    where: {
-      userId_organizationId: {
-        userId: session.user.id,
-        organizationId: activeOrgId,
-      },
-    },
-    select: { role: true },
-  });
-  if (!member) {
-    return NextResponse.json({ error: "Not a member" }, { status: 403 });
-  }
-  const role: Role = isRole(member.role) ? member.role : "viewer";
-  if (!roleHasAccess(role, minRole)) {
-    return NextResponse.json(
-      { error: `This action requires ${minRole} or higher.` },
-      { status: 403 },
-    );
-  }
-  return { session, organizationId: activeOrgId, role } satisfies MemberGuard;
 }

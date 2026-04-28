@@ -158,7 +158,7 @@ export async function updateVlan(
 
 export async function deleteVlan(id: string): Promise<ActionResult> {
   return withActionEnvelope(async () => {
-    const { session, organizationId } = await requireMember("member");
+    const { session, organizationId } = await requireMember("admin");
 
     const count = await withTenant(organizationId, async (tx) => {
       const result = await tx.vlan.deleteMany({
@@ -271,7 +271,7 @@ export async function assignVlanToDevice(
 
 export async function removeVlanAssignment(id: string): Promise<ActionResult> {
   return withActionEnvelope(async () => {
-    const { session, organizationId } = await requireMember("member");
+    const { session, organizationId } = await requireMember("admin");
 
     const result = await withTenant(organizationId, async (tx) => {
       const existing = await tx.vlanAssignment.findFirst({
