@@ -63,8 +63,12 @@ test-results/
 # Treated as a pure artifact (current state, not source); never commit it.
 scorecard.png
 
+# demo artifacts (ad-hoc screenshot tours; regenerable via Playwright MCP)
+.demo/
+
 # claude code local (personal tool permissions / model prefs — team settings.json would be committed)
 .claude/settings.local.json
+.claude/scheduled_tasks.lock
 
 # internal planning + session handoff docs (local context, not source)
 .plans/
