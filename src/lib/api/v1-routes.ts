@@ -11,6 +11,8 @@ import { registerRoutes as registerIpAssignments } from "@/app/api/v1/ip-assignm
 import { registerRoutes as registerIpAssignmentDetail } from "@/app/api/v1/ip-assignments/[id]/route";
 import { registerRoutes as registerDhcpRanges } from "@/app/api/v1/dhcp-ranges/route";
 import { registerRoutes as registerDhcpRangeDetail } from "@/app/api/v1/dhcp-ranges/[id]/route";
+import { registerRoutes as registerConnections } from "@/app/api/v1/connections/route";
+import { registerRoutes as registerConnectionDetail } from "@/app/api/v1/connections/[id]/route";
 
 /**
  * Every v1 route's `registerRoutes` function. Adding a new endpoint?
@@ -32,6 +34,8 @@ const V1_ROUTE_REGISTRARS: Array<(registry: OpenAPIRegistry) => void> = [
   registerIpAssignmentDetail,
   registerDhcpRanges,
   registerDhcpRangeDetail,
+  registerConnections,
+  registerConnectionDetail,
 ];
 
 // Idempotent per registry instance — protects against double-call from
