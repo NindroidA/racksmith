@@ -8,6 +8,7 @@ import {
 } from "@/lib/api/schemas/vlan";
 import {
   commonErrorResponses,
+  errorResponse,
   notFoundResponse,
 } from "@/lib/api/schemas/shared";
 import { withTenant } from "@/lib/prisma-tenant";
@@ -152,7 +153,7 @@ export function registerRoutes(registry: OpenAPIRegistry): void {
         description: "OK",
         content: { "application/json": { schema: singleVlanResponseSchema } },
       },
-      409: { description: "Duplicate VLAN ID within the organization" },
+      409: errorResponse("Duplicate VLAN ID within the organization"),
       ...commonErrorResponses,
       ...notFoundResponse,
     },

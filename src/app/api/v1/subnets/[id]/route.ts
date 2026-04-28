@@ -8,6 +8,7 @@ import {
 } from "@/lib/api/schemas/subnet";
 import {
   commonErrorResponses,
+  errorResponse,
   notFoundResponse,
 } from "@/lib/api/schemas/shared";
 import { withTenant } from "@/lib/prisma-tenant";
@@ -120,7 +121,8 @@ export const DELETE = createApiRoute({
         where: { id: p.data.id, organizationId: ctx.organizationId },
       }),
     );
-    if (result.count === 0) return apiError("not_found", "Subnet not found", 404);
+    if (result.count === 0)
+      return apiError("not_found", "Subnet not found", 404);
 
     await audit({
       userId: ctx.userId,
@@ -173,7 +175,7 @@ export function registerRoutes(registry: OpenAPIRegistry): void {
           "application/json": { schema: singleSubnetResponseSchema },
         },
       },
-      409: { description: "Duplicate CIDR within the organization" },
+      409: errorResponse("Duplicate CIDR within the organization"),
       ...commonErrorResponses,
       ...notFoundResponse,
     },

@@ -7,7 +7,7 @@ import {
   listVlansResponseSchema,
   singleVlanResponseSchema,
 } from "@/lib/api/schemas/vlan";
-import { commonErrorResponses } from "@/lib/api/schemas/shared";
+import { commonErrorResponses, errorResponse } from "@/lib/api/schemas/shared";
 import { withTenant } from "@/lib/prisma-tenant";
 import { audit } from "@/lib/audit";
 import { canCreateVlanLocked } from "@/lib/tiers";
@@ -164,9 +164,7 @@ export function registerRoutes(registry: OpenAPIRegistry): void {
           "application/json": { schema: singleVlanResponseSchema },
         },
       },
-      409: {
-        description: "Duplicate VLAN ID within the organization",
-      },
+      409: errorResponse("Duplicate VLAN ID within the organization"),
       ...commonErrorResponses,
     },
   });

@@ -7,7 +7,7 @@ import {
   listSubnetsResponseSchema,
   singleSubnetResponseSchema,
 } from "@/lib/api/schemas/subnet";
-import { commonErrorResponses } from "@/lib/api/schemas/shared";
+import { commonErrorResponses, errorResponse } from "@/lib/api/schemas/shared";
 import { withTenant } from "@/lib/prisma-tenant";
 import { audit } from "@/lib/audit";
 import { canCreateSubnetLocked } from "@/lib/tiers";
@@ -116,8 +116,9 @@ export const POST = createApiRoute({
       return { subnet: serializeSubnet(created.subnet) };
     } catch (e) {
       // Unique constraint on (organizationId, cidr) — duplicate CIDR within
-      // the same org. Surface as 409 with a descriptive code; other unique
-      // failures (e.g. vlanId FK) bubble through as 500.
+      // the same org. Surface as 409 with a descriptive code. Foreign-key
+      // failures (vlanId pointing at a non-existent / cross-tenant VLAN) are
+      // handled by the P2003 branch below as a 400 validation_failed.
       if (
         e instanceof Prisma.PrismaClientKnownRequestError &&
         e.code === "P2002"
@@ -184,9 +185,7 @@ export function registerRoutes(registry: OpenAPIRegistry): void {
           "application/json": { schema: singleSubnetResponseSchema },
         },
       },
-      409: {
-        description: "Duplicate CIDR within the organization",
-      },
+      409: errorResponse("Duplicate CIDR within the organization"),
       ...commonErrorResponses,
     },
   });

@@ -52,7 +52,14 @@ export const notFoundResponse = {
   404: errorResponse("Resource not found"),
 } as const;
 
-function errorResponse(description: string) {
+/**
+ * Per-route helper for declaring additional error responses (e.g. 409
+ * Conflict for unique-constraint violations) with the same `ErrorEnvelope`
+ * content shape as `commonErrorResponses` and `notFoundResponse`. Exported
+ * so route files can craft resource-specific error messages without
+ * dropping the JSON schema content from the generated OpenAPI spec.
+ */
+export function errorResponse(description: string) {
   return {
     description,
     content: {
