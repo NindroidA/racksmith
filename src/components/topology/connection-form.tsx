@@ -5,7 +5,6 @@ import {
   useId,
   useMemo,
   useReducer,
-  useRef,
   useState,
   useTransition,
 } from "react";
@@ -13,15 +12,15 @@ import toast from "react-hot-toast";
 import { X } from "lucide-react";
 import { twMerge } from "tailwind-merge";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
+import { Dialog } from "@/components/ui/dialog";
 import { Select, SelectOption } from "@/components/ui/select";
-import { useFocusTrap } from "@/hooks/use-focus-trap";
+import { useOrgAction } from "@/hooks/use-org-action";
 import {
   createConnection,
   updateConnection,
   deleteConnection,
 } from "@/app/(dashboard)/topology/actions";
 import type { ConnectionInput } from "@/lib/validators";
-import { describeError } from "@/lib/error-message";
 
 const CABLE_TYPES = [
   { value: "ethernet", label: "Ethernet (copper)" },
@@ -99,6 +98,8 @@ function formReducer(state: FormState, action: FormAction): FormState {
       return { ...state, [action.field]: action.value };
     case "reset":
       return action.state;
+    default:
+      return state;
   }
 }
 
@@ -122,24 +123,12 @@ export function ConnectionForm({
   onSaved,
 }: Props) {
   const [pending, startTransition] = useTransition();
-  const [deleting, setDeleting] = useState(false);
+  const [deleting, startDelete] = useTransition();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [submitAttempted, setSubmitAttempted] = useState(false);
-  const dialogRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
-  useFocusTrap(open, dialogRef);
-
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => {
-      // Bail when a nested control (e.g. <Select> closing its listbox)
-      // already consumed the Escape, otherwise we'd dismiss the dialog too.
-      if (e.defaultPrevented) return;
-      if (e.key === "Escape" && !pending && !deleting) onClose();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open, pending, deleting, onClose]);
+  const run = useOrgAction(startTransition);
+  const runDelete = useOrgAction(startDelete);
 
   // Build the initial form shape once per existing/prefilled change. The
   // reducer holds all eight fields as one object; the effect below dispatches
@@ -181,293 +170,288 @@ export function ConnectionForm({
       cableLengthFt: null,
     };
 
-    startTransition(async () => {
-      try {
-        const result = existing
-          ? await updateConnection(existing.id, input)
-          : await createConnection(input);
-        if (!result.ok) {
-          toast.error(result.error);
-          return;
-        }
-        toast.success(existing ? "Connection updated" : "Connection created");
-        onSaved?.();
-        onClose();
-      } catch (err) {
-        toast.error(describeError(err, "Something went wrong"));
-      }
-    });
-  }
-
-  async function performDelete() {
-    if (!existing) return;
-    setDeleting(true);
-    try {
-      const result = await deleteConnection(existing.id);
-      if (!result.ok) {
-        toast.error(result.error);
-        setDeleting(false);
-        setConfirmOpen(false);
-        return;
-      }
-      toast.success("Connection deleted");
-      setConfirmOpen(false);
+    // The dialog's parent owns the data refresh via `onSaved`; skip
+    // router.refresh so we don't double-fetch.
+    const onOk = () => {
       onSaved?.();
       onClose();
-    } catch (err) {
-      toast.error(describeError(err, "Failed to delete"));
-      setDeleting(false);
-      setConfirmOpen(false);
+    };
+    if (existing) {
+      run(() => updateConnection(existing.id, input), {
+        okMessage: "Connection updated",
+        noRefresh: true,
+        onSuccess: onOk,
+      });
+    } else {
+      run(() => createConnection(input), {
+        okMessage: "Connection created",
+        noRefresh: true,
+        onSuccess: onOk,
+      });
     }
   }
 
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
-      onClick={() => {
-        if (!pending && !deleting) onClose();
-      }}
-    >
-      <div
-        ref={dialogRef}
-        className="glass-panel w-full max-w-xl rounded-2xl p-6"
-        onClick={(e) => e.stopPropagation()}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={titleId}
-      >
-        <div className="mb-4 flex items-center justify-between">
-          <h2 id={titleId} className="text-lg font-semibold text-white">
-            {existing ? "Edit Connection" : "New Connection"}
-          </h2>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close dialog"
-            className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded p-1 text-white/50 hover:bg-white/10 hover:text-white"
-          >
-            <X className="h-4 w-4" aria-hidden />
-          </button>
-        </div>
+  function performDelete() {
+    if (!existing) return;
+    runDelete(() => deleteConnection(existing.id), {
+      okMessage: "Connection deleted",
+      noRefresh: true,
+      onSuccess: () => {
+        setConfirmOpen(false);
+        onSaved?.();
+        onClose();
+      },
+      onError: () => setConfirmOpen(false),
+    });
+  }
 
-        <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">
-          {/* Source */}
-          <div className="grid grid-cols-[1fr_120px] gap-3">
-            <div>
-              <label
-                htmlFor="conn-source-device"
-                className="mb-1.5 block text-xs font-medium text-white/60"
-              >
-                Source Device
-              </label>
-              <Select
-                id="conn-source-device"
-                value={form.sourceDeviceId}
-                onValueChange={setField("sourceDeviceId")}
-                disabled={!!existing}
-                placeholder="Pick source…"
-                aria-invalid={submitAttempted && !form.sourceDeviceId}
-                aria-describedby={
-                  submitAttempted && !form.sourceDeviceId
-                    ? "conn-source-error"
-                    : undefined
-                }
-              >
-                {devices.map((d) => (
-                  <SelectOption key={d.id} value={d.id}>
-                    {d.name}
-                  </SelectOption>
-                ))}
-              </Select>
-              {submitAttempted && !form.sourceDeviceId && (
-                <p
-                  id="conn-source-error"
-                  role="alert"
-                  className="mt-1 text-xs text-accent-red"
-                >
-                  Pick a source device.
-                </p>
-              )}
-            </div>
-            <div>
-              <label className="mb-1.5 block text-xs font-medium text-white/60">
-                Port
-              </label>
-              <input
-                type="text"
-                value={form.sourcePort}
-                onChange={(e) => setField("sourcePort")(e.target.value)}
-                className="glass-input w-full rounded-lg px-3 py-2 font-mono text-sm"
-                placeholder="e.g. 1, Gi1/0/24"
-                maxLength={50}
-                autoComplete="off"
-              />
-            </div>
+  return (
+    <>
+      <Dialog
+        open={open}
+        onClose={onClose}
+        labelledBy={titleId}
+        size="xl"
+        pending={pending || deleting}
+      >
+        <div className="p-6">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 id={titleId} className="text-lg font-semibold text-white">
+              {existing ? "Edit Connection" : "New Connection"}
+            </h2>
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Close dialog"
+              className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded p-1 text-white/50 hover:bg-white/10 hover:text-white"
+            >
+              <X className="h-4 w-4" aria-hidden />
+            </button>
           </div>
 
-          {/* Target */}
-          <div className="grid grid-cols-[1fr_120px] gap-3">
-            <div>
-              <label
-                htmlFor="conn-target-device"
-                className="mb-1.5 block text-xs font-medium text-white/60"
-              >
-                Target Device
-              </label>
-              <Select
-                id="conn-target-device"
-                value={form.targetDeviceId}
-                onValueChange={setField("targetDeviceId")}
-                disabled={!!existing}
-                placeholder="Pick target…"
-                aria-invalid={submitAttempted && !form.targetDeviceId}
-                aria-describedby={
-                  submitAttempted && !form.targetDeviceId
-                    ? "conn-target-error"
-                    : undefined
-                }
-              >
-                {devices
-                  .filter((d) => d.id !== form.sourceDeviceId)
-                  .map((d) => (
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-4"
+            autoComplete="off"
+          >
+            {/* Source */}
+            <div className="grid grid-cols-[1fr_120px] gap-3">
+              <div>
+                <label
+                  htmlFor="conn-source-device"
+                  className="mb-1.5 block text-xs font-medium text-white/60"
+                >
+                  Source Device
+                </label>
+                <Select
+                  id="conn-source-device"
+                  value={form.sourceDeviceId}
+                  onValueChange={setField("sourceDeviceId")}
+                  disabled={!!existing}
+                  placeholder="Pick source…"
+                  aria-invalid={submitAttempted && !form.sourceDeviceId}
+                  aria-describedby={
+                    submitAttempted && !form.sourceDeviceId
+                      ? "conn-source-error"
+                      : undefined
+                  }
+                >
+                  {devices.map((d) => (
                     <SelectOption key={d.id} value={d.id}>
                       {d.name}
                     </SelectOption>
                   ))}
-              </Select>
-              {submitAttempted && !form.targetDeviceId && (
-                <p
-                  id="conn-target-error"
-                  role="alert"
-                  className="mt-1 text-xs text-accent-red"
-                >
-                  Pick a target device.
-                </p>
-              )}
-            </div>
-            <div>
-              <label className="mb-1.5 block text-xs font-medium text-white/60">
-                Port
-              </label>
-              <input
-                type="text"
-                value={form.targetPort}
-                onChange={(e) => setField("targetPort")(e.target.value)}
-                className="glass-input w-full rounded-lg px-3 py-2 font-mono text-sm"
-                placeholder="e.g. 1"
-                maxLength={50}
-                autoComplete="off"
-              />
-            </div>
-          </div>
-
-          {/* Cable type + bandwidth + VLAN */}
-          <div className="grid grid-cols-3 gap-3">
-            <div>
-              <label
-                htmlFor="conn-cable-type"
-                className="mb-1.5 block text-xs font-medium text-white/60"
-              >
-                Cable Type
-              </label>
-              <Select
-                id="conn-cable-type"
-                value={form.cableType}
-                onValueChange={setField("cableType")}
-              >
-                {CABLE_TYPES.map((t) => (
-                  <SelectOption key={t.value} value={t.value}>
-                    {t.label}
-                  </SelectOption>
-                ))}
-              </Select>
-            </div>
-            <div>
-              <label className="mb-1.5 block text-xs font-medium text-white/60">
-                Bandwidth
-              </label>
-              <Select
-                value={form.bandwidth}
-                onValueChange={setField("bandwidth")}
-              >
-                {BANDWIDTH_PRESETS.map((b) => (
-                  <SelectOption key={b} value={b}>
-                    {b || "(none)"}
-                  </SelectOption>
-                ))}
-              </Select>
-            </div>
-            <div>
-              <label className="mb-1.5 block text-xs font-medium text-white/60">
-                VLAN
-              </label>
-              <input
-                type="text"
-                value={form.vlan}
-                onChange={(e) => setField("vlan")(e.target.value)}
-                className="glass-input w-full rounded-lg px-3 py-2 font-mono text-sm"
-                placeholder="10"
-                maxLength={50}
-                autoComplete="off"
-              />
-            </div>
-          </div>
-
-          {/* Description */}
-          <div>
-            <label className="mb-1.5 block text-xs font-medium text-white/60">
-              Description (optional)
-            </label>
-            <input
-              type="text"
-              value={form.description}
-              onChange={(e) => setField("description")(e.target.value)}
-              className="glass-input w-full rounded-lg px-3 py-2 text-sm"
-              placeholder="Trunk uplink, patch cable to AP, etc."
-              maxLength={500}
-              autoComplete="off"
-            />
-          </div>
-
-          {/* Actions */}
-          <div className="flex items-center justify-between pt-2">
-            {existing ? (
-              <button
-                type="button"
-                onClick={() => setConfirmOpen(true)}
-                disabled={deleting || pending}
-                className={twMerge(
-                  "flex items-center gap-2 rounded-lg border border-accent-red/30 bg-accent-red/10 px-3 py-2 text-xs font-medium text-accent-red transition-all hover:bg-accent-red/20 disabled:opacity-50",
+                </Select>
+                {submitAttempted && !form.sourceDeviceId && (
+                  <p
+                    id="conn-source-error"
+                    role="alert"
+                    className="mt-1 text-xs text-accent-red"
+                  >
+                    Pick a source device.
+                  </p>
                 )}
-              >
-                {deleting ? "Deleting..." : "Delete Connection"}
-              </button>
-            ) : (
-              <div />
-            )}
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={onClose}
-                className="glass-button rounded-lg px-3 py-2 text-xs font-medium text-white"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={pending || deleting}
-                className="rounded-lg bg-primary px-3 py-2 text-xs font-medium text-white transition-all hover:bg-primary/90 disabled:opacity-50"
-              >
-                {pending
-                  ? "Saving..."
-                  : existing
-                    ? "Save Changes"
-                    : "Create Connection"}
-              </button>
+              </div>
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-white/60">
+                  Port
+                </label>
+                <input
+                  type="text"
+                  value={form.sourcePort}
+                  onChange={(e) => setField("sourcePort")(e.target.value)}
+                  className="glass-input w-full rounded-lg px-3 py-2 font-mono text-sm"
+                  placeholder="e.g. 1, Gi1/0/24"
+                  maxLength={50}
+                  autoComplete="off"
+                />
+              </div>
             </div>
-          </div>
-        </form>
-      </div>
+
+            {/* Target */}
+            <div className="grid grid-cols-[1fr_120px] gap-3">
+              <div>
+                <label
+                  htmlFor="conn-target-device"
+                  className="mb-1.5 block text-xs font-medium text-white/60"
+                >
+                  Target Device
+                </label>
+                <Select
+                  id="conn-target-device"
+                  value={form.targetDeviceId}
+                  onValueChange={setField("targetDeviceId")}
+                  disabled={!!existing}
+                  placeholder="Pick target…"
+                  aria-invalid={submitAttempted && !form.targetDeviceId}
+                  aria-describedby={
+                    submitAttempted && !form.targetDeviceId
+                      ? "conn-target-error"
+                      : undefined
+                  }
+                >
+                  {devices
+                    .filter((d) => d.id !== form.sourceDeviceId)
+                    .map((d) => (
+                      <SelectOption key={d.id} value={d.id}>
+                        {d.name}
+                      </SelectOption>
+                    ))}
+                </Select>
+                {submitAttempted && !form.targetDeviceId && (
+                  <p
+                    id="conn-target-error"
+                    role="alert"
+                    className="mt-1 text-xs text-accent-red"
+                  >
+                    Pick a target device.
+                  </p>
+                )}
+              </div>
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-white/60">
+                  Port
+                </label>
+                <input
+                  type="text"
+                  value={form.targetPort}
+                  onChange={(e) => setField("targetPort")(e.target.value)}
+                  className="glass-input w-full rounded-lg px-3 py-2 font-mono text-sm"
+                  placeholder="e.g. 1"
+                  maxLength={50}
+                  autoComplete="off"
+                />
+              </div>
+            </div>
+
+            {/* Cable type + bandwidth + VLAN */}
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <label
+                  htmlFor="conn-cable-type"
+                  className="mb-1.5 block text-xs font-medium text-white/60"
+                >
+                  Cable Type
+                </label>
+                <Select
+                  id="conn-cable-type"
+                  value={form.cableType}
+                  onValueChange={setField("cableType")}
+                >
+                  {CABLE_TYPES.map((t) => (
+                    <SelectOption key={t.value} value={t.value}>
+                      {t.label}
+                    </SelectOption>
+                  ))}
+                </Select>
+              </div>
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-white/60">
+                  Bandwidth
+                </label>
+                <Select
+                  value={form.bandwidth}
+                  onValueChange={setField("bandwidth")}
+                >
+                  {BANDWIDTH_PRESETS.map((b) => (
+                    <SelectOption key={b} value={b}>
+                      {b || "(none)"}
+                    </SelectOption>
+                  ))}
+                </Select>
+              </div>
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-white/60">
+                  VLAN
+                </label>
+                <input
+                  type="text"
+                  value={form.vlan}
+                  onChange={(e) => setField("vlan")(e.target.value)}
+                  className="glass-input w-full rounded-lg px-3 py-2 font-mono text-sm"
+                  placeholder="10"
+                  maxLength={50}
+                  autoComplete="off"
+                />
+              </div>
+            </div>
+
+            {/* Description */}
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-white/60">
+                Description (optional)
+              </label>
+              <input
+                type="text"
+                value={form.description}
+                onChange={(e) => setField("description")(e.target.value)}
+                className="glass-input w-full rounded-lg px-3 py-2 text-sm"
+                placeholder="Trunk uplink, patch cable to AP, etc."
+                maxLength={500}
+                autoComplete="off"
+              />
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center justify-between pt-2">
+              {existing ? (
+                <button
+                  type="button"
+                  onClick={() => setConfirmOpen(true)}
+                  disabled={deleting || pending}
+                  className={twMerge(
+                    "flex items-center gap-2 rounded-lg border border-accent-red/30 bg-accent-red/10 px-3 py-2 text-xs font-medium text-accent-red transition-all hover:bg-accent-red/20 disabled:opacity-50",
+                  )}
+                >
+                  {deleting ? "Deleting..." : "Delete Connection"}
+                </button>
+              ) : (
+                <div />
+              )}
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="glass-button rounded-lg px-3 py-2 text-xs font-medium text-white"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={pending || deleting}
+                  className="rounded-lg bg-primary px-3 py-2 text-xs font-medium text-white transition-all hover:bg-primary/90 disabled:opacity-50"
+                >
+                  {pending
+                    ? "Saving..."
+                    : existing
+                      ? "Save Changes"
+                      : "Create Connection"}
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </Dialog>
 
       {existing && (
         <DeleteConfirmDialog
@@ -485,6 +469,6 @@ export function ConnectionForm({
           onConfirm={performDelete}
         />
       )}
-    </div>
+    </>
   );
 }

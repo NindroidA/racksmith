@@ -1,9 +1,8 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useMemo, useReducer, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import toast from "react-hot-toast";
 import { twMerge } from "tailwind-merge";
 import { ArrowLeft, Save, Trash2, AlertTriangle } from "lucide-react";
 import { type ColorTag } from "@/types";
@@ -11,6 +10,7 @@ import { ColorTagPicker } from "@/components/ui/color-tag-picker";
 import { InlineHelp } from "@/components/ui/inline-help";
 import { AdvancedAccordion } from "@/components/ui/advanced-accordion";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
+import { useOrgAction } from "@/hooks/use-org-action";
 import {
   createSubnet,
   updateSubnet,
@@ -18,7 +18,41 @@ import {
 } from "@/app/(dashboard)/network-tools/ipam/actions";
 import type { SubnetInput } from "@/lib/validators";
 import { advise, type AdvisorWarning } from "@/lib/ip/advisor";
-import { describeError } from "@/lib/error-message";
+
+type FormState = {
+  cidr: string;
+  name: string;
+  description: string;
+  gateway: string;
+  dnsServers: string;
+  colorTag: ColorTag;
+};
+
+type FormAction =
+  | { type: "set"; payload: Partial<FormState> }
+  | { type: "reset"; state: FormState };
+
+function formReducer(state: FormState, action: FormAction): FormState {
+  switch (action.type) {
+    case "set":
+      return { ...state, ...action.payload };
+    case "reset":
+      return action.state;
+    default:
+      return state;
+  }
+}
+
+function buildInitial(initial?: SubnetInput): FormState {
+  return {
+    cidr: initial?.cidr ?? "",
+    name: initial?.name ?? "",
+    description: initial?.description ?? "",
+    gateway: initial?.gateway ?? "",
+    dnsServers: initial?.dnsServers ?? "",
+    colorTag: (initial?.colorTag as ColorTag) ?? "blue",
+  };
+}
 
 type Props =
   | {
@@ -37,19 +71,18 @@ type Props =
 export function SubnetForm(props: Props) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
-  const [deleting, setDeleting] = useState(false);
+  const [deleting, startDelete] = useTransition();
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const run = useOrgAction(startTransition);
+  const runDelete = useOrgAction(startDelete);
 
-  const [cidr, setCidr] = useState(props.initial?.cidr ?? "");
-  const [name, setName] = useState(props.initial?.name ?? "");
-  const [description, setDescription] = useState(
-    props.initial?.description ?? "",
-  );
-  const [gateway, setGateway] = useState(props.initial?.gateway ?? "");
-  const [dnsServers, setDnsServers] = useState(props.initial?.dnsServers ?? "");
-  const [colorTag, setColorTag] = useState<ColorTag>(
-    (props.initial?.colorTag as ColorTag) ?? "blue",
-  );
+  const [form, dispatch] = useReducer(formReducer, props.initial, buildInitial);
+  const { cidr, name, description, gateway, dnsServers, colorTag } = form;
+  const set = <K extends keyof FormState>(field: K, value: FormState[K]) =>
+    dispatch({
+      type: "set",
+      payload: { [field]: value } as Partial<FormState>,
+    });
 
   const warnings = useMemo<AdvisorWarning[]>(
     () => (cidr.trim() ? advise(cidr.trim(), props.existingCidrs) : []),
@@ -67,50 +100,28 @@ export function SubnetForm(props: Props) {
       colorTag,
     };
 
-    startTransition(async () => {
-      try {
-        if (props.mode === "create") {
-          const result = await createSubnet(input);
-          if (!result.ok) {
-            toast.error(result.error);
-            return;
-          }
-          toast.success("Subnet created");
-          router.push(`/network-tools/ipam/${result.data.id}`);
-        } else {
-          const result = await updateSubnet(props.subnetId, input);
-          if (!result.ok) {
-            toast.error(result.error);
-            return;
-          }
-          toast.success("Subnet updated");
-          router.push(`/network-tools/ipam/${props.subnetId}`);
-          router.refresh();
-        }
-      } catch (err) {
-        toast.error(describeError(err, "Something went wrong"));
-      }
-    });
+    if (props.mode === "create") {
+      run(() => createSubnet(input), {
+        okMessage: "Subnet created",
+        noRefresh: true,
+        onSuccess: (data) => router.push(`/network-tools/ipam/${data.id}`),
+      });
+    } else {
+      run(() => updateSubnet(props.subnetId, input), {
+        okMessage: "Subnet updated",
+        onSuccess: () => router.push(`/network-tools/ipam/${props.subnetId}`),
+      });
+    }
   }
 
-  async function performDelete() {
+  function performDelete() {
     if (props.mode !== "edit") return;
-    setDeleting(true);
-    try {
-      const result = await deleteSubnet(props.subnetId);
-      if (!result.ok) {
-        toast.error(result.error);
-        setDeleting(false);
-        setConfirmOpen(false);
-        return;
-      }
-      toast.success("Subnet deleted");
-      router.push("/network-tools/ipam");
-    } catch (err) {
-      toast.error(describeError(err, "Failed to delete"));
-      setDeleting(false);
-      setConfirmOpen(false);
-    }
+    runDelete(() => deleteSubnet(props.subnetId), {
+      okMessage: "Subnet deleted",
+      noRefresh: true,
+      onSuccess: () => router.push("/network-tools/ipam"),
+      onError: () => setConfirmOpen(false),
+    });
   }
 
   return (
@@ -149,7 +160,7 @@ export function SubnetForm(props: Props) {
             id="cidr"
             type="text"
             value={cidr}
-            onChange={(e) => setCidr(e.target.value)}
+            onChange={(e) => set("cidr", e.target.value)}
             className="glass-input w-full rounded-lg px-4 py-2.5 font-mono text-sm"
             placeholder="192.168.1.0/24"
             required
@@ -191,7 +202,7 @@ export function SubnetForm(props: Props) {
             id="name"
             type="text"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => set("name", e.target.value)}
             className="glass-input w-full rounded-lg px-4 py-2.5 text-sm"
             placeholder="e.g. Main LAN, IoT VLAN"
             required
@@ -211,7 +222,7 @@ export function SubnetForm(props: Props) {
           <textarea
             id="description"
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={(e) => set("description", e.target.value)}
             className="glass-input w-full resize-none rounded-lg px-4 py-2.5 text-sm"
             rows={2}
             placeholder="What's on this subnet?"
@@ -234,7 +245,7 @@ export function SubnetForm(props: Props) {
                 id="gateway"
                 type="text"
                 value={gateway}
-                onChange={(e) => setGateway(e.target.value)}
+                onChange={(e) => set("gateway", e.target.value)}
                 className="glass-input w-full rounded-lg px-4 py-2.5 font-mono text-sm"
                 placeholder="192.168.1.1"
                 maxLength={45}
@@ -250,7 +261,7 @@ export function SubnetForm(props: Props) {
                 id="dnsServers"
                 type="text"
                 value={dnsServers}
-                onChange={(e) => setDnsServers(e.target.value)}
+                onChange={(e) => set("dnsServers", e.target.value)}
                 className="glass-input w-full rounded-lg px-4 py-2.5 font-mono text-sm"
                 placeholder="1.1.1.1, 8.8.8.8"
                 maxLength={400}
@@ -268,7 +279,7 @@ export function SubnetForm(props: Props) {
         <ColorTagPicker
           label="Color tag"
           value={colorTag}
-          onChange={setColorTag}
+          onChange={(value) => set("colorTag", value)}
         />
       </div>
 

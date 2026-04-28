@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useTransition, useMemo } from "react";
+import { useReducer, useState, useTransition, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import toast from "react-hot-toast";
 import { twMerge } from "tailwind-merge";
 import { ArrowLeft, Save, Trash2, Eye } from "lucide-react";
 import { DEVICE_TYPE_LABELS, type DeviceType } from "@/types";
@@ -12,13 +11,62 @@ import { InlineHelp } from "@/components/ui/inline-help";
 import { AdvancedAccordion } from "@/components/ui/advanced-accordion";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
 import { Select, SelectOption } from "@/components/ui/select";
+import { useOrgAction } from "@/hooks/use-org-action";
 import {
   createDevice,
   updateDevice,
   deleteDevice,
 } from "@/app/(dashboard)/devices/actions";
 import type { DeviceInput } from "@/lib/validators";
-import { describeError } from "@/lib/error-message";
+
+type FormState = {
+  name: string;
+  deviceType: DeviceType;
+  manufacturer: string;
+  model: string;
+  sizeU: number;
+  portCount: number;
+  powerWatts: string;
+  ipAddress: string;
+  macAddress: string;
+  hostname: string;
+  notes: string;
+  rackId: string;
+  positionU: string;
+};
+
+type FormAction =
+  | { type: "set"; payload: Partial<FormState> }
+  | { type: "reset"; state: FormState };
+
+function formReducer(state: FormState, action: FormAction): FormState {
+  switch (action.type) {
+    case "set":
+      return { ...state, ...action.payload };
+    case "reset":
+      return action.state;
+    default:
+      return state;
+  }
+}
+
+function buildInitial(initial?: Partial<DeviceInput>): FormState {
+  return {
+    name: initial?.name ?? "",
+    deviceType: (initial?.deviceType as DeviceType) ?? "switch",
+    manufacturer: initial?.manufacturer ?? "",
+    model: initial?.model ?? "",
+    sizeU: initial?.sizeU ?? 1,
+    portCount: initial?.portCount ?? 0,
+    powerWatts: initial?.powerWatts != null ? String(initial.powerWatts) : "",
+    ipAddress: initial?.ipAddress ?? "",
+    macAddress: initial?.macAddress ?? "",
+    hostname: initial?.hostname ?? "",
+    notes: initial?.notes ?? "",
+    rackId: initial?.rackId ?? "",
+    positionU: initial?.positionU != null ? String(initial.positionU) : "",
+  };
+}
 
 type RackOption = { id: string; name: string; sizeU: number };
 
@@ -63,30 +111,32 @@ const MANUFACTURER_OPTIONS = [
 export function DeviceForm(props: Props) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
-  const [deleting, setDeleting] = useState(false);
+  const [deleting, startDelete] = useTransition();
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const run = useOrgAction(startTransition);
+  const runDelete = useOrgAction(startDelete);
 
-  const [name, setName] = useState(props.initial?.name ?? "");
-  const [deviceType, setDeviceType] = useState<DeviceType>(
-    (props.initial?.deviceType as DeviceType) ?? "switch",
-  );
-  const [manufacturer, setManufacturer] = useState(
-    props.initial?.manufacturer ?? "",
-  );
-  const [model, setModel] = useState(props.initial?.model ?? "");
-  const [sizeU, setSizeU] = useState(props.initial?.sizeU ?? 1);
-  const [portCount, setPortCount] = useState(props.initial?.portCount ?? 0);
-  const [powerWatts, setPowerWatts] = useState<string>(
-    props.initial?.powerWatts != null ? String(props.initial.powerWatts) : "",
-  );
-  const [ipAddress, setIpAddress] = useState(props.initial?.ipAddress ?? "");
-  const [macAddress, setMacAddress] = useState(props.initial?.macAddress ?? "");
-  const [hostname, setHostname] = useState(props.initial?.hostname ?? "");
-  const [notes, setNotes] = useState(props.initial?.notes ?? "");
-  const [rackId, setRackId] = useState(props.initial?.rackId ?? "");
-  const [positionU, setPositionU] = useState<string>(
-    props.initial?.positionU != null ? String(props.initial.positionU) : "",
-  );
+  const [form, dispatch] = useReducer(formReducer, props.initial, buildInitial);
+  const {
+    name,
+    deviceType,
+    manufacturer,
+    model,
+    sizeU,
+    portCount,
+    powerWatts,
+    ipAddress,
+    macAddress,
+    hostname,
+    notes,
+    rackId,
+    positionU,
+  } = form;
+  const set = <K extends keyof FormState>(field: K, value: FormState[K]) =>
+    dispatch({
+      type: "set",
+      payload: { [field]: value } as Partial<FormState>,
+    });
 
   // Live preview DeviceGraphic from current form state
   const preview = useMemo(
@@ -123,50 +173,28 @@ export function DeviceForm(props: Props) {
         rackId && trimmedPos !== "" ? parseInt(trimmedPos) || null : null,
     };
 
-    startTransition(async () => {
-      try {
-        if (props.mode === "create") {
-          const result = await createDevice(input);
-          if (!result.ok) {
-            toast.error(result.error);
-            return;
-          }
-          toast.success("Device created");
-          router.push(`/devices/${result.data.id}`);
-        } else {
-          const result = await updateDevice(props.deviceId, input);
-          if (!result.ok) {
-            toast.error(result.error);
-            return;
-          }
-          toast.success("Device updated");
-          router.push(`/devices/${props.deviceId}`);
-          router.refresh();
-        }
-      } catch (err) {
-        toast.error(describeError(err, "Something went wrong"));
-      }
-    });
+    if (props.mode === "create") {
+      run(() => createDevice(input), {
+        okMessage: "Device created",
+        noRefresh: true,
+        onSuccess: (data) => router.push(`/devices/${data.id}`),
+      });
+    } else {
+      run(() => updateDevice(props.deviceId, input), {
+        okMessage: "Device updated",
+        onSuccess: () => router.push(`/devices/${props.deviceId}`),
+      });
+    }
   }
 
-  async function performDelete() {
+  function performDelete() {
     if (props.mode !== "edit") return;
-    setDeleting(true);
-    try {
-      const result = await deleteDevice(props.deviceId);
-      if (!result.ok) {
-        toast.error(result.error);
-        setDeleting(false);
-        setConfirmOpen(false);
-        return;
-      }
-      toast.success("Device deleted");
-      router.push("/devices");
-    } catch (err) {
-      toast.error(describeError(err, "Failed to delete"));
-      setDeleting(false);
-      setConfirmOpen(false);
-    }
+    runDelete(() => deleteDevice(props.deviceId), {
+      okMessage: "Device deleted",
+      noRefresh: true,
+      onSuccess: () => router.push("/devices"),
+      onError: () => setConfirmOpen(false),
+    });
   }
 
   return (
@@ -209,7 +237,7 @@ export function DeviceForm(props: Props) {
                 id="name"
                 type="text"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => set("name", e.target.value)}
                 className="glass-input w-full rounded-lg px-4 py-2.5 text-sm"
                 placeholder="e.g. Main Switch, firewall-01"
                 required
@@ -229,7 +257,7 @@ export function DeviceForm(props: Props) {
               <Select
                 id="deviceType"
                 value={deviceType}
-                onValueChange={(v) => setDeviceType(v as DeviceType)}
+                onValueChange={(v) => set("deviceType", v as DeviceType)}
               >
                 {DEVICE_TYPE_OPTIONS.map((t) => (
                   <SelectOption key={t} value={t}>
@@ -252,7 +280,7 @@ export function DeviceForm(props: Props) {
               <Select
                 id="manufacturer"
                 value={manufacturer.toLowerCase()}
-                onValueChange={setManufacturer}
+                onValueChange={(v) => set("manufacturer", v)}
                 placeholder="(none)"
               >
                 <SelectOption value="">(none)</SelectOption>
@@ -274,7 +302,7 @@ export function DeviceForm(props: Props) {
                 id="model"
                 type="text"
                 value={model}
-                onChange={(e) => setModel(e.target.value)}
+                onChange={(e) => set("model", e.target.value)}
                 className="glass-input w-full rounded-lg px-4 py-2.5 text-sm"
                 placeholder="e.g. C9300-48P"
                 maxLength={100}
@@ -296,7 +324,7 @@ export function DeviceForm(props: Props) {
                 type="number"
                 value={sizeU}
                 onChange={(e) =>
-                  setSizeU(Math.max(1, parseInt(e.target.value) || 1))
+                  set("sizeU", Math.max(1, parseInt(e.target.value) || 1))
                 }
                 className="glass-input w-full rounded-lg px-4 py-2.5 text-sm"
                 min={1}
@@ -315,7 +343,7 @@ export function DeviceForm(props: Props) {
                 type="number"
                 value={portCount}
                 onChange={(e) =>
-                  setPortCount(Math.max(0, parseInt(e.target.value) || 0))
+                  set("portCount", Math.max(0, parseInt(e.target.value) || 0))
                 }
                 className="glass-input w-full rounded-lg px-4 py-2.5 text-sm"
                 min={0}
@@ -333,7 +361,7 @@ export function DeviceForm(props: Props) {
                 id="powerWatts"
                 type="number"
                 value={powerWatts}
-                onChange={(e) => setPowerWatts(e.target.value)}
+                onChange={(e) => set("powerWatts", e.target.value)}
                 className="glass-input w-full rounded-lg px-4 py-2.5 text-sm"
                 min={0}
                 max={100000}
@@ -359,7 +387,7 @@ export function DeviceForm(props: Props) {
                   id="ipAddress"
                   type="text"
                   value={ipAddress}
-                  onChange={(e) => setIpAddress(e.target.value)}
+                  onChange={(e) => set("ipAddress", e.target.value)}
                   className="glass-input w-full rounded-lg px-4 py-2.5 font-mono text-sm"
                   placeholder="192.168.1.1"
                   maxLength={45}
@@ -375,7 +403,7 @@ export function DeviceForm(props: Props) {
                   id="macAddress"
                   type="text"
                   value={macAddress}
-                  onChange={(e) => setMacAddress(e.target.value)}
+                  onChange={(e) => set("macAddress", e.target.value)}
                   className="glass-input w-full rounded-lg px-4 py-2.5 font-mono text-sm"
                   placeholder="aa:bb:cc:dd:ee:ff"
                   maxLength={17}
@@ -391,7 +419,7 @@ export function DeviceForm(props: Props) {
                   id="hostname"
                   type="text"
                   value={hostname}
-                  onChange={(e) => setHostname(e.target.value)}
+                  onChange={(e) => set("hostname", e.target.value)}
                   className="glass-input w-full rounded-lg px-4 py-2.5 font-mono text-sm"
                   placeholder="switch-01"
                   maxLength={255}
@@ -417,7 +445,7 @@ export function DeviceForm(props: Props) {
                 <Select
                   id="rackId"
                   value={rackId}
-                  onValueChange={setRackId}
+                  onValueChange={(v) => set("rackId", v)}
                   placeholder="Unracked"
                 >
                   <SelectOption value="">Unracked</SelectOption>
@@ -439,7 +467,7 @@ export function DeviceForm(props: Props) {
                   id="positionU"
                   type="number"
                   value={positionU}
-                  onChange={(e) => setPositionU(e.target.value)}
+                  onChange={(e) => set("positionU", e.target.value)}
                   className="glass-input w-full rounded-lg px-4 py-2.5 text-sm disabled:opacity-40"
                   min={1}
                   max={60}
@@ -465,7 +493,7 @@ export function DeviceForm(props: Props) {
             <textarea
               id="notes"
               value={notes}
-              onChange={(e) => setNotes(e.target.value)}
+              onChange={(e) => set("notes", e.target.value)}
               className="glass-input w-full resize-none rounded-lg px-4 py-2.5 text-sm"
               rows={3}
               placeholder="Any additional notes about this device"

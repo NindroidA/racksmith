@@ -5,9 +5,17 @@ import type { TransitionStartFunction } from "react";
 import toast from "react-hot-toast";
 import type { ActionResult } from "@/lib/action-types";
 
-type RunOptions = {
+type RunOptions<T> = {
   okMessage?: string;
-  onSuccess?: () => void;
+  /**
+   * Called on the happy path before `router.refresh()`. Receives the
+   * action's `data` payload — handy for create-then-navigate flows that
+   * need the new row's id (`onSuccess: (data) => router.push(`/x/${data.id}`)`).
+   * Existing zero-arg callbacks remain compatible: TypeScript allows a
+   * callback that accepts fewer parameters where one accepting more is
+   * expected, since extra arguments are simply ignored at the call.
+   */
+  onSuccess?: (data: T) => void;
   onError?: () => void;
   onSettled?: () => void;
   noRefresh?: boolean;
@@ -15,7 +23,7 @@ type RunOptions = {
 
 export type ActionRunner = <T>(
   action: () => Promise<ActionResult<T>>,
-  opts?: RunOptions,
+  opts?: RunOptions<T>,
 ) => void;
 
 /**
@@ -31,7 +39,10 @@ export type ActionRunner = <T>(
  */
 export function useOrgAction(start: TransitionStartFunction): ActionRunner {
   const router = useRouter();
-  return <T>(action: () => Promise<ActionResult<T>>, opts: RunOptions = {}) => {
+  return <T>(
+    action: () => Promise<ActionResult<T>>,
+    opts: RunOptions<T> = {},
+  ) => {
     start(async () => {
       try {
         const result = await action();
@@ -41,7 +52,7 @@ export function useOrgAction(start: TransitionStartFunction): ActionRunner {
           return;
         }
         if (opts.okMessage) toast.success(opts.okMessage);
-        opts.onSuccess?.();
+        opts.onSuccess?.(result.data);
         if (!opts.noRefresh) router.refresh();
       } catch {
         // Server actions normally return ActionResult, but a network failure
