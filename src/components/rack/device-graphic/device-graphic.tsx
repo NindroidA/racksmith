@@ -1,4 +1,6 @@
+import type { ComponentType } from "react";
 import { getBrandPalette } from "./brand-palette";
+import { MODEL_SPECIFIC } from "./models";
 import { SwitchFaceplate } from "./types/switch";
 import { ServerFaceplate } from "./types/server";
 import { UpsFaceplate } from "./types/ups";
@@ -27,21 +29,38 @@ export type DeviceGraphicProps = {
 };
 
 /**
- * DeviceGraphic — single entry point. Routes deviceType → correct faceplate.
- * Apply CSS `aspect-ratio: 10.86 / sizeU` on the container.
+ * Phase A v2 dispatch: prefer per-model components from `models/MODEL_SPECIFIC`
+ * (keyed `manufacturer:model`); fall back to the type-based template, and
+ * finally to the catch-all `OtherFaceplate`. Returning `null` means "use the
+ * type template" — the caller (`DeviceGraphic`) does the type switch in that
+ * case so the per-type templates' own prop derivations stay in one place.
+ *
+ * Pure function — no React state, no closures over runtime values. The
+ * catalog provides `manufacturer` + `model` strings exactly as the user
+ * (or seed) entered them; lookup case-folds the manufacturer side only,
+ * matching how `BRAND_PALETTES` is keyed.
  */
-export function DeviceGraphic({
-  deviceType,
-  manufacturer,
-  model,
-  sizeU,
-  portCount,
-  vaRating,
-  batteryLevel,
-  outletCount,
-  metered,
-}: DeviceGraphicProps) {
-  const palette = getBrandPalette(manufacturer);
+export function pickModelComponent(
+  manufacturer: string,
+  model: string,
+): ComponentType<DeviceGraphicProps> | null {
+  if (!manufacturer || !model) return null;
+  const key = `${manufacturer.toLowerCase()}:${model}`;
+  return MODEL_SPECIFIC[key] ?? null;
+}
+
+/**
+ * DeviceGraphic — single entry point. Routes (manufacturer + model) to a
+ * per-model component when available, otherwise routes deviceType to the
+ * matching faceplate template. Apply CSS `aspect-ratio: 10.86 / sizeU` on
+ * the container.
+ */
+export function DeviceGraphic(props: DeviceGraphicProps) {
+  const ModelComponent = pickModelComponent(props.manufacturer, props.model);
+  if (ModelComponent) return <ModelComponent {...props} />;
+
+  const palette = getBrandPalette(props.manufacturer);
+  const { deviceType, manufacturer, model, sizeU, portCount } = props;
   const type = deviceType.toLowerCase();
 
   switch (type) {
@@ -105,8 +124,13 @@ export function DeviceGraphic({
         <UpsFaceplate
           palette={palette}
           sizeU={sizeU}
-          batteryLevel={batteryLevel ?? 100}
-          vaRating={vaRating ?? (model && /\d+VA/i.test(model) ? model.match(/\d+VA/i)?.[0] : undefined)}
+          batteryLevel={props.batteryLevel ?? 100}
+          vaRating={
+            props.vaRating ??
+            (model && /\d+VA/i.test(model)
+              ? model.match(/\d+VA/i)?.[0]
+              : undefined)
+          }
           model={model}
         />
       );
@@ -126,8 +150,8 @@ export function DeviceGraphic({
         <PduFaceplate
           palette={palette}
           sizeU={sizeU || 1}
-          outletCount={outletCount ?? portCount ?? 8}
-          metered={metered ?? false}
+          outletCount={props.outletCount ?? portCount ?? 8}
+          metered={props.metered ?? false}
           model={model}
         />
       );
