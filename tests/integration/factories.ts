@@ -189,13 +189,15 @@ export async function createTestSubnet(
   userId: string,
   opts?: { cidr?: string; name?: string },
 ) {
-  const id = nextId("subnet");
+  // Let Prisma generate a CUID-shaped id — same rationale as createTestRack.
+  // The `subnetId` field on createIpAssignmentBody/createDhcpRangeBody is
+  // validated as `z.string().cuid()`, so a `subnet-<ts>-<n>` id would fail.
+  const fallbackName = nextId("subnet");
   return withTenant(organizationId, (tx) =>
     tx.subnet.create({
       data: {
-        id,
         cidr: opts?.cidr ?? "10.0.0.0/24",
-        name: opts?.name ?? `Subnet ${id}`,
+        name: opts?.name ?? `Subnet ${fallbackName}`,
         userId,
         organizationId,
       },
@@ -208,13 +210,13 @@ export async function createTestVlan(
   userId: string,
   opts?: { vlanId?: number; name?: string },
 ) {
-  const id = nextId("vlan");
+  // Let Prisma generate a CUID-shaped id — same rationale as createTestSubnet.
+  const fallbackName = nextId("vlan");
   return withTenant(organizationId, (tx) =>
     tx.vlan.create({
       data: {
-        id,
         vlanId: opts?.vlanId ?? 100,
-        name: opts?.name ?? `Vlan ${id}`,
+        name: opts?.name ?? `Vlan ${fallbackName}`,
         userId,
         organizationId,
       },
