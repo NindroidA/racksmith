@@ -89,8 +89,15 @@ export function getEffectivePlan(dbPlan: string | null | undefined): Plan {
 }
 
 /**
- * Resolve an organization's current plan, honoring expiry and the dev bypass.
- * Returns "free" for missing organizations or expired paid plans.
+ * Resolve an organization's current plan, honoring expiry, payment
+ * status, and the dev bypass. Returns "free" for missing organizations,
+ * expired paid plans, or paid plans whose Stripe subscription is in a
+ * non-active terminal state.
+ *
+ * paymentStatus is the read-side defense layer for Phase 13: the
+ * webhook handler is the write-side authority that flips plan + expiry,
+ * but if a webhook is delayed or missed, paymentStatus = "canceled"
+ * still demotes the org to free at read time.
  */
 export async function getOrganizationPlan(
   organizationId: string,
@@ -99,9 +106,11 @@ export async function getOrganizationPlan(
 
   const org = await prisma.organization.findUnique({
     where: { id: organizationId },
-    select: { plan: true, planExpiresAt: true },
+    select: { plan: true, planExpiresAt: true, paymentStatus: true },
   });
   if (!org) return "free";
+
+  if (org.paymentStatus === "canceled") return "free";
 
   if (org.planExpiresAt && org.planExpiresAt.getTime() < Date.now()) {
     return "free";

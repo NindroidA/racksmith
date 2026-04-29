@@ -43,7 +43,14 @@ export type AuditAction =
   | "ownership_transfer_revoked"
   | "api_key_created"
   | "api_key_revoked"
-  | "api_key_auto_revoked";
+  | "api_key_auto_revoked"
+  | "subscription_created"
+  | "subscription_updated"
+  | "subscription_deleted"
+  | "payment_failed"
+  | "payment_succeeded"
+  | "payment_refunded"
+  | "customer_portal_opened";
 
 export type AuditEntityType =
   | "user"
@@ -62,7 +69,8 @@ export type AuditEntityType =
   | "organization"
   | "invitation"
   | "member"
-  | "api_key";
+  | "api_key"
+  | "subscription";
 
 type AuditInput = {
   userId: string;

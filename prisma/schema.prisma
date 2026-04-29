@@ -125,6 +125,15 @@ model Organization {
   plan          String    @default("free")
   planExpiresAt DateTime?
 
+  // Phase 13 — Stripe billing linkage. All nullable; populated lazily on
+  // first Checkout. paymentStatus mirrors Stripe's subscription.status:
+  // "active" | "past_due" | "canceled" | "incomplete" | null (free tier).
+  stripeCustomerId         String?  @unique
+  stripeSubscriptionId     String?  @unique
+  stripeSubscriptionItemId String?
+  stripePriceId            String?
+  paymentStatus            String?
+
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -149,7 +158,31 @@ model Organization {
   apiKeys         ApiKey[]
   apiRequestLogs  ApiRequestLog[]
 
+  // Phase 13 — Stripe webhook event audit (back-reference for forensics)
+  stripeEvents    StripeEvent[]
+
   @@index([slug])
+}
+
+// ─── Stripe webhook event ledger (Phase 13) ─────
+//
+// Every webhook Stripe delivers to /api/webhooks/stripe gets a row here
+// keyed on Stripe's event.id (e.g. "evt_1NkLk2EeKn..."). The unique id
+// gives us idempotent processing — a duplicate POST hits the unique
+// constraint and the handler returns 200 immediately. Not tenant-scoped:
+// webhooks arrive without auth, organizationId is resolved from the
+// payload after signature verification.
+model StripeEvent {
+  id             String   @id // Stripe event.id
+  type           String   // e.g. "customer.subscription.updated"
+  payload        Json     // full Stripe event for replay/debugging
+  processedAt    DateTime @default(now())
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  errorMessage   String?
+
+  @@index([type, processedAt])
+  @@index([organizationId])
 }
 
 // Email-confirmed ownership handoff. Owner initiates → target member gets
