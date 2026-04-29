@@ -1,5 +1,5 @@
 import type { ComponentType } from "react";
-import { getBrandPalette } from "./brand-palette";
+import { BRAND_PALETTES, getBrandPalette } from "./brand-palette";
 import { MODEL_SPECIFIC } from "./models";
 import { SwitchFaceplate } from "./types/switch";
 import { ServerFaceplate } from "./types/server";
@@ -38,14 +38,19 @@ export type DeviceGraphicProps = {
  * Pure function — no React state, no closures over runtime values. The
  * catalog provides `manufacturer` + `model` strings exactly as the user
  * (or seed) entered them; lookup case-folds the manufacturer side only,
- * matching how `BRAND_PALETTES` is keyed.
+ * matching how `BRAND_PALETTES` is keyed. Manufacturers that aren't in
+ * `BRAND_PALETTES` are rejected up-front, even if a `MODEL_SPECIFIC` entry
+ * exists — per-model components depend on a real palette, so an unknown
+ * vendor must fall through to the type-template path.
  */
 export function pickModelComponent(
   manufacturer: string,
   model: string,
 ): ComponentType<DeviceGraphicProps> | null {
   if (!manufacturer || !model) return null;
-  const key = `${manufacturer.toLowerCase()}:${model}`;
+  const mfr = manufacturer.toLowerCase();
+  if (!(mfr in BRAND_PALETTES)) return null;
+  const key = `${mfr}:${model}`;
   return MODEL_SPECIFIC[key] ?? null;
 }
 

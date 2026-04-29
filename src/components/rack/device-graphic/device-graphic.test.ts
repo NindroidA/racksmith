@@ -20,13 +20,16 @@ const FakeUdmPro: ComponentType<DeviceGraphicProps> = () => null;
 const FakeC9300: ComponentType<DeviceGraphicProps> = () => null;
 
 describe("pickModelComponent", () => {
-  // Each test mutates the shared MODEL_SPECIFIC map. Snapshot/restore so
-  // failures don't leak state across tests or to the rest of the suite.
-  const originalKeys = Object.keys(MODEL_SPECIFIC);
+  // Each test mutates the shared MODEL_SPECIFIC map. Snapshot the full
+  // map (keys + values) at suite-start and restore it after every test
+  // so that once Phase B/C populates real entries, mutations in this
+  // file can't leak into other tests.
+  const originalModelSpecific = { ...MODEL_SPECIFIC };
   afterEach(() => {
     for (const k of Object.keys(MODEL_SPECIFIC)) {
-      if (!originalKeys.includes(k)) delete MODEL_SPECIFIC[k];
+      delete MODEL_SPECIFIC[k];
     }
+    Object.assign(MODEL_SPECIFIC, originalModelSpecific);
   });
 
   it("returns null when MODEL_SPECIFIC has no matching key (Phase A baseline)", () => {
@@ -71,8 +74,13 @@ describe("pickModelComponent", () => {
   });
 
   it("returns null when the manufacturer is unknown to the palette system", () => {
-    // A vendor we don't have a palette for shouldn't trigger a match
-    // even if a key happened to be registered (defensive).
+    // Even if a `MODEL_SPECIFIC` entry happens to exist for an unknown
+    // vendor, the dispatch must reject it — per-model components depend
+    // on a real `BRAND_PALETTES` entry, and falling through to the type
+    // template is the correct behavior. Register a key under an unknown
+    // vendor and assert lookup still returns null.
+    const FakeAcme: ComponentType<DeviceGraphicProps> = () => null;
+    MODEL_SPECIFIC["acme-corp:Anything"] = FakeAcme;
     expect(pickModelComponent("acme-corp", "Anything")).toBeNull();
   });
 });
