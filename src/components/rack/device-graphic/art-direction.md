@@ -155,13 +155,9 @@ In `primitives/`:
 - `LedStatusRing` — UDM-Pro thin segmented circle (brand-primary lit)
 - `ModularUplinkSlot` — Cisco 9300 right-third dark rectangle (blank or
   4×SFP+ inset)
-- `CiscoModeButtons` — Mode/Master button cluster (separate concept from
-  the integrated MODE button on `CiscoStatusColumn`)
 - `DriveBayGrid` — Dell / HPE configurable rows × cols of bay rectangles
   with drive handles + status LEDs
 - `DellLcdPanel` — Dell PowerEdge amber-backlit narrow LCD
-- `UnifiPortStatusBar` — UniFi signature thin bottom-strip with per-port
-  LED dots
 
 ## Out of scope (still)
 

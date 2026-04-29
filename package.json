@@ -31,7 +31,6 @@
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^8.5.0",
     "@prisma/client": "^6",
-    "@scalar/api-reference-react": "^0.9.25",
     "@xyflow/react": "^12.10.2",
     "better-auth": "^1.6.4",
     "cmdk": "^1.1.1",
