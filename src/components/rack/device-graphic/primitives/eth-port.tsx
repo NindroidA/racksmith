@@ -33,6 +33,9 @@ export function EthPort({
   bezel,
   pinCount = 8,
 }: Props) {
+  // Clamp to a positive integer — guards against 0/negative/non-finite
+  // values producing Infinity or NaN in the geometry math below.
+  const pins = Math.max(1, Math.floor(pinCount));
   const radius = Math.min(w, h) * 0.18;
   const innerPad = 0.4;
   const cavityX = x + innerPad;
@@ -40,12 +43,12 @@ export function EthPort({
   const cavityW = w - innerPad * 2;
   const cavityH = h - innerPad * 2;
 
-  // Pin geometry — 8 thin rects spanning the top of the cavity
+  // Pin geometry — `pins` thin rects spanning the top of the cavity
   const pinAreaPad = cavityW * 0.05;
   const pinAreaW = cavityW - pinAreaPad * 2;
   const pinAreaX = cavityX + pinAreaPad;
-  const pinGap = pinAreaW / pinCount * 0.18;
-  const pinW = (pinAreaW - pinGap * (pinCount - 1)) / pinCount;
+  const pinGap = (pinAreaW / pins) * 0.18;
+  const pinW = (pinAreaW - pinGap * (pins - 1)) / pins;
 
   return (
     <g>
@@ -65,7 +68,7 @@ export function EthPort({
       />
 
       {/* Gold contact pins along the top */}
-      {Array.from({ length: pinCount }).map((_, i) => (
+      {Array.from({ length: pins }).map((_, i) => (
         <rect
           key={i}
           x={pinAreaX + i * (pinW + pinGap)}

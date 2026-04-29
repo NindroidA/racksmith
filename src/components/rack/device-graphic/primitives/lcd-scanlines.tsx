@@ -29,16 +29,19 @@ export function LcdScanlines({
   opacity = 0.06,
   pitch = 0.7,
 }: Props) {
-  const lineCount = Math.floor(h / pitch);
+  // Guard against non-positive / non-finite pitch producing Infinity or
+  // NaN in the line count.
+  const safePitch = Number.isFinite(pitch) && pitch > 0 ? pitch : 0.7;
+  const lineCount = Math.max(0, Math.floor(h / safePitch));
   return (
     <g>
       {Array.from({ length: lineCount }).map((_, i) => (
         <rect
           key={i}
           x={x}
-          y={y + i * pitch}
+          y={y + i * safePitch}
           width={w}
-          height={pitch * 0.4}
+          height={safePitch * 0.4}
           fill={ink}
           opacity={opacity}
         />
