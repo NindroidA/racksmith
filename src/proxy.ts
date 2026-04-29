@@ -22,6 +22,9 @@ const PUBLIC_PATHS = [
   "/ownership-transfer",
   "/api/auth",
   "/api/health",
+  // Dev-only scratch routes for design iteration. Pages under /dev/*
+  // call notFound() in production.
+  "/dev",
   // /api/v1/* uses bearer-token auth via requireApiKey() in the route
   // factory; the proxy's session-cookie check doesn't apply. The factory's
   // own auth chain returns proper 401/403 JSON responses instead of HTML
