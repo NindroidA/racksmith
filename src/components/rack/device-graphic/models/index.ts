@@ -16,6 +16,10 @@ import { UdmPro } from "./udm-pro";
 import { UswPro48Poe } from "./usw-pro-48-poe";
 import { UswEnterprise24Poe } from "./usw-enterprise-24-poe";
 import { UswAggregation } from "./usw-aggregation";
+import { C9300_48P } from "./c9300-48p";
+import { R750 } from "./r750";
+import { PDUMV30HV } from "./pdumv30hv";
+import { SU1500RTXL2UA } from "./su1500rtxl2ua";
 
 export const MODEL_SPECIFIC: Record<
   string,
@@ -25,4 +29,8 @@ export const MODEL_SPECIFIC: Record<
   "ubiquiti:USW-Pro-48-PoE": UswPro48Poe,
   "ubiquiti:USW-Enterprise-24-PoE": UswEnterprise24Poe,
   "ubiquiti:USW-Aggregation": UswAggregation,
+  "cisco:C9300-48P": C9300_48P,
+  "dell:R750": R750,
+  "tripplite:PDUMV30HV": PDUMV30HV,
+  "tripplite:SU1500RTXL2UA": SU1500RTXL2UA,
 };
