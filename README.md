@@ -4,7 +4,7 @@
 
 ### Your infrastructure, beautifully documented.
 
-Rack visualization, device inventory, network topology, and auto-discovery in a single self-hostable app.
+Rack visualization, device inventory, network topology, and auto-discovery in a single hosted app for homelabbers, small IT teams, and MSPs.
 
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org)
 [![Bun](https://img.shields.io/badge/Bun-1.x-%23f9f1e1?logo=bun)](https://bun.sh)
@@ -22,12 +22,14 @@ Rack visualization, device inventory, network topology, and auto-discovery in a 
 > ### Status: building in private
 >
 > RackSmith is completing the full v1.5 + v2.0 roadmap (network tools, team
-> collaboration, API, SSO, billing, paid self-host licensing) before any
-> public launch. The code works today, but it's not being marketed yet. Try
-> it for learning or early feedback; don't expect polish guarantees until
-> the launch announcement.
+> collaboration, API, SSO, billing) before any public launch. The code works
+> today, but it's not being marketed yet, and v1 ships **hosted-only** —
+> paid tiers run on the official hosted service. Self-hosting is on the
+> post-launch backlog, gated on demand.
 >
-> See [`CHANGELOG.md`](CHANGELOG.md) for what's shipped.
+> The repo is public for transparency and contribution; running it locally
+> is supported for development. See [`CHANGELOG.md`](CHANGELOG.md) for
+> what's shipped.
 
 ---
 
@@ -43,30 +45,30 @@ Rack visualization, device inventory, network topology, and auto-discovery in a 
 - Power budget (PoE + PDU + UPS) and cable estimator.
 - Teams and RBAC: organizations with `owner` / `admin` / `member` / `viewer` roles, member invitations, and ownership transfer.
 - Full auth: email/password, GitHub/Google OAuth (optional), TOTP 2FA with backup codes and trusted devices, password reset, email verification, session list with sign-out-all, audit log.
-- Self-hostable via multi-stage Dockerfile and `docker-compose.prod.yml`. Migrations run on boot; seeding is optional.
+- Containerized deploy via multi-stage Dockerfile and Docker Compose; migrations run on boot, seeding is optional. (Used for the hosted service; not packaged as a public self-host product at v1.)
 
 ### Public API (beta)
 
-A REST API at `/api/v1/` covers Racks and Devices CRUD with org-scoped API keys managed in Settings. Authentication is bearer-token, rate limiting is DB-backed (sliding window) with `X-RateLimit-*` response headers. Interactive docs render via Scalar at `/api/v1/docs`, and the OpenAPI 3.1 spec is at `/api/v1/openapi.json`. Breaking changes are possible until GA.
+A REST API at `/api/v1/` covers Racks, Devices, Subnets, VLANs, IP Assignments, DHCP Ranges, and Connections — full CRUD on every tenant-scoped resource the dashboard touches. Org-scoped API keys are managed in Settings. Authentication is bearer-token, rate limiting is DB-backed (sliding window) with `X-RateLimit-*` response headers. Interactive docs render via Scalar at `/api/v1/docs`, and the OpenAPI 3.1 spec is at `/api/v1/openapi.json`. Breaking changes are possible until GA.
 
 ## Pricing
 
-Three tiers. Free is functional for most homelabs; Pro and Business unlock scale and team features.
+Three tiers, all hosted. Free is functional for most homelabs; Pro and Business unlock scale and team features.
 
 | Tier | Price | Limits |
 |---|---|---|
-| Free | $0 forever | 1 site, 3 racks, unlimited devices, full core feature set |
+| Free | $0 forever | 1 site, 3 racks, 30 devices, full core feature set |
 | Pro | $9/mo (post-launch) | Unlimited sites and racks, team members, API, exports |
 | Business | $29/user/mo (post-launch) | Multi-tenant, white-label, SSO, advanced audit |
 
-Self-hosters get the Free tier with no license required. Pro and Business are hosted-only at launch; paid self-host licensing (signed JWT with instance-fingerprint binding) is planned for Phase 16. See the `/#pricing` section on the landing page for the full feature matrix.
+v1 launches hosted-only — paid tiers run on the official RackSmith service. Self-hosting (free or paid) is on the post-launch backlog and will only be built if there's clear demand. See the `/#pricing` section on the landing page for the full feature matrix.
 
 ## Known limitations (pre-launch)
 
 - OAuth requires your own provider apps. Buttons appear only when `GITHUB_CLIENT_ID` / `GOOGLE_CLIENT_ID` are set. See [OAuth sign-in](#oauth-sign-in-optional) below.
 - Email delivery defaults to a console logger in dev. When `RESEND_API_KEY` is unset, password-reset and verification mails print to stderr instead of sending. Set `RESEND_API_KEY` in production.
 - Better Auth rate limits (login, 2FA, password reset) live in memory, so multi-instance deployments can leak past those limits. The Phase-11 API rate limit is DB-backed and unaffected. Switch Better Auth to `storage: "database"` if you need horizontal scaling.
-- Paid self-hosting isn't available at launch. Pro/Business features run on the hosted service only until Phase 16 ships the licensing system.
+- Self-hosting isn't supported as a v1 product. The repo is public, the Dockerfile builds, and you can run RackSmith on your own hardware for development or evaluation, but Pro/Business features only run on the official hosted service. Whether to ship a supported self-host distribution post-launch is a TBD gated on demand.
 
 ## Screenshots
 
@@ -77,9 +79,11 @@ Self-hosters get the Free tier with no license required. Pro and Business are ho
 | ![Auto-Discovery](public/screenshots/discovery.png) | ![Device Inventory](public/screenshots/devices.png) |
 | Auto-Discovery | Device Inventory |
 
-## Quick start (Docker Compose)
+## Running locally (for development or evaluation)
 
-Requirements: Docker with `docker compose`. Install `nmap` on the host if you want auto-discovery.
+The easiest way to spin up the full stack on your own machine. Useful for contributors, for evaluating RackSmith before signing up to the hosted service, or for poking at the code.
+
+Requirements: Docker with `docker compose`. Install `nmap` on the host if you want to exercise auto-discovery.
 
 ```bash
 git clone https://github.com/NindroidA/racksmith.git
@@ -98,6 +102,8 @@ To seed the device catalog (Cisco, Dell, HPE, Ubiquiti, etc.):
 ```bash
 docker compose exec app bunx prisma db seed
 ```
+
+> **Not a self-host distribution.** This stack is fine for local development and evaluation, but RackSmith v1 isn't packaged as a supported self-host product. Pro/Business features run on the official hosted service. See [Pricing](#pricing).
 
 ## Development setup
 
@@ -177,7 +183,7 @@ Behind a reverse proxy (recommended): terminate HTTPS at nginx/Caddy/Traefik and
 
 Postgres backups: the `pgdata` volume holds all your data. Back it up regularly with `docker compose -f docker-compose.prod.yml exec db pg_dump -U racksmith racksmith > backup.sql`.
 
-Full guide: [`docs/SELF_HOSTING.md`](docs/SELF_HOSTING.md).
+Full guide (maintainer-only — this is the runbook for the official hosted deployment): [`docs/INTERNAL_DEPLOY.md`](docs/INTERNAL_DEPLOY.md).
 
 ### Common commands
 
@@ -209,7 +215,7 @@ Full guide: [`docs/SELF_HOSTING.md`](docs/SELF_HOSTING.md).
 | Toasts | react-hot-toast |
 | Network scan | nmap (via child_process, grepable output) |
 | Testing | Vitest |
-| Deployment | Docker Compose (self-hosted) |
+| Deployment | Docker Compose (hosted on the official RackSmith service) |
 
 ## Architecture
 
@@ -219,27 +225,29 @@ Full guide: [`docs/SELF_HOSTING.md`](docs/SELF_HOSTING.md).
 - Multi-tenancy uses PostgreSQL Row-Level Security. Every query on a tenant-scoped table runs inside `withTenant(organizationId, ...)`, which sets the PG session variable RLS reads. Forced RLS at the DB layer means an un-wrapped query returns empty rows, not another tenant's data.
 - Tier-checked creates (racks, devices, subnets, VLANs, plans, API keys) use `canCreate*Locked` helpers that acquire a `pg_advisory_xact_lock` so concurrent creates serialize against the cap.
 - The `/api/v1/` routes share a small route factory that handles auth, rate limiting, error envelopes, and request logging in one place.
-- Device graphics are SVG faceplates at a real 10.86:1 aspect ratio per U, with nine brand palettes tuned for the dark theme.
+- Device graphics are SVG faceplates at a real 10.86:1 aspect ratio per U, with nine brand palettes tuned for the dark theme. Tier-1 SKUs (UDM-Pro, the three USW switches, Catalyst 9300-48P, PowerEdge R750, TrippLite PDU/UPS) get bespoke per-model components dispatched via `pickModelComponent`; everything else falls through to type-template renderers.
 - Discovery uses fire-and-forget nmap processes; the client polls scan status.
 
 ## Project status
 
-| Shipped | Next |
+| Shipped | Next (in trajectory order) |
 |---|---|
-| Phases 1–6 — Foundation, racks, device visualization, inventory, auto-discovery, topology, pre-launch polish | Phase 12 — Export suite |
-| Phase 6.5 — Cross-cutting UX foundations | Phase 13 — Advanced audit viewer |
-| Phase 7 — Subnet + IPAM + DNS *(v1.5)* | Phase 14 — SSO via OIDC |
-| Phase 8 — VLANs + config generator *(v1.5)* | Phase 15 — Stripe billing + hosted tier |
-| Phase 9 — Plan wizard, recommendations, power budget, cable estimator *(v1.5)* | Phase 16 — Self-host paid licensing |
-| Phase 10 — Teams / Organizations / RBAC *(v2.0)* | Phase 17 — Launch prep |
-| Phase 11 — Public REST API + keys *(v2.0)* | Phase 18 — Public launch |
+| Phases 1–6 — Foundation, racks, device visualization, inventory, auto-discovery, topology, pre-launch polish | Phase 13 — Stripe billing + hosted-tier enablement |
+| Phase 6.5 — Cross-cutting UX foundations | Phase 14 — SSO via OIDC (Google Workspace, M365/Azure AD, Okta) |
+| Phase 7 — Subnet + IPAM + DNS *(v1.5)* | Phase 15 — Launch prep + final review gauntlet |
+| Phase 8 — VLANs + config generator *(v1.5)* | Phase 16 — 🚀 Public launch |
+| Phase 9 — Plan wizard, recommendations, power budget, cable estimator *(v1.5)* | *Post-launch* — Export suite (PDF/CSV/SVG) |
+| Phase 10 — Teams / Organizations / RBAC *(v2.0)* | *Post-launch* — Advanced audit log viewer |
+| Phase 11 — Public REST API + keys: Racks, Devices *(v2.0)* | *Post-launch* — Self-host (free + paid) — TBD, gated on demand |
+| Phase 12 — REST API expansion: Subnets, VLANs, IPAM, Connections *(v2.0)* | |
+| Polish — v2 device graphics: per-model components for tier-1 SKUs | |
 
 ## Contributing and security
 
 - [CONTRIBUTING.md](CONTRIBUTING.md) — what we accept during the v1 beta window
 - [SECURITY.md](SECURITY.md) — how to report a vulnerability (not via public issues)
 - [CHANGELOG.md](CHANGELOG.md) — what's shipped in each release
-- [docs/SELF_HOSTING.md](docs/SELF_HOSTING.md) — full production deploy guide
+- [docs/INTERNAL_DEPLOY.md](docs/INTERNAL_DEPLOY.md) — production deploy runbook (maintainers; for the official hosted service)
 
 ## License
 
