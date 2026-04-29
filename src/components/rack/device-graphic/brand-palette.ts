@@ -155,7 +155,78 @@ export const BRAND_PALETTES: Record<string, BrandPalette> = {
   },
 };
 
-export function getBrandPalette(manufacturer: string | undefined): BrandPalette {
+export function getBrandPalette(
+  manufacturer: string | undefined,
+): BrandPalette {
   if (!manufacturer) return BRAND_PALETTES.custom;
   return BRAND_PALETTES[manufacturer.toLowerCase()] ?? BRAND_PALETTES.custom;
+}
+
+/* === v2 two-axis chassis HSL system =================================
+ * Per-model renderers (Phase B onward) tint the chassis on two axes:
+ *   - MAKE drives hue/saturation (UniFi blue, Cisco cyan, Dell steel...)
+ *   - MODEL drives lightness (server darker than UPS lighter than AP)
+ *
+ * `BRAND_PALETTES` above remains the source of truth for accent colors,
+ * cavity, LED palette, and brand text. `chassisColors` supplements it
+ * with five chassis surface colors derived from HSL so each model
+ * silhouette reads as distinct in a rack without falling out of the
+ * cool silver/white family.
+ *
+ * Use one or the other — `BRAND_PALETTES` for type-template renderers
+ * (SwitchFaceplate etc.), `chassisColors` for per-model components.
+ */
+
+export type Make = "ubiquiti" | "cisco" | "dell" | "tripplite" | "hp" | "fs";
+
+export type ModelClass =
+  | "ap"
+  | "ups"
+  | "pdu"
+  | "switch"
+  | "poe-switch"
+  | "gateway"
+  | "firewall"
+  | "server";
+
+const MAKE_HSL: Record<Make, { hue: number; sat: number }> = {
+  ubiquiti: { hue: 213, sat: 14 },
+  cisco: { hue: 195, sat: 12 },
+  dell: { hue: 210, sat: 6 },
+  tripplite: { hue: 8, sat: 8 },
+  hp: { hue: 160, sat: 6 },
+  fs: { hue: 188, sat: 5 },
+};
+
+const MODEL_LIGHTNESS: Record<ModelClass, number> = {
+  ap: 91,
+  ups: 86,
+  pdu: 86,
+  switch: 86,
+  "poe-switch": 82,
+  gateway: 78,
+  firewall: 72,
+  server: 67,
+};
+
+export type ChassisColors = {
+  base: string;
+  hi: string;
+  mid: string;
+  lo: string;
+  shadow: string;
+  stroke: string;
+};
+
+export function chassisColors(make: Make, model: ModelClass): ChassisColors {
+  const { hue, sat } = MAKE_HSL[make];
+  const L = MODEL_LIGHTNESS[model];
+  return {
+    base: `hsl(${hue} ${sat}% ${L}%)`,
+    hi: `hsl(${hue} ${sat}% ${Math.min(L + 6, 96)}%)`,
+    mid: `hsl(${hue} ${sat}% ${Math.max(L - 5, 30)}%)`,
+    lo: `hsl(${hue} ${sat + 2}% ${Math.max(L - 14, 22)}%)`,
+    shadow: `hsl(${hue} ${sat + 4}% ${Math.max(L - 28, 12)}%)`,
+    stroke: `hsl(${hue} ${sat + 4}% ${Math.max(L - 36, 8)}%)`,
+  };
 }
