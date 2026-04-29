@@ -4,13 +4,12 @@ import { pickModelComponent, type DeviceGraphicProps } from "./device-graphic";
 import { MODEL_SPECIFIC } from "./models";
 
 /**
- * Phase A guarantees the v2 dispatch infrastructure works *before* any
- * Tier 1 model components land. Until Phase B starts populating
- * `MODEL_SPECIFIC`, the map is empty and every lookup must return
- * `null` so callers fall through to the type-template path.
- *
- * These tests assert the dispatch contract directly; the per-model
- * components themselves get covered when they're added in B/C.
+ * Verifies the v2 dispatch contract — `pickModelComponent` routes by
+ * `manufacturer:model` exactly, case-folds the manufacturer side only,
+ * and rejects unknown vendors even if a `MODEL_SPECIFIC` entry happens
+ * to exist. Phase A shipped the dispatch with an empty map; Phase B
+ * onward populates real SKUs (UDM-Pro, etc.). The per-model components
+ * themselves get covered when they're added in B/C.
  */
 
 // Stand-in for a future per-model component. We never actually render
@@ -32,9 +31,11 @@ describe("pickModelComponent", () => {
     Object.assign(MODEL_SPECIFIC, originalModelSpecific);
   });
 
-  it("returns null when MODEL_SPECIFIC has no matching key (Phase A baseline)", () => {
-    expect(pickModelComponent("ubiquiti", "UDM-Pro")).toBeNull();
-    expect(pickModelComponent("cisco", "C9300-48P")).toBeNull();
+  it("returns null when MODEL_SPECIFIC has no matching key", () => {
+    // Use clearly-unregistered model strings so this test stays valid
+    // as Phase B/C registers real SKUs (UDM-Pro, C9300-48P, etc.).
+    expect(pickModelComponent("ubiquiti", "NotARealModel-XYZ")).toBeNull();
+    expect(pickModelComponent("cisco", "NotARealModel-XYZ")).toBeNull();
   });
 
   it("returns null for empty manufacturer or model", () => {
@@ -71,6 +72,15 @@ describe("pickModelComponent", () => {
     expect(pickModelComponent("cisco", "C9200L-24T")).toBeNull();
     // Made-up model variant (e.g. catalog typo or future SKU) → null.
     expect(pickModelComponent("cisco", "C9300-48P-Rev2")).toBeNull();
+  });
+
+  it("routes UDM-Pro to the per-model component (Phase B regression)", () => {
+    // Phase B registered ubiquiti:UDM-Pro. Catalog model strings are
+    // exact, so the dispatch must hit the registered component for the
+    // canonical key and not fall through to the router type template.
+    const Component = pickModelComponent("ubiquiti", "UDM-Pro");
+    expect(Component).not.toBeNull();
+    expect(typeof Component).toBe("function");
   });
 
   it("returns null when the manufacturer is unknown to the palette system", () => {

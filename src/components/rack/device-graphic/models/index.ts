@@ -12,8 +12,17 @@
  */
 import type { ComponentType } from "react";
 import type { DeviceGraphicProps } from "../device-graphic";
+import { UdmPro } from "./udm-pro";
+import { UswPro48Poe } from "./usw-pro-48-poe";
+import { UswEnterprise24Poe } from "./usw-enterprise-24-poe";
+import { UswAggregation } from "./usw-aggregation";
 
 export const MODEL_SPECIFIC: Record<
   string,
   ComponentType<DeviceGraphicProps>
-> = {};
+> = {
+  "ubiquiti:UDM-Pro": UdmPro,
+  "ubiquiti:USW-Pro-48-PoE": UswPro48Poe,
+  "ubiquiti:USW-Enterprise-24-PoE": UswEnterprise24Poe,
+  "ubiquiti:USW-Aggregation": UswAggregation,
+};
