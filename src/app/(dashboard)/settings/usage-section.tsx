@@ -98,10 +98,10 @@ export function UsageSection({ usage }: Props) {
             API access, and PDF/CSV/SVG exports.
           </p>
           <Link
-            href="/#pricing"
+            href="/settings/billing"
             className="mt-3 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary/90"
           >
-            Join hosted waitlist
+            Upgrade plan
           </Link>
         </div>
       )}
