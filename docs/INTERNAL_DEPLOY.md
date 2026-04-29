@@ -1,8 +1,15 @@
-# Self-hosting RackSmith
+# Internal deployment runbook
 
-A step-by-step guide for running RackSmith on your own hardware or VPS. If
-you just want to try it locally, read [`README.md`](../README.md) first —
-this doc is for people running it in production.
+> **Audience: maintainers only.** This is the runbook for deploying the
+> official hosted RackSmith service. It is **not** a self-host quick-start
+> for end users — RackSmith v1 is hosted-only. The repo is public for
+> transparency, but Pro/Business features only run on the official hosted
+> service. See [`README.md`](../README.md) for context.
+
+A step-by-step guide for running RackSmith on the official hosted infrastructure
+(currently `prizmo`). The mechanics below also work for any contributor who
+wants to run a production-shaped build locally for testing — just don't ship
+the result as a public service.
 
 ---
 
