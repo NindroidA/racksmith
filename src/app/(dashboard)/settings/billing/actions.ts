@@ -1,20 +1,12 @@
 "use server";
 
 import { z } from "zod";
-import { headers } from "next/headers";
 
 import { audit } from "@/lib/audit";
-import {
-  handleZodError,
-  withActionEnvelope,
-} from "@/lib/action-helpers";
+import { handleZodError, withActionEnvelope } from "@/lib/action-helpers";
 import { requireMember } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
-import {
-  STRIPE_PRICE_IDS,
-  lookupPriceId,
-  stripe,
-} from "@/lib/stripe";
+import { isKnownPriceId, lookupPriceId, stripe } from "@/lib/stripe";
 import type { ActionResult } from "@/lib/action-types";
 
 // ─── Input schema ───────────────────────────────────────────────────
@@ -25,10 +17,7 @@ import type { ActionResult } from "@/lib/action-types";
 // to the four IDs we configured is the simplest defense.
 
 const checkoutSchema = z.object({
-  priceId: z.string().refine(
-    (id) => Object.values(STRIPE_PRICE_IDS).some((known) => known !== "" && known === id),
-    "Unknown priceId",
-  ),
+  priceId: z.string().refine(isKnownPriceId, "Unknown priceId"),
 });
 
 /**
@@ -43,9 +32,14 @@ const checkoutSchema = z.object({
  *
  * Idempotency: the Stripe customer is created lazily on first checkout
  * and stamped onto Organization.stripeCustomerId. Subsequent checkouts
- * reuse it. Concurrent first-checkout calls are serialized by the
- * unique constraint on stripeCustomerId — the loser of the race
- * deletes its orphan customer and re-reads the persisted one.
+ * reuse it. Concurrent first-checkout calls serialize via a conditional
+ * `updateMany` keyed on `stripeCustomerId: null` — the winner sets it
+ * to its newly-created customer ID, every other concurrent call gets
+ * count=0, deletes its orphan Stripe customer, and re-reads the
+ * persisted winner. Plain `update` would NOT trigger P2002 here (both
+ * updates target the same primary key — the unique constraint on
+ * stripeCustomerId would only fire across different rows), so the
+ * conditional write is the correct race-detector.
  */
 export async function createCheckoutSession(
   input: z.infer<typeof checkoutSchema>,
@@ -95,37 +89,27 @@ export async function createCheckoutSession(
         name: org.name,
         metadata: { organizationId },
       });
-      try {
-        await prisma.organization.update({
-          where: { id: organizationId },
-          data: { stripeCustomerId: customer.id },
-        });
+      const persisted = await prisma.organization.updateMany({
+        where: { id: organizationId, stripeCustomerId: null },
+        data: { stripeCustomerId: customer.id },
+      });
+      if (persisted.count === 1) {
         customerId = customer.id;
-      } catch (err) {
-        // Unique-constraint loser: another concurrent call won the race
-        // and persisted a customer first. Clean up our orphan and
-        // re-read the winning customer ID.
-        if (
-          err &&
-          typeof err === "object" &&
-          "code" in err &&
-          (err as { code?: string }).code === "P2002"
-        ) {
-          await stripe.customers.del(customer.id).catch(() => undefined);
-          const reread = await prisma.organization.findUnique({
-            where: { id: organizationId },
-            select: { stripeCustomerId: true },
-          });
-          if (!reread?.stripeCustomerId) {
-            return {
-              ok: false,
-              error: "Failed to provision billing customer. Please retry.",
-            };
-          }
-          customerId = reread.stripeCustomerId;
-        } else {
-          throw err;
+      } else {
+        // Lost the race — another concurrent caller already persisted
+        // a customer. Clean up our orphan and re-read the winner.
+        await stripe.customers.del(customer.id).catch(() => undefined);
+        const reread = await prisma.organization.findUnique({
+          where: { id: organizationId },
+          select: { stripeCustomerId: true },
+        });
+        if (!reread?.stripeCustomerId) {
+          return {
+            ok: false,
+            error: "Failed to provision billing customer. Please retry.",
+          };
         }
+        customerId = reread.stripeCustomerId;
       }
     }
 
@@ -134,9 +118,18 @@ export async function createCheckoutSession(
     // create/delete so the subscription quantity stays in sync.
     const quantity = tier === "business" ? org.members.length : 1;
 
-    const reqHeaders = await headers();
-    const origin =
-      reqHeaders.get("origin") ?? process.env.BETTER_AUTH_URL ?? "";
+    // Trusted base URL for Checkout return URLs. Reading this from the
+    // request `Origin` header would let a client-spoofed value flow into
+    // Stripe's success_url / cancel_url — open-redirect / phishing
+    // surface. BETTER_AUTH_URL is the canonical server-side origin.
+    const baseUrl = process.env.BETTER_AUTH_URL;
+    if (!baseUrl) {
+      return {
+        ok: false,
+        error: "Server is missing BETTER_AUTH_URL configuration.",
+      };
+    }
+    const origin = baseUrl.replace(/\/+$/, "");
 
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: "subscription",

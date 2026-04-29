@@ -103,7 +103,7 @@ export default async function SettingsPage({
           )}
         />
 
-        <UsageSection usage={usage} />
+        <UsageSection usage={usage} role={role as Role} />
 
         <PreferencesSection
           initial={{

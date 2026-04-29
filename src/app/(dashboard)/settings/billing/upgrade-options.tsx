@@ -30,20 +30,21 @@ function priceFor(
 ): { display: string; sub: string } {
   if (tier === "pro") {
     if (cycle === "monthly") {
-      return { display: "$9", sub: "per month" };
+      return { display: `$${PRO_MONTHLY}`, sub: "per month" };
     }
-    return { display: "$90", sub: "per year (save ~17%)" };
+    return { display: `$${PRO_ANNUAL}`, sub: "per year (save ~17%)" };
   }
   // Business — per-seat
+  const seatsLabel = `${memberCount} member${memberCount === 1 ? "" : "s"}`;
   if (cycle === "monthly") {
     return {
       display: `$${BUSINESS_MONTHLY * memberCount}`,
-      sub: `${memberCount} member${memberCount === 1 ? "" : "s"} × $29/mo`,
+      sub: `${seatsLabel} × $${BUSINESS_MONTHLY}/mo`,
     };
   }
   return {
     display: `$${BUSINESS_ANNUAL * memberCount}`,
-    sub: `${memberCount} member${memberCount === 1 ? "" : "s"} × $290/yr (save ~17%)`,
+    sub: `${seatsLabel} × $${BUSINESS_ANNUAL}/yr (save ~17%)`,
   };
 }
 
@@ -110,9 +111,9 @@ export function UpgradeOptions({
           Verify your email to upgrade
         </div>
         <p className="text-sm text-white/60">
-          A verified email is required before starting a paid subscription.
-          We sent a verification link when you signed up — check your inbox,
-          or request a new one from{" "}
+          A verified email is required before starting a paid subscription. We
+          sent a verification link when you signed up — check your inbox, or
+          request a new one from{" "}
           <a
             href="/settings"
             className="text-primary underline-offset-2 hover:underline"
@@ -168,7 +169,9 @@ export function UpgradeOptions({
             onClick={() => setCycle("annual")}
             disabled={pending}
             className={`rounded-full px-3 py-1 font-medium transition-colors ${
-              annual ? "bg-primary text-white" : "text-white/60 hover:text-white"
+              annual
+                ? "bg-primary text-white"
+                : "text-white/60 hover:text-white"
             }`}
           >
             Annual <span className="opacity-70">· save 17%</span>
@@ -206,8 +209,8 @@ export function UpgradeOptions({
       </div>
 
       <p className="mt-5 text-xs text-white/40">
-        Secure checkout powered by Stripe. You can cancel anytime — your
-        plan stays active until the end of the billing period.
+        Secure checkout powered by Stripe. You can cancel anytime — your plan
+        stays active until the end of the billing period.
       </p>
     </section>
   );
