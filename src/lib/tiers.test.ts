@@ -165,6 +165,33 @@ describe("getOrganizationPlan", () => {
     expect(await getOrganizationPlan("org_1")).toBe("business");
     expect(prisma.organization.findUnique).not.toHaveBeenCalled();
   });
+
+  it("downgrades to 'free' when paymentStatus is canceled (Phase 13)", async () => {
+    vi.mocked(prisma.organization.findUnique).mockResolvedValue({
+      plan: "pro",
+      planExpiresAt: new Date(Date.now() + 60_000),
+      paymentStatus: "canceled",
+    } as never);
+    expect(await getOrganizationPlan("org_1")).toBe("free");
+  });
+
+  it("keeps the plan when paymentStatus is past_due (grace period)", async () => {
+    vi.mocked(prisma.organization.findUnique).mockResolvedValue({
+      plan: "pro",
+      planExpiresAt: new Date(Date.now() + 60_000),
+      paymentStatus: "past_due",
+    } as never);
+    expect(await getOrganizationPlan("org_1")).toBe("pro");
+  });
+
+  it("keeps the plan when paymentStatus is null (legacy / pre-Stripe orgs)", async () => {
+    vi.mocked(prisma.organization.findUnique).mockResolvedValue({
+      plan: "pro",
+      planExpiresAt: null,
+      paymentStatus: null,
+    } as never);
+    expect(await getOrganizationPlan("org_1")).toBe("pro");
+  });
 });
 
 describe("getLimits", () => {
