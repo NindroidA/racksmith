@@ -47,7 +47,7 @@ Rack visualization, device inventory, network topology, and auto-discovery in a 
 
 ### Public API (beta)
 
-A REST API at `/api/v1/` covers Racks and Devices CRUD with org-scoped API keys managed in Settings. Authentication is bearer-token, rate limiting is DB-backed (sliding window) with `X-RateLimit-*` response headers. Interactive docs render via Scalar at `/api/v1/docs`, and the OpenAPI 3.1 spec is at `/api/v1/openapi.json`. Breaking changes are possible until GA.
+A REST API at `/api/v1/` covers Racks, Devices, Subnets, VLANs, IP Assignments, DHCP Ranges, and Connections — full CRUD on every tenant-scoped resource the dashboard touches. Org-scoped API keys are managed in Settings. Authentication is bearer-token, rate limiting is DB-backed (sliding window) with `X-RateLimit-*` response headers. Interactive docs render via Scalar at `/api/v1/docs`, and the OpenAPI 3.1 spec is at `/api/v1/openapi.json`. Breaking changes are possible until GA.
 
 ## Pricing
 
@@ -59,14 +59,14 @@ Three tiers. Free is functional for most homelabs; Pro and Business unlock scale
 | Pro | $9/mo (post-launch) | Unlimited sites and racks, team members, API, exports |
 | Business | $29/user/mo (post-launch) | Multi-tenant, white-label, SSO, advanced audit |
 
-Self-hosters get the Free tier with no license required. Pro and Business are hosted-only at launch; paid self-host licensing (signed JWT with instance-fingerprint binding) is planned for Phase 16. See the `/#pricing` section on the landing page for the full feature matrix.
+Self-hosters get the Free tier with no license required. Pro and Business are hosted-only at launch; paid self-host licensing (signed JWT with instance-fingerprint binding) is on the post-launch roadmap. See the `/#pricing` section on the landing page for the full feature matrix.
 
 ## Known limitations (pre-launch)
 
 - OAuth requires your own provider apps. Buttons appear only when `GITHUB_CLIENT_ID` / `GOOGLE_CLIENT_ID` are set. See [OAuth sign-in](#oauth-sign-in-optional) below.
 - Email delivery defaults to a console logger in dev. When `RESEND_API_KEY` is unset, password-reset and verification mails print to stderr instead of sending. Set `RESEND_API_KEY` in production.
 - Better Auth rate limits (login, 2FA, password reset) live in memory, so multi-instance deployments can leak past those limits. The Phase-11 API rate limit is DB-backed and unaffected. Switch Better Auth to `storage: "database"` if you need horizontal scaling.
-- Paid self-hosting isn't available at launch. Pro/Business features run on the hosted service only until Phase 16 ships the licensing system.
+- Paid self-hosting isn't available at launch. Pro/Business features run on the hosted service only until the licensing system ships post-launch.
 
 ## Screenshots
 
@@ -219,20 +219,22 @@ Full guide: [`docs/SELF_HOSTING.md`](docs/SELF_HOSTING.md).
 - Multi-tenancy uses PostgreSQL Row-Level Security. Every query on a tenant-scoped table runs inside `withTenant(organizationId, ...)`, which sets the PG session variable RLS reads. Forced RLS at the DB layer means an un-wrapped query returns empty rows, not another tenant's data.
 - Tier-checked creates (racks, devices, subnets, VLANs, plans, API keys) use `canCreate*Locked` helpers that acquire a `pg_advisory_xact_lock` so concurrent creates serialize against the cap.
 - The `/api/v1/` routes share a small route factory that handles auth, rate limiting, error envelopes, and request logging in one place.
-- Device graphics are SVG faceplates at a real 10.86:1 aspect ratio per U, with nine brand palettes tuned for the dark theme.
+- Device graphics are SVG faceplates at a real 10.86:1 aspect ratio per U, with nine brand palettes tuned for the dark theme. Tier-1 SKUs (UDM-Pro, the three USW switches, Catalyst 9300-48P, PowerEdge R750, TrippLite PDU/UPS) get bespoke per-model components dispatched via `pickModelComponent`; everything else falls through to type-template renderers.
 - Discovery uses fire-and-forget nmap processes; the client polls scan status.
 
 ## Project status
 
-| Shipped | Next |
+| Shipped | Next (in trajectory order) |
 |---|---|
-| Phases 1–6 — Foundation, racks, device visualization, inventory, auto-discovery, topology, pre-launch polish | Phase 12 — Export suite |
-| Phase 6.5 — Cross-cutting UX foundations | Phase 13 — Advanced audit viewer |
-| Phase 7 — Subnet + IPAM + DNS *(v1.5)* | Phase 14 — SSO via OIDC |
-| Phase 8 — VLANs + config generator *(v1.5)* | Phase 15 — Stripe billing + hosted tier |
-| Phase 9 — Plan wizard, recommendations, power budget, cable estimator *(v1.5)* | Phase 16 — Self-host paid licensing |
-| Phase 10 — Teams / Organizations / RBAC *(v2.0)* | Phase 17 — Launch prep |
-| Phase 11 — Public REST API + keys *(v2.0)* | Phase 18 — Public launch |
+| Phases 1–6 — Foundation, racks, device visualization, inventory, auto-discovery, topology, pre-launch polish | Phase 13 — Stripe billing + hosted-tier enablement |
+| Phase 6.5 — Cross-cutting UX foundations | Phase 14 — SSO via OIDC (Google Workspace, M365/Azure AD, Okta) |
+| Phase 7 — Subnet + IPAM + DNS *(v1.5)* | Phase 15 — Launch prep + final review gauntlet |
+| Phase 8 — VLANs + config generator *(v1.5)* | Phase 16 — 🚀 Public launch |
+| Phase 9 — Plan wizard, recommendations, power budget, cable estimator *(v1.5)* | *Post-launch* — Export suite (PDF/CSV/SVG) |
+| Phase 10 — Teams / Organizations / RBAC *(v2.0)* | *Post-launch* — Advanced audit log viewer |
+| Phase 11 — Public REST API + keys: Racks, Devices *(v2.0)* | *Post-launch* — Self-host paid licensing (signed JWT + fingerprint binding) |
+| Phase 12 — REST API expansion: Subnets, VLANs, IPAM, Connections *(v2.0)* | |
+| Polish — v2 device graphics: per-model components for tier-1 SKUs | |
 
 ## Contributing and security
 
