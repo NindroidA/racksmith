@@ -9,11 +9,11 @@ type Props = {
   segments?: number;
   /** Background segment color when unlit */
   off?: string;
-  /** Lit color in the "safe" range (≤75% of value) */
+  /** Lit color for segments in the lower 75% of the bar (segment-position based, not value-based) */
   safe?: string;
-  /** Lit color in the "warn" range (75–90%) */
+  /** Lit color for segments in the 75–90% region of the bar */
   warn?: string;
-  /** Lit color in the "alarm" range (>90%) */
+  /** Lit color for segments above 90% of the bar */
   alarm?: string;
 };
 
@@ -40,7 +40,9 @@ export function LedBarGraph({
 }: Props) {
   const safeSegs = Math.max(1, Math.floor(segments));
   const clamped = Math.max(0, Math.min(100, value));
-  const litCount = Math.round((clamped / 100) * safeSegs);
+  // Floor (not round) so that e.g. value=75 with 10 segments lights 7
+  // segments and the 8th (warn-threshold) only lights when value > 75.
+  const litCount = Math.floor((clamped / 100) * safeSegs);
   const gap = w * 0.012;
   const segW = (w - gap * (safeSegs - 1)) / safeSegs;
 

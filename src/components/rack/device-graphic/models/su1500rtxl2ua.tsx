@@ -29,7 +29,10 @@ export function SU1500RTXL2UA({
   const h = 46 * Math.max(1, sizeU);
 
   const ear = 10;
-  const battery = batteryLevel ?? 62;
+  // Default to 100 so the rack visualizer (which doesn't pass
+  // batteryLevel) renders a healthy/full UPS rather than a partially
+  // depleted one. Matches the existing UpsFaceplate type-template.
+  const battery = batteryLevel ?? 100;
   const accent = palette.primary;
 
   // LCD on the left
@@ -38,7 +41,10 @@ export function SU1500RTXL2UA({
   const lcdW = w * 0.26;
   const lcdH = h * 0.72;
 
-  // 10-segment load bar graph in the middle-left
+  // 10-segment battery-charge bar graph in the middle-left. (Real
+  // SmartOnline UPSes show a load bar AND a battery bar; we only
+  // have batteryLevel in DeviceGraphicProps today, so this single
+  // bar tracks battery charge — relabel to BATT to match the data.)
   const colX = lcdX + lcdW + 6;
   const loadX = colX + 14;
   const loadW = w * 0.3;
@@ -90,18 +96,14 @@ export function SU1500RTXL2UA({
         width={lcdW}
         height={lcdH}
         primaryText="ONLINE"
-        secondaryText={vaRating ? `${vaRating} · ${battery}%` : `1500VA · ${battery}%`}
+        secondaryText={
+          vaRating ? `${vaRating} · ${battery}%` : `1500VA · ${battery}%`
+        }
         primarySize={lcdH * 0.32}
       />
 
       {/* 10-segment load bar graph */}
-      <LedBarGraph
-        x={loadX}
-        y={loadY}
-        w={loadW}
-        h={loadH}
-        value={battery}
-      />
+      <LedBarGraph x={loadX} y={loadY} w={loadW} h={loadH} value={battery} />
 
       {/* "LOAD" + "%" labels above and beside the bar */}
       <text
@@ -113,7 +115,7 @@ export function SU1500RTXL2UA({
         opacity={0.7}
         letterSpacing="0.18em"
       >
-        LOAD
+        BATT
       </text>
       <text
         x={loadX + loadW + 2}
@@ -123,16 +125,11 @@ export function SU1500RTXL2UA({
         fill={palette.chassisHi}
         opacity={0.7}
       >
-        A
+        %
       </text>
 
-      {/* On-line LED next to load bar */}
-      <LedBloom
-        cx={colX + 5}
-        cy={h * 0.34}
-        r={0.6}
-        color={palette.ledActive}
-      />
+      {/* On-line LED next to bar */}
+      <LedBloom cx={colX + 5} cy={h * 0.34} r={0.6} color={palette.ledActive} />
       <text
         x={colX + 8}
         y={h * 0.36}
@@ -148,8 +145,7 @@ export function SU1500RTXL2UA({
       {/* 6× NEMA 5-15R outlets — 2 rows × 3 cols */}
       {Array.from({ length: outletRows }).map((_, ri) =>
         Array.from({ length: outletCols }).map((__, ci) => {
-          const cx =
-            outletsX + ci * (outletSize + outletGapX) + outletSize / 2;
+          const cx = outletsX + ci * (outletSize + outletGapX) + outletSize / 2;
           const cy =
             outletsBlockY + ri * (outletSize + outletGapY) + outletSize / 2;
           return (
@@ -171,7 +167,10 @@ export function SU1500RTXL2UA({
       {/* TRIPP·LITE wordmark */}
       <BrandBadge
         palette={palette}
-        x={outletsX + (outletSize * outletCols + outletGapX * (outletCols - 1)) / 2}
+        x={
+          outletsX +
+          (outletSize * outletCols + outletGapX * (outletCols - 1)) / 2
+        }
         y={wordmarkY}
         height={wordmarkH}
         anchor="middle"

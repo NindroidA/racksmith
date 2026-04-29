@@ -72,7 +72,7 @@ export function NemaOutlet({
         width={w}
         height={h}
         rx={w * 0.28}
-        fill={face}
+        fill={bezel}
         stroke={stroke}
         strokeWidth={0.35}
       />
@@ -93,7 +93,7 @@ export function NemaOutlet({
         width={w * 0.76}
         height={h * 0.8}
         rx={w * 0.2}
-        fill={bezel}
+        fill={face}
       />
       {/* Inner top recess shadow (sells depth) */}
       <rect
