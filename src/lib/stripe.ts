@@ -6,10 +6,17 @@ import type { Plan } from "./tiers";
 
 // ─── Stripe SDK client ──────────────────────────────────────────────
 //
-// Singleton across hot-reloads in dev (the same pattern Prisma uses).
+// Lazy-initialized + singleton across hot-reloads in dev (same pattern
+// as Prisma). The Proxy defers client construction until the first
+// property access — important because Next.js's "Collecting page data"
+// build phase imports every server module under NODE_ENV=production
+// without runtime secrets, and an eager throw at module-load would
+// break CI builds. With the Proxy, the secret-key check runs at first
+// API call (e.g. inside a route handler at request time, where envs
+// are populated).
+//
 // API version is pinned so SDK upgrades don't silently change response
-// shapes. Bump the literal here when intentionally migrating; CI catches
-// any breaking shape change.
+// shapes. Bump the literal here when intentionally migrating.
 
 const STRIPE_API_VERSION = "2026-04-22.dahlia" as const;
 
@@ -21,6 +28,9 @@ declare global {
 function buildStripeClient(): Stripe {
   const secretKey = process.env.STRIPE_SECRET_KEY;
   if (!secretKey) {
+    // Production: surface a clear configuration error. This fires at
+    // first API call (inside a request handler), not at module load,
+    // so build-time imports don't trip it.
     if (process.env.NODE_ENV === "production") {
       throw new Error(
         "STRIPE_SECRET_KEY is required in production. Set it in .env.prod.",
@@ -40,12 +50,20 @@ function buildStripeClient(): Stripe {
   });
 }
 
-export const stripe: Stripe =
-  globalThis.__racksmithStripe ?? buildStripeClient();
-
-if (process.env.NODE_ENV !== "production") {
-  globalThis.__racksmithStripe = stripe;
+function getStripeClient(): Stripe {
+  if (!globalThis.__racksmithStripe) {
+    globalThis.__racksmithStripe = buildStripeClient();
+  }
+  return globalThis.__racksmithStripe;
 }
+
+export const stripe: Stripe = new Proxy({} as Stripe, {
+  get(_target, prop, receiver) {
+    const client = getStripeClient();
+    const value = Reflect.get(client, prop, receiver);
+    return typeof value === "function" ? value.bind(client) : value;
+  },
+});
 
 // ─── Webhook signing secret ─────────────────────────────────────────
 //

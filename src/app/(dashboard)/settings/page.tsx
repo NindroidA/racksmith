@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { FileText } from "lucide-react";
+import { CreditCard, FileText } from "lucide-react";
 import { requireMember } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
 import { getUsageSummary } from "@/lib/tiers";
-import { isRole, type Role } from "@/lib/permissions";
+import { isRole, roleHasAccess, type Role } from "@/lib/permissions";
 import { ProfileSection } from "./profile-section";
 import { SecuritySection } from "./security-section";
 import { TwoFactorSection } from "./two-factor-section";
@@ -103,7 +103,7 @@ export default async function SettingsPage({
           )}
         />
 
-        <UsageSection usage={usage} />
+        <UsageSection usage={usage} role={role as Role} />
 
         <PreferencesSection
           initial={{
@@ -112,6 +112,26 @@ export default async function SettingsPage({
             sidebarCollapsed: settings?.sidebarCollapsed ?? false,
           }}
         />
+
+        {roleHasAccess(role, "admin") && (
+          <Link
+            href="/settings/billing"
+            className="glass-card flex items-center justify-between rounded-xl p-6 transition-colors hover:bg-white/[0.04]"
+          >
+            <div className="flex items-center gap-3">
+              <CreditCard className="h-5 w-5 text-primary" />
+              <div>
+                <div className="text-base font-semibold text-white">
+                  Billing
+                </div>
+                <div className="text-sm text-white/50">
+                  Manage your subscription, payment method, and invoices.
+                </div>
+              </div>
+            </div>
+            <span className="text-sm text-white/40">Manage →</span>
+          </Link>
+        )}
 
         <Link
           href="/settings/audit"

@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { Server, Network, Gauge, Sparkles } from "lucide-react";
 import type { UsageSummary } from "@/lib/tiers";
+import { roleHasAccess, type Role } from "@/lib/permissions";
 
-type Props = { usage: UsageSummary };
+type Props = { usage: UsageSummary; role: Role };
 
 function UsageRow({
   icon: Icon,
@@ -52,10 +53,11 @@ function UsageRow({
   );
 }
 
-export function UsageSection({ usage }: Props) {
+export function UsageSection({ usage, role }: Props) {
   const atAny =
     (usage.racks.limit !== null && usage.racks.current >= usage.racks.limit) ||
     (usage.sites.limit !== null && usage.sites.current >= usage.sites.limit);
+  const canManageBilling = roleHasAccess(role, "admin");
 
   return (
     <section className="glass-card rounded-xl p-6">
@@ -97,12 +99,18 @@ export function UsageSection({ usage }: Props) {
             Upgrade to Pro ($9/mo) for unlimited sites and racks, team members,
             API access, and PDF/CSV/SVG exports.
           </p>
-          <Link
-            href="/#pricing"
-            className="mt-3 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary/90"
-          >
-            Join hosted waitlist
-          </Link>
+          {canManageBilling ? (
+            <Link
+              href="/settings/billing"
+              className="mt-3 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary/90"
+            >
+              Upgrade plan
+            </Link>
+          ) : (
+            <p className="mt-3 text-sm text-white/50">
+              Ask an admin or owner of this organization to upgrade the plan.
+            </p>
+          )}
         </div>
       )}
     </section>
