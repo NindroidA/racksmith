@@ -177,7 +177,7 @@ export function getBrandPalette(
  * (SwitchFaceplate etc.), `chassisColors` for per-model components.
  */
 
-export type Make = "ubiquiti" | "cisco" | "dell" | "tripplite" | "hpe" | "fs";
+export type Make = "ubiquiti" | "cisco" | "dell" | "tripplite" | "hp" | "fs";
 
 export type ModelClass =
   | "ap"
@@ -194,7 +194,7 @@ const MAKE_HSL: Record<Make, { hue: number; sat: number }> = {
   cisco: { hue: 195, sat: 12 },
   dell: { hue: 210, sat: 6 },
   tripplite: { hue: 8, sat: 8 },
-  hpe: { hue: 160, sat: 6 },
+  hp: { hue: 160, sat: 6 },
   fs: { hue: 188, sat: 5 },
 };
 
