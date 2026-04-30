@@ -58,8 +58,10 @@ Three tiers, all hosted. Free is functional for most homelabs; Pro and Business 
 | Tier | Price | Limits |
 |---|---|---|
 | Free | $0 forever | 1 site, 3 racks, 30 devices, full core feature set |
-| Pro | $9/mo (post-launch) | Unlimited sites and racks, team members, API, exports |
-| Business | $29/user/mo (post-launch) | Multi-tenant, white-label, SSO, advanced audit |
+| Pro | $9/mo or $90/yr | Unlimited sites and racks, up to 5 team members, API, PDF/CSV/SVG exports, audit log |
+| Business | $29/user/mo or $290/user/yr | Unlimited team, higher API rate limits, advanced audit log viewer, priority support |
+
+Annual billing saves ~17% across both paid tiers. Cancel anytime in the Stripe customer portal — your plan stays active until the end of the billing period.
 
 v1 launches hosted-only — paid tiers run on the official RackSmith service. Self-hosting (free or paid) is on the post-launch backlog and will only be built if there's clear demand. See the `/#pricing` section on the landing page for the full feature matrix.
 

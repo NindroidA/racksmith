@@ -11,7 +11,13 @@ import { GithubIcon, GoogleIcon } from "@/components/ui/oauth-icons";
 import { AuthShell } from "@/components/layout/auth-shell";
 import { describeError } from "@/lib/error-message";
 
-export function RegisterForm({ oauth }: { oauth: OAuthProviders }) {
+export function RegisterForm({
+  oauth,
+  next = "/dashboard",
+}: {
+  oauth: OAuthProviders;
+  next?: string;
+}) {
   const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -52,7 +58,7 @@ export function RegisterForm({ oauth }: { oauth: OAuthProviders }) {
         toast.error(result.error.message || "Failed to create account");
       } else {
         toast.success("Account created!");
-        router.push("/dashboard");
+        router.push(next);
       }
     } catch (err) {
       toast.error(describeError(err, "Failed to create account"));
@@ -63,7 +69,7 @@ export function RegisterForm({ oauth }: { oauth: OAuthProviders }) {
 
   async function handleOAuth(provider: "github" | "google") {
     try {
-      await signIn.social({ provider, callbackURL: "/dashboard" });
+      await signIn.social({ provider, callbackURL: next });
     } catch (err) {
       toast.error(describeError(err, "Failed to sign up"));
     }
@@ -228,7 +234,14 @@ export function RegisterForm({ oauth }: { oauth: OAuthProviders }) {
 
       <p className="mt-6 text-center text-sm text-white/50">
         Already have an account?{" "}
-        <Link href="/login" className="text-primary hover:underline">
+        <Link
+          href={
+            next === "/dashboard"
+              ? "/login"
+              : `/login?callbackURL=${encodeURIComponent(next)}`
+          }
+          className="text-primary hover:underline"
+        >
           Sign in
         </Link>
       </p>

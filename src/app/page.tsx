@@ -120,6 +120,10 @@ const COMPARISON = {
   ],
 };
 
+// Pricing math is the source of truth at `lib/billing-pricing.ts`. Update
+// both sides together when changing prices. Save percentage rounds the
+// monthly→annual delta: $9 × 12 = $108 vs $90 → 16.7%; $29 × 12 = $348
+// vs $290 → 16.7%. The "save ~17%" copy below stays consistent.
 const PRICING = [
   {
     name: "Free",
@@ -137,13 +141,14 @@ const PRICING = [
       "Community support",
     ],
     cta: "Get Started",
+    href: "/register",
     highlighted: true,
     comingSoon: false,
   },
   {
     name: "Pro",
     price: "$9",
-    period: "/month or $89/year",
+    period: "/mo or $90/yr (save ~17%)",
     audience: "For small IT teams",
     features: [
       "Everything in Free, plus:",
@@ -154,27 +159,28 @@ const PRICING = [
       "Audit log viewer",
       "Priority support",
     ],
-    cta: "Join waitlist",
+    cta: "Try Pro",
+    href: "/register?next=" + encodeURIComponent("/settings/billing?tier=pro"),
     highlighted: false,
-    comingSoon: true,
+    comingSoon: false,
   },
   {
     name: "Business",
     price: "$29",
-    period: "/user/month",
+    period: "/user/mo or $290/user/yr (save ~17%)",
     audience: "For MSPs",
     features: [
       "Everything in Pro, plus:",
       "Unlimited team",
-      "Client workspaces",
-      "White-label branding",
-      "SSO (OIDC)",
-      "Advanced audit logs",
-      "Vendor-neutral config export",
+      "Higher API rate limits",
+      "Advanced audit log viewer",
+      "Priority support",
     ],
-    cta: "Join waitlist",
+    cta: "Try Business",
+    href:
+      "/register?next=" + encodeURIComponent("/settings/billing?tier=business"),
     highlighted: false,
-    comingSoon: true,
+    comingSoon: false,
   },
 ];
 
@@ -602,7 +608,7 @@ export default function LandingPage() {
                 ))}
               </ul>
               <Link
-                href={tier.comingSoon ? "#final-cta" : "/register"}
+                href={tier.href}
                 className={
                   tier.highlighted
                     ? "block rounded-lg bg-primary px-4 py-2.5 text-center text-sm font-medium text-white transition-all hover:bg-primary/90"
@@ -620,15 +626,13 @@ export default function LandingPage() {
             <span className="font-semibold text-white/80">Self-hosting?</span>{" "}
             You get the full Free tier (1 site, 3 racks, unlimited devices) with
             no license needed. Pro and Business tiers are{" "}
-            <span className="font-semibold text-white/75">
-              hosted-only at launch
-            </span>{" "}
-            — self-host paid licensing (signed keys, instance-bound) is planned
-            for post-v1 release so it's done properly.
+            <span className="font-semibold text-white/75">hosted-only</span> —
+            self-host paid licensing (signed keys, instance-bound) is planned
+            for a future release so it's done properly.
           </p>
           <p className="mt-2 text-xs text-white/40">
-            Free tier will always be free. Paid tiers unlock when hosted service
-            launches.
+            Free tier will always be free. Cancel anytime — your plan stays
+            active until the end of the billing period.
           </p>
         </div>
       </section>

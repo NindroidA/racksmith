@@ -19,10 +19,14 @@ export const dynamic = "force-dynamic";
 export default async function BillingPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string }>;
+  searchParams: Promise<{ status?: string; tier?: string }>;
 }) {
   const { session, organizationId } = await requireMember("admin");
   const params = await searchParams;
+  // Landing-page CTAs pass `?tier=pro` or `?tier=business` so we can
+  // highlight the matching upgrade card. Anything else gets ignored.
+  const recommendedTier =
+    params.tier === "pro" || params.tier === "business" ? params.tier : null;
 
   const [plan, org] = await Promise.all([
     getOrganizationPlan(organizationId),
@@ -153,6 +157,7 @@ export default async function BillingPage({
           emailVerified={Boolean(session.user.emailVerified)}
           priceIds={STRIPE_PRICE_IDS}
           disabled={billingMisconfigured}
+          recommendedTier={recommendedTier}
         />
       ) : (
         <PlanSummaryCard

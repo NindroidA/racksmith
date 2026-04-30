@@ -11,6 +11,42 @@ All notable changes to RackSmith are documented here. Format follows
 > pre-release work tracked on `main`. See
 > [`.plans/2026-04-18/01-new-direction-full-build.md`](.plans/2026-04-18/01-new-direction-full-build.md).
 
+### Added — Phase 13: Stripe billing
+- **Hosted-only paid tiers go live** — Pro and Business plans are now real,
+  not "join the waitlist" placeholders. Free tier remains free forever.
+- Stripe Checkout flow: admins on a Free org → Settings → Billing →
+  pick monthly or annual → Checkout → return to dashboard with the
+  plan flipped via webhook. Email-verification gate enforced before
+  Checkout (disposable-email + stolen-card defense).
+- Stripe Customer Portal: paid orgs get a "Manage billing" button that
+  opens the Stripe-hosted portal for plan switches, payment-method
+  updates, invoices, and cancellation. RackSmith never sees a card
+  number.
+- Webhook handler at `/api/webhooks/stripe` ingests 6 events
+  (`customer.subscription.{created,updated,deleted}`,
+  `invoice.payment_{failed,succeeded}`, `charge.refunded`) with HMAC
+  verification, atomic `StripeEvent` dedupe, and per-org RLS dispatch.
+- Real-time Business seat sync: adding or removing a Member on a
+  Business org pushes the new quantity to Stripe under a
+  `pg_advisory_xact_lock` so concurrent updates linearize. Stripe
+  prorates the next invoice (`create_prorations`).
+- Site-wide past-due payment banner for admins/owners — surfaces the
+  failure with a one-click portal CTA. Plan stays active during Stripe
+  Smart Retries (no hard downgrade during dunning).
+- Plan summary card on `/settings/billing` showing plan, billing cycle
+  (monthly/annual), price, next-invoice date, and payment status.
+- Landing-page pricing CTAs ("Try Pro", "Try Business") now lead to
+  signup → billing with the chosen tier highlighted on return.
+- New audit verbs: `subscription_{created,updated,deleted}`,
+  `payment_{failed,succeeded,refunded}`, `customer_portal_opened`.
+- New `Organization` columns: `stripeCustomerId` (unique),
+  `stripeSubscriptionId`, `stripeSubscriptionItemId`, `stripePriceId`,
+  `paymentStatus`. New `StripeEvent` table for webhook idempotency.
+- 6 Stripe environment variables documented in `.env.example` and
+  `docs/INTERNAL_DEPLOY.md` §6: `STRIPE_SECRET_KEY`,
+  `STRIPE_WEBHOOK_SECRET`, and 4 `STRIPE_PRICE_*` IDs (one per
+  tier × billing cycle). Test-mode + live-mode setup runbook included.
+
 ## [2.1.0-beta] — 2026-04-22
 
 ### Added

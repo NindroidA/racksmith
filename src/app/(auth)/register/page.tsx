@@ -1,7 +1,14 @@
 import { getOAuthProviders } from "@/lib/oauth-providers";
+import { sanitizeNextPath } from "@/lib/safe-next-path";
 import { RegisterForm } from "./register-form";
 
-export default function RegisterPage() {
+export default async function RegisterPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string }>;
+}) {
+  const params = await searchParams;
   const oauth = getOAuthProviders();
-  return <RegisterForm oauth={oauth} />;
+  const next = sanitizeNextPath(params.next);
+  return <RegisterForm oauth={oauth} next={next} />;
 }
