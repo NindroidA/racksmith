@@ -3,6 +3,7 @@ import "server-only";
 import type { Prisma } from "@prisma/client";
 
 import { prisma } from "./prisma";
+import { acquireTenantResourceLock } from "./prisma-tenant";
 import { stripe } from "./stripe";
 
 // ─── Business-tier seat reconciliation ──────────────────────────────
@@ -14,7 +15,7 @@ import { stripe } from "./stripe";
 //
 // Concurrency: two admins adding members concurrently could each read
 // the seat count, then race to update Stripe with stale numbers. We
-// serialize via `pg_advisory_xact_lock` keyed on the org ID so the
+// serialize via `acquireTenantResourceLock(tx, orgId, "seats")` so the
 // re-count + Stripe update happen under a per-org mutex. This requires
 // the caller to be inside a transaction (the lock auto-releases at tx
 // commit/rollback).
@@ -24,8 +25,6 @@ import { stripe } from "./stripe";
 // reject the membership change than silently over- or under-bill.
 
 type TenantTx = Prisma.TransactionClient;
-
-const SEAT_LOCK_NAMESPACE = 71283; // arbitrary 32-bit constant; pairs with the org-id hash
 
 export async function syncSeatsForOrg(
   tx: TenantTx,
@@ -47,23 +46,20 @@ export async function syncSeatsForOrg(
   if (!org.stripeSubscriptionId || !org.stripeSubscriptionItemId) {
     // Business plan without a subscription item is a misconfiguration —
     // log so it surfaces, but don't block the membership change.
-    console.warn(
-      "[stripe-seats] business org missing subscription linkage",
-      { organizationId },
-    );
+    console.warn("[stripe-seats] business org missing subscription linkage", {
+      organizationId,
+    });
     return;
   }
   // Cancelled subscriptions don't need a quantity update — Stripe will
   // refuse the call, and post-cancellation seat changes are irrelevant.
   if (org.paymentStatus === "canceled") return;
 
-  // Serialize concurrent seat updates for this org. Same pattern as
-  // `canCreate*Locked` — the lock auto-releases at tx commit/rollback.
-  await tx.$queryRawUnsafe(
-    "SELECT pg_advisory_xact_lock($1, hashtext($2))",
-    SEAT_LOCK_NAMESPACE,
-    organizationId,
-  );
+  // Serialize concurrent seat updates for this org. Reuses the same
+  // helper that gates tier-limited creates so the lock-key namespace
+  // is centralized and `(orgId, "seats")` can't collide with another
+  // resource using a different second-arg.
+  await acquireTenantResourceLock(tx, organizationId, "seats");
 
   // Re-count under the lock so simultaneous adds linearize.
   const seatCount = await tx.member.count({

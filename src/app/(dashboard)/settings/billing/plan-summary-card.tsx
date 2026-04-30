@@ -76,7 +76,7 @@ export function PlanSummaryCard({
       <dl className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
         <Row label="Plan" value={planLabel} />
         {cycleLabel && <Row label="Billing cycle" value={cycleLabel} />}
-        <Row label="Monthly cost" value={monthlyDisplay} hint={monthlyDetail} />
+        <Row label="Price" value={monthlyDisplay} hint={monthlyDetail} />
         {nextBillingDateLabel && (
           <Row label="Next invoice" value={nextBillingDateLabel} />
         )}

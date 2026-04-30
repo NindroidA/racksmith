@@ -24,7 +24,7 @@ import { validateSlug } from "@/lib/slug";
 import { writeOrganizationSnapshot } from "@/lib/organization-export";
 import { OWNERSHIP_TRANSFER_TTL_MS } from "@/lib/ownership-transfer-constants";
 import { revokeKeysCreatedByUser } from "@/lib/api/key-lifecycle";
-import { syncSeatsForOrg, syncSeatsForOrgStandalone } from "@/lib/stripe-seats";
+import { syncSeatsForOrg } from "@/lib/stripe-seats";
 
 const BASE_URL = process.env.BETTER_AUTH_URL || "http://localhost:3000";
 

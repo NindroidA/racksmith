@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mockOrgFindUnique = vi.fn();
 const mockMemberCount = vi.fn();
-const mockQueryRawUnsafe = vi.fn();
+const mockAcquireLock = vi.fn();
 const mockSubscriptionItemsUpdate = vi.fn();
 
 vi.mock("./prisma", () => ({
@@ -11,10 +11,13 @@ vi.mock("./prisma", () => ({
       fn({
         organization: { findUnique: mockOrgFindUnique },
         member: { count: mockMemberCount },
-        $queryRawUnsafe: mockQueryRawUnsafe,
       }),
     ),
   },
+}));
+
+vi.mock("./prisma-tenant", () => ({
+  acquireTenantResourceLock: (...args: unknown[]) => mockAcquireLock(...args),
 }));
 
 vi.mock("./stripe", () => ({
@@ -30,21 +33,19 @@ import { syncSeatsForOrg, syncSeatsForOrgStandalone } from "./stripe-seats";
 type MockTx = {
   organization: { findUnique: typeof mockOrgFindUnique };
   member: { count: typeof mockMemberCount };
-  $queryRawUnsafe: typeof mockQueryRawUnsafe;
 };
 
 function buildTx(): MockTx {
   return {
     organization: { findUnique: mockOrgFindUnique },
     member: { count: mockMemberCount },
-    $queryRawUnsafe: mockQueryRawUnsafe,
   };
 }
 
 beforeEach(() => {
   vi.clearAllMocks();
   mockMemberCount.mockResolvedValue(7);
-  mockQueryRawUnsafe.mockResolvedValue(undefined);
+  mockAcquireLock.mockResolvedValue(undefined);
   mockSubscriptionItemsUpdate.mockResolvedValue({});
 });
 
@@ -103,17 +104,16 @@ describe("syncSeatsForOrg", () => {
 
     await syncSeatsForOrg(buildTx() as never, "org_biz");
 
-    expect(mockQueryRawUnsafe).toHaveBeenCalledWith(
-      expect.stringContaining("pg_advisory_xact_lock"),
-      expect.any(Number),
+    expect(mockAcquireLock).toHaveBeenCalledWith(
+      expect.anything(),
       "org_biz",
+      "seats",
     );
     // Lock comes before the count + the Stripe call (caller relies on
     // serialization to avoid stale-quantity races).
-    const lockOrder = mockQueryRawUnsafe.mock.invocationCallOrder[0];
+    const lockOrder = mockAcquireLock.mock.invocationCallOrder[0];
     const countOrder = mockMemberCount.mock.invocationCallOrder[0];
-    const stripeOrder =
-      mockSubscriptionItemsUpdate.mock.invocationCallOrder[0];
+    const stripeOrder = mockSubscriptionItemsUpdate.mock.invocationCallOrder[0];
     expect(lockOrder).toBeLessThan(countOrder);
     expect(countOrder).toBeLessThan(stripeOrder);
   });
