@@ -49,6 +49,12 @@ export function mapSubscriptionStatus(
       return "canceled";
     case "incomplete":
       return "incomplete";
+    default:
+      // Future Stripe SDK versions may widen the union (e.g. new
+      // billing states). Treat unknown statuses as canceled — safer
+      // than leaving a subscription stuck on `active` when its real
+      // state has drifted.
+      return "canceled";
   }
 }
 

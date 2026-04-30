@@ -65,11 +65,12 @@ export async function POST(req: Request): Promise<Response> {
       getStripeWebhookSecret(),
     );
   } catch (err) {
+    // Don't echo err.message — Stripe only checks the status, and the
+    // detail can leak internal verification context to anything probing
+    // the endpoint. Log server-side instead.
+    console.error("[stripe-webhook] signature verification failed", err);
     return NextResponse.json(
-      {
-        error: "Signature verification failed",
-        detail: err instanceof Error ? err.message : "unknown",
-      },
+      { error: "Signature verification failed" },
       { status: 400 },
     );
   }
@@ -89,7 +90,7 @@ export async function POST(req: Request): Promise<Response> {
     await markStripeEventError(event.id, "No customer ID on event payload");
     return NextResponse.json({ received: true, resolved: false });
   }
-  const org = await prisma.organization.findFirst({
+  const org = await prisma.organization.findUnique({
     where: { stripeCustomerId: customerId },
     select: { id: true },
   });
@@ -107,19 +108,33 @@ export async function POST(req: Request): Promise<Response> {
 
   // Resolve a real userId for audit attribution. AuditLog.userId is a
   // non-null FK to User; webhook-driven events are still attributed to
-  // the org's owner with metadata.actor = "system" so the audit trail
-  // can distinguish billing-system writes from user actions.
+  // a member of the org with metadata.actor = "system" so the audit
+  // trail can distinguish billing-system writes from user actions.
+  // Prefer the owner, but fall back to any member so a paying customer
+  // is not stuck on the wrong plan if ownership is in a transient
+  // state. Only when the org has zero members do we skip the dispatch.
   const owner = await prisma.member.findFirst({
     where: { organizationId: org.id, role: "owner" },
     select: { userId: true },
   });
-  const actorUserId = owner?.userId;
+  let actorUserId = owner?.userId;
   if (!actorUserId) {
-    await markStripeEventError(
-      event.id,
-      `Organization ${org.id} has no owner — cannot attribute audit row`,
+    const fallback = await prisma.member.findFirst({
+      where: { organizationId: org.id },
+      select: { userId: true },
+    });
+    actorUserId = fallback?.userId;
+    if (!actorUserId) {
+      await markStripeEventError(
+        event.id,
+        `Organization ${org.id} has no members — cannot apply webhook`,
+      );
+      return NextResponse.json({ received: true, audited: false });
+    }
+    console.warn(
+      "[stripe-webhook] org has no owner — using fallback member for audit",
+      { eventId: event.id, orgId: org.id, actorUserId },
     );
-    return NextResponse.json({ received: true, audited: false });
   }
 
   // 5. Dispatch
@@ -165,8 +180,11 @@ function extractCustomerId(event: Stripe.Event): string | null {
 // ─── Per-event-type dispatch ────────────────────────────────────────
 //
 // All DB writes wrap in withTenant(organizationId) so RLS is engaged.
-// Each transition calls audit() with a verb from the AuditAction union
-// so the audit log is the source of truth for billing-state changes.
+// Each transition emits an audit() entry with a verb from the
+// AuditAction union for billing-history visibility. audit() is called
+// outside the tenant tx, so the audit row is best-effort: a transient
+// audit failure won't roll back the billing-state change above. If we
+// ever need atomic audit, pass a tx into audit({ ..., tx }).
 
 async function dispatchEvent(
   event: Stripe.Event,
@@ -348,7 +366,7 @@ async function applyPaymentStatus(
     organizationId,
     action: paymentStatus === "active" ? "payment_succeeded" : "payment_failed",
     entityType: "subscription",
-    changes: { paymentStatus, stripeEventId: event.id },
-    metadata: { actor: "system" },
+    changes: { paymentStatus },
+    metadata: { actor: "system", stripeEventId: event.id },
   });
 }

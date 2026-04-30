@@ -5,7 +5,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const mockConstructEvent = vi.fn();
 vi.mock("@/lib/stripe", () => ({
   stripe: {
-    webhooks: { constructEvent: (...args: unknown[]) => mockConstructEvent(...args) },
+    webhooks: {
+      constructEvent: (...args: unknown[]) => mockConstructEvent(...args),
+    },
   },
   getStripeWebhookSecret: () => "whsec_test",
   lookupPriceId: (id: string) => {
@@ -15,13 +17,13 @@ vi.mock("@/lib/stripe", () => ({
   },
 }));
 
-const mockOrgFindFirst = vi.fn();
+const mockOrgFindUnique = vi.fn();
 const mockMemberFindFirst = vi.fn();
 const mockOrgUpdate = vi.fn();
 
 vi.mock("@/lib/prisma", () => ({
   prisma: {
-    organization: { findFirst: (...a: unknown[]) => mockOrgFindFirst(...a) },
+    organization: { findUnique: (...a: unknown[]) => mockOrgFindUnique(...a) },
     member: { findFirst: (...a: unknown[]) => mockMemberFindFirst(...a) },
   },
 }));
@@ -30,7 +32,9 @@ vi.mock("@/lib/prisma-tenant", () => ({
   withTenant: vi.fn(
     async (
       _orgId: string,
-      fn: (tx: { organization: { update: typeof mockOrgUpdate } }) => Promise<unknown>,
+      fn: (tx: {
+        organization: { update: typeof mockOrgUpdate };
+      }) => Promise<unknown>,
     ) => fn({ organization: { update: mockOrgUpdate } }),
   ),
 }));
@@ -55,7 +59,10 @@ import { POST } from "./route";
 
 // ─── Helpers ────────────────────────────────────────────────────────
 
-function buildReq(body: string, signature: string | null = "valid-sig"): Request {
+function buildReq(
+  body: string,
+  signature: string | null = "valid-sig",
+): Request {
   const headers = new Headers();
   if (signature) headers.set("stripe-signature", signature);
   return new Request("https://test.example/api/webhooks/stripe", {
@@ -128,7 +135,7 @@ function chargeRefundEvent(customerId = "cus_test") {
 beforeEach(() => {
   vi.clearAllMocks();
   // Default happy-path resolutions
-  mockOrgFindFirst.mockResolvedValue({ id: "org_1" });
+  mockOrgFindUnique.mockResolvedValue({ id: "org_1" });
   mockMemberFindFirst.mockResolvedValue({ userId: "user_owner" });
   mockRecord.mockResolvedValue({ alreadyProcessed: false });
   mockAttachOrg.mockResolvedValue(undefined);
@@ -159,7 +166,7 @@ describe("POST /api/webhooks/stripe — signature verification", () => {
     expect(res.status).toBe(400);
     const body = await res.json();
     expect(body.error).toMatch(/Signature verification failed/i);
-    expect(mockOrgFindFirst).not.toHaveBeenCalled();
+    expect(mockOrgFindUnique).not.toHaveBeenCalled();
   });
 });
 
@@ -185,7 +192,7 @@ describe("POST /api/webhooks/stripe — customer resolution", () => {
     mockConstructEvent.mockReturnValue(
       subEvent("customer.subscription.created"),
     );
-    mockOrgFindFirst.mockResolvedValue(null);
+    mockOrgFindUnique.mockResolvedValue(null);
 
     const res = await POST(buildReq("{}"));
     expect(res.status).toBe(200);
@@ -320,7 +327,9 @@ describe("POST /api/webhooks/stripe — invoice events", () => {
   });
 
   it("invoice.payment_succeeded sets paymentStatus active", async () => {
-    mockConstructEvent.mockReturnValue(invoiceEvent("invoice.payment_succeeded"));
+    mockConstructEvent.mockReturnValue(
+      invoiceEvent("invoice.payment_succeeded"),
+    );
     await POST(buildReq("{}"));
     expect(mockOrgUpdate).toHaveBeenCalledWith({
       where: { id: "org_1" },
@@ -361,16 +370,39 @@ describe("POST /api/webhooks/stripe — error handling", () => {
     expect(mockClear).toHaveBeenCalledWith(expect.any(String));
   });
 
-  it("returns 200 + audited:false when org has no owner (audit attribution fails)", async () => {
+  it("returns 200 + audited:false when org has zero members (skips dispatch)", async () => {
     mockConstructEvent.mockReturnValue(
       subEvent("customer.subscription.created"),
     );
+    // Both the owner lookup and the fallback-member lookup return null.
     mockMemberFindFirst.mockResolvedValue(null);
     const res = await POST(buildReq("{}"));
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body).toEqual({ received: true, audited: false });
     expect(mockOrgUpdate).not.toHaveBeenCalled();
+  });
+
+  it("falls back to a non-owner member for audit when org has no owner", async () => {
+    mockConstructEvent.mockReturnValue(
+      subEvent("customer.subscription.created"),
+    );
+    // First call (role: owner) → null. Second call (any member) → fallback.
+    mockMemberFindFirst
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce({ userId: "user_member" });
+    const res = await POST(buildReq("{}"));
+    expect(res.status).toBe(200);
+    expect(mockOrgUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: "org_1" } }),
+    );
+    expect(mockAudit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: "user_member",
+        action: "subscription_created",
+        metadata: expect.objectContaining({ actor: "system" }),
+      }),
+    );
   });
 });
 
