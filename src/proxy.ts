@@ -22,6 +22,9 @@ const PUBLIC_PATHS = [
   "/ownership-transfer",
   "/api/auth",
   "/api/health",
+  // Stripe webhooks arrive without a session cookie. Auth is handled by
+  // HMAC signature verification inside the route handler.
+  "/api/webhooks",
   // Dev-only scratch routes for design iteration. Pages under /dev/*
   // call notFound() in production.
   "/dev",
