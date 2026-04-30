@@ -42,8 +42,10 @@ All notable changes to RackSmith are documented here. Format follows
 - New `Organization` columns: `stripeCustomerId` (unique),
   `stripeSubscriptionId`, `stripeSubscriptionItemId`, `stripePriceId`,
   `paymentStatus`. New `StripeEvent` table for webhook idempotency.
-- 7 Stripe environment variables documented in `.env.example` and
-  `docs/INTERNAL_DEPLOY.md` §6 (test-mode + live-mode setup runbook).
+- 6 Stripe environment variables documented in `.env.example` and
+  `docs/INTERNAL_DEPLOY.md` §6: `STRIPE_SECRET_KEY`,
+  `STRIPE_WEBHOOK_SECRET`, and 4 `STRIPE_PRICE_*` IDs (one per
+  tier × billing cycle). Test-mode + live-mode setup runbook included.
 
 ## [2.1.0-beta] — 2026-04-22
 

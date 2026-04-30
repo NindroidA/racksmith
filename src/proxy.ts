@@ -60,7 +60,7 @@ export function proxy(request: NextRequest) {
 
   if (!sessionToken) {
     const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("callbackUrl", pathname);
+    loginUrl.searchParams.set("callbackURL", pathname);
     return NextResponse.redirect(loginUrl);
   }
 

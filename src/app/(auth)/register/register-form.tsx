@@ -238,7 +238,7 @@ export function RegisterForm({
           href={
             next === "/dashboard"
               ? "/login"
-              : `/login?callbackUrl=${encodeURIComponent(next)}`
+              : `/login?callbackURL=${encodeURIComponent(next)}`
           }
           className="text-primary hover:underline"
         >
