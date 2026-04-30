@@ -168,3 +168,63 @@ export async function createCheckoutSession(
     return { ok: true, data: { url: checkoutSession.url } };
   }, "Failed to start checkout");
 }
+
+/**
+ * Open a Stripe Customer Portal session — Stripe-hosted page where the
+ * paying admin manages plan switches, payment methods, invoices, and
+ * cancellation. We never see card numbers; the portal handles all
+ * sensitive UI server-side at Stripe.
+ *
+ * Auth: admin or owner.
+ * Pre-flight: org must already have a stripeCustomerId (created lazily
+ * during the first checkout). Free orgs that have never paid can't open
+ * the portal — they should hit Upgrade first. The page-level UI hides
+ * the button in that case; the action is the second-line defense.
+ */
+export async function createPortalSession(): Promise<
+  ActionResult<{ url: string }>
+> {
+  return withActionEnvelope(async () => {
+    const { session, organizationId } = await requireMember("admin");
+
+    const org = await prisma.organization.findUnique({
+      where: { id: organizationId },
+      select: { stripeCustomerId: true },
+    });
+    if (!org) return { ok: false, error: "Organization not found" };
+    if (!org.stripeCustomerId) {
+      return {
+        ok: false,
+        error: "No billing customer on this organization. Start with Upgrade.",
+      };
+    }
+
+    const baseUrl = process.env.BETTER_AUTH_URL;
+    if (!baseUrl) {
+      return {
+        ok: false,
+        error: "Server is missing BETTER_AUTH_URL configuration.",
+      };
+    }
+    const origin = baseUrl.replace(/\/+$/, "");
+
+    const portalSession = await stripe.billingPortal.sessions.create({
+      customer: org.stripeCustomerId,
+      return_url: `${origin}/settings/billing`,
+    });
+
+    if (!portalSession.url) {
+      return { ok: false, error: "Stripe did not return a portal URL" };
+    }
+
+    await audit({
+      userId: session.user.id,
+      organizationId,
+      action: "customer_portal_opened",
+      entityType: "subscription",
+      changes: { stripeCustomerId: org.stripeCustomerId },
+    });
+
+    return { ok: true, data: { url: portalSession.url } };
+  }, "Failed to open billing portal");
+}

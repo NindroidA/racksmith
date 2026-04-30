@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { twMerge } from "tailwind-merge";
 import { Sidebar } from "./sidebar";
 import { useSidebar } from "./sidebar-context";
+import { PaymentStatusBanner } from "./payment-status-banner";
 import { VerifyEmailBanner } from "./verify-email-banner";
 import type { OrgMembership } from "./organization-switcher";
 import { CommandPalette } from "@/components/layout/command-palette";
@@ -17,6 +18,7 @@ type Props = {
   activeOrgId: string | null;
   activeOrgName: string | null;
   memberships: OrgMembership[];
+  paymentBanner?: { planLabel: string } | null;
 };
 
 export function DashboardShell({
@@ -26,6 +28,7 @@ export function DashboardShell({
   activeOrgId,
   activeOrgName,
   memberships,
+  paymentBanner,
 }: Props) {
   const { collapsed } = useSidebar();
   const router = useRouter();
@@ -46,6 +49,9 @@ export function DashboardShell({
         )}
       >
         {unverifiedEmail && <VerifyEmailBanner email={unverifiedEmail} />}
+        {paymentBanner && (
+          <PaymentStatusBanner planLabel={paymentBanner.planLabel} />
+        )}
         {children}
       </main>
       <CommandPalette />

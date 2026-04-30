@@ -2,7 +2,10 @@ import "server-only";
 
 import Stripe from "stripe";
 
-import type { Plan } from "./tiers";
+import type { BillingCycle, PaidTier, PriceKey } from "./billing-pricing";
+
+export type { BillingCycle, PaidTier, PriceKey } from "./billing-pricing";
+export { PLAN_PRICING_USD } from "./billing-pricing";
 
 // ─── Stripe SDK client ──────────────────────────────────────────────
 //
@@ -91,11 +94,6 @@ export function getStripeWebhookSecret(): string {
 // Annual. Test-mode and live-mode have different IDs — both env files
 // must populate all four. Empty strings are tolerated in dev (UI hides
 // upgrade buttons) but rejected in production at startup.
-
-export type BillingCycle = "monthly" | "annual";
-export type PaidTier = Extract<Plan, "pro" | "business">;
-
-export type PriceKey = `${PaidTier}_${BillingCycle}`;
 
 export const STRIPE_PRICE_IDS: Record<PriceKey, string> = {
   pro_monthly: process.env.STRIPE_PRICE_PRO_MONTHLY ?? "",

@@ -10,6 +10,7 @@ import { requireUser } from "@/lib/auth-helpers";
 import { audit } from "@/lib/audit";
 import { handleZodError, withActionEnvelope } from "@/lib/action-helpers";
 import type { ActionResult } from "@/lib/action-types";
+import { syncSeatsForOrgStandalone } from "@/lib/stripe-seats";
 import { cuidSchema } from "@/lib/validators";
 import {
   PROFILE_ROLES,
@@ -268,6 +269,21 @@ export async function acceptInvitationAction(
       entityType: "invitation",
       entityId: idCheck.data,
     });
+
+    // Best-effort seat reconciliation. Better Auth owns the Member.create
+    // tx so we can't atomically include the Stripe push; if the sync
+    // fails we don't want to block the user from accepting a valid
+    // invite, since the next member event (or a future reconciliation
+    // job) will pick up the drift. The audit row above is the trail.
+    try {
+      await syncSeatsForOrgStandalone(acceptedOrgId);
+    } catch (err) {
+      console.error("[stripe-seats] post-accept sync failed", {
+        organizationId: acceptedOrgId,
+        userId: session.user.id,
+        err,
+      });
+    }
 
     revalidatePath("/", "layout");
     return { ok: true, data: { organizationId: acceptedOrgId } };

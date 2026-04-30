@@ -24,6 +24,7 @@ import { validateSlug } from "@/lib/slug";
 import { writeOrganizationSnapshot } from "@/lib/organization-export";
 import { OWNERSHIP_TRANSFER_TTL_MS } from "@/lib/ownership-transfer-constants";
 import { revokeKeysCreatedByUser } from "@/lib/api/key-lifecycle";
+import { syncSeatsForOrg } from "@/lib/stripe-seats";
 
 const BASE_URL = process.env.BETTER_AUTH_URL || "http://localhost:3000";
 
@@ -193,6 +194,10 @@ export async function removeMember(memberId: string): Promise<ActionResult> {
         where: { id: target.userId, activeOrganizationId: organizationId },
         data: { activeOrganizationId: null },
       });
+      // Business plans bill per-seat — push the new count to Stripe
+      // inside the same tx so a Stripe failure rolls back the deletion
+      // and the API-key revocations together.
+      await syncSeatsForOrg(tx, organizationId);
       return revokeKeysCreatedByUser(tx, organizationId, target.userId);
     });
 
