@@ -5,7 +5,7 @@ import { Sparkles, Building2, Check, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 
 import { describeError } from "@/lib/error-message";
-import type { PriceKey } from "@/lib/stripe";
+import { PLAN_PRICING_USD, type PriceKey } from "@/lib/billing-pricing";
 
 import { createCheckoutSession } from "./actions";
 
@@ -18,11 +18,6 @@ type Props = {
 
 type Cycle = "monthly" | "annual";
 
-const PRO_MONTHLY = 9;
-const PRO_ANNUAL = 90;
-const BUSINESS_MONTHLY = 29;
-const BUSINESS_ANNUAL = 290;
-
 function priceFor(
   tier: "pro" | "business",
   cycle: Cycle,
@@ -30,21 +25,26 @@ function priceFor(
 ): { display: string; sub: string } {
   if (tier === "pro") {
     if (cycle === "monthly") {
-      return { display: `$${PRO_MONTHLY}`, sub: "per month" };
+      return { display: `$${PLAN_PRICING_USD.pro_monthly}`, sub: "per month" };
     }
-    return { display: `$${PRO_ANNUAL}`, sub: "per year (save ~17%)" };
+    return {
+      display: `$${PLAN_PRICING_USD.pro_annual}`,
+      sub: "per year (save ~17%)",
+    };
   }
   // Business — per-seat
   const seatsLabel = `${memberCount} member${memberCount === 1 ? "" : "s"}`;
+  const monthly = PLAN_PRICING_USD.business_monthly;
+  const annual = PLAN_PRICING_USD.business_annual;
   if (cycle === "monthly") {
     return {
-      display: `$${BUSINESS_MONTHLY * memberCount}`,
-      sub: `${seatsLabel} × $${BUSINESS_MONTHLY}/mo`,
+      display: `$${monthly * memberCount}`,
+      sub: `${seatsLabel} × $${monthly}/mo`,
     };
   }
   return {
-    display: `$${BUSINESS_ANNUAL * memberCount}`,
-    sub: `${seatsLabel} × $${BUSINESS_ANNUAL}/yr (save ~17%)`,
+    display: `$${annual * memberCount}`,
+    sub: `${seatsLabel} × $${annual}/yr (save ~17%)`,
   };
 }
 

@@ -4,8 +4,14 @@ import { ArrowLeft, CreditCard } from "lucide-react";
 import { requireMember } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
 import { getOrganizationPlan, TIER_LIMITS } from "@/lib/tiers";
-import { STRIPE_PRICE_IDS, getMissingStripeConfig } from "@/lib/stripe";
+import {
+  PLAN_PRICING_USD,
+  STRIPE_PRICE_IDS,
+  getMissingStripeConfig,
+  lookupPriceId,
+} from "@/lib/stripe";
 
+import { PlanSummaryCard } from "./plan-summary-card";
 import { UpgradeOptions } from "./upgrade-options";
 
 export const dynamic = "force-dynamic";
@@ -27,6 +33,7 @@ export default async function BillingPage({
         plan: true,
         planExpiresAt: true,
         stripeCustomerId: true,
+        stripePriceId: true,
         paymentStatus: true,
         members: { select: { id: true } },
       },
@@ -44,6 +51,30 @@ export default async function BillingPage({
 
   const memberCount = org.members.length;
   const billingMisconfigured = getMissingStripeConfig().length > 0;
+
+  // Derive billing cycle + monthly cost from the recorded stripePriceId.
+  // For paid orgs the webhook will have stamped a known price; lookup
+  // returns null if the row drifted (e.g. manual Stripe-dashboard edit).
+  const priceLookup = org.stripePriceId
+    ? lookupPriceId(org.stripePriceId)
+    : null;
+  const cycleLabel = priceLookup
+    ? priceLookup.cycle === "monthly"
+      ? "Monthly"
+      : "Annual"
+    : null;
+  const summary =
+    plan !== "free" && priceLookup
+      ? buildSummary(plan, priceLookup.cycle, memberCount)
+      : null;
+  const nextBillingDateLabel =
+    plan !== "free" && org.planExpiresAt
+      ? org.planExpiresAt.toLocaleDateString(undefined, {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })
+      : null;
 
   return (
     <div className="mx-auto max-w-4xl">
@@ -124,17 +155,48 @@ export default async function BillingPage({
           disabled={billingMisconfigured}
         />
       ) : (
-        <section className="glass-card rounded-xl p-6">
-          <h2 className="mb-2 text-base font-semibold text-white">
-            Manage subscription
-          </h2>
-          <p className="text-sm text-white/60">
-            Plan switches, payment-method updates, invoice history, and
-            cancellation are managed via the Stripe customer portal — wiring
-            for that ships in the next billing PR.
-          </p>
-        </section>
+        <PlanSummaryCard
+          planLabel={TIER_LIMITS[plan].label}
+          cycleLabel={cycleLabel}
+          monthlyDisplay={summary?.display ?? "—"}
+          monthlyDetail={summary?.detail ?? "Pricing details unavailable"}
+          nextBillingDateLabel={nextBillingDateLabel}
+          paymentStatus={org.paymentStatus}
+        />
       )}
     </div>
   );
+}
+
+function buildSummary(
+  plan: "pro" | "business",
+  cycle: "monthly" | "annual",
+  memberCount: number,
+): { display: string; detail: string } {
+  if (plan === "pro") {
+    if (cycle === "monthly") {
+      return {
+        display: `$${PLAN_PRICING_USD.pro_monthly}/mo`,
+        detail: "Flat rate, billed monthly",
+      };
+    }
+    return {
+      display: `$${PLAN_PRICING_USD.pro_annual}/yr`,
+      detail: "Flat rate, billed annually",
+    };
+  }
+  // Business — per-seat
+  const seatsLabel = `${memberCount} member${memberCount === 1 ? "" : "s"}`;
+  if (cycle === "monthly") {
+    const perSeat = PLAN_PRICING_USD.business_monthly;
+    return {
+      display: `$${perSeat * memberCount}/mo`,
+      detail: `${seatsLabel} × $${perSeat}/mo`,
+    };
+  }
+  const perSeatYr = PLAN_PRICING_USD.business_annual;
+  return {
+    display: `$${perSeatYr * memberCount}/yr`,
+    detail: `${seatsLabel} × $${perSeatYr}/yr`,
+  };
 }

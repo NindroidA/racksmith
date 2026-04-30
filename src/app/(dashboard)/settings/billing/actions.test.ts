@@ -35,6 +35,7 @@ vi.mock("@/lib/audit", () => ({
 const mockCustomersCreate = vi.fn();
 const mockCustomersDel = vi.fn();
 const mockCheckoutCreate = vi.fn();
+const mockPortalCreate = vi.fn();
 
 const KNOWN_IDS = new Set([
   "price_pro_m_test",
@@ -52,6 +53,11 @@ vi.mock("@/lib/stripe", () => ({
     checkout: {
       sessions: {
         create: (...args: unknown[]) => mockCheckoutCreate(...args),
+      },
+    },
+    billingPortal: {
+      sessions: {
+        create: (...args: unknown[]) => mockPortalCreate(...args),
       },
     },
   },
@@ -73,7 +79,7 @@ vi.mock("@/lib/stripe", () => ({
 }));
 
 import { prisma } from "@/lib/prisma";
-import { createCheckoutSession } from "./actions";
+import { createCheckoutSession, createPortalSession } from "./actions";
 
 // ─── Test fixtures ──────────────────────────────────────────────────
 
@@ -156,7 +162,9 @@ describe("createCheckoutSession — auth + email gates", () => {
   it("translates a real ForbiddenError into ok:false (member rank)", async () => {
     // Use the actual ForbiddenError class so this test would catch a
     // regression where withActionEnvelope's `instanceof` check changes.
-    mockRequireMember.mockRejectedValue(new ForbiddenError("member can't bill"));
+    mockRequireMember.mockRejectedValue(
+      new ForbiddenError("member can't bill"),
+    );
     const result = await createCheckoutSession({
       priceId: "price_pro_m_test",
     });
@@ -392,6 +400,113 @@ describe("createCheckoutSession — race-condition recovery", () => {
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.error).toMatch(/Please retry/i);
+    }
+  });
+});
+
+// ─── createPortalSession ────────────────────────────────────────────
+
+describe("createPortalSession — auth + config", () => {
+  it("rejects when the org has no stripeCustomerId (free org)", async () => {
+    withMember();
+    vi.mocked(prisma.organization.findUnique).mockResolvedValue({
+      stripeCustomerId: null,
+    } as never);
+
+    const result = await createPortalSession();
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error).toMatch(/No billing customer/i);
+    }
+    expect(mockPortalCreate).not.toHaveBeenCalled();
+  });
+
+  it("rejects when BETTER_AUTH_URL is unset", async () => {
+    vi.unstubAllEnvs();
+    vi.stubEnv("BETTER_AUTH_URL", "");
+    withMember();
+    vi.mocked(prisma.organization.findUnique).mockResolvedValue({
+      stripeCustomerId: "cus_x",
+    } as never);
+
+    const result = await createPortalSession();
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error).toMatch(/BETTER_AUTH_URL/);
+    }
+    expect(mockPortalCreate).not.toHaveBeenCalled();
+  });
+
+  it("translates a real ForbiddenError into ok:false (member rank)", async () => {
+    mockRequireMember.mockRejectedValue(
+      new ForbiddenError("members can't open the portal"),
+    );
+
+    const result = await createPortalSession();
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error).toMatch(/members can't open/i);
+    }
+  });
+});
+
+describe("createPortalSession — happy path", () => {
+  it("opens a portal session and returns the URL", async () => {
+    withMember();
+    vi.mocked(prisma.organization.findUnique).mockResolvedValue({
+      stripeCustomerId: "cus_x",
+    } as never);
+    mockPortalCreate.mockResolvedValue({
+      url: "https://billing.stripe.com/p/session_test",
+    });
+
+    const result = await createPortalSession();
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.url).toMatch(/billing\.stripe\.com/);
+    }
+    expect(mockPortalCreate).toHaveBeenCalledWith({
+      customer: "cus_x",
+      return_url: "https://test.example/settings/billing",
+    });
+  });
+
+  it("strips trailing slashes from BETTER_AUTH_URL", async () => {
+    vi.unstubAllEnvs();
+    vi.stubEnv("BETTER_AUTH_URL", "https://racksmith.example///");
+    withMember();
+    vi.mocked(prisma.organization.findUnique).mockResolvedValue({
+      stripeCustomerId: "cus_x",
+    } as never);
+    mockPortalCreate.mockResolvedValue({
+      url: "https://billing.stripe.com/p/session_test",
+    });
+
+    await createPortalSession();
+
+    expect(mockPortalCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        return_url: "https://racksmith.example/settings/billing",
+      }),
+    );
+  });
+
+  it("returns a clear error when Stripe omits the portal URL", async () => {
+    withMember();
+    vi.mocked(prisma.organization.findUnique).mockResolvedValue({
+      stripeCustomerId: "cus_x",
+    } as never);
+    mockPortalCreate.mockResolvedValue({ url: null });
+
+    const result = await createPortalSession();
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error).toMatch(/portal URL/i);
     }
   });
 });
