@@ -14,6 +14,11 @@ type Props = {
   emailVerified: boolean;
   priceIds: Record<PriceKey, string>;
   disabled?: boolean;
+  // Set by `/settings/billing?tier=pro|business` (landing-page CTAs).
+  // The matching card gets a primary-color border so the user lands on
+  // the choice they made before signing up. Visual hint only — the user
+  // is still free to pick the other tier.
+  recommendedTier?: "pro" | "business" | null;
 };
 
 type Cycle = "monthly" | "annual";
@@ -69,6 +74,7 @@ export function UpgradeOptions({
   emailVerified,
   priceIds,
   disabled = false,
+  recommendedTier = null,
 }: Props) {
   const [cycle, setCycle] = useState<Cycle>("monthly");
   const [pending, start] = useTransition();
@@ -191,6 +197,7 @@ export function UpgradeOptions({
           onSelect={() => handleUpgrade("pro")}
           pending={pendingTier === "pro" && pending}
           disabled={disabled || pending}
+          recommended={recommendedTier === "pro"}
         />
         <PlanCard
           tier="business"
@@ -205,6 +212,7 @@ export function UpgradeOptions({
           onSelect={() => handleUpgrade("business")}
           pending={pendingTier === "business" && pending}
           disabled={disabled || pending}
+          recommended={recommendedTier === "business"}
         />
       </div>
 
@@ -226,6 +234,7 @@ type CardProps = {
   ctaLabel: string;
   pending: boolean;
   disabled: boolean;
+  recommended?: boolean;
   onSelect: () => void;
 };
 
@@ -238,10 +247,22 @@ function PlanCard({
   ctaLabel,
   pending,
   disabled,
+  recommended = false,
   onSelect,
 }: CardProps) {
   return (
-    <div className="flex flex-col rounded-xl border border-white/10 bg-white/[0.02] p-5">
+    <div
+      className={
+        recommended
+          ? "relative flex flex-col rounded-xl border border-primary/60 bg-primary/[0.04] p-5 shadow-lg shadow-primary/10"
+          : "flex flex-col rounded-xl border border-white/10 bg-white/[0.02] p-5"
+      }
+    >
+      {recommended && (
+        <div className="absolute -top-2.5 left-4 rounded-full bg-primary px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white">
+          You picked this
+        </div>
+      )}
       <div className="mb-4 flex items-center gap-2">
         {icon}
         <span className="text-base font-semibold text-white">{name}</span>

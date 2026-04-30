@@ -55,6 +55,14 @@ GITHUB_CLIENT_ID=""
 GITHUB_CLIENT_SECRET=""
 GOOGLE_CLIENT_ID=""
 GOOGLE_CLIENT_SECRET=""
+
+# ─── Stripe billing (required for Pro/Business tiers) ──
+STRIPE_SECRET_KEY="sk_live_..."
+STRIPE_WEBHOOK_SECRET="whsec_..."
+STRIPE_PRICE_PRO_MONTHLY="price_..."
+STRIPE_PRICE_PRO_ANNUAL="price_..."
+STRIPE_PRICE_BUSINESS_MONTHLY="price_..."
+STRIPE_PRICE_BUSINESS_ANNUAL="price_..."
 ```
 
 Generate the secrets fresh — never reuse them across environments:
@@ -170,7 +178,123 @@ docker compose -f docker-compose.prod.yml --env-file .env.prod up -d app
 
 ---
 
-## 6. Configure email delivery
+## 6. Configure Stripe billing
+
+Pro and Business tiers run on Stripe Checkout (hosted) + Stripe Customer
+Portal (hosted). RackSmith never touches a card number — Stripe handles
+the entire payment surface server-side at their domain.
+
+You'll need a [Stripe account](https://dashboard.stripe.com/) with a
+verified business profile (Stripe blocks live-mode payouts otherwise).
+
+### 6.1. Create the product + 4 prices
+
+In **Test mode** first (`Stripe Dashboard → toggle "Test mode" on`):
+
+1. **Products → Add product → Name: `RackSmith Pro`**
+   - Add price: $9.00 USD, recurring monthly → save the `price_...` ID into `STRIPE_PRICE_PRO_MONTHLY`
+   - Add another price on the same product: $90.00 USD, recurring yearly → `STRIPE_PRICE_PRO_ANNUAL`
+2. **Products → Add product → Name: `RackSmith Business`**
+   - Add price: $29.00 USD, recurring monthly, **per-unit** (Pricing model: "Standard pricing", Billing units: "Per unit") → `STRIPE_PRICE_BUSINESS_MONTHLY`
+   - Add price: $290.00 USD, recurring yearly, per-unit → `STRIPE_PRICE_BUSINESS_ANNUAL`
+
+The per-unit pricing is critical for Business — RackSmith pushes the seat
+count to Stripe via `subscriptionItems.update` whenever members are
+added or removed.
+
+### 6.2. Enable Stripe Tax (required)
+
+**Settings → Tax → Activate**. Without this, `automatic_tax: enabled`
+in the checkout session will throw at runtime. RackSmith requires
+`billing_address_collection: "required"` so Stripe has the address it
+needs to compute tax.
+
+### 6.3. Configure the Customer Portal
+
+**Settings → Billing → Customer portal → Activate**. Recommended:
+
+- ☑ Allow customers to update payment methods
+- ☑ Allow customers to update billing addresses
+- ☑ Allow customers to view invoices
+- ☑ Allow customers to cancel subscriptions
+- ☐ Allow customers to switch plans — leave OFF until you're confident in the post-switch flow (RackSmith handles plan flips via webhook, but the UX is cleaner if switches go through Checkout)
+- Set the **Headline** and the **Privacy / Terms** links to your hosted URL
+
+### 6.4. Webhook endpoint
+
+**Developers → Webhooks → Add endpoint**:
+
+- Endpoint URL: `https://racksmith.yourdomain.com/api/webhooks/stripe`
+- Events to send (exactly these 6):
+  - `customer.subscription.created`
+  - `customer.subscription.updated`
+  - `customer.subscription.deleted`
+  - `invoice.payment_failed`
+  - `invoice.payment_succeeded`
+  - `charge.refunded`
+- API version: `2026-04-22.dahlia` (matches the SDK pin in `src/lib/stripe.ts`)
+
+After creating, click **Reveal signing secret** and paste into
+`STRIPE_WEBHOOK_SECRET`. The webhook handler verifies every event with
+this secret — without it, every webhook returns 400.
+
+### 6.5. Get the secret key
+
+**Developers → API keys → Reveal test key** (or live, see §6.7) → paste
+into `STRIPE_SECRET_KEY`. Restricted keys also work as long as they have
+write access to Customers, Subscriptions, Subscription items, Checkout
+Sessions, Billing portal sessions, and Invoices.
+
+### 6.6. Local development with Stripe CLI
+
+To test webhooks against your local dev server without exposing it
+publicly:
+
+```bash
+# Install once
+brew install stripe/stripe-cli/stripe
+
+# Sign in (opens browser)
+stripe login
+
+# Forward webhooks to local — `stripe listen` prints a `whsec_...` to
+# paste into your dev .env's STRIPE_WEBHOOK_SECRET
+stripe listen --forward-to localhost:3000/api/webhooks/stripe
+
+# In another terminal, trigger an event
+stripe trigger customer.subscription.created
+```
+
+The CLI's signing secret is different from the dashboard one — keep
+them straight. Dev `.env` uses the CLI's; prod `.env.prod` uses the
+dashboard endpoint's.
+
+### 6.7. Going live
+
+When ready to take real money:
+
+1. **Toggle "Test mode" off in the Stripe dashboard** and repeat §6.1–§6.4 in **Live mode** — products, prices, portal config, and webhook endpoint are scoped per mode and don't carry over
+2. Confirm every live-mode key has the right prefix:
+   - `STRIPE_SECRET_KEY` starts with `sk_live_` (NOT `sk_test_`)
+   - `STRIPE_WEBHOOK_SECRET` starts with `whsec_`
+   - All four `STRIPE_PRICE_*` IDs come from live-mode products
+3. Update `.env.prod` with the live values, then restart the app:
+   ```bash
+   docker compose -f docker-compose.prod.yml --env-file .env.prod up -d app
+   ```
+4. Run a real upgrade with your own card → verify the charge appears in
+   the Live mode dashboard → cancel from the customer portal → verify
+   the downgrade fires via webhook → optionally refund the charge from
+   the dashboard and verify the audit log row
+
+If anything in the flow misbehaves, the `StripeEvent` table in Postgres
+is the source of truth for what arrived, what was processed, and what
+errored — `SELECT id, type, processedAt, errorMessage FROM "StripeEvent"
+ORDER BY "createdAt" DESC LIMIT 20;` is the first stop for debugging.
+
+---
+
+## 7. Configure email delivery
 
 Without `RESEND_API_KEY`, every outbound email prints to the app
 container's stderr. That's fine for dev and homelabs that don't mind
@@ -187,7 +311,7 @@ inbox within seconds.
 
 ---
 
-## 7. Backups
+## 8. Backups
 
 The app container is stateless. **All data lives in the `pgdata` Docker
 volume.** If you lose that volume, you lose everything.
@@ -233,7 +357,7 @@ docker compose -f docker-compose.prod.yml --env-file .env.prod up -d app
 
 ---
 
-## 8. Upgrades
+## 9. Upgrades
 
 ```bash
 cd racksmith
@@ -248,7 +372,7 @@ destructive or long-running migration, we'll call it out in
 
 ---
 
-## 9. Troubleshooting
+## 10. Troubleshooting
 
 | Symptom | Likely cause |
 |---|---|
@@ -258,6 +382,11 @@ destructive or long-running migration, we'll call it out in
 | 429 on login | You hit the default 5/15-min rate limit — wait it out or tune `customRules` in `src/lib/auth.ts` |
 | Session lost after reverse-proxy change | The cookie domain changed; users need to sign in again |
 | Multi-instance deployment skipping rate limits | Rate-limit storage is in-memory — switch to `storage: "database"` in `auth.ts` and add a `RateLimit` Prisma model |
+| Checkout button fails with "Server is missing BETTER_AUTH_URL" | `.env.prod` is missing the var, or you forgot to restart the app after adding it |
+| Webhook returns 400 "Signature verification failed" | `STRIPE_WEBHOOK_SECRET` doesn't match the endpoint Stripe is hitting. In dev, the CLI's secret is different from the dashboard's |
+| All Stripe events sit in `StripeEvent` with `errorMessage = "No organization for customer ..."` | Customer was created in the Stripe dashboard manually, not via Checkout. The webhook can't link it to an org |
+| Business org's Stripe quantity drifts from member count | Look at `Member` count vs `subscriptionItem.quantity` in the dashboard. The post-accept reconcile is best-effort; restart sync by removing+re-adding any member, or call `syncSeatsForOrgStandalone` from a one-off script |
+| Live-mode test charges show `_test_` prefixes | `.env.prod` still points at test-mode keys. Verify all six STRIPE_* vars use live values, then restart the app |
 
 File an issue at <https://github.com/nindroid-systems/racksmith/issues>
 if you hit something that isn't covered here.
