@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Direction C · Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ────────────────────────────────────────────────────────────────
+       DIRECTION C — "Console"
+       Inspiration: Cloudflare dashboard, GitHub CLI ASCII output,
+       tmux/neovim panels, the dashboard a sysadmin would actually want.
+       Maximum information density, monospace-first.
+       Key moves:
+         • Pure black bg with subtle scanline pattern
+         • Mono everything (Inter only for prose paragraphs)
+         • Hard 2px-corner radii or NONE
+         • Green/amber/red traffic-light status (CRT-glow)
+         • Boxed sections with thin 1px borders, like a TUI
+         • Compact density, no marketing whitespace
+         • Custom geometric icons (or thin Tabler)
+       Honest take: this is the most polarizing of the three. It'll
+       feel "right" to network engineers and "intense" to everyone
+       else. Strong character, narrower audience.
+    ──────────────────────────────────────────────────────────────── */
+    :root {
+      --bg: #050608;
+      --bg-elev: #0a0c10;
+      --bg-card: #0d1015;
+      --border: rgba(255,255,255,0.10);
+      --border-strong: rgba(255,255,255,0.22);
+      --text-1: #e6e9ef;
+      --text-2: #9ba1ad;
+      --text-3: #5d6470;
+      --accent: #4ade80;        /* phosphor green */
+      --accent-dim: rgba(74,222,128,0.13);
+      --warn: #facc15;
+      --crit: #f87171;
+      --info: #38bdf8;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text-1);
+      font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+      font-size: 13px;
+      font-variant-numeric: tabular-nums;
+      -webkit-font-smoothing: antialiased;
+      /* Subtle scanline texture for CRT feel — barely perceptible */
+      background-image:
+        repeating-linear-gradient(
+          to bottom,
+          transparent 0,
+          transparent 2px,
+          rgba(255,255,255,0.012) 2px,
+          rgba(255,255,255,0.012) 3px
+        );
+    }
+    .prose { font-family: "Inter", -apple-system, system-ui, sans-serif; letter-spacing: -0.005em; }
+
+    .app { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
+
+    .sidebar {
+      background: var(--bg-elev);
+      border-right: 1px solid var(--border);
+      padding: 16px 0;
+    }
+    .brand {
+      display: flex; align-items: center; gap: 10px;
+      padding: 0 16px 18px;
+      border-bottom: 1px solid var(--border);
+    }
+    .brand-mark {
+      width: 22px; height: 22px;
+      border: 1.5px solid var(--accent);
+      background: var(--accent-dim);
+      display: grid; place-items: center;
+      color: var(--accent);
+      font-size: 13px; font-weight: 700;
+    }
+    .brand-name {
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 0.02em;
+    }
+    .brand-name::after {
+      content:'_';
+      color: var(--accent);
+      animation: blink 1s steps(2) infinite;
+    }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    .workspace {
+      margin: 14px 12px 18px;
+      padding: 8px 10px;
+      border: 1px dashed var(--border);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .workspace-prefix { color: var(--text-3); font-size: 11px; }
+    .workspace-name {
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 12px;
+      text-shadow: 0 0 8px rgba(74,222,128,0.4);
+    }
+    .nav { padding: 0 12px; }
+    .nav-section {
+      font-size: 10px;
+      color: var(--text-3);
+      padding: 12px 0 4px;
+      letter-spacing: 0.08em;
+    }
+    .nav-section::before { content: '── '; }
+    .nav-item {
+      display: flex; align-items: center; gap: 8px;
+      padding: 5px 0;
+      color: var(--text-2);
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .nav-item::before {
+      content: '$';
+      color: var(--text-3);
+      font-weight: 700;
+      width: 12px;
+    }
+    .nav-item.active {
+      color: var(--accent);
+      text-shadow: 0 0 6px rgba(74,222,128,0.35);
+    }
+    .nav-item.active::before {
+      content: '▶';
+      color: var(--accent);
+    }
+    .nav-item:hover:not(.active) { color: var(--text-1); }
+
+    /* Main */
+    .main { padding: 20px 28px 60px; max-width: 940px; }
+
+    /* Breadcrumb path — TUI feel */
+    .crumb {
+      font-size: 11px;
+      color: var(--text-3);
+      margin-bottom: 12px;
+    }
+    .crumb span { color: var(--text-1); }
+    .crumb::before { content: '['; color: var(--text-3); }
+    .crumb::after { content: ']'; color: var(--text-3); }
+
+    .page-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin: 0 0 4px;
+      letter-spacing: -0.01em;
+    }
+    .page-title::before {
+      content: '# ';
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .page-subtitle { color: var(--text-2); font-size: 12px; margin: 0 0 22px; }
+
+    /* Alert — TUI panel */
+    .alert {
+      position: relative;
+      border: 1px solid rgba(250,204,21,0.4);
+      background: rgba(250,204,21,0.04);
+      padding: 12px 14px;
+      margin-bottom: 18px;
+      font-size: 12px;
+    }
+    .alert::before {
+      content: 'WARN';
+      position: absolute;
+      top: -8px; left: 12px;
+      padding: 1px 8px;
+      background: var(--bg);
+      color: var(--warn);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      font-weight: 700;
+    }
+    .alert-body {
+      display: flex; align-items: center; gap: 12px;
+    }
+    .alert-msg { flex: 1; color: var(--text-1); }
+    .alert-msg b { color: var(--warn); }
+    .btn {
+      padding: 5px 12px;
+      background: transparent;
+      border: 1px solid var(--border-strong);
+      color: var(--text-1);
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: 0.02em;
+    }
+    .btn:hover { border-color: var(--accent); color: var(--accent); }
+    .btn.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--bg);
+    }
+    .btn.primary:hover { background: #22c55e; }
+    .btn.warn {
+      background: var(--warn);
+      border-color: var(--warn);
+      color: var(--bg);
+    }
+    .btn::before { content: '> '; }
+
+    /* "Box" sections — TUI-style label */
+    .box {
+      position: relative;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+    .box-label {
+      position: absolute;
+      top: -8px; left: 16px;
+      padding: 1px 8px;
+      background: var(--bg);
+      color: var(--text-3);
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      font-weight: 700;
+    }
+    .box-label.live {
+      color: var(--accent);
+      text-shadow: 0 0 6px rgba(74,222,128,0.4);
+    }
+
+    /* Plan readout — terminal output style */
+    .readout { font-size: 13px; line-height: 1.6; }
+    .readout-row { display: grid; grid-template-columns: 120px 1fr; gap: 16px; padding: 2px 0; }
+    .readout-key { color: var(--text-3); }
+    .readout-key::after { content: ':'; }
+    .readout-val { color: var(--text-1); }
+    .readout-val.bright { color: var(--accent); text-shadow: 0 0 4px rgba(74,222,128,0.25); }
+    .readout-val.warn { color: var(--warn); }
+
+    .status-line {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 14px;
+      padding-bottom: 14px;
+      border-bottom: 1px dashed var(--border);
+    }
+    .led {
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 10px var(--accent), 0 0 4px rgba(74,222,128,0.5);
+    }
+    .led.warn { background: var(--warn); box-shadow: 0 0 10px var(--warn), 0 0 4px rgba(250,204,21,0.5); }
+    .status-text {
+      font-size: 13px;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+    }
+    .status-text.ok { color: var(--accent); }
+    .status-text.warn { color: var(--warn); }
+    .status-spacer { flex: 1; }
+    .status-id { color: var(--text-3); font-size: 11px; }
+
+    /* The big number — plan display */
+    .plan-banner {
+      display: flex; align-items: flex-end; gap: 14px;
+      padding: 10px 0 16px;
+    }
+    .plan-big {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--accent);
+      text-shadow: 0 0 12px rgba(74,222,128,0.4);
+    }
+    .plan-meta { color: var(--text-2); font-size: 12px; padding-bottom: 6px; }
+
+    /* Action footer — command-prompt style */
+    .action {
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      padding: 16px 18px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px;
+      margin-top: 4px;
+    }
+    .action-title {
+      font-size: 13px;
+      font-weight: 600;
+      margin: 0 0 4px;
+      color: var(--text-1);
+    }
+    .action-sub { color: var(--text-2); font-size: 11px; margin: 0; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">R</div>
+        <div class="brand-name">racksmith</div>
+      </div>
+      <div class="workspace">
+        <span class="workspace-prefix">ws:</span>
+        <span class="workspace-name">acme-corp</span>
+      </div>
+      <div class="nav">
+        <div class="nav-section">network</div>
+        <div class="nav-item">dashboard</div>
+        <div class="nav-item">racks</div>
+        <div class="nav-item">devices</div>
+        <div class="nav-item">topology</div>
+        <div class="nav-section">settings</div>
+        <div class="nav-item active">billing</div>
+        <div class="nav-item">audit-log</div>
+        <div class="nav-item">api-keys</div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="crumb">~ / settings / <span>billing</span></div>
+      <h1 class="page-title">billing</h1>
+      <p class="page-subtitle prose">Subscription, payment method, and invoices.</p>
+
+      <div class="alert">
+        <div class="alert-body">
+          <div class="alert-msg prose"><b>Payment failed.</b> Update your card to keep RackSmith Business. We&apos;ll retry the charge automatically.</div>
+          <button class="btn warn">UPDATE PAYMENT</button>
+        </div>
+      </div>
+
+      <div class="box">
+        <span class="box-label live">PLAN</span>
+        <div class="status-line">
+          <div class="led"></div>
+          <div class="status-text ok">ACTIVE</div>
+          <div class="status-spacer"></div>
+          <div class="status-id">cus_smoke_001 · si_smoke_biz_001</div>
+        </div>
+        <div class="plan-banner">
+          <div class="plan-big">BUSINESS</div>
+          <div class="plan-meta">$58.00/mo · 2 seats @ $29</div>
+        </div>
+        <div class="readout">
+          <div class="readout-row"><div class="readout-key">cycle      </div><div class="readout-val">monthly</div></div>
+          <div class="readout-row"><div class="readout-key">renews     </div><div class="readout-val">2026-06-09 <span style="color:var(--text-3)">(in 24d)</span></div></div>
+          <div class="readout-row"><div class="readout-key">card       </div><div class="readout-val">visa **** 4242</div></div>
+          <div class="readout-row"><div class="readout-key">last_invoice</div><div class="readout-val bright">$58.00 paid 2026-05-09</div></div>
+        </div>
+      </div>
+
+      <div class="action">
+        <div>
+          <h3 class="action-title">manage subscription</h3>
+          <p class="action-sub prose">Plan switches, payment method, and cancellation handled by Stripe portal.</p>
+        </div>
+        <button class="btn primary">OPEN PORTAL ⇗</button>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Plex-family multi-role pairings — RackSmith</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <!-- IBM Plex (all three sub-families: Sans, Sans Condensed, Mono, Serif) -->
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet" />
+  <!-- Geist Mono (option 2's mono pick) -->
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <!-- Space Grotesk (option 3's display pick) -->
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <!-- Inter (used in some bodies for comparison) -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0a0e1a;
+      --bg-card: #1a1f35;
+      --bg-card-2: #20253f;
+      --border: rgba(255,255,255,0.10);
+      --txt-1: rgba(255,255,255,0.95);
+      --txt-2: rgba(255,255,255,0.70);
+      --txt-3: rgba(255,255,255,0.55);
+      --txt-4: rgba(255,255,255,0.40);
+      --primary: #5765f4;
+      --green: #0bb678;
+      --orange: #f47521;
+      --cyan: #22d3ee;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 40px;
+      background: var(--bg);
+      color: var(--txt-1);
+      font-variant-numeric: tabular-nums;
+      -webkit-font-smoothing: antialiased;
+      font-family: "IBM Plex Sans", system-ui, sans-serif;
+    }
+
+    h1 { font-size: 28px; font-weight: 700; margin: 0 0 8px; letter-spacing: -0.02em; }
+    .lede { max-width: 880px; color: var(--txt-2); font-size: 14px; line-height: 1.55; margin: 0 0 36px; }
+
+    /* ── per-option card ────────────────────────────────────────── */
+    .opt {
+      max-width: 920px;
+      margin: 0 0 36px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--bg-card);
+      overflow: hidden;
+    }
+    .opt-head {
+      display: flex; align-items: baseline; justify-content: space-between;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,0.025);
+    }
+    .opt-name {
+      font-family: "IBM Plex Sans", system-ui, sans-serif;
+      font-size: 12px; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--txt-2);
+    }
+    .opt-stack {
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 11px; color: var(--txt-3);
+    }
+
+    .body { padding: 24px 28px; }
+
+    /* The 4 role bands — same content, different fonts assigned per option */
+    .row { display: grid; grid-template-columns: 110px 1fr; gap: 24px; align-items: baseline; padding: 10px 0; border-top: 1px dashed var(--border); }
+    .row:first-child { border-top: none; }
+    .role-tag {
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 10px; font-weight: 500;
+      color: var(--txt-4);
+      text-transform: lowercase;
+      padding-top: 6px;
+    }
+
+    /* Hero plan banner — for showcasing display weight */
+    .plan-hero {
+      display: flex; align-items: baseline; gap: 14px;
+      margin-bottom: 4px;
+    }
+    .plan-eyebrow { font-size: 11px; color: var(--txt-3); }
+    .plan-name {
+      font-size: 38px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.0;
+    }
+
+    /* Body paragraph showcase */
+    .desc {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--txt-2);
+      max-width: 580px;
+    }
+    .desc .inline-data {
+      font-weight: 500;
+      color: var(--txt-1);
+    }
+
+    /* Metrics row (table-flavor data) */
+    .metrics {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 0;
+      padding-top: 4px;
+    }
+    .metric { padding-right: 18px; }
+    .metric:not(:last-child) { border-right: 1px solid var(--border); }
+    .metric:not(:first-child) { padding-left: 18px; }
+    .metric-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 600;
+      color: var(--txt-4);
+      margin: 0 0 6px;
+    }
+    .metric-value {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--txt-1);
+      letter-spacing: -0.01em;
+    }
+
+    /* Data log row — pure mono */
+    .log-rows { display: flex; flex-direction: column; gap: 4px; padding-top: 4px; }
+    .log-row { display: grid; grid-template-columns: 100px 1fr; gap: 14px; font-size: 12.5px; line-height: 1.5; }
+    .log-key { color: var(--txt-4); }
+    .log-key::after { content: ":"; }
+    .log-val { color: var(--txt-1); font-weight: 500; }
+    .log-val .led { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--green); margin-right: 6px; vertical-align: middle; }
+
+    /* ── Option 1: All-Plex (Condensed display + Sans body + Mono data) ── */
+    .opt[data-id="1"] .plan-name   { font-family: "IBM Plex Sans Condensed", system-ui, sans-serif; }
+    .opt[data-id="1"] .plan-eyebrow { font-family: "IBM Plex Sans", system-ui, sans-serif; }
+    .opt[data-id="1"] .desc        { font-family: "IBM Plex Sans", system-ui, sans-serif; }
+    .opt[data-id="1"] .desc .inline-data { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+    .opt[data-id="1"] .metric-label { font-family: "IBM Plex Sans", system-ui, sans-serif; }
+    .opt[data-id="1"] .metric-value { font-family: "IBM Plex Sans Condensed", system-ui, sans-serif; }
+    .opt[data-id="1"] .metric-value.mono { font-family: "IBM Plex Mono", ui-monospace, monospace; font-weight: 500; }
+    .opt[data-id="1"] .log-row { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+
+    /* ── Option 2: Plex Sans + Geist Mono (sharper mono pairing) ── */
+    .opt[data-id="2"] .plan-name   { font-family: "IBM Plex Sans", system-ui, sans-serif; }
+    .opt[data-id="2"] .plan-eyebrow { font-family: "IBM Plex Sans", system-ui, sans-serif; }
+    .opt[data-id="2"] .desc        { font-family: "IBM Plex Sans", system-ui, sans-serif; }
+    .opt[data-id="2"] .desc .inline-data { font-family: "Geist Mono", ui-monospace, monospace; }
+    .opt[data-id="2"] .metric-label { font-family: "IBM Plex Sans", system-ui, sans-serif; }
+    .opt[data-id="2"] .metric-value { font-family: "IBM Plex Sans", system-ui, sans-serif; }
+    .opt[data-id="2"] .metric-value.mono { font-family: "Geist Mono", ui-monospace, monospace; font-weight: 500; }
+    .opt[data-id="2"] .log-row { font-family: "Geist Mono", ui-monospace, monospace; }
+
+    /* ── Option 3: Space Grotesk display + Plex Sans body + JetBrains Mono ── */
+    .opt[data-id="3"] .plan-name   { font-family: "Space Grotesk", system-ui, sans-serif; font-weight: 700; }
+    .opt[data-id="3"] .plan-eyebrow { font-family: "IBM Plex Sans", system-ui, sans-serif; }
+    .opt[data-id="3"] .desc        { font-family: "IBM Plex Sans", system-ui, sans-serif; }
+    .opt[data-id="3"] .desc .inline-data { font-family: "JetBrains Mono", ui-monospace, monospace; }
+    .opt[data-id="3"] .metric-label { font-family: "IBM Plex Sans", system-ui, sans-serif; }
+    .opt[data-id="3"] .metric-value { font-family: "Space Grotesk", system-ui, sans-serif; font-weight: 600; }
+    .opt[data-id="3"] .metric-value.mono { font-family: "JetBrains Mono", ui-monospace, monospace; font-weight: 500; }
+    .opt[data-id="3"] .log-row { font-family: "JetBrains Mono", ui-monospace, monospace; }
+
+    /* ── Option 4: Plex Sans + Plex Serif eyebrows + Plex Mono data ── */
+    .opt[data-id="4"] .plan-name   { font-family: "IBM Plex Sans", system-ui, sans-serif; }
+    .opt[data-id="4"] .plan-eyebrow { font-family: "IBM Plex Serif", Georgia, serif; font-style: italic; }
+    .opt[data-id="4"] .desc        { font-family: "IBM Plex Sans", system-ui, sans-serif; }
+    .opt[data-id="4"] .desc .inline-data { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+    .opt[data-id="4"] .metric-label { font-family: "IBM Plex Serif", Georgia, serif; font-style: italic; letter-spacing: 0; text-transform: none; font-size: 12px; font-weight: 500; }
+    .opt[data-id="4"] .metric-value { font-family: "IBM Plex Sans", system-ui, sans-serif; }
+    .opt[data-id="4"] .metric-value.mono { font-family: "IBM Plex Mono", ui-monospace, monospace; font-weight: 500; }
+    .opt[data-id="4"] .log-row { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+  </style>
+</head>
+<body>
+  <h1>Plex-family multi-role pairings</h1>
+  <p class="lede">
+    Same Billing content, four ways of assigning fonts to different jobs. The bottom three columns
+    in each card show what most of RackSmith will look like in practice — a hero number, a paragraph
+    with inline data, a metrics row, and a mono log readout. Pick the row of types that feels right
+    side-by-side.
+  </p>
+
+  <!-- Option 1: Plex Sans Condensed display + Plex Sans body + Plex Mono data -->
+  <div class="opt" data-id="1">
+    <div class="opt-head">
+      <span class="opt-name">1 · All-Plex (the IBM Carbon way)</span>
+      <span class="opt-stack">Plex Sans Condensed · Plex Sans · Plex Mono</span>
+    </div>
+    <div class="body">
+      <div class="row">
+        <div class="role-tag">display</div>
+        <div>
+          <p class="plan-eyebrow">Current plan</p>
+          <h2 class="plan-name">Business</h2>
+        </div>
+      </div>
+      <div class="row">
+        <div class="role-tag">body</div>
+        <div class="desc">
+          Subscription is active. Plan switches, payment method, invoices, and cancellation are handled in the Stripe customer portal.
+          Next charge: <span class="inline-data">$58.00</span> on <span class="inline-data">2026-06-09</span>.
+        </div>
+      </div>
+      <div class="row">
+        <div class="role-tag">tables</div>
+        <div class="metrics">
+          <div class="metric"><p class="metric-label">Cycle</p><p class="metric-value">Monthly</p></div>
+          <div class="metric"><p class="metric-label">Price</p><p class="metric-value mono">$58.00</p></div>
+          <div class="metric"><p class="metric-label">Renews</p><p class="metric-value">Jun 9, 2026</p></div>
+          <div class="metric"><p class="metric-label">Customer</p><p class="metric-value mono">cus_smoke_001</p></div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="role-tag">log/data</div>
+        <div class="log-rows">
+          <div class="log-row"><span class="log-key">status</span><span class="log-val"><span class="led"></span>active · seats 2/∞</span></div>
+          <div class="log-row"><span class="log-key">ip_pool</span><span class="log-val">10.0.0.0/16 · 192.168.4.0/22 · 172.16.0.0/12</span></div>
+          <div class="log-row"><span class="log-key">last_inv</span><span class="log-val">2026-05-09 · $58.00 paid · in_1QXxyz</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option 2: Plex Sans + Geist Mono (sharper data) -->
+  <div class="opt" data-id="2">
+    <div class="opt-head">
+      <span class="opt-name">2 · Plex Sans + Geist Mono</span>
+      <span class="opt-stack">Plex Sans · Plex Sans · Geist Mono</span>
+    </div>
+    <div class="body">
+      <div class="row">
+        <div class="role-tag">display</div>
+        <div>
+          <p class="plan-eyebrow">Current plan</p>
+          <h2 class="plan-name">Business</h2>
+        </div>
+      </div>
+      <div class="row">
+        <div class="role-tag">body</div>
+        <div class="desc">
+          Subscription is active. Plan switches, payment method, invoices, and cancellation are handled in the Stripe customer portal.
+          Next charge: <span class="inline-data">$58.00</span> on <span class="inline-data">2026-06-09</span>.
+        </div>
+      </div>
+      <div class="row">
+        <div class="role-tag">tables</div>
+        <div class="metrics">
+          <div class="metric"><p class="metric-label">Cycle</p><p class="metric-value">Monthly</p></div>
+          <div class="metric"><p class="metric-label">Price</p><p class="metric-value mono">$58.00</p></div>
+          <div class="metric"><p class="metric-label">Renews</p><p class="metric-value">Jun 9, 2026</p></div>
+          <div class="metric"><p class="metric-label">Customer</p><p class="metric-value mono">cus_smoke_001</p></div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="role-tag">log/data</div>
+        <div class="log-rows">
+          <div class="log-row"><span class="log-key">status</span><span class="log-val"><span class="led"></span>active · seats 2/∞</span></div>
+          <div class="log-row"><span class="log-key">ip_pool</span><span class="log-val">10.0.0.0/16 · 192.168.4.0/22 · 172.16.0.0/12</span></div>
+          <div class="log-row"><span class="log-key">last_inv</span><span class="log-val">2026-05-09 · $58.00 paid · in_1QXxyz</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option 3: Space Grotesk display + Plex Sans body + JetBrains Mono -->
+  <div class="opt" data-id="3">
+    <div class="opt-head">
+      <span class="opt-name">3 · Space Grotesk display + Plex Sans body + JetBrains Mono</span>
+      <span class="opt-stack">Space Grotesk · Plex Sans · JetBrains Mono</span>
+    </div>
+    <div class="body">
+      <div class="row">
+        <div class="role-tag">display</div>
+        <div>
+          <p class="plan-eyebrow">Current plan</p>
+          <h2 class="plan-name">Business</h2>
+        </div>
+      </div>
+      <div class="row">
+        <div class="role-tag">body</div>
+        <div class="desc">
+          Subscription is active. Plan switches, payment method, invoices, and cancellation are handled in the Stripe customer portal.
+          Next charge: <span class="inline-data">$58.00</span> on <span class="inline-data">2026-06-09</span>.
+        </div>
+      </div>
+      <div class="row">
+        <div class="role-tag">tables</div>
+        <div class="metrics">
+          <div class="metric"><p class="metric-label">Cycle</p><p class="metric-value">Monthly</p></div>
+          <div class="metric"><p class="metric-label">Price</p><p class="metric-value mono">$58.00</p></div>
+          <div class="metric"><p class="metric-label">Renews</p><p class="metric-value">Jun 9, 2026</p></div>
+          <div class="metric"><p class="metric-label">Customer</p><p class="metric-value mono">cus_smoke_001</p></div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="role-tag">log/data</div>
+        <div class="log-rows">
+          <div class="log-row"><span class="log-key">status</span><span class="log-val"><span class="led"></span>active · seats 2/∞</span></div>
+          <div class="log-row"><span class="log-key">ip_pool</span><span class="log-val">10.0.0.0/16 · 192.168.4.0/22 · 172.16.0.0/12</span></div>
+          <div class="log-row"><span class="log-key">last_inv</span><span class="log-val">2026-05-09 · $58.00 paid · in_1QXxyz</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option 4: Plex Sans + Plex Serif italic eyebrows + Plex Mono data -->
+  <div class="opt" data-id="4">
+    <div class="opt-head">
+      <span class="opt-name">4 · Plex with Plex Serif italic eyebrows (the editorial move)</span>
+      <span class="opt-stack">Plex Sans · Plex Sans + Plex Serif italic · Plex Mono</span>
+    </div>
+    <div class="body">
+      <div class="row">
+        <div class="role-tag">display</div>
+        <div>
+          <p class="plan-eyebrow">Current plan</p>
+          <h2 class="plan-name">Business</h2>
+        </div>
+      </div>
+      <div class="row">
+        <div class="role-tag">body</div>
+        <div class="desc">
+          Subscription is active. Plan switches, payment method, invoices, and cancellation are handled in the Stripe customer portal.
+          Next charge: <span class="inline-data">$58.00</span> on <span class="inline-data">2026-06-09</span>.
+        </div>
+      </div>
+      <div class="row">
+        <div class="role-tag">tables</div>
+        <div class="metrics">
+          <div class="metric"><p class="metric-label">Cycle</p><p class="metric-value">Monthly</p></div>
+          <div class="metric"><p class="metric-label">Price</p><p class="metric-value mono">$58.00</p></div>
+          <div class="metric"><p class="metric-label">Renews</p><p class="metric-value">Jun 9, 2026</p></div>
+          <div class="metric"><p class="metric-label">Customer</p><p class="metric-value mono">cus_smoke_001</p></div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="role-tag">log/data</div>
+        <div class="log-rows">
+          <div class="log-row"><span class="log-key">status</span><span class="log-val"><span class="led"></span>active · seats 2/∞</span></div>
+          <div class="log-row"><span class="log-key">ip_pool</span><span class="log-val">10.0.0.0/16 · 192.168.4.0/22 · 172.16.0.0/12</span></div>
+          <div class="log-row"><span class="log-key">last_inv</span><span class="log-val">2026-05-09 · $58.00 paid · in_1QXxyz</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

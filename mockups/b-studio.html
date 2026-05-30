@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Direction B · Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    /* ────────────────────────────────────────────────────────────────
+       DIRECTION B — "Studio"
+       Inspiration: Linear, Vercel Dashboard, Apple System Settings,
+       Stripe Dashboard 2024 refresh.
+       Restraint is the brand. Generous whitespace, restrained color,
+       continuous-corner radii, one strong accent, deliberate type.
+       Key moves:
+         • Pure dark with subtle vignette (no gradient bg)
+         • SHARP elevation hierarchy: 3 surface tiers
+         • Inter Tight for chrome, JetBrains Mono for data
+         • Single indigo accent, status colors precise
+         • Continuous-corner radii (16-20px)
+         • Phosphor-style duotone icons (mocked here with 2-tone fills)
+         • Quietly bold — type does the work
+    ──────────────────────────────────────────────────────────────── */
+    :root {
+      --bg: #0c0c0d;
+      --bg-elev: #161618;
+      --bg-card: #1a1a1d;
+      --bg-card-2: #202024;
+      --border: rgba(255,255,255,0.06);
+      --border-strong: rgba(255,255,255,0.12);
+      --text-1: rgba(255,255,255,0.96);
+      --text-2: rgba(255,255,255,0.72);
+      --text-3: rgba(255,255,255,0.52);
+      --text-4: rgba(255,255,255,0.36);
+      --accent: #6366f1;
+      --accent-bright: #818cf8;
+      --accent-dim: rgba(99,102,241,0.16);
+      --ok: #22c55e;
+      --warn: #f59e0b;
+      --crit: #ef4444;
+      --radius: 16px;
+      --radius-sm: 10px;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text-1);
+      font-family: "Inter Tight", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      font-size: 14px;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.005em;
+      -webkit-font-smoothing: antialiased;
+    }
+    .mono { font-family: "JetBrains Mono", ui-monospace, monospace; letter-spacing: 0; }
+
+    /* Subtle background — vignette only, no gradient noise */
+    body::before {
+      content:''; position: fixed; inset:0; pointer-events: none;
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(99,102,241,0.06), transparent 60%);
+    }
+
+    .app { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+
+    .sidebar {
+      background: var(--bg);
+      border-right: 1px solid var(--border);
+      padding: 24px 16px;
+    }
+    .brand {
+      display: flex; align-items: center; gap: 12px;
+      padding: 0 4px 28px;
+    }
+    .brand-mark {
+      width: 30px; height: 30px;
+      border-radius: 9px;
+      background: linear-gradient(140deg, var(--accent), #4f46e5);
+      display: grid; place-items: center;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.05), 0 4px 16px rgba(99,102,241,0.35);
+    }
+    .brand-mark svg { width: 16px; height: 16px; color: white; }
+    .brand-name { font-weight: 700; letter-spacing: -0.02em; font-size: 16px; }
+
+    .workspace {
+      margin: 0 0 24px;
+      padding: 10px;
+      background: var(--bg-card);
+      border-radius: 12px;
+      display: flex; align-items: center; gap: 10px;
+      cursor: pointer;
+      transition: background 120ms ease;
+    }
+    .workspace:hover { background: var(--bg-card-2); }
+    .workspace-avatar {
+      width: 26px; height: 26px;
+      background: linear-gradient(135deg, #2dd4bf, #38bdf8);
+      color: #0c0c0d;
+      border-radius: 7px;
+      display: grid; place-items: center;
+      font-size: 10px; font-weight: 700;
+    }
+    .workspace-name { font-size: 13px; font-weight: 600; flex: 1;
+      background: linear-gradient(135deg, #2dd4bf, #22d3ee, #38bdf8);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav { display: flex; flex-direction: column; gap: 1px; }
+    .nav-section {
+      font-size: 11px;
+      color: var(--text-4);
+      padding: 16px 8px 6px;
+      font-weight: 500;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 11px;
+      padding: 8px 10px;
+      color: var(--text-2);
+      border-radius: 8px;
+      font-size: 13.5px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 120ms ease;
+    }
+    .nav-item.active {
+      background: var(--bg-card);
+      color: var(--text-1);
+    }
+    .nav-item:hover:not(.active) { background: rgba(255,255,255,0.025); color: var(--text-1); }
+    .nav-item .icon { display: grid; place-items: center; }
+    .nav-item .icon svg { width: 17px; height: 17px; }
+
+    /* Duotone icon style — primary stroke + faint fill (Phosphor-feel) */
+    .icon-duotone .stroke { stroke: currentColor; stroke-width: 1.5; fill: none; }
+    .icon-duotone .fill { fill: currentColor; opacity: 0.22; }
+
+    /* Main */
+    .main { padding: 36px 48px 80px; max-width: 920px; }
+
+    .page-header { margin-bottom: 36px; }
+    .page-title {
+      font-size: 30px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      margin: 0 0 6px;
+    }
+    .page-subtitle { color: var(--text-3); font-size: 14px; margin: 0; }
+
+    /* Past-due — quietly insistent, not screaming */
+    .alert {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      display: flex; align-items: center; gap: 16px;
+      margin-bottom: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    .alert::before {
+      content:''; position: absolute; left:0; top:0; bottom:0; width: 3px;
+      background: linear-gradient(180deg, var(--warn), rgba(245,158,11,0.4));
+    }
+    .alert-icon {
+      width: 36px; height: 36px;
+      background: rgba(245,158,11,0.14);
+      border-radius: 10px;
+      display: grid; place-items: center;
+      color: var(--warn);
+      flex-shrink: 0;
+    }
+    .alert-body { flex: 1; }
+    .alert-title { font-size: 14px; font-weight: 600; margin: 0 0 2px; }
+    .alert-msg { font-size: 13px; color: var(--text-2); margin: 0; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 8px 14px;
+      border: none;
+      background: var(--bg-card-2);
+      color: var(--text-1);
+      border-radius: 10px;
+      font-size: 13px; font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      letter-spacing: -0.005em;
+      transition: background 120ms ease;
+    }
+    .btn:hover { background: #2a2a30; }
+    .btn.primary {
+      background: var(--accent);
+      color: white;
+      font-weight: 600;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.08), 0 4px 16px rgba(99,102,241,0.3);
+    }
+    .btn.primary:hover { background: var(--accent-bright); }
+
+    /* Plan hero — generous, restrained */
+    .plan-hero {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      padding: 28px 32px;
+      margin-bottom: 18px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 24px;
+      align-items: start;
+    }
+    .plan-row { display: flex; flex-direction: column; gap: 4px; }
+    .plan-eyebrow {
+      font-size: 12px;
+      color: var(--text-3);
+      font-weight: 500;
+      letter-spacing: 0;
+    }
+    .plan-name {
+      font-size: 36px;
+      font-weight: 700;
+      letter-spacing: -0.035em;
+      margin: 0;
+      line-height: 1.05;
+    }
+    .plan-price-line {
+      margin-top: 14px;
+      display: flex; align-items: baseline; gap: 8px;
+      color: var(--text-2);
+      font-size: 14px;
+    }
+    .plan-price-line .price { color: var(--text-1); font-weight: 600; font-size: 17px; }
+
+    /* Status chip — single rule, two tones */
+    .chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 12px; font-weight: 600;
+      letter-spacing: -0.005em;
+    }
+    .chip.ok { background: rgba(34,197,94,0.13); color: #4ade80; }
+    .chip.warn { background: rgba(245,158,11,0.13); color: #fbbf24; }
+    .chip .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+    /* Details grid — Apple System Settings style */
+    .details {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      padding: 4px 0;
+      margin-bottom: 18px;
+      overflow: hidden;
+    }
+    .detail-row {
+      display: grid;
+      grid-template-columns: 200px 1fr auto;
+      align-items: center;
+      padding: 16px 28px;
+      border-top: 1px solid var(--border);
+      gap: 24px;
+    }
+    .detail-row:first-child { border-top: none; }
+    .detail-label { font-size: 13.5px; color: var(--text-2); font-weight: 500; }
+    .detail-value { font-size: 14px; color: var(--text-1); font-weight: 500; text-align: right; }
+    .detail-value .hint { display: block; font-size: 12px; color: var(--text-3); font-weight: 400; margin-top: 2px; }
+    .detail-row.action { padding-block: 14px; }
+
+    /* Manage subscription card — clearly the "act here" surface */
+    .action-card {
+      background: linear-gradient(160deg, var(--accent-dim), transparent 60%), var(--bg-card);
+      border-radius: var(--radius);
+      padding: 24px 28px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 24px;
+      border: 1px solid rgba(99,102,241,0.18);
+    }
+    .action-card h3 { margin: 0 0 4px; font-size: 16px; font-weight: 600; letter-spacing: -0.02em; }
+    .action-card p { margin: 0; color: var(--text-2); font-size: 13.5px; max-width: 420px; line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+        </div>
+        <div class="brand-name">RackSmith</div>
+      </div>
+      <div class="workspace">
+        <div class="workspace-avatar">AC</div>
+        <div class="workspace-name">acme-corp</div>
+      </div>
+      <div class="nav">
+        <div class="nav-section">Workspace</div>
+        <div class="nav-item">
+          <span class="icon">
+            <svg class="icon-duotone" viewBox="0 0 24 24">
+              <rect class="fill" x="3" y="3" width="8" height="8" rx="1.5"/>
+              <rect class="stroke" x="3" y="3" width="8" height="8" rx="1.5"/>
+              <rect class="stroke" x="13" y="3" width="8" height="8" rx="1.5"/>
+              <rect class="stroke" x="3" y="13" width="8" height="8" rx="1.5"/>
+              <rect class="stroke" x="13" y="13" width="8" height="8" rx="1.5"/>
+            </svg>
+          </span>
+          Dashboard
+        </div>
+        <div class="nav-item">
+          <span class="icon">
+            <svg class="icon-duotone" viewBox="0 0 24 24">
+              <rect class="fill" x="4" y="4" width="16" height="6" rx="1"/>
+              <rect class="stroke" x="4" y="4" width="16" height="6" rx="1"/>
+              <rect class="stroke" x="4" y="14" width="16" height="6" rx="1"/>
+            </svg>
+          </span>
+          Racks
+        </div>
+        <div class="nav-item">
+          <span class="icon">
+            <svg class="icon-duotone" viewBox="0 0 24 24">
+              <rect class="fill" x="3" y="6" width="18" height="12" rx="1"/>
+              <rect class="stroke" x="3" y="6" width="18" height="12" rx="1"/>
+              <circle class="stroke" cx="8" cy="12" r="1.5"/>
+            </svg>
+          </span>
+          Devices
+        </div>
+        <div class="nav-item">
+          <span class="icon">
+            <svg class="icon-duotone" viewBox="0 0 24 24">
+              <circle class="fill" cx="6" cy="6" r="2.5"/>
+              <circle class="stroke" cx="6" cy="6" r="2.5"/>
+              <circle class="stroke" cx="18" cy="18" r="2.5"/>
+              <line class="stroke" x1="8" y1="8" x2="16" y2="16"/>
+            </svg>
+          </span>
+          Topology
+        </div>
+        <div class="nav-section">Settings</div>
+        <div class="nav-item active">
+          <span class="icon">
+            <svg class="icon-duotone" viewBox="0 0 24 24">
+              <rect class="fill" x="3" y="6" width="18" height="12" rx="2"/>
+              <rect class="stroke" x="3" y="6" width="18" height="12" rx="2"/>
+              <line class="stroke" x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+          </span>
+          Billing
+        </div>
+        <div class="nav-item">
+          <span class="icon">
+            <svg class="icon-duotone" viewBox="0 0 24 24">
+              <circle class="fill" cx="12" cy="12" r="9"/>
+              <circle class="stroke" cx="12" cy="12" r="9"/>
+              <path class="stroke" d="M12 7v5l3 3"/>
+            </svg>
+          </span>
+          Audit log
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="page-header">
+        <h1 class="page-title">Billing</h1>
+        <p class="page-subtitle">Subscription, payment method, and invoices.</p>
+      </header>
+
+      <div class="alert">
+        <div class="alert-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01"/><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+        </div>
+        <div class="alert-body">
+          <h3 class="alert-title">Payment failed</h3>
+          <p class="alert-msg">Update your card to keep RackSmith Business. We&apos;ll retry the charge automatically.</p>
+        </div>
+        <button class="btn primary">Update payment</button>
+      </div>
+
+      <div class="plan-hero">
+        <div>
+          <div class="plan-eyebrow">Current plan</div>
+          <h2 class="plan-name">Business</h2>
+          <div class="plan-price-line">
+            <span class="price mono">$58.00</span>
+            <span>/ month</span>
+            <span style="color: var(--text-4)">·</span>
+            <span>2 seats</span>
+          </div>
+        </div>
+        <span class="chip ok"><span class="dot"></span>Active</span>
+      </div>
+
+      <div class="details">
+        <div class="detail-row">
+          <div class="detail-label">Billing cycle</div>
+          <div></div>
+          <div class="detail-value">Monthly</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Next invoice</div>
+          <div></div>
+          <div class="detail-value">
+            June 9, 2026
+            <span class="hint mono">in 24 days</span>
+          </div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Payment method</div>
+          <div></div>
+          <div class="detail-value mono">Visa · 4242</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Customer ID</div>
+          <div></div>
+          <div class="detail-value mono">cus_smoke_001</div>
+        </div>
+      </div>
+
+      <div class="action-card">
+        <div>
+          <h3>Manage subscription</h3>
+          <p>Plan switches, payment method, invoices, and cancellation are handled in the Stripe customer portal.</p>
+        </div>
+        <button class="btn primary">
+          Open portal
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg>
+        </button>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Direction A · Workshop</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
+  <style>
+    /* ────────────────────────────────────────────────────────────────
+       DIRECTION A — "Workshop"
+       Inspiration: Ubiquiti UISP, UniFi Network controller, Cisco
+       Meraki dashboard. The instrument-panel aesthetic for someone
+       who actually runs a network — high information density, near-
+       black surfaces, restrained accent, geometric type.
+       Key moves:
+         • Near-black bg (#0a0d14), NO gradient
+         • Flat cards with sharp 1px borders, no glass
+         • Inter for chrome, JetBrains Mono for data
+         • Cyan as the single accent — "network signal"
+         • Status indicated by tiny LED dots, not pills
+         • 6px corner radius (sharper than current)
+         • Tabler-style 2px uniform icon stroke
+    ──────────────────────────────────────────────────────────────── */
+    :root {
+      --bg: #0a0d14;
+      --bg-elev: #11151f;
+      --bg-card: #131826;
+      --border: rgba(255,255,255,0.07);
+      --border-strong: rgba(255,255,255,0.14);
+      --text-1: rgba(255,255,255,0.96);
+      --text-2: rgba(255,255,255,0.7);
+      --text-3: rgba(255,255,255,0.5);
+      --accent: #06b6d4;
+      --accent-dim: rgba(6,182,212,0.18);
+      --ok: #10b981;
+      --warn: #f59e0b;
+      --crit: #ef4444;
+      --radius: 6px;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text-1);
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      font-size: 14px;
+      font-variant-numeric: tabular-nums;
+      -webkit-font-smoothing: antialiased;
+    }
+    .mono { font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace; }
+
+    /* Frame */
+    .app { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
+    .sidebar {
+      background: var(--bg-elev);
+      border-right: 1px solid var(--border);
+      padding: 20px 0;
+    }
+    .brand {
+      display: flex; align-items: center; gap: 10px;
+      padding: 0 18px 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    .brand-mark {
+      width: 28px; height: 28px;
+      background: linear-gradient(135deg, var(--accent), #0891b2);
+      border-radius: 4px;
+      position: relative;
+    }
+    .brand-mark::before, .brand-mark::after {
+      content:''; position:absolute; left:5px; right:5px;
+      background: rgba(255,255,255,0.85);
+      height: 1.5px;
+    }
+    .brand-mark::before { top: 8px; }
+    .brand-mark::after { bottom: 8px; }
+    .brand-name { font-weight: 700; letter-spacing: -0.02em; font-size: 15px; }
+    .workspace {
+      margin: 16px 12px 24px;
+      padding: 9px 11px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      display: flex; align-items: center; gap: 8px;
+      cursor: pointer;
+    }
+    .workspace-avatar {
+      width: 24px; height: 24px;
+      background: var(--accent-dim);
+      border: 1px solid rgba(6,182,212,0.4);
+      color: var(--accent);
+      border-radius: 4px;
+      display: grid; place-items: center;
+      font-size: 10px; font-weight: 700;
+    }
+    .workspace-name { font-size: 13px; font-weight: 600; flex: 1; }
+    .nav { padding: 0 8px; }
+    .nav-section { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-3); padding: 14px 10px 6px; }
+    .nav-item {
+      display: flex; align-items: center; gap: 9px;
+      padding: 7px 10px;
+      color: var(--text-2);
+      border-radius: 4px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .nav-item.active {
+      background: var(--accent-dim);
+      color: var(--accent);
+      border-left: 2px solid var(--accent);
+      padding-left: 8px;
+    }
+    .nav-item:hover:not(.active) { background: rgba(255,255,255,0.03); color: var(--text-1); }
+    .nav-item svg { width: 16px; height: 16px; stroke-width: 2; }
+
+    /* Main */
+    .main { padding: 24px 32px; max-width: 980px; }
+    .page-title { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 4px; }
+    .page-subtitle { color: var(--text-2); font-size: 13px; margin: 0 0 28px; }
+
+    /* Past-due strip (single-line, sharper than the current banner) */
+    .alert-strip {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 14px 10px 12px;
+      margin-bottom: 20px;
+      background: rgba(245,158,11,0.06);
+      border: 1px solid rgba(245,158,11,0.25);
+      border-left: 3px solid var(--warn);
+      border-radius: var(--radius);
+      font-size: 13px;
+    }
+    .alert-strip .led {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--warn);
+      box-shadow: 0 0 8px var(--warn);
+    }
+    .alert-strip .msg { flex: 1; color: var(--text-1); }
+    .alert-strip .msg b { color: var(--warn); font-weight: 700; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 12px;
+      border: 1px solid var(--border-strong);
+      background: rgba(255,255,255,0.04);
+      color: var(--text-1);
+      border-radius: 4px;
+      font-size: 12px; font-weight: 500;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .btn.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--bg);
+      font-weight: 600;
+    }
+    .btn.primary:hover { background: #0891b2; }
+    .btn.warn {
+      background: var(--warn);
+      border-color: var(--warn);
+      color: var(--bg);
+      font-weight: 600;
+    }
+
+    /* Cards: flat, sharp */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .card h2 {
+      margin: 0 0 14px;
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-3);
+    }
+
+    /* Plan display — instrument-panel feel */
+    .plan-display {
+      display: flex; align-items: baseline; gap: 14px;
+      padding: 14px 0 6px;
+    }
+    .plan-label {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+    }
+    .plan-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 3px 8px;
+      background: rgba(16,185,129,0.12);
+      border: 1px solid rgba(16,185,129,0.3);
+      color: var(--ok);
+      border-radius: 3px;
+      font-size: 10px; font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .plan-pill .led { width: 6px; height: 6px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 6px var(--ok); }
+
+    /* Metrics row — Ubiquiti-style key/value */
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin-top: 18px; border-top: 1px solid var(--border); padding-top: 18px; }
+    .metric { padding: 0 16px; border-right: 1px solid var(--border); }
+    .metric:first-child { padding-left: 0; }
+    .metric:last-child { border-right: none; padding-right: 0; }
+    .metric-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-3); font-weight: 700; }
+    .metric-value { margin-top: 6px; font-size: 17px; font-weight: 700; letter-spacing: -0.01em; }
+    .metric-value.mono { font-size: 16px; }
+    .metric-detail { margin-top: 3px; font-size: 11px; color: var(--text-3); }
+
+    /* "Manage subscription" — primary action */
+    .action-card {
+      background: linear-gradient(180deg, var(--bg-card), #0e1320);
+      border: 1px solid var(--border);
+      border-top: 1px solid rgba(6,182,212,0.25);
+      border-radius: var(--radius);
+      padding: 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 16px;
+    }
+    .action-title { font-size: 14px; font-weight: 600; margin: 0 0 2px; }
+    .action-sub { color: var(--text-2); font-size: 12px; margin: 0; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark"></div>
+        <div class="brand-name">RackSmith</div>
+      </div>
+      <div class="workspace">
+        <div class="workspace-avatar">AC</div>
+        <div class="workspace-name mono">acme-corp</div>
+      </div>
+      <div class="nav">
+        <div class="nav-section">Network</div>
+        <div class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="6" rx="1"/><rect x="3" y="15" width="18" height="6" rx="1"/><circle cx="6.5" cy="6" r="0.5" fill="currentColor"/><circle cx="6.5" cy="18" r="0.5" fill="currentColor"/></svg>
+          Dashboard
+        </div>
+        <div class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="4" y="3" width="16" height="18" rx="1"/><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/></svg>
+          Racks
+        </div>
+        <div class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="5" width="18" height="14" rx="1"/><line x1="3" y1="11" x2="21" y2="11"/></svg>
+          Devices
+        </div>
+        <div class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/><path d="M6 8v8M18 8v8M8 6h8M8 18h8"/></svg>
+          Topology
+        </div>
+        <div class="nav-section">Settings</div>
+        <div class="nav-item active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="6" width="20" height="13" rx="1"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+          Billing
+        </div>
+        <div class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          Audit
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <h1 class="page-title">Billing</h1>
+      <p class="page-subtitle">Subscription, payment method, and invoices.</p>
+
+      <div class="alert-strip">
+        <div class="led"></div>
+        <div class="msg"><b>Payment failed.</b> Update your card to keep RackSmith Business. Stripe will retry automatically.</div>
+        <button class="btn warn">Update payment →</button>
+      </div>
+
+      <div class="card">
+        <h2>Plan</h2>
+        <div class="plan-display">
+          <div class="plan-label">Business</div>
+          <span class="plan-pill"><span class="led"></span>Active</span>
+        </div>
+        <div class="metrics">
+          <div class="metric">
+            <div class="metric-label">Cycle</div>
+            <div class="metric-value">Monthly</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Price</div>
+            <div class="metric-value mono">$58.00</div>
+            <div class="metric-detail">2 seats · $29 ea.</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Renews</div>
+            <div class="metric-value">Jun 9, 2026</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Customer</div>
+            <div class="metric-value mono">cus_smoke_001</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="action-card">
+        <div>
+          <h3 class="action-title">Manage subscription</h3>
+          <p class="action-sub">Plan switches, payment method, invoices, and cancellation are handled in the Stripe portal.</p>
+        </div>
+        <button class="btn primary">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg>
+          Open portal
+        </button>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
