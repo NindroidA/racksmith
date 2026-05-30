@@ -14,6 +14,7 @@ import {
 import { parseCsv, csvToDeviceRows, type CsvDeviceRow } from "@/lib/csv";
 import { importDevices } from "@/app/(dashboard)/devices/actions";
 import { describeError } from "@/lib/error-message";
+import { Button } from "@/components/ui/button";
 
 const SAMPLE_CSV = `name,deviceType,manufacturer,model,sizeU,portCount,powerWatts,ipAddress,macAddress,hostname,notes
 Main Switch,switch,cisco,C9300-48P,1,48,715,192.168.1.10,aa:bb:cc:dd:ee:ff,sw-core-01,Core switch
@@ -149,13 +150,14 @@ export function DeviceImportClient() {
           </div>
         </div>
 
-        <button
+        <Button
+          variant="secondary"
+          size="sm"
           onClick={downloadSample}
-          className="glass-button inline-flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-medium text-white"
+          iconLeft={<FileText className="h-3.5 w-3.5" weight="duotone" />}
         >
-          <FileText className="h-3.5 w-3.5" weight="duotone" />
           Download sample CSV
-        </button>
+        </Button>
       </section>
 
       {/* Upload zone */}

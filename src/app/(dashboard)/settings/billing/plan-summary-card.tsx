@@ -94,7 +94,6 @@ export function PlanSummaryCard({
               <ArrowUpRight weight="bold" className="h-3.5 w-3.5" />
             ) : null
           }
-          aria-label="Open Stripe customer portal in a new tab"
         >
           {pending ? "Opening…" : "Manage billing"}
         </Button>

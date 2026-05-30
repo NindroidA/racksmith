@@ -29,7 +29,7 @@ Before writing any code, read these documents in order:
 | Language | TypeScript (strict) |
 | Styling | Tailwind CSS 4 |
 | Animation | Framer Motion |
-| Icons | Lucide React |
+| Icons | Phosphor Duotone (`@phosphor-icons/react/dist/ssr`) |
 | Database | PostgreSQL 17 (Docker) |
 | ORM | Prisma 6 |
 | Auth | Better Auth (email + GitHub + Google OAuth + 2FA) |
@@ -104,7 +104,7 @@ bunx prisma studio         # Visual database browser
 ### Code Style
 - Double quotes (match old RackSmith ESLint)
 - Tailwind for all styling, `tailwind-merge` for class merging
-- Lucide React for icons
+- Icons: **Phosphor Duotone** from `@phosphor-icons/react/dist/ssr` (`weight="duotone"` for primary, `weight="bold"` for small affordances). `lucide-react` is retired — do NOT use it. See the Design System section for the full convention.
 - OAuth icons (Github / Google): use `<GithubIcon />` / `<GoogleIcon />` from `src/components/ui/oauth-icons.tsx` — never inline the SVG
 - Hooks live in `src/hooks/` (not `src/lib/`)
 - Colocate tests with source files (e.g., `validators.test.ts` next to `validators.ts`)

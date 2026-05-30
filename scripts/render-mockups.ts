@@ -5,12 +5,12 @@
  */
 
 import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 import { chromium } from "playwright";
 
 const ROOT = resolve(".");
 const VARIANTS = ["a-workshop", "b-studio", "c-console"] as const;
-const OUT_DIR =
-  "test-artifacts/screenshots/2026-05-16-directions";
+const OUT_DIR = "test-artifacts/screenshots/2026-05-16-directions";
 
 async function main(): Promise<void> {
   const browser = await chromium.launch();
@@ -21,7 +21,7 @@ async function main(): Promise<void> {
 
   for (const v of VARIANTS) {
     const page = await ctx.newPage();
-    const url = "file://" + resolve(ROOT, "mockups", `${v}.html`);
+    const url = pathToFileURL(resolve(ROOT, "mockups", `${v}.html`)).href;
     await page.goto(url, { waitUntil: "networkidle" });
     // Give Google Fonts a tick to apply.
     await page.waitForTimeout(800);

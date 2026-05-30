@@ -1,4 +1,5 @@
 import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 import { chromium } from "playwright";
 
 const ROOT = resolve(".");
@@ -11,7 +12,7 @@ async function main(): Promise<void> {
   });
   const page = await ctx.newPage();
   await page.goto(
-    "file://" + resolve(ROOT, "mockups", "fonts-plex-multirole.html"),
+    pathToFileURL(resolve(ROOT, "mockups", "fonts-plex-multirole.html")).href,
     { waitUntil: "networkidle" },
   );
   await page.waitForTimeout(2000); // all four font families need a beat

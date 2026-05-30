@@ -16,6 +16,7 @@
 
 import { readdirSync, readFileSync, writeFileSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 import { chromium } from "playwright";
 
 const SCREENSHOT_DIR = resolve("test-artifacts/screenshots/2026-05-10-smoke");
@@ -38,14 +39,12 @@ const CAPTIONS: Caption[] = [
   {
     file: "p2-01-landing-pricing.png",
     title: "P2.01 — Landing /#pricing (signed-out)",
-    body:
-      "Pro and Business cards now show real CTAs ('Try Pro', 'Try Business') linking to /register with the next param URL-encoded (`/register?next=%2Fsettings%2Fbilling%3Ftier%3Dpro`). The bottom self-host paragraph reflects the locked-in hosted-only direction. Pricing math reads $9/$90 and $29/$290 with the 'save ~17%' line.",
+    body: "Pro and Business cards now show real CTAs ('Try Pro', 'Try Business') linking to /register with the next param URL-encoded (`/register?next=%2Fsettings%2Fbilling%3Ftier%3Dpro`). The bottom self-host paragraph reflects the locked-in hosted-only direction. Pricing math reads $9/$90 and $29/$290 with the 'save ~17%' line.",
   },
   {
     file: "p2-02-register-with-next.png",
     title: "P2.02 — /register?next=/settings/billing?tier=pro",
-    body:
-      "The 'Sign in' link at the bottom forwards the validated next param as `callbackURL=%2Fsettings%2Fbilling%3Ftier%3Dpro` (PR-E's bidirectional intent flow).",
+    body: "The 'Sign in' link at the bottom forwards the validated next param as `callbackURL=%2Fsettings%2Fbilling%3Ftier%3Dpro` (PR-E's bidirectional intent flow).",
   },
   {
     file: "p2-03-register-filled.png",
@@ -55,64 +54,55 @@ const CAPTIONS: Caption[] = [
   {
     file: "p2-04-onboarding-welcome.png",
     title: "P2.04 — Onboarding auto-creates the personal org",
-    body:
-      "Pre-existing UX gap (not introduced by Phase 13): /onboarding/welcome unconditionally redirects to /dashboard, dropping the `next=/settings/billing?tier=pro` intent. Recommend follow-up to thread `next` through onboarding so the landing CTA truly lands on the upgrade card.",
+    body: "Pre-existing UX gap (not introduced by Phase 13): /onboarding/welcome unconditionally redirects to /dashboard, dropping the `next=/settings/billing?tier=pro` intent. Recommend follow-up to thread `next` through onboarding so the landing CTA truly lands on the upgrade card.",
   },
   {
     file: "p2-05-dashboard-with-verify-banner.png",
     title: "P2.05 — Dashboard with email-verify banner",
-    body:
-      "BA sent a verification email on sign-up (printed to dev stderr in the absence of RESEND_API_KEY). Banner is a separate component from the past-due banner.",
+    body: "BA sent a verification email on sign-up (printed to dev stderr in the absence of RESEND_API_KEY). Banner is a separate component from the past-due banner.",
   },
   {
     file: "p2-06-billing-verify-email-gate-clean.png",
     title: "P2.06 — Billing page: 'Verify your email to upgrade'",
-    body:
-      "UpgradeOptions renders the verify-email gate (Q3 lock) when emailVerified is false. The user cannot proceed to Checkout without verifying first.",
+    body: "UpgradeOptions renders the verify-email gate (Q3 lock) when emailVerified is false. The user cannot proceed to Checkout without verifying first.",
   },
   {
     file: "p2-07-billing-pro-recommended.png",
     title: "P2.07 — 'You picked this' pill on Pro card",
-    body:
-      "After flipping emailVerified=true, the billing page renders with the Pro card highlighted (primary border + 'You picked this' pill) because the URL still carries `?tier=pro`. UpgradeOptions reads `recommendedTier` server-side.",
+    body: "After flipping emailVerified=true, the billing page renders with the Pro card highlighted (primary border + 'You picked this' pill) because the URL still carries `?tier=pro`. UpgradeOptions reads `recommendedTier` server-side.",
   },
   {
     file: "p2-08-checkout-error-bad-priceid.png",
-    title: "P2.08 — Checkout fails: STRIPE_PRICE_* contains Product IDs, not Price IDs",
-    body:
-      "Server log: `createCheckoutSession({\"priceId\":\"prod_UQTrm6nbGuF15Y\"})`. Stripe Checkout requires Price IDs (`price_*`). All four STRIPE_PRICE_* slots in .env hold `prod_*` values. This is a configuration error in the deployment, not a code defect — but it is a real Phase 13 finding the smoke test surfaced. Fix: in the Stripe dashboard, for each Product, find the active Price ID and update .env (or .env.local) accordingly.",
+    title:
+      "P2.08 — Checkout fails: STRIPE_PRICE_* contains Product IDs, not Price IDs",
+    body: 'Server log: `createCheckoutSession({"priceId":"prod_UQTrm6nbGuF15Y"})`. Stripe Checkout requires Price IDs (`price_*`). All four STRIPE_PRICE_* slots in .env hold `prod_*` values. This is a configuration error in the deployment, not a code defect — but it is a real Phase 13 finding the smoke test surfaced. Fix: in the Stripe dashboard, for each Product, find the active Price ID and update .env (or .env.local) accordingly.',
   },
   // P3 — Failure / edge cases
   {
     file: "p3-01-past-due-banner.png",
     title: "P3.01 — Past-due banner (admin-only)",
-    body:
-      "After `stripe trigger invoice.payment_failed` (simulated via our signed-webhook script targeting the locally-recognized customer), the banner fires site-wide for the admin. Plan stays Pro (Q6 lock — no hard downgrade during Stripe Smart Retries).",
+    body: "After `stripe trigger invoice.payment_failed` (simulated via our signed-webhook script targeting the locally-recognized customer), the banner fires site-wide for the admin. Plan stays Pro (Q6 lock — no hard downgrade during Stripe Smart Retries).",
   },
   {
     file: "p3-02-plan-summary-past-due.png",
     title: "P3.02 — PlanSummaryCard during past-due",
-    body:
-      "Card derives cycle (Monthly) from stripePriceId via lookupPriceId, price ($9/mo, 'Flat rate, billed monthly') from PLAN_PRICING_USD, next-invoice from period_end. Payment-status row shows 'Past due — update card'. The PR-C label rename ('Monthly cost' → 'Price') is in place.",
+    body: "Card derives cycle (Monthly) from stripePriceId via lookupPriceId, price ($9/mo, 'Flat rate, billed monthly') from PLAN_PRICING_USD, next-invoice from period_end. Payment-status row shows 'Past due — update card'. The PR-C label rename ('Monthly cost' → 'Price') is in place.",
   },
   // P4 — Business + seat sync
   {
     file: "p4-01-business-plan-summary.png",
     title: "P4.01 — Business plan summary with 1 seat",
-    body:
-      "$29/mo, '1 member × $29/mo'. Per-seat math computed server-side in billing/page.tsx.",
+    body: "$29/mo, '1 member × $29/mo'. Per-seat math computed server-side in billing/page.tsx.",
   },
   {
     file: "p4-02-business-two-seats.png",
     title: "P4.02 — Business plan summary with 2 seats",
-    body:
-      "$58/mo, '2 members × $29/mo'. Count is read at render time from prisma.member.count.",
+    body: "$58/mo, '2 members × $29/mo'. Count is read at render time from prisma.member.count.",
   },
   {
     file: "p4-03-remove-member-after.png",
     title: "P4.03 — Remove-member attempt (Business org, bad Stripe linkage)",
-    body:
-      "Clicking Remove fails because syncSeatsForOrg tries to call stripe.subscriptionItems.update with a fake si_smoke_biz_001 ID. The transaction rolls back. Verified by DB query: member count still 2 after the click. PR-D's atomic-rollback property holds.",
+    body: "Clicking Remove fails because syncSeatsForOrg tries to call stripe.subscriptionItems.update with a fake si_smoke_biz_001 ID. The transaction rolls back. Verified by DB query: member count still 2 after the click. PR-D's atomic-rollback property holds.",
   },
   {
     file: "p4-04-remove-toast.png",
@@ -123,26 +113,22 @@ const CAPTIONS: Caption[] = [
   {
     file: "p5-01-member-no-billing-link.png",
     title: "P5.01 — Member-rank user: no Billing link in /settings",
-    body:
-      "Page does not contain `/settings/billing`. PR-D's admin-only sidebar gate verified.",
+    body: "Page does not contain `/settings/billing`. PR-D's admin-only sidebar gate verified.",
   },
   {
     file: "p5-02-member-direct-billing-attempt.png",
     title: "P5.02 — Member directly navigating to /settings/billing",
-    body:
-      "requireMember('admin') throws ForbiddenError → caught by error boundary → generic 'Something broke' (no information leakage). Denial works at the page level too.",
+    body: "requireMember('admin') throws ForbiddenError → caught by error boundary → generic 'Something broke' (no information leakage). Denial works at the page level too.",
   },
   {
     file: "p5-03-unverified-email-gate.png",
     title: "P5.03 — Unverified-email admin sees verify-email gate",
-    body:
-      "Even with admin role, the upgrade flow is blocked until email is verified. Q3 lock enforced at the page render.",
+    body: "Even with admin role, the upgrade flow is blocked until email is verified. Q3 lock enforced at the page render.",
   },
   {
     file: "p5-04-open-redirect-blocked.png",
     title: "P5.04 — Open-redirect attempt is sanitized",
-    body:
-      "`/register?next=//evil.example/phishing` renders normally, but the 'Sign in' link points to plain `/login` (not `/login?callbackURL=//evil…`). sanitizeNextPath collapsed the protocol-relative value to the /dashboard fallback. Same fallback applies on signup submit.",
+    body: "`/register?next=//evil.example/phishing` renders normally, but the 'Sign in' link points to plain `/login` (not `/login?callbackURL=//evil…`). sanitizeNextPath collapsed the protocol-relative value to the /dashboard fallback. Same fallback applies on signup submit.",
   },
 ];
 
@@ -332,7 +318,7 @@ async function main(): Promise<void> {
 
   const browser = await chromium.launch();
   const page = await browser.newPage();
-  await page.goto("file://" + HTML_OUT, { waitUntil: "load" });
+  await page.goto(pathToFileURL(HTML_OUT).href, { waitUntil: "load" });
   // Give base64 <img> tags a beat to decode before printing.
   await page.waitForLoadState("networkidle").catch(() => undefined);
   await page.pdf({

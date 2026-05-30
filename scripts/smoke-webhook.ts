@@ -69,6 +69,7 @@ async function sendEvent(event: Record<string, unknown>): Promise<{
       "Stripe-Signature": signature,
     },
     body: payload,
+    signal: AbortSignal.timeout(10_000),
   });
   let body: unknown;
   try {

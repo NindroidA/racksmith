@@ -4,6 +4,7 @@
  */
 
 import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 import { chromium } from "playwright";
 
 const ROOT = resolve(".");
@@ -15,7 +16,9 @@ async function main(): Promise<void> {
     deviceScaleFactor: 2,
   });
   const page = await ctx.newPage();
-  const url = "file://" + resolve(ROOT, "mockups", "fonts-comparison.html");
+  const url = pathToFileURL(
+    resolve(ROOT, "mockups", "fonts-comparison.html"),
+  ).href;
   await page.goto(url, { waitUntil: "networkidle" });
   await page.waitForTimeout(1500); // give all four font files time to load
   const out = resolve(

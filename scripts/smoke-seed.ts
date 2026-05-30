@@ -35,7 +35,7 @@ async function purgePreviousFixtures(): Promise<void> {
   // through Member/Organization first to avoid FK violations.
   const users = await prisma.user.findMany({
     where: { email: { startsWith: "smoke-" } },
-    select: { id: true },
+    select: { id: true, email: true },
   });
   const userIds = users.map((u) => u.id);
   if (userIds.length === 0) return;
@@ -69,7 +69,7 @@ async function purgePreviousFixtures(): Promise<void> {
     await tx.session.deleteMany({ where: { userId: { in: userIds } } });
     await tx.account.deleteMany({ where: { userId: { in: userIds } } });
     await tx.verification.deleteMany({
-      where: { identifier: { in: users.map((_) => "") } }, // best-effort; cleared via email after fetch
+      where: { identifier: { in: users.map((u) => u.email) } },
     });
     await tx.user.deleteMany({ where: { id: { in: userIds } } });
   });
