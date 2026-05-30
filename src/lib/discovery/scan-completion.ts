@@ -1,6 +1,7 @@
 import "server-only";
 
 import { audit } from "@/lib/audit";
+import { describeError } from "@/lib/error-message";
 import { withTenant } from "@/lib/prisma-tenant";
 import { guessDeviceType, matchHost } from "./matcher";
 import type { NmapScanOutcome } from "./nmap";
@@ -168,8 +169,7 @@ export async function completeScan(args: CompleteScanArgs): Promise<void> {
           },
           data: {
             status: "failed",
-            error:
-              err instanceof Error ? err.message : "Post-processing failed",
+            error: describeError(err, "Post-processing failed"),
             completedAt: new Date(),
           },
         }),

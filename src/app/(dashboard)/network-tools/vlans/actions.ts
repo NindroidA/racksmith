@@ -10,6 +10,7 @@ import {
   withActionEnvelope,
 } from "@/lib/action-helpers";
 import type { ActionResult } from "@/lib/action-types";
+import { describeError } from "@/lib/error-message";
 import { canCreateVlanLocked } from "@/lib/tiers";
 import { getVlanTemplate } from "@/lib/config-gen/templates";
 import {
@@ -367,7 +368,7 @@ export async function applyVlanTemplate(templateId: string): Promise<
         } catch (err) {
           skipped.push({
             vlanId: entry.vlanId,
-            reason: err instanceof Error ? err.message : "create failed",
+            reason: describeError(err, "create failed"),
           });
         }
       }

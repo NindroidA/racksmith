@@ -14,7 +14,6 @@ import {
 } from "@/app/(dashboard)/ipam/actions";
 import { IP_ASSIGNMENT_STATUSES } from "@/lib/validators";
 import type { AssignmentLite, DeviceLite } from "./subnet-types";
-import { describeError } from "@/lib/error-message";
 
 type Props = {
   subnetId: string;
@@ -44,26 +43,22 @@ export function IpAssignmentDialog({
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     startTransition(async () => {
-      try {
-        const payload = {
-          subnetId,
-          ipAddress: ipAddress.trim(),
-          deviceId: deviceId || null,
-          status: status as (typeof IP_ASSIGNMENT_STATUSES)[number],
-          notes: notes.trim(),
-        };
-        const result = existing
-          ? await updateIpAssignment(existing.id, payload)
-          : await createIpAssignment(payload);
-        if (!result.ok) {
-          toast.error(result.error);
-          return;
-        }
-        toast.success(existing ? "Assignment updated" : "IP assigned");
-        onClose();
-      } catch (err) {
-        toast.error(describeError(err, "Failed"));
+      const payload = {
+        subnetId,
+        ipAddress: ipAddress.trim(),
+        deviceId: deviceId || null,
+        status: status as (typeof IP_ASSIGNMENT_STATUSES)[number],
+        notes: notes.trim(),
+      };
+      const result = existing
+        ? await updateIpAssignment(existing.id, payload)
+        : await createIpAssignment(payload);
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
       }
+      toast.success(existing ? "Assignment updated" : "IP assigned");
+      onClose();
     });
   };
 

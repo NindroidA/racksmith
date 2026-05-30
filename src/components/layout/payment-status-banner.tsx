@@ -4,7 +4,6 @@ import { useState, useTransition } from "react";
 import { Warning, ArrowSquareOut, X } from "@phosphor-icons/react/dist/ssr";
 import toast from "react-hot-toast";
 
-import { describeError } from "@/lib/error-message";
 import { Button } from "@/components/ui/button";
 import { createPortalSession } from "@/app/(dashboard)/settings/billing/actions";
 
@@ -31,16 +30,12 @@ export function PaymentStatusBanner({ planLabel }: Props) {
 
   const openPortal = () => {
     start(async () => {
-      try {
-        const res = await createPortalSession();
-        if (!res.ok) {
-          toast.error(res.error);
-          return;
-        }
-        window.location.href = res.data.url;
-      } catch (err) {
-        toast.error(describeError(err, "Failed to open billing portal"));
+      const res = await createPortalSession();
+      if (!res.ok) {
+        toast.error(res.error);
+        return;
       }
+      window.location.href = res.data.url;
     });
   };
 

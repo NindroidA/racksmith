@@ -13,7 +13,6 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 import { parseCsv, csvToDeviceRows, type CsvDeviceRow } from "@/lib/csv";
 import { importDevices } from "@/app/(dashboard)/devices/actions";
-import { describeError } from "@/lib/error-message";
 import { Button } from "@/components/ui/button";
 
 const SAMPLE_CSV = `name,deviceType,manufacturer,model,sizeU,portCount,powerWatts,ipAddress,macAddress,hostname,notes
@@ -53,24 +52,20 @@ export function DeviceImportClient() {
   function handleImport() {
     if (rows.length === 0) return;
     startTransition(async () => {
-      try {
-        const result = await importDevices(rows);
-        if (!result.ok) {
-          toast.error(result.error);
-          return;
-        }
-        const { created, skipped, errors } = result.data;
-        if (skipped > 0) {
-          toast.success(
-            `Imported ${created} devices (${skipped} skipped: ${errors.slice(0, 2).join("; ")})`,
-          );
-        } else {
-          toast.success(`Imported ${created} devices`);
-        }
-        router.push("/devices");
-      } catch (err) {
-        toast.error(describeError(err, "Import failed"));
+      const result = await importDevices(rows);
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
       }
+      const { created, skipped, errors } = result.data;
+      if (skipped > 0) {
+        toast.success(
+          `Imported ${created} devices (${skipped} skipped: ${errors.slice(0, 2).join("; ")})`,
+        );
+      } else {
+        toast.success(`Imported ${created} devices`);
+      }
+      router.push("/devices");
     });
   }
 
