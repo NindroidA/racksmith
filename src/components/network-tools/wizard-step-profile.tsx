@@ -1,7 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRight, Building2, Users, Zap } from "lucide-react";
+import {
+  ArrowRight,
+  Buildings,
+  Users,
+  Lightning,
+} from "@phosphor-icons/react/dist/ssr";
 import { twMerge } from "tailwind-merge";
 import { InlineHelp } from "@/components/ui/inline-help";
 import { Select, SelectOption } from "@/components/ui/select";
@@ -17,13 +22,13 @@ const SITE_OPTIONS: ReadonlyArray<{
   key: SiteType;
   label: string;
   blurb: string;
-  icon: typeof Zap;
+  icon: typeof Lightning;
 }> = [
   {
     key: "home",
     label: SITE_TYPE_LABELS.home,
     blurb: "Personal homelab or apartment-scale gear.",
-    icon: Zap,
+    icon: Lightning,
   },
   {
     key: "small_office",
@@ -35,7 +40,7 @@ const SITE_OPTIONS: ReadonlyArray<{
     key: "msp_client",
     label: SITE_TYPE_LABELS.msp_client,
     blurb: "Repeatable client deployment with structured cabling.",
-    icon: Building2,
+    icon: Buildings,
   },
 ];
 
@@ -68,7 +73,7 @@ export function WizardStepProfile({ value, disabled, onNext }: Props) {
 
   return (
     <fieldset disabled={disabled} className="space-y-8">
-      <section className="glass-card rounded-xl p-6">
+      <section className="surface-card p-6">
         <h3 className="text-lg font-semibold text-white">
           Tell us about the site
         </h3>
@@ -93,7 +98,11 @@ export function WizardStepProfile({ value, disabled, onNext }: Props) {
                     : "border-white/[0.08] bg-white/[0.02] text-white/70 hover:border-white/20",
                 )}
               >
-                <Icon className="mb-2 h-5 w-5 text-primary" aria-hidden />
+                <Icon
+                  className="mb-2 h-5 w-5 text-primary"
+                  weight="duotone"
+                  aria-hidden
+                />
                 <span className="font-medium">{opt.label}</span>
                 <span className="mt-1 text-xs text-white/50">{opt.blurb}</span>
               </button>
@@ -102,7 +111,7 @@ export function WizardStepProfile({ value, disabled, onNext }: Props) {
         </div>
       </section>
 
-      <section className="glass-card rounded-xl p-6">
+      <section className="surface-card p-6">
         <h3 className="text-lg font-semibold text-white">Capacity inputs</h3>
 
         <div className="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -120,7 +129,7 @@ export function WizardStepProfile({ value, disabled, onNext }: Props) {
               max={1000}
               value={deviceCount}
               onChange={(e) => setDeviceCount(Number(e.target.value) || 0)}
-              className="glass-input w-full rounded-lg px-3 py-2 text-white"
+              className="glass-input mono w-full rounded-lg px-3 py-2 text-white"
             />
           </div>
 
@@ -135,7 +144,7 @@ export function WizardStepProfile({ value, disabled, onNext }: Props) {
               max={10000}
               value={poeBudgetW}
               onChange={(e) => setPoeBudgetW(Number(e.target.value) || 0)}
-              className="glass-input w-full rounded-lg px-3 py-2 text-white"
+              className="glass-input mono w-full rounded-lg px-3 py-2 text-white"
             />
             <p className="mt-1 text-xs text-white/40">
               Sum of expected PoE draw across APs, cameras, phones.
@@ -178,11 +187,11 @@ export function WizardStepProfile({ value, disabled, onNext }: Props) {
               className="w-full"
             />
             <div className="mt-1 flex justify-between text-xs text-white/40">
-              <span>1.0×</span>
-              <span className="text-white/80">
+              <span className="mono">1.0×</span>
+              <span className="mono text-white/80">
                 {growthMultiplier.toFixed(1)}×
               </span>
-              <span>3.0×</span>
+              <span className="mono">3.0×</span>
             </div>
           </div>
         </div>
@@ -195,7 +204,8 @@ export function WizardStepProfile({ value, disabled, onNext }: Props) {
           disabled={disabled || deviceCount <= 0}
           className="btn-primary inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium"
         >
-          Generate topology <ArrowRight className="h-4 w-4" aria-hidden />
+          Generate topology{" "}
+          <ArrowRight className="h-4 w-4" weight="bold" aria-hidden />
         </button>
       </div>
     </fieldset>

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { twMerge } from "tailwind-merge";
-import { Plus, Sparkles } from "lucide-react";
+import { Plus, Sparkle } from "@phosphor-icons/react/dist/ssr";
 
 type Props = {
   icon: ReactNode;
@@ -35,7 +35,7 @@ export function EmptyStateWithTemplate({
   return (
     <div
       className={twMerge(
-        "glass-card flex flex-col items-center rounded-2xl px-6 py-16 text-center",
+        "surface-card flex flex-col items-center px-6 py-16 text-center",
         className,
       )}
     >
@@ -56,7 +56,7 @@ export function EmptyStateWithTemplate({
             onClick={onStartFromTemplate}
             className="flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-white transition-all hover:bg-primary/90"
           >
-            <Sparkles className="h-4 w-4" aria-hidden />
+            <Sparkle className="h-4 w-4" weight="duotone" aria-hidden />
             {templateLabel}
           </button>
         )}
@@ -65,7 +65,7 @@ export function EmptyStateWithTemplate({
             href={blankHref}
             className="glass-button flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium text-white"
           >
-            <Plus className="h-4 w-4" aria-hidden />
+            <Plus className="h-4 w-4" weight="bold" aria-hidden />
             {blankLabel}
           </Link>
         )}

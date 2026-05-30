@@ -1,5 +1,10 @@
 import Link from "next/link";
-import { Plus, Network, Lock, Download } from "lucide-react";
+import {
+  Plus,
+  ShareNetwork,
+  Lock,
+  DownloadSimple,
+} from "@phosphor-icons/react/dist/ssr";
 import { requireMember } from "@/lib/auth-helpers";
 import { withTenant } from "@/lib/prisma-tenant";
 import { getUsageSummary } from "@/lib/tiers";
@@ -31,14 +36,23 @@ export default async function IpamPage() {
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="flex items-center gap-2 text-3xl font-bold text-white">
-            <Network className="h-7 w-7 text-accent-cyan" aria-hidden />
+            <ShareNetwork
+              className="h-7 w-7 text-accent-cyan"
+              weight="duotone"
+              aria-hidden
+            />
             IP Address Management
           </h1>
           <p className="mt-1 text-white/60">
-            {subnets.length} subnet{subnets.length !== 1 ? "s" : ""} tracked
+            <span className="mono">{subnets.length}</span> subnet
+            {subnets.length !== 1 ? "s" : ""} tracked
             {subnetLimit !== null && (
               <span className="ml-2 text-white/40">
-                · {usage.subnets.current}/{subnetLimit} on {usage.planLabel}
+                ·{" "}
+                <span className="mono">
+                  {usage.subnets.current}/{subnetLimit}
+                </span>{" "}
+                on {usage.planLabel}
               </span>
             )}
           </p>
@@ -50,7 +64,7 @@ export default async function IpamPage() {
               download="racksmith-ipam.csv"
               className="glass-button flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-white"
             >
-              <Download className="h-4 w-4" aria-hidden />
+              <DownloadSimple className="h-4 w-4" weight="bold" aria-hidden />
               Export CSV
             </a>
           )}
@@ -59,9 +73,11 @@ export default async function IpamPage() {
               role="status"
               className="flex items-center gap-2 rounded-lg border border-accent-orange/40 bg-accent-orange/10 px-4 py-2.5 text-sm font-medium text-accent-orange"
             >
-              <Lock className="h-4 w-4" aria-hidden />
+              <Lock className="h-4 w-4" weight="duotone" aria-hidden />
               <span>
-                Subnet limit reached ({subnetLimit} on {usage.planLabel})
+                Subnet limit reached (
+                <span className="mono">{subnetLimit}</span> on {usage.planLabel}
+                )
               </span>
             </div>
           ) : (
@@ -69,7 +85,7 @@ export default async function IpamPage() {
               href="/ipam/new"
               className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white transition-all hover:bg-primary/90"
             >
-              <Plus className="h-4 w-4" aria-hidden />
+              <Plus className="h-4 w-4" weight="bold" aria-hidden />
               Add subnet
             </Link>
           )}
@@ -93,13 +109,11 @@ export default async function IpamPage() {
                 : 0;
             return (
               <Link key={s.id} href={`/ipam/${s.id}`}>
-                <div className="glass-card flex flex-col gap-3 rounded-xl p-5">
+                <div className="surface-card flex flex-col gap-3 p-5">
                   <div className="flex items-start justify-between">
                     <div>
                       <h3 className="font-semibold text-white">{s.name}</h3>
-                      <p className="font-mono text-xs text-white/50">
-                        {s.cidr}
-                      </p>
+                      <p className="mono text-xs text-white/50">{s.cidr}</p>
                     </div>
                     <span
                       className="h-2 w-8 rounded-full"
@@ -114,14 +128,20 @@ export default async function IpamPage() {
                   )}
                   <div className="mt-auto flex items-center justify-between text-xs text-white/50">
                     <span>
-                      {s._count.assignments} assigned
-                      {s._count.dhcpRanges > 0 &&
-                        ` · ${s._count.dhcpRanges} DHCP range${s._count.dhcpRanges === 1 ? "" : "s"}`}
+                      <span className="mono">{s._count.assignments}</span>{" "}
+                      assigned
+                      {s._count.dhcpRanges > 0 && (
+                        <>
+                          {" · "}
+                          <span className="mono">
+                            {s._count.dhcpRanges}
+                          </span>{" "}
+                          DHCP range{s._count.dhcpRanges === 1 ? "" : "s"}
+                        </>
+                      )}
                     </span>
                     {details && (
-                      <span className="font-mono">
-                        {Math.round(utilization)}%
-                      </span>
+                      <span className="mono">{Math.round(utilization)}%</span>
                     )}
                   </div>
                   <div

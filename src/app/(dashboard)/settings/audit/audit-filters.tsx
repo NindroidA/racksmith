@@ -30,10 +30,7 @@ export function AuditFilters({
   useEffect(() => setEntity(entityFilter), [entityFilter]);
 
   return (
-    <form
-      method="get"
-      className="glass-card mb-4 flex flex-wrap gap-3 rounded-xl p-4"
-    >
+    <form method="get" className="surface-card mb-4 flex flex-wrap gap-3 p-4">
       <div className="flex flex-col gap-1">
         <label
           htmlFor="audit-filter-action"

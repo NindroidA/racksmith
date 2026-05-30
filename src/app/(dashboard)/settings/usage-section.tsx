@@ -1,7 +1,13 @@
 import Link from "next/link";
-import { Server, Network, Gauge, Sparkles } from "lucide-react";
+import {
+  Stack,
+  ShareNetwork,
+  Gauge,
+  Sparkle,
+} from "@phosphor-icons/react/dist/ssr";
 import type { UsageSummary } from "@/lib/tiers";
 import { roleHasAccess, type Role } from "@/lib/permissions";
+import { Tag } from "@/components/ui/tag";
 
 type Props = { usage: UsageSummary; role: Role };
 
@@ -11,7 +17,7 @@ function UsageRow({
   current,
   limit,
 }: {
-  icon: typeof Server;
+  icon: typeof Stack;
   label: string;
   current: number;
   limit: number | null;
@@ -23,9 +29,9 @@ function UsageRow({
   return (
     <div>
       <div className="mb-1.5 flex items-center gap-2 text-sm">
-        <Icon className="h-3.5 w-3.5 text-white/50" />
+        <Icon className="h-3.5 w-3.5 text-white/50" weight="duotone" />
         <span className="text-white/80">{label}</span>
-        <span className="ml-auto font-mono text-white/60">
+        <span className="mono ml-auto text-white/60">
           {current}
           {limit !== null ? ` / ${limit}` : " / ∞"}
         </span>
@@ -60,15 +66,15 @@ export function UsageSection({ usage, role }: Props) {
   const canManageBilling = roleHasAccess(role, "admin");
 
   return (
-    <section className="glass-card rounded-xl p-6">
+    <section className="surface-card p-6">
       <div className="mb-1 flex items-center justify-between">
         <h2 className="flex items-center gap-2 text-lg font-semibold text-white">
-          <Gauge className="h-4 w-4 text-primary" />
+          <Gauge className="h-4 w-4 text-primary" weight="duotone" />
           Plan &amp; usage
         </h2>
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/15 px-3 py-1 text-xs font-medium text-primary">
+        <Tag tone="info" size="md">
           {usage.planLabel} tier
-        </span>
+        </Tag>
       </div>
       <p className="mb-5 text-sm text-white/50">
         Current resource usage on the {usage.planLabel} tier.
@@ -76,13 +82,13 @@ export function UsageSection({ usage, role }: Props) {
 
       <div className="flex flex-col gap-4">
         <UsageRow
-          icon={Server}
+          icon={Stack}
           label="Racks"
           current={usage.racks.current}
           limit={usage.racks.limit}
         />
         <UsageRow
-          icon={Network}
+          icon={ShareNetwork}
           label="Sites"
           current={usage.sites.current}
           limit={usage.sites.limit}
@@ -92,7 +98,8 @@ export function UsageSection({ usage, role }: Props) {
       {atAny && usage.plan === "free" && (
         <div className="mt-5 rounded-lg border border-accent-orange/30 bg-accent-orange/[0.05] p-4">
           <div className="mb-1 flex items-center gap-2 text-sm font-semibold text-accent-orange">
-            <Sparkles className="h-4 w-4" />
+            <span className="led-dot led-dot--amber" aria-hidden />
+            <Sparkle className="h-4 w-4" weight="duotone" />
             You&apos;ve hit a Free-tier limit
           </div>
           <p className="text-sm text-white/60">

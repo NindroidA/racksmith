@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { ArrowLeft, Key, Plus } from "lucide-react";
+import { ArrowLeft, Key, Plus } from "@phosphor-icons/react/dist/ssr";
 import { requireMember } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
 import { TIER_LIMITS, getOrganizationPlan } from "@/lib/tiers";
+import { Tag } from "@/components/ui/tag";
 import { ApiKeyCreateDialog } from "./api-key-create-dialog";
 import { RevokeKeyButton } from "./revoke-key-button";
 
@@ -18,10 +19,10 @@ export default async function ApiKeysPage() {
           href="/settings"
           className="mb-4 inline-flex items-center gap-1.5 text-sm text-white/50 hover:text-white"
         >
-          <ArrowLeft className="h-3.5 w-3.5" /> Back to settings
+          <ArrowLeft className="h-3.5 w-3.5" weight="bold" /> Back to settings
         </Link>
-        <div className="glass-card rounded-xl p-8 text-center">
-          <Key className="mx-auto mb-3 h-8 w-8 text-primary" />
+        <div className="surface-card p-8 text-center">
+          <Key className="mx-auto mb-3 h-8 w-8 text-primary" weight="duotone" />
           <h1 className="mb-2 text-xl font-semibold text-white">
             API access requires a paid plan
           </h1>
@@ -53,15 +54,16 @@ export default async function ApiKeysPage() {
         href="/settings"
         className="mb-4 inline-flex items-center gap-1.5 text-sm text-white/50 hover:text-white"
       >
-        <ArrowLeft className="h-3.5 w-3.5" /> Back to settings
+        <ArrowLeft className="h-3.5 w-3.5" weight="bold" /> Back to settings
       </Link>
       <div className="mb-6 flex items-end justify-between">
         <div>
           <h1 className="flex items-center gap-2 text-3xl font-bold text-white">
-            <Key className="h-6 w-6 text-primary" /> API keys
+            <Key className="h-6 w-6 text-primary" weight="duotone" /> API keys
           </h1>
           <p className="mt-1 text-sm text-white/60">
-            Using {activeCount} of {limits.apiKeyMax} keys on your{" "}
+            Using <span className="mono">{activeCount}</span> of{" "}
+            <span className="mono">{limits.apiKeyMax}</span> keys on your{" "}
             {limits.label} plan.
           </p>
         </div>
@@ -69,12 +71,12 @@ export default async function ApiKeysPage() {
       </div>
 
       {keys.length === 0 ? (
-        <div className="glass-card rounded-xl p-12 text-center">
-          <Plus className="mx-auto mb-3 h-8 w-8 text-white/40" />
+        <div className="surface-card p-12 text-center">
+          <Plus className="mx-auto mb-3 h-8 w-8 text-white/40" weight="bold" />
           <p className="mb-4 text-sm text-white/60">No API keys yet.</p>
         </div>
       ) : (
-        <div className="glass-card overflow-hidden rounded-xl">
+        <div className="surface-card overflow-hidden">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-white/[0.06] text-xs uppercase tracking-wider text-white/40">
@@ -91,25 +93,63 @@ export default async function ApiKeysPage() {
               {keys.map((k) => (
                 <tr key={k.id} className="hover:bg-white/[0.02]">
                   <td className="px-4 py-3 text-white">{k.name}</td>
-                  <td className="px-4 py-3 font-mono text-xs text-white/70">
-                    {k.prefix}…
+                  <td className="px-4 py-3 text-xs text-white/70">
+                    <span className="mono">{k.prefix}</span>…
                   </td>
-                  <td className="px-4 py-3 text-white/70">{k.role}</td>
-                  <td className="px-4 py-3 text-xs text-white/50">
-                    {new Date(k.createdAt).toLocaleDateString()}
+                  <td className="px-4 py-3 text-white/70">
+                    <span className="mono">{k.role}</span>
                   </td>
                   <td className="px-4 py-3 text-xs text-white/50">
-                    {k.lastUsedAt
-                      ? new Date(k.lastUsedAt).toLocaleDateString()
-                      : "—"}
+                    <span className="mono">
+                      {new Date(k.createdAt).toLocaleDateString()}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-xs text-white/50">
+                    {k.lastUsedAt ? (
+                      <span className="mono">
+                        {new Date(k.lastUsedAt).toLocaleDateString()}
+                      </span>
+                    ) : (
+                      "—"
+                    )}
                   </td>
                   <td className="px-4 py-3 text-xs">
                     {k.revokedAt ? (
-                      <span className="text-accent-red">Revoked</span>
+                      <Tag
+                        tone="danger"
+                        variant="subtle"
+                        iconLeft={
+                          <span className="led-dot led-dot--red" aria-hidden />
+                        }
+                      >
+                        Revoked
+                      </Tag>
                     ) : k.expiresAt && k.expiresAt.getTime() < Date.now() ? (
-                      <span className="text-white/40">Expired</span>
+                      <Tag
+                        tone="neutral"
+                        variant="subtle"
+                        iconLeft={
+                          <span
+                            className="led-dot led-dot--muted"
+                            aria-hidden
+                          />
+                        }
+                      >
+                        Expired
+                      </Tag>
                     ) : (
-                      <span className="text-accent-green">Active</span>
+                      <Tag
+                        tone="success"
+                        variant="subtle"
+                        iconLeft={
+                          <span
+                            className="led-dot led-dot--green"
+                            aria-hidden
+                          />
+                        }
+                      >
+                        Active
+                      </Tag>
                     )}
                   </td>
                   <td className="px-4 py-3 text-right">

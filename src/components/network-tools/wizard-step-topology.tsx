@@ -4,12 +4,12 @@ import { useEffect, useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
-  HardDrive,
-  Layers,
-  Server,
+  HardDrives,
+  StackSimple,
+  Stack,
   Shield,
-  Wifi,
-} from "lucide-react";
+  WifiHigh,
+} from "@phosphor-icons/react/dist/ssr";
 import { twMerge } from "tailwind-merge";
 import { InlineHelp } from "@/components/ui/inline-help";
 import type {
@@ -18,12 +18,12 @@ import type {
   TopologyInput,
 } from "@/lib/plan/wizard-types";
 
-const ICON_BY_TYPE: Record<RecommendedDevice["deviceType"], typeof Server> = {
-  switch: Layers,
-  router: Server,
+const ICON_BY_TYPE: Record<RecommendedDevice["deviceType"], typeof Stack> = {
+  switch: StackSimple,
+  router: Stack,
   firewall: Shield,
-  server: HardDrive,
-  other: Wifi,
+  server: HardDrives,
+  other: WifiHigh,
 };
 
 // Stable identity signature — used both as React `key` and to match
@@ -72,7 +72,7 @@ export function WizardStepTopology({
 
   if (!profile) {
     return (
-      <div className="glass-card rounded-xl p-6 text-sm text-white/60">
+      <div className="surface-card p-6 text-sm text-white/60">
         Complete the profile step first.
       </div>
     );
@@ -95,7 +95,7 @@ export function WizardStepTopology({
 
   return (
     <fieldset disabled={disabled} className="space-y-8">
-      <section className="glass-card rounded-xl p-6">
+      <section className="surface-card p-6">
         <header className="mb-4 flex items-end justify-between">
           <div>
             <h3 className="text-lg font-semibold text-white">
@@ -106,7 +106,7 @@ export function WizardStepTopology({
             </p>
           </div>
           <span className="text-sm text-white/50">
-            {selectedIdx.size} selected
+            <span className="mono">{selectedIdx.size}</span> selected
           </span>
         </header>
 
@@ -129,6 +129,7 @@ export function WizardStepTopology({
               >
                 <Icon
                   className="mt-0.5 h-5 w-5 shrink-0 text-primary"
+                  weight="duotone"
                   aria-hidden
                 />
                 <div className="min-w-0 flex-1">
@@ -137,8 +138,10 @@ export function WizardStepTopology({
                       {dev.manufacturer} {dev.model}
                     </span>
                     <span className="text-xs text-white/40">
-                      {dev.sizeU > 0 ? `${dev.sizeU}U` : "0U"} · {dev.portCount}{" "}
-                      ports
+                      <span className="mono">
+                        {dev.sizeU > 0 ? `${dev.sizeU}U` : "0U"}
+                      </span>{" "}
+                      · <span className="mono">{dev.portCount}</span> ports
                     </span>
                   </div>
                   <p className="mt-1 text-xs text-white/60">{dev.reason}</p>
@@ -149,7 +152,7 @@ export function WizardStepTopology({
         </div>
       </section>
 
-      <section className="glass-card rounded-xl p-6">
+      <section className="surface-card p-6">
         <h3 className="text-lg font-semibold text-white">Target rack</h3>
         <div className="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2">
           <div>
@@ -176,7 +179,7 @@ export function WizardStepTopology({
               onChange={(e) =>
                 setRackSizeU(Math.max(1, Number(e.target.value) || 1))
               }
-              className="glass-input w-full rounded-lg px-3 py-2 text-white"
+              className="glass-input mono w-full rounded-lg px-3 py-2 text-white"
             />
           </div>
         </div>
@@ -188,7 +191,7 @@ export function WizardStepTopology({
           onClick={onBack}
           className="btn-secondary inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium"
         >
-          <ArrowLeft className="h-4 w-4" aria-hidden /> Back
+          <ArrowLeft className="h-4 w-4" weight="bold" aria-hidden /> Back
         </button>
         <button
           type="button"
@@ -198,7 +201,8 @@ export function WizardStepTopology({
           }
           className="btn-primary inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium"
         >
-          Plan VLAN + IP <ArrowRight className="h-4 w-4" aria-hidden />
+          Plan VLAN + IP{" "}
+          <ArrowRight className="h-4 w-4" weight="bold" aria-hidden />
         </button>
       </div>
     </fieldset>

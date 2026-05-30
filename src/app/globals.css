@@ -84,14 +84,6 @@
   --color-text-secondary: rgba(255, 255, 255, 0.7);
   --color-text-muted: rgba(255, 255, 255, 0.55);
   --color-text-faint: rgba(255, 255, 255, 0.4);
-
-  /* ─── Rack-unit grid motif ─────────────────────
-     Subtle horizontal repeat that hints at 1U slots.
-     One row = 24px (1U at our app's nominal scale).
-     The tickmark column on the left is added per-surface
-     by the `.rack-unit-grid` utility below. */
-  --ru-line: rgba(255, 255, 255, 0.06);
-  --ru-tick: rgba(255, 255, 255, 0.18);
 }
 
 /* ─── Base ─────────────────────────────────────── */
@@ -494,57 +486,6 @@ textarea:-webkit-autofill {
   }
 }
 
-/* ─── Rack-unit grid background ───────────────────────────
-   Subtle horizontal banding that suggests stacked 1U rack
-   units. Apply to hero strips, empty-state wells, and the
-   auth-shell background to ground the brand visually without
-   shouting. The optional `.rack-unit-grid--ticks` modifier
-   adds a left-edge tickmark column reminiscent of RU numbers
-   on a real rack frame. */
-
-.rack-unit-grid {
-  background-image:
-    /* Every 24px = a 1U slot separator. Two layered lines for a
-       subtle "frame top + frame bottom" effect. */
-    linear-gradient(
-      to bottom,
-      transparent 0,
-      transparent 22px,
-      var(--ru-line) 22px,
-      var(--ru-line) 24px
-    );
-  background-size: 100% 24px;
-}
-
-.rack-unit-grid--ticks {
-  background-image:
-    /* Left-edge tickmark column: 8px wide, ticks every 24px */
-    linear-gradient(
-      to right,
-      var(--ru-tick) 0,
-      var(--ru-tick) 1px,
-      transparent 1px,
-      transparent 7px,
-      var(--ru-tick) 7px,
-      var(--ru-tick) 8px,
-      transparent 8px
-    ),
-    linear-gradient(
-      to bottom,
-      transparent 0,
-      transparent 22px,
-      var(--ru-line) 22px,
-      var(--ru-line) 24px
-    );
-  background-size:
-    8px 24px,
-    100% 24px;
-  background-position:
-    0 0,
-    0 0;
-  background-repeat: repeat-y, repeat;
-}
-
 /* Numeric helper — opt-in for the few places where prose flows next to
    columns of digits and we want stricter alignment. Body already
    defaults to tabular-nums; this exists for clarity at the call site. */
@@ -667,38 +608,6 @@ textarea:-webkit-autofill {
     var(--color-primary),
     var(--color-accent-cyan) 70%
   );
-}
-
-/* Hero surface — a card that wears the rack frame. The left-edge
-   tick column + 1U banding read as a rack rail without shouting.
-   background-color (not the `background` shorthand) so it composes
-   with the banding background-image. */
-.surface-hero {
-  position: relative;
-  background-color: #0e1426;
-  background-image:
-    linear-gradient(
-      to right,
-      var(--ru-tick) 0,
-      var(--ru-tick) 1px,
-      transparent 1px,
-      transparent 7px,
-      var(--ru-tick) 7px,
-      var(--ru-tick) 8px,
-      transparent 8px
-    ),
-    linear-gradient(
-      to bottom,
-      transparent 0,
-      transparent 22px,
-      var(--ru-line) 22px,
-      var(--ru-line) 24px
-    );
-  background-size: 8px 24px, 100% 24px;
-  background-repeat: repeat-y, repeat;
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: var(--r-card);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
 }
 
 /* ─── LED status dot ─────────────────────────────────────

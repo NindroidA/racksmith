@@ -1,4 +1,4 @@
-import { Radar } from "lucide-react";
+import { Pulse } from "@phosphor-icons/react/dist/ssr";
 import { requireMember } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
 import { withTenant } from "@/lib/prisma-tenant";
@@ -104,10 +104,11 @@ export default async function DiscoveryPage() {
           </p>
         </div>
         <div className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-xs text-white/50">
-          <Radar className="h-3.5 w-3.5" />
+          <Pulse className="h-3.5 w-3.5" weight="duotone" />
           <span>
-            {scans.length} scan{scans.length !== 1 ? "s" : ""} ·{" "}
-            {pendingHosts.length} pending
+            <span className="mono">{scans.length}</span> scan
+            {scans.length !== 1 ? "s" : ""} ·{" "}
+            <span className="mono">{pendingHosts.length}</span> pending
           </span>
         </div>
       </div>
@@ -132,7 +133,8 @@ export default async function DiscoveryPage() {
               Pending devices
             </h2>
             <span className="text-xs text-white/40">
-              {pendingHosts.length} waiting for action
+              <span className="mono">{pendingHosts.length}</span> waiting for
+              action
             </span>
           </div>
           <PendingDevicesTable

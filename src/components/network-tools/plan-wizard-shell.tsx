@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { twMerge } from "tailwind-merge";
-import { Check, ChevronRight } from "lucide-react";
+import { Check, CaretRight } from "@phosphor-icons/react/dist/ssr";
+import { Tag } from "@/components/ui/tag";
 import {
   applyBuildPlan,
   saveNetworkStep,
@@ -128,9 +129,9 @@ export function PlanWizardShell({
           Build a complete network plan, then materialize racks, devices, VLANs,
           and subnets in one click.
           {readOnly && (
-            <span className="ml-2 rounded bg-white/[0.06] px-2 py-0.5 text-xs text-white/60">
+            <Tag tone="neutral" variant="subtle" className="ml-2">
               {status}
-            </span>
+            </Tag>
           )}
         </p>
       </header>
@@ -248,12 +249,20 @@ function Stepper({
                   aria-hidden
                   className="flex h-5 w-5 items-center justify-center rounded-full bg-white/10 text-[10px]"
                 >
-                  {isDone ? <Check className="h-3 w-3" /> : idx + 1}
+                  {isDone ? (
+                    <Check className="h-3 w-3" weight="bold" />
+                  ) : (
+                    idx + 1
+                  )}
                 </span>
                 {s.label}
               </button>
               {idx < STEPS.length - 1 && (
-                <ChevronRight className="h-3 w-3 text-white/20" aria-hidden />
+                <CaretRight
+                  className="h-3 w-3 text-white/20"
+                  weight="bold"
+                  aria-hidden
+                />
               )}
             </li>
           );

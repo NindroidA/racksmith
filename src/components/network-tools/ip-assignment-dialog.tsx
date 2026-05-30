@@ -2,7 +2,7 @@
 
 import { useId, useState, useTransition } from "react";
 import toast from "react-hot-toast";
-import { X, Trash2, Wand2 } from "lucide-react";
+import { X, TrashSimple, MagicWand } from "@phosphor-icons/react/dist/ssr";
 import { Dialog } from "@/components/ui/dialog";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
 import { Select, SelectOption } from "@/components/ui/select";
@@ -111,9 +111,7 @@ export function IpAssignmentDialog({
             <h2 id={titleId} className="font-semibold text-white">
               {existing ? "Edit IP assignment" : "Assign IP"}
             </h2>
-            <p className="mt-0.5 font-mono text-xs text-white/50">
-              {subnetCidr}
-            </p>
+            <p className="mt-0.5 mono text-xs text-white/50">{subnetCidr}</p>
           </div>
           <button
             type="button"
@@ -121,7 +119,7 @@ export function IpAssignmentDialog({
             aria-label="Close assignment dialog"
             className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded text-white/40 hover:bg-white/[0.06] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/50"
           >
-            <X className="h-4 w-4" aria-hidden />
+            <X className="h-4 w-4" weight="bold" aria-hidden />
           </button>
         </header>
 
@@ -158,7 +156,11 @@ export function IpAssignmentDialog({
                 aria-label="Suggest next free IP"
                 className="glass-button flex items-center gap-1 rounded-lg px-3 text-xs font-medium text-white"
               >
-                <Wand2 className="h-3.5 w-3.5" aria-hidden />
+                <MagicWand
+                  className="h-3.5 w-3.5"
+                  weight="duotone"
+                  aria-hidden
+                />
                 Suggest
               </button>
             </div>
@@ -230,7 +232,7 @@ export function IpAssignmentDialog({
               disabled={pending}
               className="flex items-center gap-1 rounded-lg border border-accent-red/30 bg-accent-red/10 px-3 py-1.5 text-xs font-medium text-accent-red hover:bg-accent-red/20 disabled:opacity-50"
             >
-              <Trash2 className="h-3.5 w-3.5" aria-hidden />
+              <TrashSimple className="h-3.5 w-3.5" weight="bold" aria-hidden />
               Release
             </button>
           ) : (
@@ -263,9 +265,9 @@ export function IpAssignmentDialog({
           body={
             <p>
               Release{" "}
-              <span className="font-mono text-white">{existing.ipAddress}</span>
-              . The address becomes available for reassignment and any device
-              link is removed.
+              <span className="mono text-white">{existing.ipAddress}</span>. The
+              address becomes available for reassignment and any device link is
+              removed.
             </p>
           }
           confirmLabel="Release IP"

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, CreditCard } from "lucide-react";
+import { ArrowLeft, CreditCard } from "@phosphor-icons/react/dist/ssr";
 
 import { requireMember } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
@@ -86,11 +86,11 @@ export default async function BillingPage({
         href="/settings"
         className="mb-4 inline-flex items-center gap-1.5 text-sm txt-muted transition-colors hover:txt-strong"
       >
-        <ArrowLeft className="h-3.5 w-3.5" /> Back to settings
+        <ArrowLeft className="h-3.5 w-3.5" weight="bold" /> Back to settings
       </Link>
 
       <div className="mb-8 flex items-center gap-3">
-        <CreditCard className="h-6 w-6 text-primary" />
+        <CreditCard className="h-6 w-6 text-primary" weight="duotone" />
         <div>
           <h1 className="text-3xl font-bold tracking-tight txt-strong">
             Billing
@@ -117,7 +117,7 @@ export default async function BillingPage({
           PlanSummaryCard below). For paid tiers, the PlanSummaryCard
           owns the plan readout — duplicating it here was redundant. */}
       {plan === "free" && (
-        <section className="glass-card mb-6 rounded-xl p-6">
+        <section className="surface-card mb-6 p-6">
           <p className="mb-1 text-xs uppercase tracking-wide txt-faint">
             Current plan
           </p>

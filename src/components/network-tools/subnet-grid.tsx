@@ -43,11 +43,12 @@ export function SubnetGrid({
     Number(details.totalHosts) > MAX_RENDERED_CELLS
   ) {
     return (
-      <section className="glass-card rounded-xl p-6">
+      <section className="surface-card p-6">
         <h2 className="mb-2 text-lg font-semibold text-white">Grid</h2>
         <p className="text-sm text-white/60">
           Subnet too large to render every address (
-          {details.totalHosts.toString()} total). See the assignment list below.
+          <span className="mono">{details.totalHosts.toString()}</span> total).
+          See the assignment list below.
         </p>
       </section>
     );
@@ -67,10 +68,10 @@ export function SubnetGrid({
   const cols = Math.min(16, cells.length);
 
   return (
-    <section className="glass-card rounded-xl p-6">
+    <section className="surface-card p-6">
       <div className="mb-3 flex items-center justify-between">
         <h2 className="text-lg font-semibold text-white">
-          Grid · {cells.length} addresses
+          Grid · <span className="mono">{cells.length}</span> addresses
         </h2>
         <Legend />
       </div>

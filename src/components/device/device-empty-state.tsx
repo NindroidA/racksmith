@@ -3,13 +3,10 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { HardDrive } from "lucide-react";
+import { HardDrives } from "@phosphor-icons/react/dist/ssr";
 import { EmptyStateWithTemplate } from "@/components/ui/empty-state-with-template";
 import { TemplateGallery } from "@/components/ui/template-gallery";
-import {
-  DEVICE_TEMPLATES,
-  type DeviceTemplate,
-} from "@/lib/templates/devices";
+import { DEVICE_TEMPLATES, type DeviceTemplate } from "@/lib/templates/devices";
 import { createDeviceFromTemplate } from "@/app/(dashboard)/devices/actions";
 import { describeError } from "@/lib/error-message";
 
@@ -42,7 +39,7 @@ export function DeviceEmptyState() {
   return (
     <>
       <EmptyStateWithTemplate
-        icon={<HardDrive className="h-8 w-8" />}
+        icon={<HardDrives className="h-8 w-8" weight="duotone" />}
         iconClassName="bg-accent-purple/20 text-accent-purple"
         title="No devices yet"
         blurb="Pick a device template to get going fast, import a CSV, or add one from scratch."

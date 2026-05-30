@@ -1,7 +1,10 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Sliders, Network } from "lucide-react";
+import {
+  SlidersHorizontal,
+  ShareNetwork,
+} from "@phosphor-icons/react/dist/ssr";
 import toast from "react-hot-toast";
 import { updatePreferences } from "./actions";
 
@@ -41,9 +44,9 @@ export function PreferencesSection({ initial }: Props) {
   }
 
   return (
-    <section className="glass-card rounded-xl p-6">
+    <section className="surface-card p-6">
       <h2 className="mb-1 flex items-center gap-2 text-lg font-semibold text-white">
-        <Sliders className="h-4 w-4 text-primary" />
+        <SlidersHorizontal className="h-4 w-4 text-primary" weight="bold" />
         Preferences
       </h2>
       <p className="mb-6 text-sm text-white/50">
@@ -59,15 +62,16 @@ export function PreferencesSection({ initial }: Props) {
             Default subnet for auto-discovery
           </label>
           <div className="relative">
-            <Network
+            <ShareNetwork
               className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30"
+              weight="duotone"
               aria-hidden
             />
             <input
               id="pref-default-subnet"
               value={defaultSubnet}
               onChange={(e) => setDefaultSubnet(e.target.value)}
-              className="glass-input w-full rounded-lg py-2.5 pl-10 pr-4 text-sm font-mono"
+              className="glass-input mono w-full rounded-lg py-2.5 pl-10 pr-4 text-sm"
               placeholder="192.168.1.0/24"
               maxLength={32}
             />

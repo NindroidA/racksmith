@@ -1,5 +1,9 @@
 import Link from "next/link";
-import { ArrowLeft, Download, FileText } from "lucide-react";
+import {
+  ArrowLeft,
+  DownloadSimple,
+  FileText,
+} from "@phosphor-icons/react/dist/ssr";
 import { requireMember } from "@/lib/auth-helpers";
 import { withTenant } from "@/lib/prisma-tenant";
 import { AuditFilters } from "./audit-filters";
@@ -101,20 +105,20 @@ export default async function AuditPage({
         href="/settings"
         className="mb-4 inline-flex items-center gap-1.5 text-sm text-white/50 hover:text-white"
       >
-        <ArrowLeft className="h-3.5 w-3.5" />
+        <ArrowLeft className="h-3.5 w-3.5" weight="bold" />
         Back to settings
       </Link>
 
       <div className="mb-6 flex items-end justify-between gap-4">
         <div>
           <h1 className="flex items-center gap-2 text-3xl font-bold text-white">
-            <FileText className="h-6 w-6 text-primary" />
+            <FileText className="h-6 w-6 text-primary" weight="duotone" />
             Audit log
           </h1>
           <p className="mt-1 text-sm text-white/60">
             Every change made to your account, racks, devices, and topology.{" "}
             <span className="text-white/40">
-              {total.toLocaleString()} events
+              <span className="mono">{total.toLocaleString()}</span> events
             </span>
           </p>
         </div>
@@ -122,7 +126,7 @@ export default async function AuditPage({
           href={exportUrl}
           className="inline-flex items-center gap-2 rounded-lg bg-white/[0.06] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/[0.1]"
         >
-          <Download className="h-4 w-4" />
+          <DownloadSimple className="h-4 w-4" weight="bold" />
           Export CSV
         </a>
       </div>
@@ -134,13 +138,13 @@ export default async function AuditPage({
       />
 
       {logs.length === 0 ? (
-        <div className="glass-card rounded-xl p-12 text-center">
+        <div className="surface-card p-12 text-center">
           <p className="text-sm text-white/50">
             No events match these filters yet.
           </p>
         </div>
       ) : (
-        <div className="glass-card overflow-hidden rounded-xl">
+        <div className="surface-card overflow-hidden">
           <table className="w-full text-sm">
             <caption className="sr-only">Audit log entries</caption>
             <thead>
@@ -162,7 +166,9 @@ export default async function AuditPage({
                 return (
                   <tr key={log.id} className="hover:bg-white/[0.02]">
                     <td className="whitespace-nowrap px-4 py-3 text-xs text-white/50">
-                      {new Date(log.createdAt).toLocaleString()}
+                      <span className="mono">
+                        {new Date(log.createdAt).toLocaleString()}
+                      </span>
                     </td>
                     <td
                       className={`whitespace-nowrap px-4 py-3 font-medium ${colorClass}`}
@@ -182,7 +188,7 @@ export default async function AuditPage({
                           )
                         : "—"}
                     </td>
-                    <td className="whitespace-nowrap px-4 py-3 font-mono text-xs text-white/40">
+                    <td className="mono whitespace-nowrap px-4 py-3 text-xs text-white/40">
                       {ip}
                     </td>
                   </tr>
@@ -196,7 +202,8 @@ export default async function AuditPage({
       {totalPages > 1 && (
         <div className="mt-4 flex items-center justify-between text-sm text-white/50">
           <span>
-            Page {page + 1} of {totalPages}
+            Page <span className="mono">{page + 1}</span> of{" "}
+            <span className="mono">{totalPages}</span>
           </span>
           <div className="flex gap-2">
             {page > 0 && (

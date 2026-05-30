@@ -4,12 +4,12 @@ import { useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import {
   ShieldCheck,
-  ShieldAlert,
+  ShieldWarning,
   Copy,
   Check,
-  Download,
-  RefreshCw,
-} from "lucide-react";
+  DownloadSimple,
+  ArrowClockwise,
+} from "@phosphor-icons/react/dist/ssr";
 import toast from "react-hot-toast";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
@@ -163,12 +163,15 @@ export function TwoFactorSection({ initialEnabled }: Props) {
   }
 
   return (
-    <section className="glass-card rounded-xl p-6">
+    <section className="surface-card p-6">
       <h2 className="mb-1 flex items-center gap-2 text-lg font-semibold text-white">
         {enabled ? (
-          <ShieldCheck className="h-4 w-4 text-accent-green" />
+          <ShieldCheck className="h-4 w-4 text-accent-green" weight="duotone" />
         ) : (
-          <ShieldAlert className="h-4 w-4 text-accent-orange" />
+          <ShieldWarning
+            className="h-4 w-4 text-accent-orange"
+            weight="duotone"
+          />
         )}
         Two-factor authentication
       </h2>
@@ -185,7 +188,7 @@ export function TwoFactorSection({ initialEnabled }: Props) {
             onClick={() => setRegenOpen(true)}
             className="inline-flex items-center gap-2 rounded-lg bg-white/[0.06] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/[0.1]"
           >
-            <RefreshCw className="h-4 w-4" aria-hidden />
+            <ArrowClockwise className="h-4 w-4" weight="bold" aria-hidden />
             Regenerate backup codes
           </button>
           <button
@@ -285,7 +288,7 @@ export function TwoFactorSection({ initialEnabled }: Props) {
           onClick={() => setStage("password")}
           className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary/90"
         >
-          <ShieldCheck className="h-4 w-4" aria-hidden />
+          <ShieldCheck className="h-4 w-4" weight="duotone" aria-hidden />
           Enable 2FA
         </button>
       )}
@@ -350,7 +353,7 @@ export function TwoFactorSection({ initialEnabled }: Props) {
                   Can&apos;t scan?
                 </p>
                 <p className="mb-1 text-white/40">Enter this key manually:</p>
-                <code className="break-all rounded bg-white/[0.06] p-2 font-mono text-xs text-white/80">
+                <code className="mono break-all rounded bg-white/[0.06] p-2 text-xs text-white/80">
                   {new URL(totpUri).searchParams.get("secret")}
                 </code>
               </div>
@@ -407,7 +410,7 @@ export function TwoFactorSection({ initialEnabled }: Props) {
         <div className="flex flex-col gap-4">
           <div className="rounded-xl border border-accent-orange/30 bg-accent-orange/[0.05] p-4">
             <p className="mb-2 flex items-center gap-2 text-sm font-semibold text-accent-orange">
-              <ShieldAlert className="h-4 w-4" />
+              <ShieldWarning className="h-4 w-4" weight="duotone" />
               Save these backup codes now
             </p>
             <p className="text-sm text-white/70">
@@ -419,7 +422,7 @@ export function TwoFactorSection({ initialEnabled }: Props) {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-2 rounded-lg border border-white/[0.06] bg-white/[0.02] p-4 font-mono text-sm text-white/90">
+          <div className="mono grid grid-cols-2 gap-2 rounded-lg border border-white/[0.06] bg-white/[0.02] p-4 text-sm text-white/90">
             {backupCodes.map((code) => (
               <div key={code}>{code}</div>
             ))}
@@ -431,9 +434,9 @@ export function TwoFactorSection({ initialEnabled }: Props) {
               className="inline-flex items-center gap-2 rounded-lg bg-white/[0.06] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/[0.1]"
             >
               {copied ? (
-                <Check className="h-4 w-4 text-accent-green" />
+                <Check className="h-4 w-4 text-accent-green" weight="bold" />
               ) : (
-                <Copy className="h-4 w-4" />
+                <Copy className="h-4 w-4" weight="bold" />
               )}
               {copied ? "Copied" : "Copy codes"}
             </button>
@@ -441,7 +444,7 @@ export function TwoFactorSection({ initialEnabled }: Props) {
               onClick={downloadCodes}
               className="inline-flex items-center gap-2 rounded-lg bg-white/[0.06] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/[0.1]"
             >
-              <Download className="h-4 w-4" />
+              <DownloadSimple className="h-4 w-4" weight="bold" />
               Download .txt
             </button>
             <button

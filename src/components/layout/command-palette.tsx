@@ -7,27 +7,27 @@ import { Command } from "cmdk";
 import { motion, AnimatePresence } from "framer-motion";
 import { useFocusTrap } from "@/hooks/use-focus-trap";
 import {
-  LayoutDashboard,
-  Server,
-  HardDrive,
-  Network,
-  Radar,
-  Settings,
+  SquaresFour,
+  Stack,
+  HardDrives,
+  ShareNetwork,
+  Pulse,
+  GearSix,
   Plus,
-  Search,
-  Upload,
-  LogOut,
-  History,
+  MagnifyingGlass,
+  UploadSimple,
+  SignOut,
+  ClockCounterClockwise,
   Calculator,
   Globe,
   Tag,
   FileCode,
-  Wand2,
-  Battery,
-  Cable,
+  MagicWand,
+  BatteryCharging,
+  PlugsConnected,
   Bell,
-  type LucideIcon,
-} from "lucide-react";
+} from "@phosphor-icons/react/dist/ssr";
+import type { Icon } from "@phosphor-icons/react";
 import { signOut } from "@/lib/auth-client";
 import { describeError } from "@/lib/error-message";
 
@@ -35,7 +35,7 @@ type Action = {
   id: string;
   label: string;
   hint?: string;
-  icon: LucideIcon;
+  icon: Icon;
   group: "Navigate" | "Create" | "Account";
   run: () => void | Promise<void>;
   keywords?: string[];
@@ -81,7 +81,7 @@ export function CommandPalette() {
         id: "nav-dashboard",
         label: "Go to Dashboard",
         hint: "/dashboard",
-        icon: LayoutDashboard,
+        icon: SquaresFour,
         group: "Navigate",
         run: () => router.push("/dashboard"),
         keywords: ["home", "overview"],
@@ -90,7 +90,7 @@ export function CommandPalette() {
         id: "nav-racks",
         label: "Go to Racks",
         hint: "/racks",
-        icon: Server,
+        icon: Stack,
         group: "Navigate",
         run: () => router.push("/racks"),
       },
@@ -98,7 +98,7 @@ export function CommandPalette() {
         id: "nav-devices",
         label: "Go to Devices",
         hint: "/devices",
-        icon: HardDrive,
+        icon: HardDrives,
         group: "Navigate",
         run: () => router.push("/devices"),
       },
@@ -106,7 +106,7 @@ export function CommandPalette() {
         id: "nav-topology",
         label: "Go to Topology",
         hint: "/topology",
-        icon: Network,
+        icon: ShareNetwork,
         group: "Navigate",
         run: () => router.push("/topology"),
       },
@@ -114,7 +114,7 @@ export function CommandPalette() {
         id: "nav-discovery",
         label: "Go to Discovery",
         hint: "/discovery",
-        icon: Radar,
+        icon: Pulse,
         group: "Navigate",
         run: () => router.push("/discovery"),
       },
@@ -158,7 +158,7 @@ export function CommandPalette() {
         id: "nav-plan-wizard",
         label: "Open Plan Wizard",
         hint: "/plan-wizard",
-        icon: Wand2,
+        icon: MagicWand,
         group: "Navigate",
         keywords: ["plan", "wizard", "design", "blueprint", "build"],
         run: () => router.push("/plan-wizard"),
@@ -167,7 +167,7 @@ export function CommandPalette() {
         id: "nav-power",
         label: "Open Power budget",
         hint: "/network-tools/power",
-        icon: Battery,
+        icon: BatteryCharging,
         group: "Navigate",
         keywords: ["poe", "pdu", "ups", "battery", "watts"],
         run: () => router.push("/network-tools/power"),
@@ -176,7 +176,7 @@ export function CommandPalette() {
         id: "nav-cables",
         label: "Open Cable estimator",
         hint: "/network-tools/cables",
-        icon: Cable,
+        icon: PlugsConnected,
         group: "Navigate",
         keywords: ["fiber", "cat6", "length", "bom"],
         run: () => router.push("/network-tools/cables"),
@@ -194,7 +194,7 @@ export function CommandPalette() {
         id: "nav-settings",
         label: "Go to Settings",
         hint: "/settings",
-        icon: Settings,
+        icon: GearSix,
         group: "Navigate",
         run: () => router.push("/settings"),
       },
@@ -202,7 +202,7 @@ export function CommandPalette() {
         id: "nav-audit",
         label: "View audit log",
         hint: "/settings/audit",
-        icon: History,
+        icon: ClockCounterClockwise,
         group: "Navigate",
         run: () => router.push("/settings/audit"),
         keywords: ["activity", "history", "events"],
@@ -252,7 +252,7 @@ export function CommandPalette() {
         id: "create-discovery",
         label: "Run discovery scan",
         hint: "/discovery",
-        icon: Search,
+        icon: MagnifyingGlass,
         group: "Create",
         run: () => router.push("/discovery"),
       },
@@ -260,14 +260,14 @@ export function CommandPalette() {
         id: "import-devices",
         label: "Import devices from CSV",
         hint: "/devices/import",
-        icon: Upload,
+        icon: UploadSimple,
         group: "Create",
         run: () => router.push("/devices/import"),
       },
       {
         id: "account-signout",
         label: "Sign out",
-        icon: LogOut,
+        icon: SignOut,
         group: "Account",
         run: async () => {
           try {
@@ -323,8 +323,9 @@ export function CommandPalette() {
                 Command palette
               </span>
               <div className="flex items-center gap-3 border-b border-white/[0.08] px-4 py-3">
-                <Search
+                <MagnifyingGlass
                   className="h-4 w-4 shrink-0 text-white/40"
+                  weight="bold"
                   aria-hidden
                 />
                 <Command.Input
@@ -363,6 +364,7 @@ export function CommandPalette() {
                         >
                           <Icon
                             className="h-4 w-4 shrink-0 text-white/50"
+                            weight="duotone"
                             aria-hidden
                           />
                           <span className="flex-1">{a.label}</span>

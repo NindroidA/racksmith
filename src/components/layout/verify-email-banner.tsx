@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { AlertCircle, Check, X } from "lucide-react";
+import { WarningCircle, Check, X } from "@phosphor-icons/react/dist/ssr";
 import toast from "react-hot-toast";
 import { authClient } from "@/lib/auth-client";
 import { describeError } from "@/lib/error-message";
@@ -65,7 +65,7 @@ export function VerifyEmailBanner({ email }: Props) {
             "0 0 0 1px rgba(0,0,0,0.15), 0 2px 6px var(--color-primary-glow)",
         }}
       >
-        <AlertCircle className="h-4 w-4" strokeWidth={2.5} />
+        <WarningCircle className="h-4 w-4" weight="duotone" />
       </span>
       <div className="flex-1 txt-body">
         <span className="font-semibold txt-strong">Verify your email.</span> We
@@ -75,7 +75,7 @@ export function VerifyEmailBanner({ email }: Props) {
       </div>
       {sent ? (
         <span className="inline-flex items-center gap-1 text-xs font-medium text-accent-green">
-          <Check className="h-3.5 w-3.5" /> Sent again
+          <Check className="h-3.5 w-3.5" weight="bold" /> Sent again
         </span>
       ) : (
         <Button
@@ -101,7 +101,7 @@ export function VerifyEmailBanner({ email }: Props) {
         className="rounded-md p-1 txt-faint transition-colors hover:bg-white/6 hover:txt-strong"
         aria-label="Dismiss"
       >
-        <X className="h-4 w-4" />
+        <X className="h-4 w-4" weight="bold" />
       </button>
     </div>
   );

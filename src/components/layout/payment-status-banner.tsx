@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { AlertTriangle, ExternalLink, X } from "lucide-react";
+import { Warning, ArrowSquareOut, X } from "@phosphor-icons/react/dist/ssr";
 import toast from "react-hot-toast";
 
 import { describeError } from "@/lib/error-message";
@@ -70,7 +70,7 @@ export function PaymentStatusBanner({ planLabel }: Props) {
             "0 0 0 1px rgba(0,0,0,0.15), 0 2px 6px var(--color-accent-orange-glow)",
         }}
       >
-        <AlertTriangle className="h-4 w-4" strokeWidth={2.5} />
+        <Warning className="h-4 w-4" weight="duotone" />
       </span>
       <div className="flex-1 txt-body">
         <span className="font-semibold txt-strong">Payment failed.</span> Update
@@ -82,7 +82,9 @@ export function PaymentStatusBanner({ planLabel }: Props) {
         variant="primary"
         onClick={openPortal}
         loading={pending}
-        iconRight={!pending ? <ExternalLink className="h-3 w-3" /> : null}
+        iconRight={
+          !pending ? <ArrowSquareOut className="h-3 w-3" weight="bold" /> : null
+        }
         className="text-[#1a1308] shadow-[0_1px_4px_var(--color-accent-orange-glow)]"
         style={{
           background: "var(--color-accent-orange-bright)",
@@ -97,7 +99,7 @@ export function PaymentStatusBanner({ planLabel }: Props) {
         className="rounded-md p-1 txt-faint transition-colors hover:bg-white/6 hover:txt-strong"
         aria-label="Dismiss"
       >
-        <X className="h-4 w-4" />
+        <X className="h-4 w-4" weight="bold" />
       </button>
     </div>
   );

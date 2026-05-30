@@ -4,7 +4,12 @@ import { useMemo, useReducer, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { twMerge } from "tailwind-merge";
-import { ArrowLeft, Save, Trash2, AlertTriangle } from "lucide-react";
+import {
+  ArrowLeft,
+  FloppyDisk,
+  TrashSimple,
+  Warning,
+} from "@phosphor-icons/react/dist/ssr";
 import { type ColorTag } from "@/types";
 import { ColorTagPicker } from "@/components/ui/color-tag-picker";
 import { InlineHelp } from "@/components/ui/inline-help";
@@ -131,14 +136,10 @@ export function SubnetForm(props: Props) {
       className="mx-auto max-w-2xl"
     >
       <Link
-        href={
-          props.mode === "edit"
-            ? `/ipam/${props.subnetId}`
-            : "/ipam"
-        }
+        href={props.mode === "edit" ? `/ipam/${props.subnetId}` : "/ipam"}
         className="mb-4 inline-flex items-center gap-2 text-sm text-white/60 transition-colors hover:text-white"
       >
-        <ArrowLeft className="h-4 w-4" aria-hidden />
+        <ArrowLeft className="h-4 w-4" weight="bold" aria-hidden />
         Back
       </Link>
 
@@ -151,7 +152,7 @@ export function SubnetForm(props: Props) {
         </p>
       </div>
 
-      <div className="glass-card space-y-6 rounded-xl p-6">
+      <div className="surface-card space-y-6 p-6">
         <div>
           <InlineHelp htmlFor="cidr" term="CIDR" required>
             CIDR
@@ -161,7 +162,7 @@ export function SubnetForm(props: Props) {
             type="text"
             value={cidr}
             onChange={(e) => set("cidr", e.target.value)}
-            className="glass-input w-full rounded-lg px-4 py-2.5 font-mono text-sm"
+            className="glass-input mono w-full rounded-lg px-4 py-2.5 text-sm"
             placeholder="192.168.1.0/24"
             required
             maxLength={64}
@@ -180,8 +181,9 @@ export function SubnetForm(props: Props) {
                       : "border-accent-orange/30 bg-accent-orange/10 text-accent-orange",
                   )}
                 >
-                  <AlertTriangle
+                  <Warning
                     className="mt-0.5 h-3.5 w-3.5 shrink-0"
+                    weight="duotone"
                     aria-hidden
                   />
                   <span>{w.message}</span>
@@ -246,7 +248,7 @@ export function SubnetForm(props: Props) {
                 type="text"
                 value={gateway}
                 onChange={(e) => set("gateway", e.target.value)}
-                className="glass-input w-full rounded-lg px-4 py-2.5 font-mono text-sm"
+                className="glass-input mono w-full rounded-lg px-4 py-2.5 text-sm"
                 placeholder="192.168.1.1"
                 maxLength={45}
                 autoComplete="off"
@@ -262,7 +264,7 @@ export function SubnetForm(props: Props) {
                 type="text"
                 value={dnsServers}
                 onChange={(e) => set("dnsServers", e.target.value)}
-                className="glass-input w-full rounded-lg px-4 py-2.5 font-mono text-sm"
+                className="glass-input mono w-full rounded-lg px-4 py-2.5 text-sm"
                 placeholder="1.1.1.1, 8.8.8.8"
                 maxLength={400}
                 autoComplete="off"
@@ -291,7 +293,7 @@ export function SubnetForm(props: Props) {
             disabled={deleting || pending}
             className="flex items-center gap-2 rounded-lg border border-accent-red/30 bg-accent-red/10 px-4 py-2.5 text-sm font-medium text-accent-red transition-all hover:bg-accent-red/20 disabled:opacity-50"
           >
-            <Trash2 className="h-4 w-4" aria-hidden />
+            <TrashSimple className="h-4 w-4" weight="bold" aria-hidden />
             {deleting ? "Deleting..." : "Delete subnet"}
           </button>
         ) : (
@@ -300,11 +302,7 @@ export function SubnetForm(props: Props) {
 
         <div className="flex gap-3">
           <Link
-            href={
-              props.mode === "edit"
-                ? `/ipam/${props.subnetId}`
-                : "/ipam"
-            }
+            href={props.mode === "edit" ? `/ipam/${props.subnetId}` : "/ipam"}
             className="glass-button rounded-lg px-4 py-2.5 text-sm font-medium text-white"
           >
             Cancel
@@ -314,7 +312,7 @@ export function SubnetForm(props: Props) {
             disabled={pending || deleting}
             className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white transition-all hover:bg-primary/90 disabled:opacity-50"
           >
-            <Save className="h-4 w-4" aria-hidden />
+            <FloppyDisk className="h-4 w-4" weight="bold" aria-hidden />
             {pending
               ? "Saving..."
               : props.mode === "create"

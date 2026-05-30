@@ -1,11 +1,18 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { User, Mail, ShieldCheck, AlertCircle, Send } from "lucide-react";
+import {
+  User,
+  Envelope,
+  ShieldCheck,
+  WarningCircle,
+  PaperPlaneTilt,
+} from "@phosphor-icons/react/dist/ssr";
 import toast from "react-hot-toast";
 import { authClient } from "@/lib/auth-client";
 import { updateProfile } from "./actions";
 import { describeError } from "@/lib/error-message";
+import { Tag } from "@/components/ui/tag";
 
 type Props = {
   initialName: string;
@@ -81,9 +88,9 @@ export function ProfileSection({ initialName, email, emailVerified }: Props) {
   }
 
   return (
-    <section className="glass-card rounded-xl p-6">
+    <section className="surface-card p-6">
       <h2 className="mb-1 flex items-center gap-2 text-lg font-semibold text-white">
-        <User className="h-4 w-4 text-primary" />
+        <User className="h-4 w-4 text-primary" weight="duotone" />
         Profile
       </h2>
       <p className="mb-6 text-sm text-white/50">
@@ -125,13 +132,16 @@ export function ProfileSection({ initialName, email, emailVerified }: Props) {
           Email
         </label>
         <div className="mb-3 flex items-center gap-2 rounded-lg border border-white/[0.06] bg-white/[0.02] px-4 py-2.5 text-sm">
-          <Mail className="h-4 w-4 text-white/40" />
-          <span className="text-white">{email}</span>
+          <Envelope className="h-4 w-4 text-white/40" weight="duotone" />
+          <span className="mono text-white">{email}</span>
           {emailVerified ? (
-            <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-accent-green/15 px-2 py-0.5 text-xs text-accent-green">
-              <ShieldCheck className="h-3 w-3" />
+            <Tag
+              tone="success"
+              className="ml-auto"
+              iconLeft={<ShieldCheck className="h-3 w-3" weight="duotone" />}
+            >
               Verified
-            </span>
+            </Tag>
           ) : (
             <button
               onClick={handleResend}
@@ -140,12 +150,12 @@ export function ProfileSection({ initialName, email, emailVerified }: Props) {
             >
               {resendSent ? (
                 <>
-                  <Send className="h-3 w-3" />
+                  <PaperPlaneTilt className="h-3 w-3" weight="bold" />
                   Link sent
                 </>
               ) : (
                 <>
-                  <AlertCircle className="h-3 w-3" />
+                  <WarningCircle className="h-3 w-3" weight="duotone" />
                   {resendLoading ? "Sending…" : "Resend verification"}
                 </>
               )}

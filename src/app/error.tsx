@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import { AlertTriangle, RotateCw } from "lucide-react";
+import { Warning, ArrowClockwise } from "@phosphor-icons/react/dist/ssr";
 
 export default function RootError({
   error,
@@ -17,9 +17,9 @@ export default function RootError({
 
   return (
     <div className="flex min-h-screen items-center justify-center p-6">
-      <div className="glass-panel w-full max-w-md rounded-2xl p-8 text-center">
+      <div className="surface-card w-full max-w-md p-8 text-center">
         <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-accent-red/15">
-          <AlertTriangle className="h-6 w-6 text-accent-red" />
+          <Warning weight="duotone" className="h-6 w-6 text-accent-red" />
         </div>
         <h1 className="mb-2 text-xl font-semibold text-white">
           Something went wrong
@@ -41,7 +41,7 @@ export default function RootError({
             onClick={reset}
             className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary/90"
           >
-            <RotateCw className="h-4 w-4" />
+            <ArrowClockwise weight="bold" className="h-4 w-4" />
             Try again
           </button>
           <Link

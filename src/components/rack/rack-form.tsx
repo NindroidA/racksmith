@@ -4,7 +4,11 @@ import { useReducer, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { twMerge } from "tailwind-merge";
-import { ArrowLeft, Save, Trash2 } from "lucide-react";
+import {
+  ArrowLeft,
+  FloppyDisk,
+  TrashSimple,
+} from "@phosphor-icons/react/dist/ssr";
 import type { ColorTag } from "@/types";
 import { ColorTagPicker } from "@/components/ui/color-tag-picker";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
@@ -120,7 +124,7 @@ export function RackForm(props: Props) {
         href={props.mode === "edit" ? `/racks/${props.rackId}` : "/racks"}
         className="mb-4 inline-flex items-center gap-2 text-sm text-white/60 transition-colors hover:text-white"
       >
-        <ArrowLeft className="h-4 w-4" />
+        <ArrowLeft className="h-4 w-4" weight="bold" />
         Back
       </Link>
 
@@ -135,7 +139,7 @@ export function RackForm(props: Props) {
         </p>
       </div>
 
-      <div className="glass-card space-y-6 rounded-xl p-6">
+      <div className="surface-card space-y-6 p-6">
         {/* Name */}
         <div>
           <label
@@ -263,7 +267,7 @@ export function RackForm(props: Props) {
             disabled={deleting || pending}
             className="flex items-center gap-2 rounded-lg border border-accent-red/30 bg-accent-red/10 px-4 py-2.5 text-sm font-medium text-accent-red transition-all hover:bg-accent-red/20 disabled:opacity-50"
           >
-            <Trash2 className="h-4 w-4" />
+            <TrashSimple className="h-4 w-4" weight="bold" />
             {deleting ? "Deleting..." : "Delete Rack"}
           </button>
         ) : (
@@ -282,7 +286,7 @@ export function RackForm(props: Props) {
             disabled={pending || deleting}
             className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white transition-all hover:bg-primary/90 disabled:opacity-50"
           >
-            <Save className="h-4 w-4" />
+            <FloppyDisk className="h-4 w-4" weight="bold" />
             {pending
               ? "Saving..."
               : props.mode === "create"

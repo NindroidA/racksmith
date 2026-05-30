@@ -5,7 +5,12 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { twMerge } from "tailwind-merge";
-import { Check, X, Link2, CircleCheckBig } from "lucide-react";
+import {
+  Check,
+  X,
+  LinkSimple,
+  CheckCircle,
+} from "@phosphor-icons/react/dist/ssr";
 import { DEVICE_TYPE_LABELS, type DeviceType } from "@/types";
 import { Select, SelectOption } from "@/components/ui/select";
 import {
@@ -99,9 +104,9 @@ export function PendingDevicesTable({ hosts, devices }: Props) {
 
   if (hosts.length === 0) {
     return (
-      <div className="glass-card flex flex-col items-center rounded-xl py-12 text-center">
+      <div className="surface-card flex flex-col items-center py-12 text-center">
         <div className="mb-3 rounded-xl bg-accent-green/20 p-3">
-          <CircleCheckBig className="h-6 w-6 text-accent-green" />
+          <CheckCircle className="h-6 w-6 text-accent-green" weight="duotone" />
         </div>
         <h3 className="mb-1 text-sm font-semibold text-white">
           No pending hosts
@@ -115,7 +120,7 @@ export function PendingDevicesTable({ hosts, devices }: Props) {
   }
 
   return (
-    <div className="glass-card overflow-hidden rounded-xl">
+    <div className="surface-card overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
@@ -152,11 +157,13 @@ export function PendingDevicesTable({ hosts, devices }: Props) {
                   key={`${host.scanId}-${host.ip}`}
                   className="transition-colors hover:bg-white/[0.03]"
                 >
-                  <td className="px-4 py-3 font-mono text-white">{host.ip}</td>
+                  <td className="px-4 py-3 text-white">
+                    <span className="mono">{host.ip}</span>
+                  </td>
                   <td className="px-4 py-3 text-white/80">
                     {host.hostname || <span className="text-white/30">—</span>}
                     {host.mac && (
-                      <div className="mt-0.5 font-mono text-[10px] text-white/40">
+                      <div className="mono mt-0.5 text-[10px] text-white/40">
                         {host.mac}
                       </div>
                     )}
@@ -168,7 +175,7 @@ export function PendingDevicesTable({ hosts, devices }: Props) {
                         {host.openPorts.slice(0, 6).map((p) => (
                           <span
                             key={p}
-                            className="rounded bg-white/[0.06] px-1.5 py-0.5 font-mono text-[10px] text-white/60"
+                            className="mono rounded bg-white/[0.06] px-1.5 py-0.5 text-[10px] text-white/60"
                           >
                             {p}
                           </span>
@@ -183,8 +190,8 @@ export function PendingDevicesTable({ hosts, devices }: Props) {
                       <span className="text-xs text-white/30">none</span>
                     )}
                   </td>
-                  <td className="px-4 py-3 font-mono text-xs text-white/50">
-                    {host.scanSubnet}
+                  <td className="px-4 py-3 text-xs text-white/50">
+                    <span className="mono">{host.scanSubnet}</span>
                   </td>
                   <td className="px-4 py-3">
                     {isAssigning ? (
@@ -221,7 +228,11 @@ export function PendingDevicesTable({ hosts, devices }: Props) {
                           className="flex items-center gap-1 rounded-md bg-accent-green/20 px-2 py-1 text-xs font-medium text-accent-green hover:bg-accent-green/30 disabled:opacity-50"
                           title="Add as new device to inventory"
                         >
-                          <Check className="h-3 w-3" aria-hidden />
+                          <Check
+                            className="h-3 w-3"
+                            weight="bold"
+                            aria-hidden
+                          />
                           Add
                         </button>
                         <button
@@ -243,7 +254,11 @@ export function PendingDevicesTable({ hosts, devices }: Props) {
                               : "Assign to an existing device"
                           }
                         >
-                          <Link2 className="h-3 w-3" aria-hidden />
+                          <LinkSimple
+                            className="h-3 w-3"
+                            weight="bold"
+                            aria-hidden
+                          />
                           Assign
                         </button>
                         <button
@@ -254,7 +269,7 @@ export function PendingDevicesTable({ hosts, devices }: Props) {
                           className="flex items-center gap-1 rounded-md bg-white/[0.03] px-2 py-1 text-xs font-medium text-white/60 hover:bg-white/[0.08] hover:text-white/90 disabled:opacity-50"
                           title="Ignore this host"
                         >
-                          <X className="h-3 w-3" aria-hidden />
+                          <X className="h-3 w-3" weight="bold" aria-hidden />
                         </button>
                       </div>
                     )}

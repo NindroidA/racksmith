@@ -1,7 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Plus, Trash2, Battery, Zap, Power } from "lucide-react";
+import {
+  Plus,
+  TrashSimple,
+  BatteryCharging,
+  Lightning,
+  Power,
+} from "@phosphor-icons/react/dist/ssr";
 import { twMerge } from "tailwind-merge";
 import { InlineHelp } from "@/components/ui/inline-help";
 import { AdvancedAccordion } from "@/components/ui/advanced-accordion";
@@ -19,6 +25,13 @@ const STATUS_COLOR: Record<string, string> = {
   warning: "text-accent-orange",
   critical: "text-red-400",
   exceeded: "text-red-500",
+};
+
+const STATUS_LED: Record<string, string> = {
+  ok: "led-dot--green",
+  warning: "led-dot--amber",
+  critical: "led-dot--red",
+  exceeded: "led-dot--red",
 };
 
 export function PowerCalculatorClient() {
@@ -59,9 +72,13 @@ function PoePanel() {
     setLines((prev) => prev.filter((_, i) => i !== idx));
 
   return (
-    <section className="glass-card rounded-xl p-6">
+    <section className="surface-card p-6">
       <header className="mb-4 flex items-center gap-2">
-        <Zap className="h-5 w-5 text-primary" aria-hidden />
+        <Lightning
+          className="h-5 w-5 text-primary"
+          weight="duotone"
+          aria-hidden
+        />
         <h2 className="text-lg font-semibold text-white">PoE budget</h2>
       </header>
 
@@ -86,18 +103,25 @@ function PoePanel() {
               Total draw
             </div>
             <div className="mt-1 text-2xl font-semibold text-white">
-              {result.totalDraw.toFixed(0)}W
+              <span className="mono">{result.totalDraw.toFixed(0)}W</span>
             </div>
             <div className="mt-1 text-xs text-white/50">
-              of {result.budget}W budget
+              of <span className="mono">{result.budget}W</span> budget
             </div>
             <div
               className={twMerge(
-                "mt-2 text-xs font-medium uppercase tracking-wide",
+                "mt-2 flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide",
                 STATUS_COLOR[result.status],
               )}
             >
-              {result.status} · {Math.round(result.pctOfBudget * 100)}%
+              <span
+                className={twMerge("led-dot", STATUS_LED[result.status])}
+                aria-hidden
+              />
+              {result.status} ·{" "}
+              <span className="mono">
+                {Math.round(result.pctOfBudget * 100)}%
+              </span>
             </div>
           </div>
         </div>
@@ -147,7 +171,7 @@ function PoePanel() {
                   aria-label={`Remove ${line.label}`}
                   className="flex h-9 w-9 items-center justify-center rounded-lg text-white/40 transition-colors hover:bg-red-500/10 hover:text-red-400"
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <TrashSimple className="h-4 w-4" weight="bold" />
                 </button>
               </li>
             ))}
@@ -158,7 +182,8 @@ function PoePanel() {
             onClick={addLine}
             className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-1.5 text-sm text-white/80 hover:bg-white/[0.08]"
           >
-            <Plus className="h-3.5 w-3.5" aria-hidden /> Add device class
+            <Plus className="h-3.5 w-3.5" weight="bold" aria-hidden /> Add
+            device class
           </button>
 
           <AdvancedAccordion label="Advanced (headroom)" className="mt-4">
@@ -181,11 +206,16 @@ function PoePanel() {
               />
               <div className="mt-1 flex justify-between text-xs text-white/40">
                 <span>0%</span>
-                <span className="text-white/80">{headroomPct}%</span>
+                <span className="text-white/80">
+                  <span className="mono">{headroomPct}%</span>
+                </span>
                 <span>30%</span>
               </div>
               <p className="mt-2 text-xs text-white/50">
-                Effective budget: {result.effectiveBudget.toFixed(0)}W
+                Effective budget:{" "}
+                <span className="mono">
+                  {result.effectiveBudget.toFixed(0)}W
+                </span>
               </p>
             </div>
           </AdvancedAccordion>
@@ -208,9 +238,9 @@ function PduPanel() {
   );
 
   return (
-    <section className="glass-card rounded-xl p-6">
+    <section className="surface-card p-6">
       <header className="mb-4 flex items-center gap-2">
-        <Power className="h-5 w-5 text-primary" aria-hidden />
+        <Power className="h-5 w-5 text-primary" weight="duotone" aria-hidden />
         <h2 className="text-lg font-semibold text-white">
           PDU sizing (NEC 80% rule)
         </h2>
@@ -268,6 +298,7 @@ function PduPanel() {
             label="Status"
             value={result.status}
             color={STATUS_COLOR[result.status]}
+            led={STATUS_LED[result.status]}
           />
         </div>
       </div>
@@ -300,9 +331,13 @@ function UpsPanel() {
   );
 
   return (
-    <section className="glass-card rounded-xl p-6">
+    <section className="surface-card p-6">
       <header className="mb-4 flex items-center gap-2">
-        <Battery className="h-5 w-5 text-primary" aria-hidden />
+        <BatteryCharging
+          className="h-5 w-5 text-primary"
+          weight="duotone"
+          aria-hidden
+        />
         <h2 className="text-lg font-semibold text-white">UPS runtime</h2>
       </header>
 
@@ -370,7 +405,9 @@ function UpsPanel() {
                 aria-valuetext={`${usableDoD} percent`}
                 className="w-full"
               />
-              <div className="text-xs text-white/50">{usableDoD}%</div>
+              <div className="text-xs text-white/50">
+                <span className="mono">{usableDoD}%</span>
+              </div>
             </div>
 
             <div>
@@ -390,7 +427,9 @@ function UpsPanel() {
                 aria-valuetext={`${ageDerate} percent`}
                 className="w-full"
               />
-              <div className="text-xs text-white/50">{ageDerate}%</div>
+              <div className="text-xs text-white/50">
+                <span className="mono">{ageDerate}%</span>
+              </div>
             </div>
           </AdvancedAccordion>
         </div>
@@ -410,6 +449,7 @@ function UpsPanel() {
             label="Status"
             value={result.status}
             color={STATUS_COLOR[result.status]}
+            led={STATUS_LED[result.status]}
           />
         </div>
       </div>
@@ -421,15 +461,26 @@ function Stat({
   label,
   value,
   color,
+  led,
 }: {
   label: string;
   value: string;
   color?: string;
+  /** When set, render an LED dot before the value (for status rows). */
+  led?: string;
 }) {
   return (
     <div className="flex items-center justify-between border-b border-white/[0.04] py-2 text-sm last:border-0">
       <span className="text-white/50">{label}</span>
-      <span className={twMerge("font-medium text-white", color)}>{value}</span>
+      <span
+        className={twMerge(
+          "flex items-center gap-1.5 font-medium text-white",
+          color,
+        )}
+      >
+        {led && <span className={twMerge("led-dot", led)} aria-hidden />}
+        {led ? value : <span className="mono">{value}</span>}
+      </span>
     </div>
   );
 }

@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Lock, Monitor, LogOut } from "lucide-react";
+import { Lock, Monitor, SignOut } from "@phosphor-icons/react/dist/ssr";
 import toast from "react-hot-toast";
 import { authClient } from "@/lib/auth-client";
 import { describeError } from "@/lib/error-message";
+import { Tag } from "@/components/ui/tag";
 
 type SessionRow = {
   id: string;
@@ -149,9 +150,9 @@ export function SecuritySection({
   }
 
   return (
-    <section className="glass-card rounded-xl p-6">
+    <section className="surface-card p-6">
       <h2 className="mb-1 flex items-center gap-2 text-lg font-semibold text-white">
-        <Lock className="h-4 w-4 text-primary" />
+        <Lock className="h-4 w-4 text-primary" weight="duotone" />
         Security
       </h2>
       <p className="mb-6 text-sm text-white/50">
@@ -258,7 +259,10 @@ export function SecuritySection({
                 key={s.id}
                 className="flex items-center gap-3 rounded-lg border border-white/[0.06] bg-white/[0.02] px-4 py-3"
               >
-                <Monitor className="h-4 w-4 shrink-0 text-white/40" />
+                <Monitor
+                  className="h-4 w-4 shrink-0 text-white/40"
+                  weight="duotone"
+                />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium text-white">
@@ -270,14 +274,18 @@ export function SecuritySection({
                       </span>
                     )}
                     {s.current && (
-                      <span className="rounded-full bg-accent-green/15 px-2 py-0.5 text-xs text-accent-green">
+                      <Tag tone="success">
+                        <span className="led-dot led-dot--green" aria-hidden />
                         This device
-                      </span>
+                      </Tag>
                     )}
                   </div>
                   <div className="text-xs text-white/40">
-                    {s.ipAddress ?? "Unknown IP"} · Signed in{" "}
-                    {new Date(s.createdAt).toLocaleDateString()}
+                    <span className="mono">{s.ipAddress ?? "Unknown IP"}</span>{" "}
+                    · Signed in{" "}
+                    <span className="mono">
+                      {new Date(s.createdAt).toLocaleDateString()}
+                    </span>
                   </div>
                 </div>
                 {!s.current && (
@@ -303,7 +311,7 @@ export function SecuritySection({
           onClick={handleSignOutAll}
           className="flex items-center gap-2 text-sm text-white/50 transition-colors hover:text-accent-red"
         >
-          <LogOut className="h-4 w-4" aria-hidden />
+          <SignOut className="h-4 w-4" weight="duotone" aria-hidden />
           Sign out everywhere (including this device)
         </button>
       </div>

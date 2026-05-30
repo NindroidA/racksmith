@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { HelpCircle } from "lucide-react";
+import { Question } from "@phosphor-icons/react/dist/ssr";
 import { twMerge } from "tailwind-merge";
 import { Tooltip } from "./tooltip";
 import { getGlossaryEntry } from "@/lib/networking-glossary";
@@ -42,7 +42,7 @@ export function InlineHelp({
             aria-label={`Definition of ${term}`}
             className="flex h-4 w-4 items-center justify-center rounded text-white/40 hover:text-white/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/50"
           >
-            <HelpCircle className="h-3.5 w-3.5" aria-hidden />
+            <Question className="h-3.5 w-3.5" weight="bold" aria-hidden />
           </button>
         </Tooltip>
       )}
@@ -53,7 +53,7 @@ export function InlineHelp({
             aria-label="Show help"
             className="flex h-4 w-4 items-center justify-center rounded text-white/40 hover:text-white/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/50"
           >
-            <HelpCircle className="h-3.5 w-3.5" aria-hidden />
+            <Question className="h-3.5 w-3.5" weight="bold" aria-hidden />
           </button>
         </Tooltip>
       )}

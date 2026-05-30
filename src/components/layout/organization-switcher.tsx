@@ -14,10 +14,10 @@ import { twMerge } from "tailwind-merge";
 import toast from "react-hot-toast";
 import {
   Check,
-  ChevronsUpDown,
+  CaretUpDown,
   Plus,
-  Settings as SettingsIcon,
-} from "lucide-react";
+  GearSix,
+} from "@phosphor-icons/react/dist/ssr";
 import { setActiveOrganization } from "@/app/(dashboard)/settings/actions";
 
 export type OrgMembership = {
@@ -168,8 +168,9 @@ export function OrganizationSwitcher({
             >
               {triggerLabel}
             </span>
-            <ChevronsUpDown
+            <CaretUpDown
               className="h-3.5 w-3.5 shrink-0 text-white/40"
+              weight="bold"
               aria-hidden
             />
           </>
@@ -226,6 +227,7 @@ export function OrganizationSwitcher({
                   {isActive && (
                     <Check
                       className="h-3.5 w-3.5 shrink-0 text-primary"
+                      weight="bold"
                       aria-hidden
                     />
                   )}
@@ -245,7 +247,7 @@ export function OrganizationSwitcher({
               onClick={() => setOpen(false)}
               className="flex w-full items-center gap-2 px-3 py-2 text-sm text-white/70 transition-colors hover:bg-white/[0.06] hover:text-white focus-visible:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent-blue/50"
             >
-              <Plus className="h-4 w-4" aria-hidden />
+              <Plus className="h-4 w-4" weight="bold" aria-hidden />
               Create organization
             </Link>
             <Link
@@ -257,7 +259,7 @@ export function OrganizationSwitcher({
               onClick={() => setOpen(false)}
               className="flex w-full items-center gap-2 px-3 py-2 text-sm text-white/70 transition-colors hover:bg-white/[0.06] hover:text-white focus-visible:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent-blue/50"
             >
-              <SettingsIcon className="h-4 w-4" aria-hidden />
+              <GearSix className="h-4 w-4" weight="duotone" aria-hidden />
               Workspace settings
             </Link>
           </motion.div>

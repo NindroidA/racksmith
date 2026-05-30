@@ -81,9 +81,15 @@ bunx prisma studio         # Visual database browser
 - Every server-action `planId` / `subnetId` / `vlanId` / `memberId` / `invitationId` / `transferId` / etc. parameter validates with `cuidSchema` from `src/lib/validators.ts`.
 - Constants don't export from `"use server"` files (Next.js 16 rejects at runtime) — extract to a non-action module (pattern in `src/lib/profile-constants.ts`).
 
-### Design System
-- **Glass morphism dark theme** — background `#0a0e1a`, glass effects with backdrop-filter blur
-- **Primary accent:** Blue (`#3b82f6`) — network/infrastructure feel
+### Design System — "Forge" (v1 locked 2026-05-29)
+- **Base:** `#0e0b1c` ("Amethyst" — a violet-carbon near-black, NOT generic dark-blue). Tokens in `src/app/globals.css` (`@theme`).
+- **Surfaces are material, not glass.** Use `.surface-card` for content cards, `.surface-elevated` for raised panels, `.surface-accent` for the single "currently-relevant action" surface per page (2px brand-gradient left edge), `.surface-interactive` for clickable cards (hover lift). Radii via `--r-control` / `--r-card` / `--r-surface`. **Glass (`.glass-card` / `.glass-panel` / `.glass`) is RESERVED for overlays** — modals/dialogs, command palette, dropdowns, tooltips, the auth-shell background, and the landing-page hero. Never use `.glass-card` for a content card. (`.glass-input` stays for form fields.)
+- **Icons: Phosphor Duotone only.** Import from `@phosphor-icons/react/dist/ssr`; `weight="duotone"` for primary icons, `weight="bold"` for small affordances (chevrons/arrows/check/search/edit/trash). **`lucide-react` is fully retired — do NOT reintroduce it.** Verify any new icon name against `node_modules/@phosphor-icons/react/dist/ssr/index.d.ts`.
+- **Data readouts use `.mono`** (Geist Mono): wrap inline IPs, CIDRs, MACs, ports, VLAN IDs, counts, prices, timestamps, and IDs in `<span className="mono">`. Prose/labels stay in IBM Plex Sans.
+- **Status uses `.led-dot`** (`led-dot--{green,amber,red,muted}`, `--live` for urgent live states), ALWAYS paired with a text label — never color-only (WCAG 1.4.1).
+- **Buttons + badges:** `<Button>` (`src/components/ui/button.tsx`) and `<Tag>` (`src/components/ui/tag.tsx`) are the single source for those shapes — don't inline new button/badge styles.
+- **The rack-frame / rack-rail / 1U-grid card motif was tried and REJECTED** (read as an odd side tab). Do not reintroduce it. The identity rides on Phosphor Duotone + Geist Mono data + LED dots + the Amethyst palette.
+- **Primary accent:** "Smithian Indigo" `#5765f4` (not Tailwind blue). Restrained — color earns its place; the vibrancy tier (`--color-accent-*-bright`) is for attention moments only.
 - **Color tags:** blue, purple, cyan, green, orange, red (single source of truth: `COLOR_TAGS` in `src/types/index.ts`)
 - **Device types:** single source of truth: `DEVICE_TYPES` in `src/types/index.ts` (validators.ts imports from there)
 - **Framer Motion** for page transitions and micro-interactions; **always honor `useReducedMotion()`** for any positional animation

@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useState, type ReactNode } from "react";
-import { ChevronRight } from "lucide-react";
+import { CaretRight } from "@phosphor-icons/react/dist/ssr";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { twMerge } from "tailwind-merge";
 
@@ -41,7 +41,7 @@ export function AdvancedAccordion({
           transition={{ duration: chevronDuration, ease: "easeOut" }}
           className="text-white/40"
         >
-          <ChevronRight className="h-4 w-4" aria-hidden />
+          <CaretRight className="h-4 w-4" weight="bold" aria-hidden />
         </motion.span>
       </button>
       <AnimatePresence initial={false}>

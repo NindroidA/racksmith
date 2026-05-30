@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import toast from "react-hot-toast";
-import { Sparkles } from "lucide-react";
+import { Sparkle } from "@phosphor-icons/react/dist/ssr";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
 import { applyVlanTemplate } from "@/app/(dashboard)/network-tools/vlans/actions";
 import { VLAN_TEMPLATES } from "@/lib/config-gen/templates";
@@ -42,9 +42,13 @@ export function VlanTemplateApplier() {
   };
 
   return (
-    <section className="glass-card rounded-xl p-6">
+    <section className="surface-card p-6">
       <div className="mb-4 flex items-center gap-2">
-        <Sparkles className="h-5 w-5 text-accent-purple" aria-hidden />
+        <Sparkle
+          className="h-5 w-5 text-accent-purple"
+          weight="duotone"
+          aria-hidden
+        />
         <h2 className="text-lg font-semibold text-white">Starter templates</h2>
       </div>
       <p className="mb-4 text-sm text-white/50">
@@ -58,7 +62,7 @@ export function VlanTemplateApplier() {
             type="button"
             onClick={() => setConfirmTarget({ id: t.id, label: t.label })}
             disabled={pending}
-            className="glass-card flex flex-col items-start gap-2 rounded-xl p-4 text-left transition-all disabled:cursor-wait disabled:opacity-60"
+            className="surface-card flex flex-col items-start gap-2 p-4 text-left transition-all disabled:cursor-wait disabled:opacity-60"
           >
             <div className="flex w-full items-center justify-between">
               <span className="text-sm font-semibold text-white">
@@ -73,9 +77,9 @@ export function VlanTemplateApplier() {
               {t.entries.map((e) => (
                 <span
                   key={e.vlanId}
-                  className="rounded bg-white/[0.04] px-1.5 py-0.5 font-mono text-[10px] text-white/60"
+                  className="rounded bg-white/[0.04] px-1.5 py-0.5 text-[10px] text-white/60"
                 >
-                  {e.vlanId} {e.name}
+                  <span className="mono">{e.vlanId}</span> {e.name}
                 </span>
               ))}
             </div>

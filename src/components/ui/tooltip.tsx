@@ -11,7 +11,7 @@ import {
   type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
-import { HelpCircle } from "lucide-react";
+import { Question } from "@phosphor-icons/react/dist/ssr";
 import { twMerge } from "tailwind-merge";
 import { getGlossaryEntry } from "@/lib/networking-glossary";
 
@@ -51,31 +51,31 @@ export function Tooltip(props: Props) {
 
   const entry = isTermForm(props) ? getGlossaryEntry(props.term) : null;
 
-  const bubbleContent: ReactNode = isTermForm(props)
-    ? entry
-      ? (
-          <>
-            <div className="text-sm font-semibold text-white">{entry.term}</div>
-            <div className="mt-1 text-xs text-white/80">{entry.short}</div>
-            {entry.long && (
-              <div className="mt-2 text-xs text-white/60">{entry.long}</div>
-            )}
-            {entry.link && (
-              <a
-                href={entry.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-2 inline-block text-xs text-accent-blue hover:underline"
-              >
-                Learn more ↗
-              </a>
-            )}
-          </>
-        )
-      : (
-          <div className="text-xs text-white/80">{props.term}</div>
-        )
-    : props.content;
+  const bubbleContent: ReactNode = isTermForm(props) ? (
+    entry ? (
+      <>
+        <div className="text-sm font-semibold text-white">{entry.term}</div>
+        <div className="mt-1 text-xs text-white/80">{entry.short}</div>
+        {entry.long && (
+          <div className="mt-2 text-xs text-white/60">{entry.long}</div>
+        )}
+        {entry.link && (
+          <a
+            href={entry.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-2 inline-block text-xs text-accent-blue hover:underline"
+          >
+            Learn more ↗
+          </a>
+        )}
+      </>
+    ) : (
+      <div className="text-xs text-white/80">{props.term}</div>
+    )
+  ) : (
+    props.content
+  );
 
   const updatePosition = useCallback(() => {
     const trigger = triggerRef.current;
@@ -158,8 +158,9 @@ export function Tooltip(props: Props) {
             <span className="underline decoration-dotted decoration-white/30 underline-offset-2">
               {props.children ?? props.term}
             </span>
-            <HelpCircle
+            <Question
               className="h-3.5 w-3.5 shrink-0 text-white/40"
+              weight="bold"
               aria-hidden
             />
           </>

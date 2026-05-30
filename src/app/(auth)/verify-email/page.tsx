@@ -3,7 +3,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { CheckCircle2, AlertCircle } from "lucide-react";
+import { CheckCircle, WarningCircle } from "@phosphor-icons/react/dist/ssr";
 import { AuthShell } from "@/components/layout/auth-shell";
 
 function VerifyResult() {
@@ -21,7 +21,7 @@ function VerifyResult() {
     return (
       <div className="flex flex-col items-center text-center">
         <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-accent-red/15">
-          <AlertCircle className="h-6 w-6 text-accent-red" />
+          <WarningCircle className="h-6 w-6 text-accent-red" weight="duotone" />
         </div>
         <h1 className="mb-2 text-lg font-semibold text-white">
           Verification failed
@@ -48,7 +48,7 @@ function VerifyResult() {
   return (
     <div className="flex flex-col items-center text-center">
       <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-accent-green/15">
-        <CheckCircle2 className="h-6 w-6 text-accent-green" />
+        <CheckCircle className="h-6 w-6 text-accent-green" weight="duotone" />
       </div>
       <h1 className="mb-2 text-lg font-semibold text-white">Email verified</h1>
       <p className="mb-6 max-w-sm text-sm text-white/60">

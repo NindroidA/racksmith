@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Network } from "lucide-react";
+import { ShareNetwork } from "@phosphor-icons/react/dist/ssr";
 import { requireMember } from "@/lib/auth-helpers";
 import { withTenant } from "@/lib/prisma-tenant";
 import { TopologyCanvas } from "@/components/topology/topology-canvas";
@@ -61,10 +61,11 @@ export default async function TopologyPage() {
           </p>
         </div>
         <div className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-xs text-white/50">
-          <Network className="h-3.5 w-3.5" />
+          <ShareNetwork className="h-3.5 w-3.5" weight="duotone" />
           <span>
-            {devices.length} device{devices.length !== 1 ? "s" : ""} ·{" "}
-            {connections.length} connection
+            <span className="mono">{devices.length}</span> device
+            {devices.length !== 1 ? "s" : ""} ·{" "}
+            <span className="mono">{connections.length}</span> connection
             {connections.length !== 1 ? "s" : ""}
           </span>
         </div>
@@ -72,7 +73,7 @@ export default async function TopologyPage() {
 
       {devices.length === 0 ? (
         <EmptyStateWithTemplate
-          icon={<Network className="h-8 w-8" />}
+          icon={<ShareNetwork className="h-8 w-8" weight="duotone" />}
           iconClassName="bg-accent-cyan/20 text-accent-cyan"
           title="Nothing to wire up yet"
           blurb="Add devices to your inventory first, then come back here to connect them on the canvas."
@@ -120,7 +121,7 @@ function ConnectionsAsText({
   return (
     <details className="mt-4 rounded-lg border border-white/[0.08] bg-white/[0.02]">
       <summary className="cursor-pointer px-4 py-2.5 text-sm text-white/60 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/50">
-        Connections as text ({connections.length})
+        Connections as text (<span className="mono">{connections.length}</span>)
       </summary>
       {connections.length === 0 ? (
         <p className="px-4 py-3 text-sm text-white/50">

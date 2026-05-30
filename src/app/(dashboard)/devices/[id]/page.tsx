@@ -1,17 +1,17 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
-  Pencil,
+  PencilSimple,
   ArrowLeft,
-  Server,
+  Stack,
   Cpu,
-  Zap,
-  Network,
-  HardDrive,
-  Tag,
+  Lightning,
+  ShareNetwork,
+  HardDrives,
+  Tag as TagIcon,
   MapPin,
-  Radar,
-} from "lucide-react";
+  Pulse,
+} from "@phosphor-icons/react/dist/ssr";
 import { requireMember } from "@/lib/auth-helpers";
 import { withTenant } from "@/lib/prisma-tenant";
 import { DeviceGraphic, U_ASPECT } from "@/components/rack/device-graphic";
@@ -48,23 +48,25 @@ export default async function DeviceDetailPage({
   const topU = device.positionU ? device.positionU + device.sizeU - 1 : null;
 
   const specs = [
-    { icon: Server, label: "Type", value: typeLabel },
+    { icon: Stack, label: "Type", value: typeLabel },
     {
-      icon: Tag,
+      icon: TagIcon,
       label: "Manufacturer",
       value: device.manufacturer || "—",
     },
     { icon: Cpu, label: "Model", value: device.model || "—" },
-    { icon: HardDrive, label: "Size", value: `${device.sizeU}U` },
+    { icon: HardDrives, label: "Size", value: `${device.sizeU}U`, mono: true },
     {
-      icon: Network,
+      icon: ShareNetwork,
       label: "Ports",
       value: device.portCount > 0 ? String(device.portCount) : "—",
+      mono: device.portCount > 0,
     },
     {
-      icon: Zap,
+      icon: Lightning,
       label: "Power",
       value: device.powerWatts != null ? `${device.powerWatts}W` : "—",
+      mono: device.powerWatts != null,
     },
   ];
 
@@ -97,7 +99,7 @@ export default async function DeviceDetailPage({
         href="/devices"
         className="mb-4 inline-flex items-center gap-2 text-sm text-white/60 transition-colors hover:text-white"
       >
-        <ArrowLeft className="h-4 w-4" />
+        <ArrowLeft className="h-4 w-4" weight="bold" />
         All Devices
       </Link>
 
@@ -116,13 +118,13 @@ export default async function DeviceDetailPage({
                 {device.model && ` · ${device.model}`}
               </span>
             )}
-            <span>{device.sizeU}U</span>
+            <span className="mono">{device.sizeU}U</span>
             {device.rack && (
               <span className="flex items-center gap-1.5">
-                <MapPin className="h-3.5 w-3.5" />
+                <MapPin className="h-3.5 w-3.5" weight="duotone" />
                 {device.rack.name}
                 {device.positionU != null && (
-                  <span className="font-mono">
+                  <span className="mono">
                     {" "}
                     · U
                     {device.positionU === topU
@@ -134,7 +136,7 @@ export default async function DeviceDetailPage({
             )}
             {!device.isManual && (
               <span className="flex items-center gap-1.5 text-accent-cyan">
-                <Radar className="h-3.5 w-3.5" />
+                <Pulse className="h-3.5 w-3.5" weight="duotone" />
                 Auto-discovered
               </span>
             )}
@@ -144,13 +146,13 @@ export default async function DeviceDetailPage({
           href={`/devices/${device.id}/edit`}
           className="glass-button flex shrink-0 items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-white"
         >
-          <Pencil className="h-4 w-4" />
+          <PencilSimple className="h-4 w-4" weight="bold" />
           Edit
         </Link>
       </div>
 
       {/* Hero DeviceGraphic */}
-      <div className="mb-6 glass-card rounded-2xl p-6">
+      <div className="mb-6 surface-card p-6">
         <div
           className="mx-auto overflow-hidden rounded-xl bg-black/40 p-3"
           style={{
@@ -171,7 +173,7 @@ export default async function DeviceDetailPage({
       <div className="grid grid-cols-1 gap-6 md:grid-cols-[1fr_320px]">
         {/* Specs + Notes */}
         <div className="space-y-6">
-          <section className="glass-card rounded-xl p-6">
+          <section className="surface-card p-6">
             <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-white/50">
               Specifications
             </h2>
@@ -181,10 +183,14 @@ export default async function DeviceDetailPage({
                 return (
                   <div key={s.label}>
                     <div className="mb-1 flex items-center gap-1.5 text-xs text-white/50">
-                      <Icon className="h-3.5 w-3.5" />
+                      <Icon className="h-3.5 w-3.5" weight="duotone" />
                       {s.label}
                     </div>
-                    <div className="text-sm font-medium text-white">
+                    <div
+                      className={`text-sm font-medium text-white ${
+                        s.mono ? "mono" : ""
+                      }`}
+                    >
                       {s.value}
                     </div>
                   </div>
@@ -194,7 +200,7 @@ export default async function DeviceDetailPage({
           </section>
 
           {device.notes && (
-            <section className="glass-card rounded-xl p-6">
+            <section className="surface-card p-6">
               <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-white/50">
                 Notes
               </h2>
@@ -205,9 +211,9 @@ export default async function DeviceDetailPage({
           )}
 
           {/* Connections (placeholder for Phase 5 topology) */}
-          <section className="glass-card rounded-xl p-6">
+          <section className="surface-card p-6">
             <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-white/50">
-              Connections ({connections.length})
+              Connections (<span className="mono">{connections.length}</span>)
             </h2>
             {connections.length === 0 ? (
               <p className="text-sm text-white/40">
@@ -228,10 +234,7 @@ export default async function DeviceDetailPage({
                     >
                       {c.peer.name}
                     </Link>
-                    <span
-                      aria-hidden
-                      className="font-mono text-xs text-white/50"
-                    >
+                    <span aria-hidden className="mono text-xs text-white/50">
                       {c.port || "—"} → {c.peerPort || "—"} · {c.cable}
                     </span>
                   </li>
@@ -244,9 +247,9 @@ export default async function DeviceDetailPage({
         {/* Side panel: rack + network */}
         <aside className="space-y-6">
           {device.rack ? (
-            <section className="glass-card rounded-xl p-5">
+            <section className="surface-card p-5">
               <h2 className="mb-3 flex items-center gap-1.5 text-sm font-semibold uppercase tracking-wider text-white/50">
-                <MapPin className="h-3.5 w-3.5" />
+                <MapPin className="h-3.5 w-3.5" weight="duotone" />
                 Rack Position
               </h2>
               <Link
@@ -257,7 +260,7 @@ export default async function DeviceDetailPage({
                 <div className="text-sm font-medium text-white">
                   {device.rack.name}
                 </div>
-                <div className="mt-1 font-mono text-xs text-white/60">
+                <div className="mono mt-1 text-xs text-white/60">
                   {device.positionU != null
                     ? device.positionU === topU
                       ? `U${device.positionU} of ${device.rack.sizeU}U`
@@ -267,9 +270,9 @@ export default async function DeviceDetailPage({
               </Link>
             </section>
           ) : (
-            <section className="glass-card rounded-xl p-5">
+            <section className="surface-card p-5">
               <h2 className="mb-2 flex items-center gap-1.5 text-sm font-semibold uppercase tracking-wider text-white/50">
-                <MapPin className="h-3.5 w-3.5" />
+                <MapPin className="h-3.5 w-3.5" weight="duotone" />
                 Rack Position
               </h2>
               <p className="text-sm text-white/50">
@@ -279,9 +282,9 @@ export default async function DeviceDetailPage({
           )}
 
           {networkInfo.length > 0 && (
-            <section className="glass-card rounded-xl p-5">
+            <section className="surface-card p-5">
               <h2 className="mb-3 flex items-center gap-1.5 text-sm font-semibold uppercase tracking-wider text-white/50">
-                <Network className="h-3.5 w-3.5" />
+                <ShareNetwork className="h-3.5 w-3.5" weight="duotone" />
                 Network
               </h2>
               <dl className="space-y-3">
@@ -290,7 +293,7 @@ export default async function DeviceDetailPage({
                     <dt className="text-xs text-white/50">{info.label}</dt>
                     <dd
                       className={`text-sm text-white ${
-                        info.mono ? "font-mono" : ""
+                        info.mono ? "mono" : ""
                       }`}
                     >
                       {info.value}
@@ -302,16 +305,16 @@ export default async function DeviceDetailPage({
           )}
 
           {!device.isManual && (device.discoveredAt || device.lastSeen) && (
-            <section className="glass-card rounded-xl p-5">
+            <section className="surface-card p-5">
               <h2 className="mb-3 flex items-center gap-1.5 text-sm font-semibold uppercase tracking-wider text-white/50">
-                <Radar className="h-3.5 w-3.5" />
+                <Pulse className="h-3.5 w-3.5" weight="duotone" />
                 Discovery
               </h2>
               <dl className="space-y-3">
                 {device.discoveredAt && (
                   <div>
                     <dt className="text-xs text-white/50">Discovered</dt>
-                    <dd className="text-sm text-white">
+                    <dd className="mono text-sm text-white">
                       {device.discoveredAt.toLocaleString("en-US", {
                         dateStyle: "medium",
                         timeStyle: "short",
@@ -322,7 +325,7 @@ export default async function DeviceDetailPage({
                 {device.lastSeen && (
                   <div>
                     <dt className="text-xs text-white/50">Last Seen</dt>
-                    <dd className="text-sm text-white">
+                    <dd className="mono text-sm text-white">
                       {device.lastSeen.toLocaleString("en-US", {
                         dateStyle: "medium",
                         timeStyle: "short",

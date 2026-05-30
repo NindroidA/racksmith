@@ -18,11 +18,10 @@ import {
 import "@xyflow/react/dist/style.css";
 import toast from "react-hot-toast";
 import {
-  LayoutGrid,
+  SquaresFour,
   Plus,
-  Download,
-  Network as NetworkIcon,
-} from "lucide-react";
+  DownloadSimple,
+} from "@phosphor-icons/react/dist/ssr";
 import { toPng } from "html-to-image";
 import { DeviceNode, type DeviceNodeData } from "./device-node";
 import { CableEdge, CABLE_COLORS, type CableEdgeData } from "./cable-edge";
@@ -267,7 +266,7 @@ function CanvasInner({ devices, connections }: Props) {
             onClick={handleAddConnection}
             className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-white transition-all hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/50"
           >
-            <Plus className="h-3.5 w-3.5" aria-hidden />
+            <Plus className="h-3.5 w-3.5" weight="bold" aria-hidden />
             Add Connection
           </button>
           <button
@@ -276,7 +275,7 @@ function CanvasInner({ devices, connections }: Props) {
             disabled={pending}
             className="glass-button flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
           >
-            <LayoutGrid className="h-3.5 w-3.5" aria-hidden />
+            <SquaresFour className="h-3.5 w-3.5" weight="bold" aria-hidden />
             Auto-Layout
           </button>
           <button
@@ -284,7 +283,7 @@ function CanvasInner({ devices, connections }: Props) {
             onClick={handleExport}
             className="glass-button flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-white"
           >
-            <Download className="h-3.5 w-3.5" aria-hidden />
+            <DownloadSimple className="h-3.5 w-3.5" weight="bold" aria-hidden />
             Export PNG
           </button>
         </div>

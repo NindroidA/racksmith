@@ -14,7 +14,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { Check, ChevronDown } from "lucide-react";
+import { CaretDown, Check } from "@phosphor-icons/react/dist/ssr";
 import { twMerge } from "tailwind-merge";
 
 type OptionData = {
@@ -324,11 +324,12 @@ export function Select({
         >
           {showPlaceholder ? (placeholder ?? "Select…") : displayLabel}
         </span>
-        <ChevronDown
+        <CaretDown
           className={twMerge(
             "ml-2 h-4 w-4 shrink-0 text-white/50 transition-transform",
             open && "rotate-180",
           )}
+          weight="bold"
           aria-hidden
         />
       </button>
@@ -404,6 +405,7 @@ export function Select({
                       {isSelected && (
                         <Check
                           className="h-4 w-4 shrink-0 text-primary"
+                          weight="bold"
                           aria-hidden
                         />
                       )}

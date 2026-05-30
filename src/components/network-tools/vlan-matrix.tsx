@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import Link from "next/link";
 import { twMerge } from "tailwind-merge";
-import { AlertTriangle } from "lucide-react";
+import { Warning } from "@phosphor-icons/react/dist/ssr";
 import { COLOR_TAG_MAP, type ColorTag } from "@/types";
 
 type VlanRow = {
@@ -46,7 +46,7 @@ export function VlanMatrix({ vlans, switches }: Props) {
 
   if (switches.length === 0) {
     return (
-      <section className="glass-card rounded-xl p-6">
+      <section className="surface-card p-6">
         <h2 className="mb-2 text-lg font-semibold text-white">
           Coverage matrix
         </h2>
@@ -60,7 +60,7 @@ export function VlanMatrix({ vlans, switches }: Props) {
   }
 
   return (
-    <section className="glass-card overflow-x-auto rounded-xl p-6">
+    <section className="surface-card overflow-x-auto p-6">
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-lg font-semibold text-white">Coverage matrix</h2>
         <p className="text-xs text-white/40">
@@ -114,7 +114,7 @@ export function VlanMatrix({ vlans, switches }: Props) {
                       style={{ backgroundColor: color }}
                       aria-hidden
                     />
-                    <span className="font-mono text-xs text-white/80">
+                    <span className="mono text-xs text-white/80">
                       {v.vlanId}
                     </span>
                     <span className="text-white">{v.name}</span>
@@ -162,10 +162,15 @@ export function VlanMatrix({ vlans, switches }: Props) {
 function OrphanWarning({ orphans }: { orphans: VlanRow[] }) {
   return (
     <div className="mt-4 flex items-start gap-2 rounded-lg border border-accent-orange/30 bg-accent-orange/10 px-4 py-3 text-xs text-accent-orange">
-      <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+      <Warning
+        className="mt-0.5 h-4 w-4 shrink-0"
+        weight="duotone"
+        aria-hidden
+      />
       <div>
         <div className="font-medium">
-          {orphans.length} orphan VLAN{orphans.length !== 1 ? "s" : ""}
+          <span className="mono">{orphans.length}</span> orphan VLAN
+          {orphans.length !== 1 ? "s" : ""}
         </div>
         <div className="mt-1 text-accent-orange/80">
           No devices assigned:{" "}
@@ -175,7 +180,7 @@ function OrphanWarning({ orphans }: { orphans: VlanRow[] }) {
                 href={`/network-tools/vlans/${v.id}`}
                 className="underline hover:text-accent-orange"
               >
-                {v.vlanId} ({v.name})
+                <span className="mono">{v.vlanId}</span> ({v.name})
               </Link>
               {i < orphans.length - 1 && ", "}
             </span>

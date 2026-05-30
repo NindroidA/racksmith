@@ -4,7 +4,12 @@ import { useReducer, useState, useTransition, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { twMerge } from "tailwind-merge";
-import { ArrowLeft, Save, Trash2, Eye } from "lucide-react";
+import {
+  ArrowLeft,
+  FloppyDisk,
+  TrashSimple,
+  Eye,
+} from "@phosphor-icons/react/dist/ssr";
 import { DEVICE_TYPE_LABELS, type DeviceType } from "@/types";
 import { DeviceGraphic, U_ASPECT } from "@/components/rack/device-graphic";
 import { InlineHelp } from "@/components/ui/inline-help";
@@ -207,7 +212,7 @@ export function DeviceForm(props: Props) {
         href={props.mode === "edit" ? `/devices/${props.deviceId}` : "/devices"}
         className="mb-4 inline-flex items-center gap-2 text-sm text-white/60 transition-colors hover:text-white"
       >
-        <ArrowLeft className="h-4 w-4" />
+        <ArrowLeft className="h-4 w-4" weight="bold" />
         Back
       </Link>
 
@@ -223,7 +228,7 @@ export function DeviceForm(props: Props) {
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_280px]">
-        <div className="glass-card space-y-6 rounded-xl p-6">
+        <div className="surface-card space-y-6 p-6">
           {/* Name + Type */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_200px]">
             <div>
@@ -507,9 +512,9 @@ export function DeviceForm(props: Props) {
 
         {/* Live preview sidebar */}
         <div className="flex flex-col gap-4">
-          <div className="glass-card rounded-xl p-4">
+          <div className="surface-card p-4">
             <div className="mb-2 flex items-center gap-2">
-              <Eye className="h-4 w-4 text-primary" />
+              <Eye className="h-4 w-4 text-primary" weight="bold" />
               <h3 className="text-xs font-semibold uppercase tracking-wider text-white/50">
                 Live Preview
               </h3>
@@ -538,7 +543,7 @@ export function DeviceForm(props: Props) {
               "flex items-center gap-2 rounded-lg border border-accent-red/30 bg-accent-red/10 px-4 py-2.5 text-sm font-medium text-accent-red transition-all hover:bg-accent-red/20 disabled:opacity-50",
             )}
           >
-            <Trash2 className="h-4 w-4" />
+            <TrashSimple className="h-4 w-4" weight="bold" />
             {deleting ? "Deleting..." : "Delete Device"}
           </button>
         ) : (
@@ -559,7 +564,7 @@ export function DeviceForm(props: Props) {
             disabled={pending || deleting}
             className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white transition-all hover:bg-primary/90 disabled:opacity-50"
           >
-            <Save className="h-4 w-4" />
+            <FloppyDisk className="h-4 w-4" weight="bold" />
             {pending
               ? "Saving..."
               : props.mode === "create"

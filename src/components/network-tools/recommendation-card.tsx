@@ -3,47 +3,55 @@
 import Link from "next/link";
 import { useTransition } from "react";
 import {
-  AlertTriangle,
+  Warning,
   Info,
-  ShieldAlert,
+  ShieldWarning,
   X,
   Clock,
-  ExternalLink,
-} from "lucide-react";
+  ArrowSquareOut,
+} from "@phosphor-icons/react/dist/ssr";
 import { twMerge } from "tailwind-merge";
 import toast from "react-hot-toast";
 import {
   dismissRecommendation,
   undismissRecommendation,
 } from "@/app/(dashboard)/network-tools/recommendations/actions";
+import { Tag } from "@/components/ui/tag";
 import type { Recommendation, Severity } from "@/lib/recommendations/types";
 
 type SevMeta = {
   border: string;
   bg: string;
-  icon: typeof AlertTriangle;
+  icon: typeof Warning;
   iconColor: string;
   label: string;
-  // Visible severity pill text — matches WCAG 1.4.1 (don't use color alone).
-  pillClass: string;
+  led: string;
+};
+
+// Severity → Tag tone. Visible label text on the Tag keeps this from being
+// color-only — matches WCAG 1.4.1.
+const SEV_TONE: Record<Severity, "danger" | "warning" | "info"> = {
+  critical: "danger",
+  warning: "warning",
+  info: "info",
 };
 
 const SEV_META: Record<Severity, SevMeta> = {
   critical: {
     border: "border-l-red-500",
     bg: "bg-red-500/[0.04]",
-    icon: ShieldAlert,
+    icon: ShieldWarning,
     iconColor: "text-red-400",
     label: "Critical",
-    pillClass: "bg-red-500/15 text-red-200",
+    led: "led-dot--red",
   },
   warning: {
     border: "border-l-amber-500",
     bg: "bg-amber-500/[0.04]",
-    icon: AlertTriangle,
+    icon: Warning,
     iconColor: "text-amber-400",
     label: "Warning",
-    pillClass: "bg-amber-500/15 text-amber-200",
+    led: "led-dot--amber",
   },
   info: {
     border: "border-l-blue-500",
@@ -51,7 +59,7 @@ const SEV_META: Record<Severity, SevMeta> = {
     icon: Info,
     iconColor: "text-accent-blue",
     label: "Info",
-    pillClass: "bg-blue-500/15 text-blue-200",
+    led: "led-dot--muted",
   },
 };
 
@@ -122,13 +130,14 @@ export function RecommendationCard({
     <article
       aria-labelledby={titleId}
       className={twMerge(
-        "flex gap-3 rounded-xl border border-white/[0.04] border-l-4 p-4",
+        "surface-card flex gap-3 border-l-4 p-4",
         meta.border,
         meta.bg,
       )}
     >
       <Icon
         className={twMerge("mt-0.5 h-5 w-5 shrink-0", meta.iconColor)}
+        weight="duotone"
         aria-hidden
       />
       <div className="min-w-0 flex-1">
@@ -137,15 +146,13 @@ export function RecommendationCard({
         </h3>
         <p className="mt-1 text-xs text-white/60">{recommendation.detail}</p>
         <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px]">
-          <span
-            className={twMerge(
-              "rounded px-1.5 py-0.5 font-medium uppercase tracking-wide",
-              meta.pillClass,
-            )}
-          >
-            {meta.label}
+          <span className="inline-flex items-center gap-1.5">
+            <span className={twMerge("led-dot", meta.led)} aria-hidden />
+            <Tag tone={SEV_TONE[recommendation.severity]} size="sm">
+              {meta.label}
+            </Tag>
           </span>
-          <span className="rounded bg-white/[0.06] px-1.5 py-0.5 font-mono text-white/55">
+          <span className="mono rounded bg-white/[0.06] px-1.5 py-0.5 text-white/55">
             {recommendation.ruleKey}
           </span>
           {href && (
@@ -154,7 +161,7 @@ export function RecommendationCard({
               className="inline-flex items-center gap-1 text-white/65 underline decoration-dotted underline-offset-2 hover:text-white hover:decoration-solid"
             >
               View {recommendation.resource?.type}
-              <ExternalLink className="h-3 w-3" aria-hidden />
+              <ArrowSquareOut className="h-3 w-3" weight="bold" aria-hidden />
             </Link>
           )}
         </div>
@@ -170,7 +177,7 @@ export function RecommendationCard({
             title="Snooze 7 days"
             className="flex h-11 w-11 items-center justify-center rounded-md text-white/55 transition-colors hover:bg-white/[0.08] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/60 disabled:opacity-50"
           >
-            <Clock className="h-4 w-4" aria-hidden />
+            <Clock className="h-4 w-4" weight="bold" aria-hidden />
           </button>
           <button
             type="button"
@@ -180,7 +187,7 @@ export function RecommendationCard({
             title="Dismiss permanently"
             className="flex h-11 w-11 items-center justify-center rounded-md text-white/55 transition-colors hover:bg-white/[0.08] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/60 disabled:opacity-50"
           >
-            <X className="h-4 w-4" aria-hidden />
+            <X className="h-4 w-4" weight="bold" aria-hidden />
           </button>
         </div>
       )}

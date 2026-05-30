@@ -3,8 +3,13 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Save, Trash2 } from "lucide-react";
+import {
+  ArrowLeft,
+  FloppyDisk,
+  TrashSimple,
+} from "@phosphor-icons/react/dist/ssr";
 import { type ColorTag } from "@/types";
+import { Button } from "@/components/ui/button";
 import { ColorTagPicker } from "@/components/ui/color-tag-picker";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
 import { Select, SelectOption } from "@/components/ui/select";
@@ -100,7 +105,7 @@ export function VlanForm(props: Props) {
         }
         className="mb-4 inline-flex items-center gap-2 text-sm text-white/60 transition-colors hover:text-white"
       >
-        <ArrowLeft className="h-4 w-4" aria-hidden />
+        <ArrowLeft className="h-4 w-4" weight="bold" aria-hidden />
         Back
       </Link>
 
@@ -113,7 +118,7 @@ export function VlanForm(props: Props) {
         </p>
       </div>
 
-      <div className="glass-card space-y-6 rounded-xl p-6">
+      <div className="surface-card space-y-6 p-6">
         <div className="grid grid-cols-[140px_1fr] gap-4">
           <div>
             <label
@@ -139,7 +144,9 @@ export function VlanForm(props: Props) {
               max={4094}
               required
             />
-            <p className="mt-1 text-xs text-white/40">1–4094 (802.1Q)</p>
+            <p className="mt-1 text-xs text-white/40">
+              <span className="mono">1–4094</span> (802.1Q)
+            </p>
           </div>
           <div>
             <label
@@ -206,15 +213,16 @@ export function VlanForm(props: Props) {
 
       <div className="mt-6 flex items-center justify-between">
         {props.mode === "edit" ? (
-          <button
-            type="button"
+          <Button
+            variant="danger"
             onClick={() => setConfirmOpen(true)}
             disabled={deleting || pending}
-            className="flex items-center gap-2 rounded-lg border border-accent-red/30 bg-accent-red/10 px-4 py-2.5 text-sm font-medium text-accent-red transition-all hover:bg-accent-red/20 disabled:opacity-50"
+            iconLeft={
+              <TrashSimple className="h-4 w-4" weight="bold" aria-hidden />
+            }
           >
-            <Trash2 className="h-4 w-4" aria-hidden />
             {deleting ? "Deleting..." : "Delete VLAN"}
-          </button>
+          </Button>
         ) : (
           <div />
         )}
@@ -230,18 +238,19 @@ export function VlanForm(props: Props) {
           >
             Cancel
           </Link>
-          <button
+          <Button
             type="submit"
             disabled={pending || deleting}
-            className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white transition-all hover:bg-primary/90 disabled:opacity-50"
+            iconLeft={
+              <FloppyDisk className="h-4 w-4" weight="bold" aria-hidden />
+            }
           >
-            <Save className="h-4 w-4" aria-hidden />
             {pending
               ? "Saving..."
               : props.mode === "create"
                 ? "Create VLAN"
                 : "Save changes"}
-          </button>
+          </Button>
         </div>
       </div>
 

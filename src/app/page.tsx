@@ -4,21 +4,21 @@ import {
   ArrowRight,
   Check,
   X,
-  Server,
-  HardDrive,
-  Network,
-  Radar,
+  Stack,
+  HardDrives,
+  ShareNetwork,
+  Pulse,
   Lock,
   Package,
-  Sparkles,
+  Sparkle,
   Wrench,
   Rocket,
-} from "lucide-react";
+} from "@phosphor-icons/react/dist/ssr";
 import { GithubIcon } from "@/components/ui/oauth-icons";
 
 const FEATURES = [
   {
-    icon: Server,
+    icon: Stack,
     title: "Visual Rack Builder",
     description:
       "Drag and drop devices into U-slots. Real 10.86:1 aspect ratios. Authentic brand-specific faceplates. It's accurate documentation that happens to look beautiful.",
@@ -26,7 +26,7 @@ const FEATURES = [
     bg: "bg-accent-blue/15",
   },
   {
-    icon: HardDrive,
+    icon: HardDrives,
     title: "Device Inventory",
     description:
       "23 seeded enterprise devices, custom creation, CSV bulk import. Search, filter, sort. Every device gets a unique rendered faceplate, not a generic icon.",
@@ -34,7 +34,7 @@ const FEATURES = [
     bg: "bg-accent-purple/15",
   },
   {
-    icon: Network,
+    icon: ShareNetwork,
     title: "Network Topology",
     description:
       "Interactive React Flow canvas. Drag nodes, wire connections between handles, color-coded cable types, export as PNG. Finally a diagram that stays in sync.",
@@ -42,7 +42,7 @@ const FEATURES = [
     bg: "bg-accent-cyan/15",
   },
   {
-    icon: Radar,
+    icon: Pulse,
     title: "Auto-Discovery",
     description:
       "Point at a subnet, click scan, populate your inventory. nmap ping-scan under the hood. Pending-device queue — approve, assign, or ignore each host.",
@@ -234,7 +234,11 @@ export default function LandingPage() {
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/20">
-              <Wrench className="h-5 w-5 text-primary" aria-hidden />
+              <Wrench
+                className="h-5 w-5 text-primary"
+                weight="duotone"
+                aria-hidden
+              />
             </div>
             <span className="gradient-text text-lg font-bold">RackSmith</span>
           </div>
@@ -324,7 +328,7 @@ export default function LandingPage() {
             className="flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-medium text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary/90 hover:shadow-primary/30"
           >
             Start free
-            <ArrowRight className="h-4 w-4" />
+            <ArrowRight className="h-4 w-4" weight="bold" />
           </Link>
           <a
             href="https://github.com/nindroid-systems/racksmith"
@@ -421,7 +425,7 @@ export default function LandingPage() {
                 className="glass-card rounded-2xl p-6 transition-transform hover:-translate-y-1"
               >
                 <div className={`mb-4 inline-flex rounded-xl ${f.bg} p-2.5`}>
-                  <Icon className={`h-5 w-5 ${f.color}`} />
+                  <Icon className={`h-5 w-5 ${f.color}`} weight="duotone" />
                 </div>
                 <h3 className="mb-2 text-lg font-semibold text-white">
                   {f.title}
@@ -527,6 +531,7 @@ export default function LandingPage() {
                               className={`mx-auto h-5 w-5 ${
                                 i === 0 ? "text-accent-green" : "text-white/40"
                               }`}
+                              weight="bold"
                               aria-hidden
                             />
                             <span className="sr-only">Yes</span>
@@ -535,6 +540,7 @@ export default function LandingPage() {
                           <>
                             <X
                               className="mx-auto h-5 w-5 text-white/20"
+                              weight="bold"
                               aria-hidden
                             />
                             <span className="sr-only">No</span>
@@ -602,7 +608,10 @@ export default function LandingPage() {
               <ul className="mb-8 space-y-2.5">
                 {tier.features.map((f) => (
                   <li key={f} className="flex items-start gap-2 text-sm">
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent-green" />
+                    <Check
+                      className="mt-0.5 h-4 w-4 shrink-0 text-accent-green"
+                      weight="bold"
+                    />
                     <span className="text-white/80">{f}</span>
                   </li>
                 ))}
@@ -654,7 +663,7 @@ export default function LandingPage() {
             href="/register"
             className="flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-medium text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary/90"
           >
-            <Rocket className="h-4 w-4" />
+            <Rocket className="h-4 w-4" weight="duotone" />
             Get Started Free
           </Link>
           <a
@@ -673,7 +682,7 @@ export default function LandingPage() {
       <section className="border-y border-white/[0.06] bg-white/[0.02] py-14">
         <div className="mx-auto max-w-5xl px-6">
           <div className="mb-6 flex items-center justify-center gap-2 text-xs uppercase tracking-wider text-white/40">
-            <Sparkles className="h-3.5 w-3.5" />
+            <Sparkle className="h-3.5 w-3.5" weight="duotone" />
             Built with modern tech
           </div>
           <div className="flex flex-wrap items-center justify-center gap-2">
@@ -694,7 +703,7 @@ export default function LandingPage() {
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 text-sm text-white/40 md:flex-row">
           <div className="flex items-center gap-2">
             <div className="flex h-6 w-6 items-center justify-center rounded bg-primary/20">
-              <Wrench className="h-3 w-3 text-primary" />
+              <Wrench className="h-3 w-3 text-primary" weight="duotone" />
             </div>
             <span className="gradient-text font-semibold">RackSmith</span>
             <span className="ml-2 text-white/30">

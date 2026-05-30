@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useState } from "react";
-import { AlertTriangle, X } from "lucide-react";
+import { Warning, X } from "@phosphor-icons/react/dist/ssr";
 import { Dialog } from "./dialog";
 
 type Props = {
@@ -64,8 +64,9 @@ export function DeleteConfirmDialog({
       <header className="flex items-start justify-between border-b border-white/[0.08] px-5 py-4">
         <div className="flex items-start gap-3">
           <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent-red/15">
-            <AlertTriangle
+            <Warning
               className="h-4 w-4 text-accent-red"
+              weight="duotone"
               aria-hidden
             />
           </div>
@@ -80,7 +81,7 @@ export function DeleteConfirmDialog({
           aria-label="Close dialog"
           className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded text-white/40 hover:bg-white/[0.06] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/50 disabled:opacity-50"
         >
-          <X className="h-4 w-4" aria-hidden />
+          <X className="h-4 w-4" weight="bold" aria-hidden />
         </button>
       </header>
 
@@ -97,10 +98,8 @@ export function DeleteConfirmDialog({
               className="mb-1.5 block text-sm font-medium text-white/70"
             >
               Type{" "}
-              <span className="font-mono text-white">
-                {requireTypeName}
-              </span>{" "}
-              to confirm
+              <span className="font-mono text-white">{requireTypeName}</span> to
+              confirm
             </label>
             <input
               id={`${titleId}-confirm-input`}

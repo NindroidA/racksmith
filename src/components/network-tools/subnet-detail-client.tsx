@@ -52,7 +52,7 @@ export function SubnetDetailClient({
 
   return (
     <div className="space-y-6">
-      <section className="glass-card rounded-xl p-6">
+      <section className="surface-card p-6">
         <h2 className="mb-4 text-lg font-semibold text-white">Overview</h2>
         <dl className="grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-3 lg:grid-cols-4">
           <Stat label="Type" value={details.kind.toUpperCase()} />
@@ -127,7 +127,7 @@ function Stat({
       <dt className="text-xs uppercase tracking-wider text-white/40">
         {label}
       </dt>
-      <dd className={`mt-0.5 text-sm text-white ${mono ? "font-mono" : ""}`}>
+      <dd className={`mt-0.5 text-sm text-white ${mono ? "mono" : ""}`}>
         {value}
       </dd>
     </div>
