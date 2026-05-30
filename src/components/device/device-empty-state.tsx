@@ -8,7 +8,6 @@ import { EmptyStateWithTemplate } from "@/components/ui/empty-state-with-templat
 import { TemplateGallery } from "@/components/ui/template-gallery";
 import { DEVICE_TEMPLATES, type DeviceTemplate } from "@/lib/templates/devices";
 import { createDeviceFromTemplate } from "@/app/(dashboard)/devices/actions";
-import { describeError } from "@/lib/error-message";
 
 export function DeviceEmptyState() {
   const router = useRouter();
@@ -20,19 +19,14 @@ export function DeviceEmptyState() {
     if (pending) return;
     setSubmittingId(t.id);
     startTransition(async () => {
-      try {
-        const result = await createDeviceFromTemplate(t.id);
-        if (!result.ok) {
-          toast.error(result.error);
-          setSubmittingId(null);
-          return;
-        }
-        toast.success(`${t.name} created`);
-        router.push(`/devices/${result.data.id}`);
-      } catch (err) {
-        toast.error(describeError(err, "Something went wrong"));
+      const result = await createDeviceFromTemplate(t.id);
+      if (!result.ok) {
+        toast.error(result.error);
         setSubmittingId(null);
+        return;
       }
+      toast.success(`${t.name} created`);
+      router.push(`/devices/${result.data.id}`);
     });
   };
 

@@ -12,13 +12,9 @@ import { twMerge } from "tailwind-merge";
 import { InlineHelp } from "@/components/ui/inline-help";
 import { AdvancedAccordion } from "@/components/ui/advanced-accordion";
 import { Select, SelectOption } from "@/components/ui/select";
-import {
-  COMMON_PDU_CIRCUITS,
-  calculatePduCapacity,
-  calculatePoeBudget,
-  calculateUpsRuntime,
-  type PoeDeviceLine,
-} from "@/lib/power";
+import { calculatePoeBudget, type PoeDeviceLine } from "@/lib/power/poe";
+import { COMMON_PDU_CIRCUITS, calculatePduCapacity } from "@/lib/power/pdu";
+import { calculateUpsRuntime } from "@/lib/power/ups";
 
 const STATUS_COLOR: Record<string, string> = {
   ok: "text-accent-green",

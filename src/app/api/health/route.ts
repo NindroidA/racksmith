@@ -1,4 +1,5 @@
 import { createApiRoute } from "@/lib/api/route-factory";
+import { describeError } from "@/lib/error-message";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -24,7 +25,7 @@ async function checkDatabase() {
   } catch (err) {
     return {
       ok: false,
-      error: err instanceof Error ? err.message : "unknown error",
+      error: describeError(err, "unknown error"),
     };
   }
 }
@@ -40,7 +41,7 @@ async function checkMigrations() {
   } catch (err) {
     return {
       ok: false,
-      error: err instanceof Error ? err.message : "unknown error",
+      error: describeError(err, "unknown error"),
     };
   }
 }

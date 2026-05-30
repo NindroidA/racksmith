@@ -20,7 +20,7 @@ import { randomUUID } from "node:crypto";
 import { PrismaClient } from "@prisma/client";
 import { hashPassword } from "better-auth/crypto";
 
-const PASSWORD = "SmokeTest123!Pass";
+const PASSWORD = process.env.SMOKE_PASSWORD ?? "SmokeTest123!Pass";
 const prisma = new PrismaClient();
 
 type Seeded = {

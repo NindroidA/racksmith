@@ -6,7 +6,6 @@ import { Sparkle } from "@phosphor-icons/react/dist/ssr";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
 import { applyVlanTemplate } from "@/app/(dashboard)/network-tools/vlans/actions";
 import { VLAN_TEMPLATES } from "@/lib/config-gen/templates";
-import { describeError } from "@/lib/error-message";
 
 type ConfirmTarget = { id: string; label: string } | null;
 
@@ -20,24 +19,19 @@ export function VlanTemplateApplier() {
     const { id } = confirmTarget;
     setSubmittingId(id);
     startTransition(async () => {
-      try {
-        const result = await applyVlanTemplate(id);
-        if (!result.ok) {
-          toast.error(result.error);
-          setSubmittingId(null);
-          setConfirmTarget(null);
-          return;
-        }
-        const skipMsg = result.data.skipped.length
-          ? ` (${result.data.skipped.length} skipped)`
-          : "";
-        toast.success(`${result.data.created} VLAN(s) created${skipMsg}`);
-      } catch (err) {
-        toast.error(describeError(err, "Failed"));
-      } finally {
+      const result = await applyVlanTemplate(id);
+      if (!result.ok) {
+        toast.error(result.error);
         setSubmittingId(null);
         setConfirmTarget(null);
+        return;
       }
+      const skipMsg = result.data.skipped.length
+        ? ` (${result.data.skipped.length} skipped)`
+        : "";
+      toast.success(`${result.data.created} VLAN(s) created${skipMsg}`);
+      setSubmittingId(null);
+      setConfirmTarget(null);
     });
   };
 

@@ -10,12 +10,14 @@ import { twMerge } from "tailwind-merge";
 import { Select, SelectOption } from "@/components/ui/select";
 import {
   CABLE_SPECS,
+  type CableMediaType,
+  type LinkSpeed,
+} from "@/lib/cable/limits";
+import {
   buildBom,
   estimateCableLength,
-  type CableMediaType,
   type EstimateResult,
-  type LinkSpeed,
-} from "@/lib/cable";
+} from "@/lib/cable/estimate";
 
 const STATUS_COLOR: Record<string, string> = {
   ok: "text-accent-green",

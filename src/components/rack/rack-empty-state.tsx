@@ -8,7 +8,6 @@ import { EmptyStateWithTemplate } from "@/components/ui/empty-state-with-templat
 import { TemplateGallery } from "@/components/ui/template-gallery";
 import { RACK_TEMPLATES, type RackTemplate } from "@/lib/templates/racks";
 import { createRackFromTemplate } from "@/app/(dashboard)/racks/actions";
-import { describeError } from "@/lib/error-message";
 
 export function RackEmptyState() {
   const router = useRouter();
@@ -20,19 +19,14 @@ export function RackEmptyState() {
     if (pending) return;
     setSubmittingId(t.id);
     startTransition(async () => {
-      try {
-        const result = await createRackFromTemplate(t.id);
-        if (!result.ok) {
-          toast.error(result.error);
-          setSubmittingId(null);
-          return;
-        }
-        toast.success(`${t.name} created`);
-        router.push(`/racks/${result.data.id}`);
-      } catch (err) {
-        toast.error(describeError(err, "Something went wrong"));
+      const result = await createRackFromTemplate(t.id);
+      if (!result.ok) {
+        toast.error(result.error);
         setSubmittingId(null);
+        return;
       }
+      toast.success(`${t.name} created`);
+      router.push(`/racks/${result.data.id}`);
     });
   };
 
