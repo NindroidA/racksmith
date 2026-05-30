@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { AlertTriangle, Trash2 } from "lucide-react";
+import { Warning, TrashSimple } from "@phosphor-icons/react/dist/ssr";
 import toast from "react-hot-toast";
 import { authClient } from "@/lib/auth-client";
 import { describeError } from "@/lib/error-message";
@@ -48,7 +48,11 @@ export function DangerSection({ email }: Props) {
   return (
     <section className="rounded-xl border border-accent-red/30 bg-accent-red/[0.04] p-6">
       <h2 className="mb-1 flex items-center gap-2 text-lg font-semibold text-white">
-        <AlertTriangle className="h-4 w-4 text-accent-red" aria-hidden />
+        <Warning
+          className="h-4 w-4 text-accent-red"
+          weight="duotone"
+          aria-hidden
+        />
         Danger zone
       </h2>
       <p className="mb-6 text-sm text-white/50">
@@ -61,7 +65,7 @@ export function DangerSection({ email }: Props) {
         onClick={() => setOpen(true)}
         className="inline-flex items-center gap-2 rounded-lg border border-accent-red/40 bg-accent-red/10 px-4 py-2.5 text-sm font-medium text-accent-red transition-colors hover:bg-accent-red/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-red/50"
       >
-        <Trash2 className="h-4 w-4" aria-hidden />
+        <TrashSimple className="h-4 w-4" weight="bold" aria-hidden />
         Delete account
       </button>
 

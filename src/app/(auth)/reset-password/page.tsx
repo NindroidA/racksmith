@@ -3,7 +3,7 @@
 import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Lock, AlertCircle } from "lucide-react";
+import { Lock, WarningCircle } from "@phosphor-icons/react/dist/ssr";
 import { authClient } from "@/lib/auth-client";
 import toast from "react-hot-toast";
 import { AuthShell } from "@/components/layout/auth-shell";
@@ -58,7 +58,10 @@ function ResetPasswordInner() {
       <div className="glass-panel rounded-2xl p-8 text-center">
         <div className="mb-4 flex justify-center">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent-red/15">
-            <AlertCircle className="h-6 w-6 text-accent-red" />
+            <WarningCircle
+              className="h-6 w-6 text-accent-red"
+              weight="duotone"
+            />
           </div>
         </div>
         <h1 className="mb-2 text-lg font-semibold text-white">
@@ -88,7 +91,10 @@ function ResetPasswordInner() {
             New password
           </label>
           <div className="relative">
-            <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" />
+            <Lock
+              className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30"
+              weight="duotone"
+            />
             <input
               id="password"
               type="password"
@@ -111,7 +117,10 @@ function ResetPasswordInner() {
             Confirm password
           </label>
           <div className="relative">
-            <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" />
+            <Lock
+              className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30"
+              weight="duotone"
+            />
             <input
               id="confirm"
               type="password"

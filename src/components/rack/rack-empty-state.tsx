@@ -3,13 +3,10 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { Server } from "lucide-react";
+import { Stack } from "@phosphor-icons/react/dist/ssr";
 import { EmptyStateWithTemplate } from "@/components/ui/empty-state-with-template";
 import { TemplateGallery } from "@/components/ui/template-gallery";
-import {
-  RACK_TEMPLATES,
-  type RackTemplate,
-} from "@/lib/templates/racks";
+import { RACK_TEMPLATES, type RackTemplate } from "@/lib/templates/racks";
 import { createRackFromTemplate } from "@/app/(dashboard)/racks/actions";
 import { describeError } from "@/lib/error-message";
 
@@ -42,7 +39,7 @@ export function RackEmptyState() {
   return (
     <>
       <EmptyStateWithTemplate
-        icon={<Server className="h-8 w-8" />}
+        icon={<Stack className="h-8 w-8" weight="duotone" />}
         iconClassName="bg-accent-blue/20 text-accent-blue"
         title="No racks yet"
         blurb="Your first rack takes under a minute. Pick a template that matches your setup, or start blank."
@@ -66,9 +63,7 @@ export function RackEmptyState() {
                 aria-hidden
               />
             ))}
-            <span className="ml-3 font-mono text-xs text-white/40">
-              {t.sizeU}U
-            </span>
+            <span className="ml-3 mono text-xs text-white/40">{t.sizeU}U</span>
           </div>
         )}
       />

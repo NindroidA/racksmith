@@ -3,49 +3,118 @@
 /* ─── Theme Tokens ─────────────────────────────── */
 
 @theme {
-  --color-base: #0a0e1a;
-  --color-surface: #141829;
-  --color-surface-raised: #1a1f35;
+  /* ─── Type families ─────────────────────────────
+     Loaded in `src/app/layout.tsx` via next/font and
+     exposed here as the canonical Tailwind utilities
+     (`font-sans`, `font-mono`). IBM Plex Sans is the
+     workhorse for all chrome + body. Geist Mono is
+     reserved for numeric / IP / code / customer-ID
+     readouts — wrap inline data in `<span class="mono">`
+     so the digits visually shift to data weight.
+  */
+  --font-sans:
+    var(--font-sans), "IBM Plex Sans", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", system-ui, sans-serif;
+  --font-mono:
+    var(--font-mono), "Geist Mono", ui-monospace, SFMono-Regular, Menlo,
+    Monaco, Consolas, monospace;
 
-  --color-primary: #3b82f6;
-  --color-primary-muted: rgba(59, 130, 246, 0.15);
+  /* ─── Surfaces ──────────────────────────────────
+     Three-tier dark surface stack. Base is the
+     application background; raised is for primary
+     cards; surface is the in-between (sidebar,
+     elevated rows).
+  */
+  /* "Amethyst" — a near-black carbon base with a deliberate violet bias
+     (ties to Patch Violet + the wordmark gradient). Replaces the generic
+     dark-blue #0a0e1a. Surfaces step up the same violet-neutral ramp. */
+  --color-base: #0e0b1c;
+  --color-surface: #1a1626;
+  --color-surface-raised: #241d38;
 
-  --color-accent-blue: #3b82f6;
-  --color-accent-purple: #8b5cf6;
-  --color-accent-cyan: #06b6d4;
-  --color-accent-green: #10b981;
-  --color-accent-orange: #f97316;
-  --color-accent-red: #ef4444;
+  /* ─── Brand palette (refreshed) ─────────────────
+     Every token below replaces a Tailwind-500
+     default. We're not "blue-500"; we're RackSmith.
+     Tested for AA contrast on the dark base.
+  */
+  /* "Smithian Indigo" — slightly cooler than Tailwind indigo-500 / -600.
+     Distinct from the generic SaaS #3b82f6 blue. Reads as deliberate. */
+  --color-primary: #5765f4;
+  --color-primary-muted: rgba(87, 101, 244, 0.15);
+
+  --color-accent-blue: #5765f4;
+  /* "Patch violet" — warmer than violet-500, slightly pink-leaning. */
+  --color-accent-purple: #a674f6;
+  /* "Signal cyan" — matches the workspace gradient family. */
+  --color-accent-cyan: #22d3ee;
+  /* "Conductor green" — slightly warmer than emerald-500; "OK light" feel. */
+  --color-accent-green: #0bb678;
+  /* "Sodium amber" — references sodium-vapor lamps, less "alert orange"
+     than Tailwind's #f97316. Reads as "status: needs attention." */
+  --color-accent-orange: #eb8c2e;
+  /* "Carmine" — refined red, less browser-default than #ef4444. */
+  --color-accent-red: #e63946;
+
+  /* ─── Vibrancy escalation tier ──────────────────
+     Brighter siblings of the accent colors for
+     attention moments only — banners, urgent CTAs,
+     status pulses. Static UI (chips, badges, icons)
+     should keep the refined defaults above so the
+     bright variants stay scarce and read as "act now."
+     Rule of thumb: ≤1 bright color visible per
+     viewport. If two bright accents fight, neither
+     wins.
+  */
+  /* "Bright" amber pulled into orange (HSL ~22°) and the glow toned
+     back to ~0.28 — emphasis, not a spotlight. */
+  --color-accent-orange-bright: #f47521;
+  --color-accent-orange-glow: rgba(244, 117, 33, 0.28);
+  --color-accent-red-bright: #ff4d61;
+  --color-accent-red-glow: rgba(255, 77, 97, 0.26);
+  --color-accent-green-bright: #14d99a;
+  --color-accent-green-glow: rgba(20, 217, 154, 0.26);
+  --color-primary-bright: #6b78ff;
+  --color-primary-glow: rgba(107, 120, 255, 0.26);
 
   --color-glass-bg: rgba(255, 255, 255, 0.04);
   --color-glass-border: rgba(255, 255, 255, 0.1);
   --color-glass-border-hover: rgba(255, 255, 255, 0.2);
 
   --color-text-primary: rgba(255, 255, 255, 0.95);
-  --color-text-secondary: rgba(255, 255, 255, 0.6);
-  --color-text-muted: rgba(255, 255, 255, 0.4);
+  --color-text-secondary: rgba(255, 255, 255, 0.7);
+  --color-text-muted: rgba(255, 255, 255, 0.55);
+  --color-text-faint: rgba(255, 255, 255, 0.4);
 }
 
 /* ─── Base ─────────────────────────────────────── */
 
 html {
-  background: #0a0e1a;
+  background: #0e0b1c;
   overflow-x: hidden;
 }
 
 body {
   color: var(--color-text-primary);
-  font-feature-settings: "rlig" 1, "calt" 1;
-  background: linear-gradient(
-    135deg,
-    #0a0e1a 0%,
-    #1a1f35 25%,
-    #141829 50%,
-    #1a1f35 75%,
-    #0f1420 100%
-  );
+  font-family: var(--font-sans);
+  /* tabular-nums: every digit advances the same width. Critical for an
+     infra/networking product where users scan IPs, ports, counts, prices,
+     and timestamps in stacked rows. The visual difference for prose is
+     negligible; the difference for data is significant. */
+  font-feature-settings: "rlig" 1, "calt" 1, "tnum" 1;
+  font-variant-numeric: tabular-nums;
+  /* Static background — replaced the 20s gradientShift animation, which
+     read as the laziest "AI-generated SaaS bg" trope. Single subtle
+     vignette tinted with the primary so the page feels lit from the top
+     without continuous motion. Motion budget redirected to surfaces
+     that actually need it (banners, toasts, transitions). */
+  background:
+    radial-gradient(
+      ellipse 80% 60% at 50% 0%,
+      rgba(166, 116, 246, 0.08),
+      transparent 60%
+    ),
+    #0e0b1c;
   background-attachment: fixed;
-  background-size: 400% 400%;
   margin: 0;
   padding: 0;
   min-height: 100vh;
@@ -54,20 +123,21 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  body {
-    animation: gradientShift 20s ease infinite;
-  }
+/* ─── Display typography ─────────────────────────
+   Negative tracking on display copy is the move that separates "rendered
+   in a browser" from "designed." Apple/Linear/Vercel all do this. Applied
+   to all headings + a few special classes for hero numbers. */
+h1, h2, h3, .display, .display-xl {
+  letter-spacing: -0.022em;
 }
-
-@keyframes gradientShift {
-  0%,
-  100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
+h1, .display-xl {
+  letter-spacing: -0.03em;
+}
+.display-xl {
+  /* Hero numbers — plan names ("Business"), big counts, etc. */
+  font-weight: 700;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1;
 }
 
 /* ─── Glass Effects ────────────────────────────── */
@@ -114,12 +184,12 @@ body {
 .glass-sidebar {
   background: linear-gradient(
     180deg,
-    rgba(20, 25, 40, 0.96) 0%,
-    rgba(15, 20, 35, 0.98) 100%
+    rgba(38, 29, 60, 0.96) 0%,
+    rgba(26, 20, 44, 0.98) 100%
   );
   backdrop-filter: blur(40px) saturate(180%);
   -webkit-backdrop-filter: blur(40px) saturate(180%);
-  border-right: 1px solid rgba(255, 255, 255, 0.12);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow:
     4px 0 32px 0 rgba(0, 0, 0, 0.5),
     inset -1px 0 0 0 rgba(255, 255, 255, 0.05);
@@ -165,14 +235,19 @@ body {
 /* Visible focus ring on :focus is the always-on fallback so browsers
    that don't recognize :focus-visible (which makes the :not() rule
    below get dropped entirely) still show an indicator. Modern browsers
-   suppress it for non-keyboard focus via the :not(:focus-visible) rule. */
+   suppress it for non-keyboard focus via the :not(:focus-visible) rule.
+   The ring is a TWO-STROKE composite: primary core (blue) + cyan halo.
+   The halo is part of the same color family so we don't introduce a new
+   accent — it just makes the focus state harder to miss without being
+   loud. */
 .glass-input:focus {
   outline: none;
   background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(59, 130, 246, 0.5);
+  border-color: rgba(87, 101, 244, 0.5);
   box-shadow:
     inset 0 2px 4px 0 rgba(0, 0, 0, 0.2),
-    0 0 0 3px rgba(59, 130, 246, 0.35);
+    0 0 0 2px rgba(87, 101, 244, 0.55),
+    0 0 0 4px rgba(34, 211, 238, 0.25);
 }
 
 .glass-input:focus:not(:focus-visible) {
@@ -184,11 +259,12 @@ body {
 .glass-button:focus {
   outline: none;
   background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(59, 130, 246, 0.5);
+  border-color: rgba(87, 101, 244, 0.5);
   box-shadow:
     0 8px 24px rgba(0, 0, 0, 0.3),
     inset 0 1px 0 0 rgba(255, 255, 255, 0.15),
-    0 0 0 3px rgba(59, 130, 246, 0.35);
+    0 0 0 2px rgba(87, 101, 244, 0.55),
+    0 0 0 4px rgba(34, 211, 238, 0.25);
 }
 
 .glass-button:focus:not(:focus-visible) {
@@ -206,13 +282,13 @@ body {
 /* Reusable button surfaces — primary uses the brand accent, secondary keeps
    parity with glass surfaces and is used for back-links / cancels. */
 .btn-primary {
-  background: rgb(59, 130, 246);
+  background: var(--color-primary);
   color: #ffffff;
   font-weight: 500;
   transition: background-color 0.15s ease, opacity 0.15s ease;
 }
 .btn-primary:hover:not(:disabled) {
-  background: rgba(59, 130, 246, 0.9);
+  background: color-mix(in srgb, var(--color-primary) 90%, transparent);
 }
 .btn-primary:disabled {
   opacity: 0.5;
@@ -252,8 +328,22 @@ body {
 
 /* ─── Gradient Text ────────────────────────────── */
 
+/* The brand wordmark — indigo → violet → pink shimmer. Reserve for the
+   landing hero + auth-shell brand mark; this is the "RackSmith" sigil.
+   Built on the new palette tokens (was blue→violet→pink Tailwind defaults). */
 .gradient-text {
-  background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 50%, #f0abfc 100%);
+  background: linear-gradient(135deg, #7b85f8 0%, #a674f6 50%, #e89bf8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  background-size: 200% auto;
+}
+
+/* The workspace identity — a separate teal → cyan → blue gradient so the
+   user's active workspace name in the sidebar doesn't read as a second
+   "RackSmith" wordmark. Feels like the network itself, not the brand. */
+.gradient-workspace {
+  background: linear-gradient(135deg, #2dd4bf 0%, #22d3ee 55%, #38bdf8 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -261,7 +351,8 @@ body {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .gradient-text {
+  .gradient-text,
+  .gradient-workspace {
     animation: shimmer 8s ease-in-out infinite;
   }
 }
@@ -321,25 +412,237 @@ textarea:-webkit-autofill {
   background: rgba(255, 255, 255, 0.25);
 }
 
-/* ─── Skeleton Loading ─────────────────────────── */
-
-@keyframes skeleton-pulse {
-  0%,
-  100% {
-    opacity: 0.4;
-  }
-  50% {
-    opacity: 0.1;
-  }
-}
+/* ─── Skeleton Loading — Port LED sweep ─────────────────────
+   Mimics the activity LEDs on a real switch faceplate: a horizontal
+   row of evenly-spaced port lights illuminating in sequence, then
+   resetting. The base block is still a rounded rect that takes the
+   shape of whatever it's standing in for; the LED sweep lives in a
+   ::after layer so reduced-motion clients see a static block. */
 
 .skeleton {
-  background: rgba(255, 255, 255, 0.06);
+  position: relative;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 8px;
+  isolation: isolate;
+}
+
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    /* The "port LEDs" — 16 evenly spaced 6px dots */
+    radial-gradient(
+      circle at center,
+      rgba(87, 101, 244, 0.9) 0,
+      rgba(87, 101, 244, 0.35) 35%,
+      transparent 60%
+    );
+  background-size: 6.25% 100%;
+  background-repeat: repeat-x;
+  background-position: 0 50%;
+  opacity: 0;
+  /* The sweep mask: a 12.5% wide bright window translating across.
+     We use mask-image to fade the LEDs in/out of the window. */
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    transparent 38%,
+    #000 50%,
+    transparent 62%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    transparent 38%,
+    #000 50%,
+    transparent 62%,
+    transparent 100%
+  );
+  -webkit-mask-size: 200% 100%;
+  mask-size: 200% 100%;
+  -webkit-mask-position: -100% 0;
+  mask-position: -100% 0;
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .skeleton {
-    animation: skeleton-pulse 2s ease-in-out infinite;
+  .skeleton::after {
+    opacity: 1;
+    animation: led-sweep 1.8s cubic-bezier(0.65, 0, 0.35, 1) infinite;
   }
+}
+
+@keyframes led-sweep {
+  0% {
+    -webkit-mask-position: -100% 0;
+    mask-position: -100% 0;
+  }
+  100% {
+    -webkit-mask-position: 100% 0;
+    mask-position: 100% 0;
+  }
+}
+
+/* Numeric helper — opt-in for the few places where prose flows next to
+   columns of digits and we want stricter alignment. Body already
+   defaults to tabular-nums; this exists for clarity at the call site. */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Mono helper — wrap inline numeric / code / IP / customer-id readouts
+   in <span class="mono"> so the digits shift to data weight inside
+   prose. Stripe / Linear / Vercel all do this; the eye locks onto
+   wrapped data without needing a separate paragraph or table. */
+.mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "ss01", "tnum";
+}
+
+/* ─── Text tone classes ─────────────────────────────
+   Four roles, picked to sit comfortably on the gradient bg.
+   Class names use the `txt-*` prefix to avoid colliding with the
+   Tailwind 4 utility namespace (`text-primary` would otherwise
+   resolve to the brand blue color from @theme).
+
+     - txt-strong   (95%) → headings, key values
+     - txt-body     (70%) → body paragraphs, descriptions
+     - txt-muted    (55%) → captions, helper text
+     - txt-faint    (40%) → micro-labels, divider headers only
+
+   Prefer these classes over hard-coded `text-white/<N>` so a global
+   contrast tweak is a one-line change.
+*/
+.txt-strong { color: var(--color-text-primary); }
+.txt-body { color: var(--color-text-secondary); }
+.txt-muted { color: var(--color-text-muted); }
+.txt-faint { color: var(--color-text-faint); }
+
+/* ════════════════════════════════════════════════════════
+   FORGE — refined-industrial surface system
+   ────────────────────────────────────────────────────────
+   Material rhythm replaces universal glass: solid dark
+   cards, hairline borders, soft top-light. Glass-blur is
+   demoted to atmospheric overlays only (command palette,
+   modals, auth shell). The rack-unit grid + LED dots are
+   the identity wedge that keeps this from reading generic.
+   ════════════════════════════════════════════════════════ */
+
+:root {
+  /* Radius scale. Distinct names so we don't stomp Tailwind's own
+     --radius-* (which would resize every rounded-md utility app-wide). */
+  --r-control: 9px;   /* buttons, chips, inputs */
+  --r-card: 12px;     /* cards, alerts, dropdowns (denser) */
+  --r-surface: 18px;  /* page-level surfaces, modals */
+
+  /* Easing — named so call sites read clearly. */
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ─── Surface tiers ──────────────────────────────────────
+   page (body) → card → elevated. Each step lighter, all
+   solid material — NOT glass. */
+.surface-card {
+  position: relative;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0) 90px),
+    #1d1830;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: var(--r-card);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+
+.surface-elevated {
+  position: relative;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0) 90px),
+    #241e3a;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: var(--r-card);
+  box-shadow:
+    0 6px 22px rgba(0, 0, 0, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* Cards that are also links/buttons — hairline lifts on hover. */
+.surface-interactive {
+  transition:
+    border-color 0.18s var(--ease-out),
+    background-color 0.18s var(--ease-out),
+    transform 0.18s var(--ease-out),
+    box-shadow 0.18s var(--ease-out);
+}
+.surface-interactive:hover {
+  border-color: rgba(255, 255, 255, 0.16);
+  transform: translateY(-1px);
+  box-shadow:
+    0 8px 26px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+.surface-interactive:active {
+  transform: translateY(0);
+}
+
+/* The one "currently-relevant action" surface per page: a 2px
+   brand-gradient left edge. Use sparingly — one per view. */
+.surface-accent {
+  overflow: hidden;
+}
+.surface-accent::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(
+    180deg,
+    var(--color-primary),
+    var(--color-accent-cyan) 70%
+  );
+}
+
+/* ─── LED status dot ─────────────────────────────────────
+   A small illuminated dot with a matching glow — the "live
+   device" status tell, borrowed from real controller panels.
+   ALWAYS pair with a text label; color is never the only
+   signal (WCAG 1.4.1). */
+.led-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 9999px;
+  flex-shrink: 0;
+}
+.led-dot--green {
+  background: var(--color-accent-green-bright);
+  box-shadow: 0 0 7px 1px var(--color-accent-green-glow);
+}
+.led-dot--amber {
+  background: var(--color-accent-orange-bright);
+  box-shadow: 0 0 7px 1px var(--color-accent-orange-glow);
+}
+.led-dot--red {
+  background: var(--color-accent-red-bright);
+  box-shadow: 0 0 7px 1px var(--color-accent-red-glow);
+}
+.led-dot--muted {
+  background: rgba(255, 255, 255, 0.28);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .led-dot--live {
+    animation: led-breathe 2.4s ease-in-out infinite;
+  }
+}
+@keyframes led-breathe {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }

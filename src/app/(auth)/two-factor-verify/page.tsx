@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ShieldCheck, KeyRound } from "lucide-react";
+import { ShieldCheck, Key } from "@phosphor-icons/react/dist/ssr";
 import { authClient } from "@/lib/auth-client";
 import toast from "react-hot-toast";
 import { AuthShell } from "@/components/layout/auth-shell";
@@ -50,9 +50,9 @@ export default function TwoFactorVerifyPage() {
     >
       <div className="mb-5 flex items-center justify-center gap-2 text-sm text-white/60">
         {useBackup ? (
-          <KeyRound className="h-4 w-4" />
+          <Key className="h-4 w-4" weight="duotone" />
         ) : (
-          <ShieldCheck className="h-4 w-4" />
+          <ShieldCheck className="h-4 w-4" weight="duotone" />
         )}
         {useBackup
           ? "Enter one of your backup codes"

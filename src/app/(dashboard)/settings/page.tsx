@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CreditCard, FileText } from "lucide-react";
+import { CreditCard, FileText } from "@phosphor-icons/react/dist/ssr";
 import { requireMember } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
 import { getUsageSummary } from "@/lib/tiers";
@@ -116,10 +116,10 @@ export default async function SettingsPage({
         {roleHasAccess(role, "admin") && (
           <Link
             href="/settings/billing"
-            className="glass-card flex items-center justify-between rounded-xl p-6 transition-colors hover:bg-white/[0.04]"
+            className="surface-card flex items-center justify-between p-6 transition-colors hover:bg-white/[0.04]"
           >
             <div className="flex items-center gap-3">
-              <CreditCard className="h-5 w-5 text-primary" />
+              <CreditCard className="h-5 w-5 text-primary" weight="duotone" />
               <div>
                 <div className="text-base font-semibold text-white">
                   Billing
@@ -135,10 +135,10 @@ export default async function SettingsPage({
 
         <Link
           href="/settings/audit"
-          className="glass-card flex items-center justify-between rounded-xl p-6 transition-colors hover:bg-white/[0.04]"
+          className="surface-card flex items-center justify-between p-6 transition-colors hover:bg-white/[0.04]"
         >
           <div className="flex items-center gap-3">
-            <FileText className="h-5 w-5 text-primary" />
+            <FileText className="h-5 w-5 text-primary" weight="duotone" />
             <div>
               <div className="text-base font-semibold text-white">
                 Audit log

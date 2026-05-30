@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { Building2, KeyRound, Wrench } from "lucide-react";
+import { Buildings, Key, Wrench } from "@phosphor-icons/react/dist/ssr";
 import { getSession } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
 import { OwnershipTransferForm } from "./ownership-transfer-form";
@@ -79,7 +79,11 @@ export default async function OwnershipTransferPage({
     <Shell>
       <div className="mb-3 flex items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-300/15">
-          <KeyRound className="h-5 w-5 text-amber-200" aria-hidden />
+          <Key
+            weight="duotone"
+            className="h-5 w-5 text-amber-200"
+            aria-hidden
+          />
         </div>
         <div className="min-w-0">
           <h1 className="truncate text-xl font-bold text-white">
@@ -99,8 +103,8 @@ export default async function OwnershipTransferPage({
         . The previous owner becomes an admin.
       </p>
       <p className="mt-3 flex items-center gap-2 text-xs text-white/50">
-        <Building2 className="h-3.5 w-3.5" aria-hidden />/{" "}
-        {transfer.organization.slug}
+        <Buildings weight="duotone" className="h-3.5 w-3.5" aria-hidden />
+        <span className="mono">/ {transfer.organization.slug}</span>
       </p>
 
       <OwnershipTransferForm transferId={transfer.id} />
@@ -113,7 +117,11 @@ function Shell({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-screen items-center justify-center px-4">
       <div className="glass-panel w-full max-w-md rounded-2xl p-8">
         <div className="mb-5 flex items-center gap-2 text-sm text-white/50">
-          <Wrench className="h-4 w-4 text-primary" aria-hidden />
+          <Wrench
+            weight="duotone"
+            className="h-4 w-4 text-primary"
+            aria-hidden
+          />
           RackSmith
         </div>
         {children}

@@ -1,7 +1,14 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Calculator, Copy, Check, Plus, Trash2, Split } from "lucide-react";
+import {
+  Calculator,
+  Copy,
+  Check,
+  Plus,
+  TrashSimple,
+  ArrowsSplit,
+} from "@phosphor-icons/react/dist/ssr";
 import toast from "react-hot-toast";
 import { twMerge } from "tailwind-merge";
 import {
@@ -44,7 +51,11 @@ export function SubnetCalcClient() {
     <div className="mx-auto max-w-5xl space-y-6">
       <div>
         <h1 className="flex items-center gap-2 text-3xl font-bold text-white">
-          <Calculator className="h-7 w-7 text-primary" aria-hidden />
+          <Calculator
+            className="h-7 w-7 text-primary"
+            weight="duotone"
+            aria-hidden
+          />
           Subnet Calculator
         </h1>
         <p className="mt-1 text-white/60">
@@ -53,7 +64,7 @@ export function SubnetCalcClient() {
         </p>
       </div>
 
-      <div className="glass-card rounded-xl p-6">
+      <div className="surface-card p-6">
         <label
           htmlFor="cidr-input"
           className="mb-1.5 block text-sm font-medium text-white/70"
@@ -71,7 +82,7 @@ export function SubnetCalcClient() {
           aria-describedby={
             !result.ok && cidr.trim() !== "" ? "cidr-error" : undefined
           }
-          className="glass-input w-full rounded-lg px-4 py-3 font-mono text-base"
+          className="glass-input mono w-full rounded-lg px-4 py-3 text-base"
           placeholder="192.168.1.0/24"
         />
         {!result.ok && cidr.trim() !== "" && (
@@ -133,7 +144,7 @@ function ResultCard({ details }: { details: ParsedCidr }) {
   ];
 
   return (
-    <section className="glass-card rounded-xl p-6">
+    <section className="surface-card p-6">
       <h2 className="mb-4 text-lg font-semibold text-white">Subnet details</h2>
       <dl className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
         {rows.map((r) => (
@@ -143,9 +154,7 @@ function ResultCard({ details }: { details: ParsedCidr }) {
           >
             <dt className="text-sm text-white/50">{r.label}</dt>
             <dd className="flex items-center gap-2">
-              <span
-                className={twMerge("text-sm text-white", r.mono && "font-mono")}
-              >
+              <span className={twMerge("text-sm text-white", r.mono && "mono")}>
                 {r.value}
               </span>
               <CopyButton value={r.value} />
@@ -159,7 +168,7 @@ function ResultCard({ details }: { details: ParsedCidr }) {
           <div className="mb-1 text-xs uppercase tracking-wider text-white/40">
             Network in binary
           </div>
-          <code className="block break-all font-mono text-xs text-white/80">
+          <code className="mono block break-all text-xs text-white/80">
             {ipv4ToBinary(details.network)}
           </code>
         </div>
@@ -202,14 +211,18 @@ function VlsmSplitter({ parent }: { parent: ParsedCidr }) {
   }, [requirements, parent.cidr]);
 
   return (
-    <section className="glass-card rounded-xl p-6">
+    <section className="surface-card p-6">
       <div className="mb-4 flex items-center gap-2">
-        <Split className="h-5 w-5 text-accent-purple" aria-hidden />
+        <ArrowsSplit
+          className="h-5 w-5 text-accent-purple"
+          weight="bold"
+          aria-hidden
+        />
         <h2 className="text-lg font-semibold text-white">VLSM splitter</h2>
       </div>
       <p className="mb-4 text-sm text-white/50">
-        Divide {parent.cidr} into variable-length subnets sized to each
-        requirement.
+        Divide <span className="mono">{parent.cidr}</span> into variable-length
+        subnets sized to each requirement.
       </p>
 
       <div className="space-y-2">
@@ -235,7 +248,7 @@ function VlsmSplitter({ parent }: { parent: ParsedCidr }) {
               aria-label={`Segment ${r.name || r.id} host count`}
               min={0}
               max={1_000_000}
-              className="glass-input rounded-lg px-3 py-2 font-mono text-sm"
+              className="glass-input mono rounded-lg px-3 py-2 text-sm"
             />
             <button
               type="button"
@@ -244,7 +257,7 @@ function VlsmSplitter({ parent }: { parent: ParsedCidr }) {
               disabled={requirements.length <= 1}
               className="flex h-9 w-9 items-center justify-center rounded-lg text-white/40 transition-colors hover:bg-white/[0.06] hover:text-accent-red disabled:cursor-not-allowed disabled:opacity-30"
             >
-              <Trash2 className="h-4 w-4" aria-hidden />
+              <TrashSimple className="h-4 w-4" weight="bold" aria-hidden />
             </button>
           </div>
         ))}
@@ -255,7 +268,7 @@ function VlsmSplitter({ parent }: { parent: ParsedCidr }) {
         onClick={add}
         className="glass-button mt-3 flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium text-white"
       >
-        <Plus className="h-3.5 w-3.5" aria-hidden />
+        <Plus className="h-3.5 w-3.5" weight="bold" aria-hidden />
         Add segment
       </button>
 
@@ -284,7 +297,8 @@ function VlsmSplitter({ parent }: { parent: ParsedCidr }) {
           </table>
           {result.unusedHosts > 0n && (
             <div className="border-t border-white/10 bg-white/[0.02] px-4 py-2 text-xs text-white/40">
-              {formatBig(result.unusedHosts)} addresses unused
+              <span className="mono">{formatBig(result.unusedHosts)}</span>{" "}
+              addresses unused
             </div>
           )}
         </div>
@@ -297,11 +311,11 @@ function AllocationRow({ allocation: a }: { allocation: VlsmAllocation }) {
   return (
     <tr className="transition-colors hover:bg-white/[0.03]">
       <td className="px-4 py-2 text-white">{a.name}</td>
-      <td className="px-4 py-2 font-mono text-white/90">{a.cidr}</td>
-      <td className="px-4 py-2 font-mono text-xs text-white/60">
+      <td className="mono px-4 py-2 text-white/90">{a.cidr}</td>
+      <td className="mono px-4 py-2 text-xs text-white/60">
         {a.firstIp} – {a.lastIp}
       </td>
-      <td className="px-4 py-2 text-right font-mono text-white/70">
+      <td className="mono px-4 py-2 text-right text-white/70">
         {formatBig(a.usableHosts)}
       </td>
     </tr>
@@ -327,9 +341,13 @@ function CopyButton({ value }: { value: string }) {
       className="rounded p-1 text-white/30 transition-colors hover:bg-white/[0.06] hover:text-white/80"
     >
       {copied ? (
-        <Check className="h-3.5 w-3.5 text-accent-green" aria-hidden />
+        <Check
+          className="h-3.5 w-3.5 text-accent-green"
+          weight="bold"
+          aria-hidden
+        />
       ) : (
-        <Copy className="h-3.5 w-3.5" aria-hidden />
+        <Copy className="h-3.5 w-3.5" weight="bold" aria-hidden />
       )}
     </button>
   );

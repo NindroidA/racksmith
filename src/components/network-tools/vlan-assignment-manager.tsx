@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { twMerge } from "tailwind-merge";
-import { Plus, Trash2, X } from "lucide-react";
+import { Plus, TrashSimple, X } from "@phosphor-icons/react/dist/ssr";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
 import { Select, SelectOption } from "@/components/ui/select";
 import {
@@ -100,7 +100,7 @@ export function VlanAssignmentManager({
   };
 
   return (
-    <section className="glass-card rounded-xl p-6">
+    <section className="surface-card p-6">
       <div className="mb-3 flex items-center justify-between">
         <h2 className="text-lg font-semibold text-white">Device assignments</h2>
         {!adding && (
@@ -110,7 +110,7 @@ export function VlanAssignmentManager({
             disabled={devices.length === 0}
             className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-white hover:bg-primary/90 disabled:opacity-50"
           >
-            <Plus className="h-3.5 w-3.5" aria-hidden />
+            <Plus className="h-3.5 w-3.5" weight="bold" aria-hidden />
             Assign to device
           </button>
         )}
@@ -135,7 +135,7 @@ export function VlanAssignmentManager({
               aria-label="Cancel"
               className="rounded p-1 text-white/40 hover:bg-white/[0.06] hover:text-white"
             >
-              <X className="h-4 w-4" aria-hidden />
+              <X className="h-4 w-4" weight="bold" aria-hidden />
             </button>
           </div>
 
@@ -260,7 +260,9 @@ export function VlanAssignmentManager({
                       {a.mode}
                     </span>
                     {a.portNumber && (
-                      <span className="font-mono">port {a.portNumber}</span>
+                      <span>
+                        port <span className="mono">{a.portNumber}</span>
+                      </span>
                     )}
                     <span>{a.tagged ? "tagged" : "untagged"}</span>
                     <span className="text-white/30">{a.device.deviceType}</span>
@@ -272,7 +274,7 @@ export function VlanAssignmentManager({
                   aria-label={`Remove assignment from ${label}`}
                   className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded text-white/40 hover:bg-white/[0.06] hover:text-accent-red focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/50"
                 >
-                  <Trash2 className="h-4 w-4" aria-hidden />
+                  <TrashSimple className="h-4 w-4" weight="bold" aria-hidden />
                 </button>
               </li>
             );

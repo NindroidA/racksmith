@@ -6,13 +6,13 @@ import { useReducedMotion } from "framer-motion";
 import toast from "react-hot-toast";
 import { twMerge } from "tailwind-merge";
 import {
-  AlertCircle,
-  Ban,
-  CheckCircle2,
-  History,
-  Loader2,
-  Trash2,
-} from "lucide-react";
+  WarningCircle,
+  Prohibit,
+  CheckCircle,
+  ClockCounterClockwise,
+  CircleNotch,
+  TrashSimple,
+} from "@phosphor-icons/react/dist/ssr";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
 import { deleteScan } from "@/app/(dashboard)/discovery/actions";
 
@@ -69,9 +69,12 @@ export function ScanHistory({ scans }: Props) {
 
   if (scans.length === 0) {
     return (
-      <div className="glass-card flex flex-col items-center rounded-xl py-10 text-center">
+      <div className="surface-card flex flex-col items-center py-10 text-center">
         <div className="mb-2 rounded-xl bg-white/[0.04] p-3">
-          <History className="h-5 w-5 text-white/40" />
+          <ClockCounterClockwise
+            className="h-5 w-5 text-white/40"
+            weight="duotone"
+          />
         </div>
         <p className="text-xs text-white/40">
           No scans yet. Run your first scan above.
@@ -81,7 +84,7 @@ export function ScanHistory({ scans }: Props) {
   }
 
   return (
-    <div className="glass-card overflow-hidden rounded-xl">
+    <div className="surface-card overflow-hidden">
       <table className="w-full text-sm">
         <caption className="sr-only">Recent network scans</caption>
         <thead>
@@ -119,8 +122,8 @@ export function ScanHistory({ scans }: Props) {
                 key={scan.id}
                 className="transition-colors hover:bg-white/[0.03]"
               >
-                <td className="px-4 py-3 font-mono text-white">
-                  {scan.subnet}
+                <td className="px-4 py-3 text-white">
+                  <span className="mono">{scan.subnet}</span>
                 </td>
                 <td className="px-4 py-3">
                   <span
@@ -134,15 +137,26 @@ export function ScanHistory({ scans }: Props) {
                     )}
                   >
                     {scan.status === "completed" && (
-                      <CheckCircle2 className="h-3 w-3" aria-hidden />
+                      <CheckCircle
+                        className="h-3 w-3"
+                        weight="bold"
+                        aria-hidden
+                      />
                     )}
                     {isFailed && (
-                      <AlertCircle className="h-3 w-3" aria-hidden />
+                      <WarningCircle
+                        className="h-3 w-3"
+                        weight="bold"
+                        aria-hidden
+                      />
                     )}
-                    {isCancelled && <Ban className="h-3 w-3" aria-hidden />}
+                    {isCancelled && (
+                      <Prohibit className="h-3 w-3" weight="bold" aria-hidden />
+                    )}
                     {isRunning && (
-                      <Loader2
+                      <CircleNotch
                         className={`h-3 w-3 ${reduceMotion ? "" : "animate-spin"}`}
+                        weight="bold"
                         aria-hidden
                       />
                     )}
@@ -157,22 +171,31 @@ export function ScanHistory({ scans }: Props) {
                 <td className="px-4 py-3 text-white/70">
                   {scan.status === "completed" ? (
                     <div className="flex items-baseline gap-2">
-                      <span className="font-mono text-white">
-                        {scan.hostsFound}
-                      </span>
+                      <span className="mono text-white">{scan.hostsFound}</span>
                       <span className="text-xs text-white/40">
-                        {scan.hostsNew} new · {scan.hostsKnown} known
+                        <span className="mono">{scan.hostsNew}</span> new ·{" "}
+                        <span className="mono">{scan.hostsKnown}</span> known
                       </span>
                     </div>
                   ) : (
                     <span className="text-white/30">—</span>
                   )}
                 </td>
-                <td className="px-4 py-3 font-mono text-xs text-white/50">
-                  {scan.duration != null ? `${scan.duration}s` : "—"}
+                <td className="px-4 py-3 text-xs text-white/50">
+                  {scan.duration != null ? (
+                    <span className="mono">{scan.duration}s</span>
+                  ) : (
+                    "—"
+                  )}
                 </td>
                 <td className="px-4 py-3 text-xs text-white/50">
-                  {when ? new Date(when).toLocaleString() : "—"}
+                  {when ? (
+                    <span className="mono">
+                      {new Date(when).toLocaleString()}
+                    </span>
+                  ) : (
+                    "—"
+                  )}
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center justify-end">
@@ -186,7 +209,11 @@ export function ScanHistory({ scans }: Props) {
                       className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded p-1 text-white/40 transition-colors hover:bg-accent-red/20 hover:text-accent-red disabled:opacity-30"
                       title="Delete scan"
                     >
-                      <Trash2 className="h-3.5 w-3.5" aria-hidden />
+                      <TrashSimple
+                        className="h-3.5 w-3.5"
+                        weight="bold"
+                        aria-hidden
+                      />
                     </button>
                   </div>
                 </td>
@@ -203,10 +230,8 @@ export function ScanHistory({ scans }: Props) {
         body={
           <p>
             Delete the scan record for{" "}
-            <span className="font-mono text-white">
-              {confirmTarget?.subnet}
-            </span>
-            ? This only removes the history entry — any devices already imported
+            <span className="mono text-white">{confirmTarget?.subnet}</span>?
+            This only removes the history entry — any devices already imported
             from this scan stay in your inventory.
           </p>
         }

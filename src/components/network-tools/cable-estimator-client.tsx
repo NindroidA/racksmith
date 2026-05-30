@@ -1,7 +1,11 @@
 "use client";
 
 import { useId, useMemo, useRef, useState } from "react";
-import { Cable, Plus, Trash2 } from "lucide-react";
+import {
+  PlugsConnected,
+  Plus,
+  TrashSimple,
+} from "@phosphor-icons/react/dist/ssr";
 import { twMerge } from "tailwind-merge";
 import { Select, SelectOption } from "@/components/ui/select";
 import {
@@ -18,6 +22,13 @@ const STATUS_COLOR: Record<string, string> = {
   warning: "text-accent-orange",
   exceeded: "text-red-500",
   speed_mismatch: "text-red-500",
+};
+
+const STATUS_LED: Record<string, string> = {
+  ok: "led-dot--green",
+  warning: "led-dot--amber",
+  exceeded: "led-dot--red",
+  speed_mismatch: "led-dot--red",
 };
 
 type Row = {
@@ -98,9 +109,13 @@ export function CableEstimatorClient() {
 
   return (
     <div className="space-y-8">
-      <section className="glass-card rounded-xl p-6">
+      <section className="surface-card p-6">
         <header className="mb-4 flex items-center gap-2">
-          <Cable className="h-5 w-5 text-primary" aria-hidden />
+          <PlugsConnected
+            className="h-5 w-5 text-primary"
+            weight="duotone"
+            aria-hidden
+          />
           <h2 className="text-lg font-semibold text-white">Cable runs</h2>
         </header>
 
@@ -184,15 +199,22 @@ export function CableEstimatorClient() {
                     />
                   </td>
                   <td className="px-2 py-2 text-white/70">
-                    {result.recommendedMeters} m
+                    <span className="mono">{result.recommendedMeters}</span> m
                   </td>
                   <td className="px-2 py-2">
                     <span
                       className={twMerge(
-                        "text-xs font-medium uppercase",
+                        "inline-flex items-center gap-1.5 text-xs font-medium uppercase",
                         STATUS_COLOR[result.status],
                       )}
                     >
+                      <span
+                        className={twMerge(
+                          "led-dot",
+                          STATUS_LED[result.status],
+                        )}
+                        aria-hidden
+                      />
                       {result.status.replace("_", " ")}
                     </span>
                   </td>
@@ -203,7 +225,7 @@ export function CableEstimatorClient() {
                       aria-label={`Remove ${CABLE_SPECS[row.cableType].label} cable run`}
                       className="flex h-8 w-8 items-center justify-center rounded-lg text-white/40 transition-colors hover:bg-red-500/10 hover:text-red-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/50"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <TrashSimple className="h-4 w-4" weight="bold" />
                     </button>
                   </td>
                 </tr>
@@ -217,13 +239,14 @@ export function CableEstimatorClient() {
           onClick={addRow}
           className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-1.5 text-sm text-white/80 hover:bg-white/[0.08]"
         >
-          <Plus className="h-3.5 w-3.5" aria-hidden /> Add cable run
+          <Plus className="h-3.5 w-3.5" weight="bold" aria-hidden /> Add cable
+          run
         </button>
 
         <NotesList evaluated={evaluated} />
       </section>
 
-      <section className="glass-card rounded-xl p-6">
+      <section className="surface-card p-6">
         <h2 className="mb-3 text-lg font-semibold text-white">
           Bill of materials
         </h2>
@@ -240,9 +263,12 @@ export function CableEstimatorClient() {
               >
                 <span className="text-white">
                   {CABLE_SPECS[line.cableType].label}{" "}
-                  <span className="text-white/40">·</span> {line.lengthMeters} m
+                  <span className="text-white/40">·</span>{" "}
+                  <span className="mono">{line.lengthMeters}</span> m
                 </span>
-                <span className="text-white/60">× {line.count}</span>
+                <span className="text-white/60">
+                  × <span className="mono">{line.count}</span>
+                </span>
               </li>
             ))}
           </ul>

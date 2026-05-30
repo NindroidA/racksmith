@@ -1,9 +1,15 @@
 "use client";
 
 import { useId, useState, useTransition } from "react";
-import { Sparkles, Building2, Check, Loader2 } from "lucide-react";
+import {
+  Sparkle,
+  Buildings,
+  Check,
+  CircleNotch,
+} from "@phosphor-icons/react/dist/ssr";
 import toast from "react-hot-toast";
 
+import { Button } from "@/components/ui/button";
 import { describeError } from "@/lib/error-message";
 import { PLAN_PRICING_USD, type PriceKey } from "@/lib/billing-pricing";
 
@@ -111,9 +117,9 @@ export function UpgradeOptions({
 
   if (!emailVerified) {
     return (
-      <section className="glass-card rounded-xl border border-accent-orange/30 p-6">
+      <section className="surface-card border border-accent-orange/30 p-6">
         <div className="mb-2 flex items-center gap-2 text-base font-semibold text-accent-orange">
-          <Sparkles className="h-4 w-4" />
+          <Sparkle className="h-4 w-4" weight="duotone" />
           Verify your email to upgrade
         </div>
         <p className="text-sm text-white/60">
@@ -135,7 +141,7 @@ export function UpgradeOptions({
   const annual = cycle === "annual";
 
   return (
-    <section className="glass-card rounded-xl p-6">
+    <section className="surface-card p-6">
       <div className="mb-5 flex items-center justify-between gap-4">
         <div>
           <h2 className="text-base font-semibold text-white">
@@ -188,7 +194,7 @@ export function UpgradeOptions({
       <div className="grid gap-4 md:grid-cols-2">
         <PlanCard
           tier="pro"
-          icon={<Sparkles className="h-5 w-5 text-primary" />}
+          icon={<Sparkle className="h-5 w-5 text-primary" weight="duotone" />}
           name="Pro"
           tagline="Unlimited racks, team, and API access"
           price={priceFor("pro", cycle, memberCount)}
@@ -201,7 +207,7 @@ export function UpgradeOptions({
         />
         <PlanCard
           tier="business"
-          icon={<Building2 className="h-5 w-5 text-primary" />}
+          icon={<Buildings className="h-5 w-5 text-primary" weight="duotone" />}
           name="Business"
           tagline="Per-seat pricing for growing teams"
           price={priceFor("business", cycle, memberCount)}
@@ -254,8 +260,8 @@ function PlanCard({
     <div
       className={
         recommended
-          ? "relative flex flex-col rounded-xl border border-primary/60 bg-primary/[0.04] p-5 shadow-lg shadow-primary/10"
-          : "flex flex-col rounded-xl border border-white/10 bg-white/[0.02] p-5"
+          ? "surface-elevated relative flex flex-col border border-primary/60 p-5"
+          : "surface-card flex flex-col p-5"
       }
     >
       {recommended && (
@@ -270,29 +276,38 @@ function PlanCard({
       <p className="mb-4 text-sm text-white/60">{tagline}</p>
 
       <div className="mb-5">
-        <div className="text-3xl font-bold text-white">{price.display}</div>
+        <div className="mono text-3xl font-bold text-white">
+          {price.display}
+        </div>
         <div className="text-xs text-white/50">{price.sub}</div>
       </div>
 
       <ul className="mb-6 flex flex-col gap-2 text-sm text-white/70">
         {features.map((f) => (
           <li key={f} className="flex items-start gap-2">
-            <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-accent-green" />
+            <Check
+              className="mt-0.5 h-4 w-4 flex-shrink-0 text-accent-green"
+              weight="bold"
+            />
             <span>{f}</span>
           </li>
         ))}
       </ul>
 
-      <button
-        type="button"
+      <Button
+        variant="primary"
         onClick={onSelect}
         disabled={disabled}
         aria-busy={pending}
-        className="mt-auto inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+        className="mt-auto w-full"
+        iconLeft={
+          pending ? (
+            <CircleNotch className="h-4 w-4 animate-spin" weight="bold" />
+          ) : undefined
+        }
       >
-        {pending && <Loader2 className="h-4 w-4 animate-spin" />}
         {ctaLabel}
-      </button>
+      </Button>
     </div>
   );
 }

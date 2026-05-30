@@ -3,7 +3,11 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { Radar, AlertCircle, Loader2 } from "lucide-react";
+import {
+  Broadcast,
+  WarningCircle,
+  CircleNotch,
+} from "@phosphor-icons/react/dist/ssr";
 import { describeError } from "@/lib/error-message";
 
 type Props = {
@@ -42,9 +46,9 @@ export function ScanStarter({ defaultSubnet, disabled }: Props) {
   }
 
   return (
-    <div className="glass-card rounded-xl p-6">
+    <div className="surface-card p-6">
       <div className="mb-4 flex items-center gap-2">
-        <Radar className="h-5 w-5 text-accent-green" />
+        <Broadcast className="h-5 w-5 text-accent-green" weight="duotone" />
         <h2 className="text-lg font-semibold text-white">Scan a network</h2>
       </div>
 
@@ -73,7 +77,7 @@ export function ScanStarter({ defaultSubnet, disabled }: Props) {
             autoComplete="off"
           />
           <p className="mt-1.5 text-xs text-white/40">
-            Uses <span className="font-mono">nmap -sn</span> ping scan. Fast, no
+            Uses <span className="mono">nmap -sn</span> ping scan. Fast, no
             privileges required. Max /16.
           </p>
         </div>
@@ -86,12 +90,16 @@ export function ScanStarter({ defaultSubnet, disabled }: Props) {
         >
           {pending ? (
             <>
-              <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+              <CircleNotch
+                className="h-4 w-4 animate-spin"
+                weight="duotone"
+                aria-hidden
+              />
               Starting...
             </>
           ) : (
             <>
-              <Radar className="h-4 w-4" aria-hidden />
+              <Broadcast className="h-4 w-4" weight="duotone" aria-hidden />
               Start Scan
             </>
           )}
@@ -100,7 +108,7 @@ export function ScanStarter({ defaultSubnet, disabled }: Props) {
 
       {error && (
         <div className="mt-3 flex items-start gap-2 rounded-lg border border-accent-red/30 bg-accent-red/10 p-3 text-sm text-accent-red">
-          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+          <WarningCircle className="mt-0.5 h-4 w-4 shrink-0" weight="duotone" />
           <span>{error}</span>
         </div>
       )}

@@ -2,7 +2,7 @@
 
 import { type ReactNode } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { Wrench } from "lucide-react";
+import { Wrench } from "@phosphor-icons/react/dist/ssr";
 
 type Props = {
   /**
@@ -32,7 +32,11 @@ export function AuthShell({ title, children }: Props) {
       <div className="glass-panel rounded-2xl p-8">
         <div className="mb-8 flex flex-col items-center">
           <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20">
-            <Wrench className="h-7 w-7 text-primary" aria-hidden />
+            <Wrench
+              className="h-7 w-7 text-primary"
+              aria-hidden
+              weight="duotone"
+            />
           </div>
           <p className="gradient-text text-2xl font-bold">RackSmith</p>
           {title && (

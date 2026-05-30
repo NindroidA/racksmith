@@ -3,7 +3,7 @@
 import { useEffect, useId, useRef, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { X } from "lucide-react";
+import { X } from "@phosphor-icons/react/dist/ssr";
 import { twMerge } from "tailwind-merge";
 import { useFocusTrap } from "@/hooks/use-focus-trap";
 
@@ -107,7 +107,7 @@ export function TemplateGallery<T extends Item>({
                 aria-label="Close template gallery"
                 className="rounded-lg p-1.5 text-white/40 transition-colors hover:bg-white/[0.06] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/50"
               >
-                <X className="h-5 w-5" aria-hidden />
+                <X className="h-5 w-5" weight="bold" aria-hidden />
               </button>
             </header>
 
@@ -127,7 +127,7 @@ export function TemplateGallery<T extends Item>({
                         onClick={() => onSelect(item)}
                         disabled={!!submittingId}
                         className={twMerge(
-                          "glass-card group flex flex-col items-stretch rounded-xl p-4 text-left transition-all",
+                          "surface-card surface-interactive group flex flex-col items-stretch p-4 text-left",
                           "disabled:cursor-wait disabled:opacity-60",
                         )}
                       >

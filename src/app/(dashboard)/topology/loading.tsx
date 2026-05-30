@@ -18,7 +18,7 @@ export default function TopologyLoading() {
         ))}
       </div>
 
-      <div className="glass-card h-[600px] animate-pulse rounded-xl bg-white/[0.02]" />
+      <div className="surface-card h-[600px] animate-pulse bg-white/[0.02]" />
     </div>
   );
 }

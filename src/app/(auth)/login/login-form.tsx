@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Mail, Lock } from "lucide-react";
+import { Envelope, Lock } from "@phosphor-icons/react/dist/ssr";
 import { signIn } from "@/lib/auth-client";
 import toast from "react-hot-toast";
 import type { OAuthProviders } from "@/lib/oauth-providers";
@@ -92,7 +92,10 @@ export function LoginForm({
             Email
           </label>
           <div className="relative">
-            <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" />
+            <Envelope
+              className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30"
+              weight="duotone"
+            />
             <input
               id="email"
               type="email"
@@ -122,7 +125,10 @@ export function LoginForm({
             </Link>
           </div>
           <div className="relative">
-            <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" />
+            <Lock
+              className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30"
+              weight="duotone"
+            />
             <input
               id="password"
               type="password"

@@ -1,7 +1,7 @@
 import { requireMember } from "@/lib/auth-helpers";
 import { withTenant } from "@/lib/prisma-tenant";
 import Link from "next/link";
-import { Plus, Lock } from "lucide-react";
+import { Plus, Lock } from "@phosphor-icons/react/dist/ssr";
 import { COLOR_TAG_MAP } from "@/types";
 import type { ColorTag } from "@/types";
 import { getUsageSummary } from "@/lib/tiers";
@@ -30,10 +30,15 @@ export default async function RacksPage() {
         <div>
           <h1 className="text-3xl font-bold text-white">Racks</h1>
           <p className="mt-1 text-white/60">
-            {racks.length} rack{racks.length !== 1 ? "s" : ""} configured
+            <span className="mono">{racks.length}</span> rack
+            {racks.length !== 1 ? "s" : ""} configured
             {rackLimit !== null && (
               <span className="ml-2 text-white/40">
-                · {usage.racks.current}/{rackLimit} on {usage.planLabel}
+                ·{" "}
+                <span className="mono">
+                  {usage.racks.current}/{rackLimit}
+                </span>{" "}
+                on {usage.planLabel}
               </span>
             )}
           </p>
@@ -43,9 +48,10 @@ export default async function RacksPage() {
             role="status"
             className="flex items-center gap-2 rounded-lg border border-accent-orange/40 bg-accent-orange/10 px-4 py-2.5 text-sm font-medium text-accent-orange"
           >
-            <Lock className="h-4 w-4" aria-hidden />
+            <Lock className="h-4 w-4" weight="duotone" aria-hidden />
             <span>
-              Rack limit reached ({rackLimit} on {usage.planLabel})
+              Rack limit reached (<span className="mono">{rackLimit}</span> on{" "}
+              {usage.planLabel})
             </span>
           </div>
         ) : (
@@ -53,7 +59,7 @@ export default async function RacksPage() {
             href="/racks/new"
             className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white transition-all hover:bg-primary/90"
           >
-            <Plus className="h-4 w-4" />
+            <Plus className="h-4 w-4" weight="bold" aria-hidden />
             Add Rack
           </Link>
         )}
@@ -68,13 +74,15 @@ export default async function RacksPage() {
               COLOR_TAG_MAP[rack.colorTag as ColorTag] || COLOR_TAG_MAP.blue;
             return (
               <Link key={rack.id} href={`/racks/${rack.id}`}>
-                <div className="glass-card rounded-xl p-6">
+                <div className="surface-card p-6">
                   <div className="mb-3 flex items-center justify-between">
                     <div
                       className="h-2 w-8 rounded-full"
                       style={{ backgroundColor: tagColor }}
                     />
-                    <span className="text-xs text-white/40">{rack.sizeU}U</span>
+                    <span className="text-xs text-white/40">
+                      <span className="mono">{rack.sizeU}</span>U
+                    </span>
                   </div>
                   <h3 className="mb-1 text-lg font-semibold text-white">
                     {rack.name}
@@ -85,7 +93,10 @@ export default async function RacksPage() {
                     </p>
                   )}
                   <div className="flex items-center gap-4 text-sm text-white/60">
-                    <span>{rack._count.devices} devices</span>
+                    <span>
+                      <span className="mono">{rack._count.devices}</span>{" "}
+                      devices
+                    </span>
                   </div>
                 </div>
               </Link>

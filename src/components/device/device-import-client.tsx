@@ -6,14 +6,15 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import {
   ArrowLeft,
-  Upload,
+  UploadSimple,
   FileText,
-  CheckCircle2,
-  AlertCircle,
-} from "lucide-react";
+  CheckCircle,
+  WarningCircle,
+} from "@phosphor-icons/react/dist/ssr";
 import { parseCsv, csvToDeviceRows, type CsvDeviceRow } from "@/lib/csv";
 import { importDevices } from "@/app/(dashboard)/devices/actions";
 import { describeError } from "@/lib/error-message";
+import { Button } from "@/components/ui/button";
 
 const SAMPLE_CSV = `name,deviceType,manufacturer,model,sizeU,portCount,powerWatts,ipAddress,macAddress,hostname,notes
 Main Switch,switch,cisco,C9300-48P,1,48,715,192.168.1.10,aa:bb:cc:dd:ee:ff,sw-core-01,Core switch
@@ -89,7 +90,7 @@ export function DeviceImportClient() {
         href="/devices"
         className="mb-4 inline-flex items-center gap-2 text-sm text-white/60 transition-colors hover:text-white"
       >
-        <ArrowLeft className="h-4 w-4" />
+        <ArrowLeft className="h-4 w-4" weight="bold" />
         Back to Devices
       </Link>
 
@@ -103,68 +104,69 @@ export function DeviceImportClient() {
         </p>
       </div>
 
-      <section className="mb-6 glass-card rounded-xl p-6">
+      <section className="mb-6 surface-card p-6">
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-white/50">
           Expected columns
         </h2>
         <div className="mb-4 grid grid-cols-2 gap-x-6 gap-y-2 text-sm md:grid-cols-3">
           <div>
             <span className="text-accent-red">*</span>{" "}
-            <span className="font-mono text-white">name</span>
+            <span className="mono text-white">name</span>
           </div>
           <div>
             <span className="text-accent-red">*</span>{" "}
-            <span className="font-mono text-white">deviceType</span>
+            <span className="mono text-white">deviceType</span>
             <div className="text-xs text-white/40">
               router, switch, server, firewall, ups, patch_panel, pdu, storage,
               other
             </div>
           </div>
           <div>
-            <span className="font-mono text-white/70">manufacturer</span>
+            <span className="mono text-white/70">manufacturer</span>
           </div>
           <div>
-            <span className="font-mono text-white/70">model</span>
+            <span className="mono text-white/70">model</span>
           </div>
           <div>
-            <span className="font-mono text-white/70">sizeU</span>
+            <span className="mono text-white/70">sizeU</span>
           </div>
           <div>
-            <span className="font-mono text-white/70">portCount</span>
+            <span className="mono text-white/70">portCount</span>
           </div>
           <div>
-            <span className="font-mono text-white/70">powerWatts</span>
+            <span className="mono text-white/70">powerWatts</span>
           </div>
           <div>
-            <span className="font-mono text-white/70">ipAddress</span>
+            <span className="mono text-white/70">ipAddress</span>
           </div>
           <div>
-            <span className="font-mono text-white/70">macAddress</span>
+            <span className="mono text-white/70">macAddress</span>
           </div>
           <div>
-            <span className="font-mono text-white/70">hostname</span>
+            <span className="mono text-white/70">hostname</span>
           </div>
           <div>
-            <span className="font-mono text-white/70">notes</span>
+            <span className="mono text-white/70">notes</span>
           </div>
         </div>
 
-        <button
+        <Button
+          variant="secondary"
+          size="sm"
           onClick={downloadSample}
-          className="glass-button inline-flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-medium text-white"
+          iconLeft={<FileText className="h-3.5 w-3.5" weight="duotone" />}
         >
-          <FileText className="h-3.5 w-3.5" />
           Download sample CSV
-        </button>
+        </Button>
       </section>
 
       {/* Upload zone */}
-      <section className="mb-6 glass-card rounded-xl p-6">
+      <section className="mb-6 surface-card p-6">
         <label
           htmlFor="csv-file"
           className="flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-white/15 bg-white/[0.02] p-10 transition-colors hover:border-primary/40 hover:bg-primary/[0.04]"
         >
-          <Upload className="h-8 w-8 text-white/40" />
+          <UploadSimple className="h-8 w-8 text-white/40" weight="bold" />
           <div className="text-center">
             <div className="text-sm font-medium text-white">
               {filename ?? "Click to upload CSV"}
@@ -191,7 +193,11 @@ export function DeviceImportClient() {
           role="alert"
           className="mb-6 flex items-start gap-3 rounded-xl border border-accent-red/30 bg-accent-red/10 p-4 text-sm text-accent-red"
         >
-          <AlertCircle className="h-5 w-5 shrink-0" aria-hidden />
+          <WarningCircle
+            className="h-5 w-5 shrink-0"
+            weight="duotone"
+            aria-hidden
+          />
           <div>
             <div className="font-semibold">Could not parse CSV</div>
             <div className="mt-1 opacity-80">{parseError}</div>
@@ -204,14 +210,17 @@ export function DeviceImportClient() {
         <section className="mb-6">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-white/50">
-              <CheckCircle2 className="h-4 w-4 text-accent-green" />
-              Preview — {rows.length} rows
+              <CheckCircle
+                className="h-4 w-4 text-accent-green"
+                weight="duotone"
+              />
+              Preview — <span className="mono">{rows.length}</span> rows
             </h2>
             <span className="text-xs text-white/40">
               Showing first {Math.min(rows.length, 10)}
             </span>
           </div>
-          <div className="glass-card overflow-hidden rounded-xl">
+          <div className="surface-card overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
@@ -238,13 +247,13 @@ export function DeviceImportClient() {
                       <td className="px-3 py-2 text-white/70">
                         {r.model || "—"}
                       </td>
-                      <td className="px-3 py-2 font-mono text-white/70">
+                      <td className="mono px-3 py-2 text-white/70">
                         {r.sizeU}
                       </td>
-                      <td className="px-3 py-2 font-mono text-white/70">
+                      <td className="mono px-3 py-2 text-white/70">
                         {r.portCount}
                       </td>
-                      <td className="px-3 py-2 font-mono text-xs text-white/60">
+                      <td className="mono px-3 py-2 text-xs text-white/60">
                         {r.ipAddress || "—"}
                       </td>
                     </tr>
@@ -270,7 +279,7 @@ export function DeviceImportClient() {
               disabled={pending}
               className="flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-white transition-all hover:bg-primary/90 disabled:opacity-50"
             >
-              <Upload className="h-4 w-4" />
+              <UploadSimple className="h-4 w-4" weight="bold" />
               {pending ? "Importing..." : `Import ${rows.length} devices`}
             </button>
           </div>

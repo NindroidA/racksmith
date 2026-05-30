@@ -3,7 +3,8 @@
 import { useMemo, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import toast from "react-hot-toast";
-import { Copy, Check, FileCode, AlertTriangle } from "lucide-react";
+import { Copy, Check, FileCode, Warning } from "@phosphor-icons/react/dist/ssr";
+import { Button } from "@/components/ui/button";
 import { Select, SelectOption } from "@/components/ui/select";
 import {
   generateConfig,
@@ -92,9 +93,9 @@ export function ConfigGenClient({ devices, vlans }: Props) {
     return (
       <div className="mx-auto max-w-3xl">
         <Heading />
-        <div className="glass-card mt-6 rounded-2xl px-6 py-10 text-center">
+        <div className="surface-card mt-6 px-6 py-10 text-center">
           <div className="mb-4 inline-flex rounded-xl bg-accent-orange/20 p-4 text-accent-orange">
-            <FileCode className="h-8 w-8" aria-hidden />
+            <FileCode className="h-8 w-8" weight="duotone" aria-hidden />
           </div>
           <h2 className="text-xl font-semibold text-white">
             No eligible devices
@@ -112,7 +113,7 @@ export function ConfigGenClient({ devices, vlans }: Props) {
     <div className="mx-auto max-w-5xl space-y-6">
       <Heading />
 
-      <div className="glass-card grid grid-cols-1 gap-4 rounded-xl p-6 sm:grid-cols-[1fr_1fr]">
+      <div className="surface-card grid grid-cols-1 gap-4 p-6 sm:grid-cols-[1fr_1fr]">
         <div>
           <label
             htmlFor="device"
@@ -172,7 +173,7 @@ export function ConfigGenClient({ devices, vlans }: Props) {
           role="tabpanel"
           tabIndex={0}
           aria-labelledby={`vendor-tab-${output.vendor}`}
-          className="glass-card rounded-xl"
+          className="surface-card"
         >
           <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-3">
             <div>
@@ -184,18 +185,24 @@ export function ConfigGenClient({ devices, vlans }: Props) {
                 never applied to your devices.
               </p>
             </div>
-            <button
-              type="button"
+            <Button
+              variant="secondary"
+              size="sm"
               onClick={copy}
-              className="glass-button flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-white"
+              iconLeft={
+                copied ? (
+                  <Check
+                    className="h-3.5 w-3.5 text-accent-green"
+                    weight="bold"
+                    aria-hidden
+                  />
+                ) : (
+                  <Copy className="h-3.5 w-3.5" weight="bold" aria-hidden />
+                )
+              }
             >
-              {copied ? (
-                <Check className="h-3.5 w-3.5 text-accent-green" aria-hidden />
-              ) : (
-                <Copy className="h-3.5 w-3.5" aria-hidden />
-              )}
               {copied ? "Copied" : "Copy"}
-            </button>
+            </Button>
           </div>
 
           {output.warnings.length > 0 && (
@@ -206,8 +213,9 @@ export function ConfigGenClient({ devices, vlans }: Props) {
                     key={i}
                     className="flex items-start gap-2 text-xs text-accent-orange"
                   >
-                    <AlertTriangle
+                    <Warning
                       className="mt-0.5 h-3.5 w-3.5 shrink-0"
+                      weight="duotone"
                       aria-hidden
                     />
                     <span>{w}</span>
@@ -230,7 +238,11 @@ function Heading() {
   return (
     <div>
       <h1 className="flex items-center gap-2 text-3xl font-bold text-white">
-        <FileCode className="h-7 w-7 text-accent-green" aria-hidden />
+        <FileCode
+          className="h-7 w-7 text-accent-green"
+          weight="duotone"
+          aria-hidden
+        />
         Config Generator
       </h1>
       <p className="mt-1 text-white/60">

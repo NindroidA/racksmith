@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { twMerge } from "tailwind-merge";
-import { Search, HardDrive } from "lucide-react";
+import { MagnifyingGlass, HardDrives } from "@phosphor-icons/react/dist/ssr";
 import { DEVICE_TYPE_LABELS, type DeviceType } from "@/types";
 import { DeviceGraphic, U_ASPECT } from "@/components/rack/device-graphic";
 import { Select, SelectOption } from "@/components/ui/select";
@@ -135,7 +135,10 @@ export function DeviceListClient({ devices }: Props) {
       {/* Search + filter toolbar */}
       <div className="mb-5 space-y-3">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" />
+          <MagnifyingGlass
+            className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30"
+            weight="bold"
+          />
           <input
             type="text"
             value={search}
@@ -232,9 +235,12 @@ export function DeviceListClient({ devices }: Props) {
       </div>
 
       {sorted.length === 0 ? (
-        <div className="glass-card flex flex-col items-center rounded-2xl py-16 text-center">
+        <div className="surface-card flex flex-col items-center py-16 text-center">
           <div className="mb-4 rounded-xl bg-accent-purple/20 p-4">
-            <HardDrive className="h-8 w-8 text-accent-purple" />
+            <HardDrives
+              className="h-8 w-8 text-accent-purple"
+              weight="duotone"
+            />
           </div>
           <h2 className="mb-2 text-lg font-semibold text-white">No matches</h2>
           <p className="mb-4 max-w-sm text-sm text-white/50">
@@ -242,7 +248,7 @@ export function DeviceListClient({ devices }: Props) {
           </p>
         </div>
       ) : (
-        <div className="glass-card overflow-hidden rounded-xl">
+        <div className="surface-card overflow-hidden">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-white/10 text-left text-xs uppercase tracking-wider text-white/40">
@@ -325,7 +331,7 @@ export function DeviceListClient({ devices }: Props) {
                       >
                         {d.rackName}
                         {d.positionU != null && (
-                          <span className="ml-1 font-mono text-xs text-white/40">
+                          <span className="mono ml-1 text-xs text-white/40">
                             U{d.positionU}
                           </span>
                         )}
@@ -334,7 +340,7 @@ export function DeviceListClient({ devices }: Props) {
                       <span className="text-white/30">Unracked</span>
                     )}
                   </td>
-                  <td className="px-4 py-3 font-mono text-xs text-white/60">
+                  <td className="mono px-4 py-3 text-xs text-white/60">
                     {d.ipAddress || "—"}
                   </td>
                 </tr>

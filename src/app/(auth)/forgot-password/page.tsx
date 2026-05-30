@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Mail, CheckCircle2 } from "lucide-react";
+import { Envelope, CheckCircle } from "@phosphor-icons/react/dist/ssr";
 import { authClient } from "@/lib/auth-client";
 import toast from "react-hot-toast";
 import { AuthShell } from "@/components/layout/auth-shell";
@@ -39,12 +39,15 @@ export default function ForgotPasswordPage() {
       {sent ? (
         <div className="flex flex-col items-center text-center">
           <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-accent-green/15">
-            <CheckCircle2 className="h-6 w-6 text-accent-green" />
+            <CheckCircle
+              className="h-6 w-6 text-accent-green"
+              weight="duotone"
+            />
           </div>
           <p className="text-sm text-white/70">
             If an account exists for{" "}
-            <span className="font-medium text-white">{email}</span>, we&apos;ve
-            sent a password-reset link. It expires in 1 hour.
+            <span className="mono font-medium text-white">{email}</span>,
+            we&apos;ve sent a password-reset link. It expires in 1 hour.
           </p>
           <p className="mt-4 text-xs text-white/40">
             Didn&apos;t get it? Check your spam folder or try again in a few
@@ -72,7 +75,10 @@ export default function ForgotPasswordPage() {
               Email
             </label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" />
+              <Envelope
+                className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30"
+                weight="duotone"
+              />
               <input
                 id="email"
                 type="email"

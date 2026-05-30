@@ -2,21 +2,22 @@
 
 import { useEffect, useState, useTransition } from "react";
 import {
-  Building2,
+  Buildings,
   Crown,
-  KeyRound,
-  Mail,
-  RefreshCw,
-  Save,
-  Send,
+  Key,
+  Envelope,
+  ArrowsClockwise,
+  FloppyDisk,
+  PaperPlaneTilt,
   ShieldCheck,
-  Trash2,
+  TrashSimple,
   UserMinus,
   X,
-} from "lucide-react";
+} from "@phosphor-icons/react/dist/ssr";
 import { twMerge } from "tailwind-merge";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
 import { Select, SelectOption } from "@/components/ui/select";
+import { Tag } from "@/components/ui/tag";
 import { useOrgAction } from "@/hooks/use-org-action";
 import { OWNERSHIP_TRANSFER_TTL_DAYS } from "@/lib/ownership-transfer-constants";
 import {
@@ -269,9 +270,9 @@ export function OrganizationSection({
       className="flex flex-col gap-6 scroll-mt-24 focus:outline-none"
     >
       {/* General */}
-      <div className="glass-card rounded-xl p-6">
+      <div className="surface-card p-6">
         <header className="mb-4 flex items-center gap-3">
-          <Building2 className="h-5 w-5 text-primary" />
+          <Buildings className="h-5 w-5 text-primary" weight="duotone" />
           <div>
             <h2
               id="organization-section-heading"
@@ -320,7 +321,7 @@ export function OrganizationSection({
                 }
                 className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-primary/90 disabled:opacity-40"
               >
-                <Save className="h-4 w-4" aria-hidden />
+                <FloppyDisk className="h-4 w-4" weight="bold" aria-hidden />
                 Save
               </button>
             </div>
@@ -356,7 +357,7 @@ export function OrganizationSection({
                 }
                 className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-primary/90 disabled:opacity-40"
               >
-                <Save className="h-4 w-4" aria-hidden />
+                <FloppyDisk className="h-4 w-4" weight="bold" aria-hidden />
                 Save
               </button>
             </div>
@@ -371,28 +372,36 @@ export function OrganizationSection({
             </span>
             {/* aria-label spells the plan in sentence case so SRs don't
                 read the uppercase CSS letter-by-letter. */}
-            <span
+            <Tag
+              tone="neutral"
+              variant="subtle"
+              size="md"
               aria-label={`Plan: ${PLAN_LABELS[organization.plan] ?? organization.plan}`}
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.1] bg-white/[0.04] px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-white/70"
+              iconLeft={
+                <ShieldCheck className="h-3.5 w-3.5" weight="duotone" />
+              }
             >
-              <ShieldCheck className="h-3.5 w-3.5" aria-hidden />
               {PLAN_LABELS[organization.plan] ?? organization.plan}
-            </span>
+            </Tag>
           </div>
 
           <div>
             <span className="mb-1.5 block text-sm font-medium text-white/70">
               Your role
             </span>
-            <span
+            <Tag
+              tone="info"
+              variant="subtle"
+              size="md"
               aria-label={`Your role: ${roleLabel(viewerRole)}`}
-              className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-primary"
+              iconLeft={
+                viewerRole === "owner" ? (
+                  <Crown className="h-3.5 w-3.5" weight="duotone" />
+                ) : undefined
+              }
             >
-              {viewerRole === "owner" && (
-                <Crown className="h-3.5 w-3.5" aria-hidden />
-              )}
               {roleLabel(viewerRole)}
-            </span>
+            </Tag>
           </div>
         </div>
       </div>
@@ -400,8 +409,9 @@ export function OrganizationSection({
       {/* Pending ownership transfer */}
       {pendingTransfer && (
         <div className="flex items-start gap-3 rounded-xl border border-amber-300/30 bg-amber-300/[0.05] px-5 py-4">
-          <KeyRound
+          <Key
             className="mt-0.5 h-5 w-5 shrink-0 text-amber-200"
+            weight="duotone"
             aria-hidden
           />
           <div className="min-w-0 flex-1 text-sm text-white/80">
@@ -430,13 +440,13 @@ export function OrganizationSection({
       )}
 
       {/* Members */}
-      <div className="glass-card overflow-hidden rounded-xl">
+      <div className="surface-card overflow-hidden">
         <header className="flex items-center justify-between border-b border-white/[0.08] px-6 py-4">
           <div>
             <h3 className="text-base font-semibold text-white">Members</h3>
             <p className="text-xs text-white/50">
-              {members.length} {members.length === 1 ? "person" : "people"} in
-              this workspace
+              <span className="mono">{members.length}</span>{" "}
+              {members.length === 1 ? "person" : "people"} in this workspace
             </p>
           </div>
         </header>
@@ -460,9 +470,9 @@ export function OrganizationSection({
                   <div className="truncate font-medium text-white">
                     {m.user.name ?? m.user.email}
                     {isViewer && (
-                      <span className="ml-2 rounded bg-white/[0.08] px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-white/60">
+                      <Tag tone="neutral" variant="subtle" className="ml-2">
                         You
-                      </span>
+                      </Tag>
                     )}
                   </div>
                   <div className="truncate text-xs text-white/40">
@@ -470,13 +480,14 @@ export function OrganizationSection({
                   </div>
                 </div>
                 {isOwner ? (
-                  <span
+                  <Tag
+                    tone="warning"
+                    variant="subtle"
                     aria-label="Owner"
-                    className="flex items-center gap-1 rounded-full border border-amber-300/30 bg-amber-300/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-amber-200"
+                    iconLeft={<Crown className="h-3 w-3" weight="duotone" />}
                   >
-                    <Crown className="h-3 w-3" aria-hidden />
                     Owner
-                  </span>
+                  </Tag>
                 ) : canManageMembers && !isViewer ? (
                   <Select
                     aria-label={`Change role for ${m.user.name ?? m.user.email}`}
@@ -494,12 +505,13 @@ export function OrganizationSection({
                     ))}
                   </Select>
                 ) : (
-                  <span
+                  <Tag
+                    tone="neutral"
+                    variant="subtle"
                     aria-label={roleLabel(m.role)}
-                    className="rounded-full border border-white/[0.1] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white/60"
                   >
                     {roleLabel(m.role)}
-                  </span>
+                  </Tag>
                 )}
                 {canTransferOwnership &&
                   !isOwner &&
@@ -513,7 +525,7 @@ export function OrganizationSection({
                       aria-label={`Transfer ownership to ${m.user.name ?? m.user.email}`}
                       className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md text-white/40 transition-colors hover:bg-amber-300/15 hover:text-amber-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/50 disabled:opacity-40"
                     >
-                      <KeyRound className="h-4 w-4" aria-hidden />
+                      <Key className="h-4 w-4" weight="duotone" aria-hidden />
                     </button>
                   )}
                 {canManageMembers && !isOwner && !isViewer && (
@@ -528,7 +540,11 @@ export function OrganizationSection({
                       "disabled:opacity-40",
                     )}
                   >
-                    <UserMinus className="h-4 w-4" aria-hidden />
+                    <UserMinus
+                      className="h-4 w-4"
+                      weight="duotone"
+                      aria-hidden
+                    />
                   </button>
                 )}
               </li>
@@ -539,7 +555,7 @@ export function OrganizationSection({
 
       {/* Invite + pending invitations */}
       {canInvite && (
-        <div className="glass-card overflow-hidden rounded-xl">
+        <div className="surface-card overflow-hidden">
           <header className="border-b border-white/[0.08] px-6 py-4">
             <h3 className="text-base font-semibold text-white">
               Invite teammates
@@ -601,7 +617,7 @@ export function OrganizationSection({
               aria-busy={invitePending}
               className="flex min-h-[44px] items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-white transition-colors hover:bg-primary/90 disabled:opacity-40"
             >
-              <Send className="h-4 w-4" aria-hidden />
+              <PaperPlaneTilt className="h-4 w-4" weight="bold" aria-hidden />
               {invitePending ? "Sending..." : "Invite"}
             </button>
           </form>
@@ -609,7 +625,8 @@ export function OrganizationSection({
           {invitations.length > 0 && (
             <>
               <div className="border-t border-white/[0.04] px-6 pb-1 pt-3 text-[10px] font-semibold uppercase tracking-wider text-white/40">
-                Pending invitations ({invitations.length})
+                Pending invitations (
+                <span className="mono">{invitations.length}</span>)
               </div>
               <ul className="divide-y divide-white/[0.04]">
                 {invitations.map((inv) => {
@@ -620,8 +637,9 @@ export function OrganizationSection({
                       key={inv.id}
                       className="flex items-center gap-3 px-6 py-3 text-sm"
                     >
-                      <Mail
+                      <Envelope
                         className="h-4 w-4 shrink-0 text-white/40"
+                        weight="duotone"
                         aria-hidden
                       />
                       <div className="min-w-0 flex-1">
@@ -652,7 +670,11 @@ export function OrganizationSection({
                         }
                         className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md text-white/40 transition-colors hover:bg-white/[0.06] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/50 disabled:opacity-30"
                       >
-                        <RefreshCw className="h-4 w-4" aria-hidden />
+                        <ArrowsClockwise
+                          className="h-4 w-4"
+                          weight="bold"
+                          aria-hidden
+                        />
                       </button>
                       <button
                         type="button"
@@ -663,7 +685,7 @@ export function OrganizationSection({
                         aria-label={`Revoke invitation to ${inv.email}`}
                         className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md text-white/40 transition-colors hover:bg-accent-red/15 hover:text-accent-red focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-red/50 disabled:opacity-30"
                       >
-                        <X className="h-4 w-4" aria-hidden />
+                        <X className="h-4 w-4" weight="bold" aria-hidden />
                       </button>
                     </li>
                   );
@@ -678,7 +700,11 @@ export function OrganizationSection({
       {canDeleteOrg && (
         <div className="rounded-xl border border-accent-red/20 bg-accent-red/[0.03] p-6">
           <header className="mb-3 flex items-center gap-3">
-            <Trash2 className="h-5 w-5 text-accent-red" aria-hidden />
+            <TrashSimple
+              className="h-5 w-5 text-accent-red"
+              weight="duotone"
+              aria-hidden
+            />
             <div>
               <h3 className="text-base font-semibold text-white">
                 Danger zone
@@ -702,7 +728,7 @@ export function OrganizationSection({
             disabled={deletePending}
             className="flex items-center gap-2 rounded-lg border border-accent-red/40 bg-accent-red/15 px-4 py-2 text-sm font-medium text-accent-red transition-colors hover:bg-accent-red/25 disabled:opacity-50"
           >
-            <Trash2 className="h-4 w-4" aria-hidden />
+            <TrashSimple className="h-4 w-4" weight="bold" aria-hidden />
             Delete organization
           </button>
         </div>

@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { Building2, Mail, Wrench } from "lucide-react";
+import { Buildings, Envelope, Wrench } from "@phosphor-icons/react/dist/ssr";
 import { getSession } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
 import { isRole, roleLabel } from "@/lib/permissions";
@@ -80,14 +80,18 @@ export default async function InviteAcceptPage({
     <Shell>
       <div className="mb-3 flex items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/15">
-          <Building2 className="h-5 w-5 text-primary" aria-hidden />
+          <Buildings
+            weight="duotone"
+            className="h-5 w-5 text-primary"
+            aria-hidden
+          />
         </div>
         <div className="min-w-0">
           <h1 className="truncate text-xl font-bold text-white">
             {invitation.organization.name}
           </h1>
           <p className="text-xs text-white/50">
-            / {invitation.organization.slug}
+            <span className="mono">/ {invitation.organization.slug}</span>
           </p>
         </div>
       </div>
@@ -102,8 +106,8 @@ export default async function InviteAcceptPage({
         .
       </p>
       <p className="mt-3 flex items-center gap-2 text-xs text-white/50">
-        <Mail className="h-3.5 w-3.5" aria-hidden />
-        Invitation sent to {invitation.email}
+        <Envelope weight="duotone" className="h-3.5 w-3.5" aria-hidden />
+        Invitation sent to <span className="mono">{invitation.email}</span>
       </p>
 
       <InviteAcceptForm invitationId={invitation.id} />
@@ -116,7 +120,11 @@ function Shell({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-screen items-center justify-center px-4">
       <div className="glass-panel w-full max-w-md rounded-2xl p-8">
         <div className="mb-5 flex items-center gap-2 text-sm text-white/50">
-          <Wrench className="h-4 w-4 text-primary" aria-hidden />
+          <Wrench
+            weight="duotone"
+            className="h-4 w-4 text-primary"
+            aria-hidden
+          />
           RackSmith
         </div>
         {children}

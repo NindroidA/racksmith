@@ -9,7 +9,7 @@ import {
   useTransition,
 } from "react";
 import toast from "react-hot-toast";
-import { X } from "lucide-react";
+import { X } from "@phosphor-icons/react/dist/ssr";
 import { twMerge } from "tailwind-merge";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
 import { Dialog } from "@/components/ui/dialog";
@@ -225,7 +225,7 @@ export function ConnectionForm({
               aria-label="Close dialog"
               className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded p-1 text-white/50 hover:bg-white/10 hover:text-white"
             >
-              <X className="h-4 w-4" aria-hidden />
+              <X className="h-4 w-4" weight="bold" aria-hidden />
             </button>
           </div>
 

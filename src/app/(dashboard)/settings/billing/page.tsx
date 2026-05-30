@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, CreditCard } from "lucide-react";
+import { ArrowLeft, CreditCard } from "@phosphor-icons/react/dist/ssr";
 
 import { requireMember } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
@@ -84,66 +84,57 @@ export default async function BillingPage({
     <div className="mx-auto max-w-4xl">
       <Link
         href="/settings"
-        className="mb-4 inline-flex items-center gap-1.5 text-sm text-white/50 hover:text-white"
+        className="mb-4 inline-flex items-center gap-1.5 text-sm txt-muted transition-colors hover:text-white"
       >
-        <ArrowLeft className="h-3.5 w-3.5" /> Back to settings
+        <ArrowLeft className="h-3.5 w-3.5" weight="bold" /> Back to settings
       </Link>
 
-      <div className="mb-6 flex items-center gap-3">
-        <CreditCard className="h-6 w-6 text-primary" />
+      <div className="mb-8 flex items-center gap-3">
+        <CreditCard className="h-6 w-6 text-primary" weight="duotone" />
         <div>
-          <h1 className="text-2xl font-bold text-white">Billing</h1>
-          <p className="text-sm text-white/50">
+          <h1 className="text-3xl font-bold tracking-tight txt-strong">
+            Billing
+          </h1>
+          <p className="text-sm txt-body">
             Manage your subscription and payment method.
           </p>
         </div>
       </div>
 
       {params.status === "success" && (
-        <div className="mb-6 rounded-xl border border-accent-green/30 bg-accent-green/[0.06] p-4 text-sm text-accent-green">
+        <div className="mb-6 rounded-xl border border-accent-green/30 bg-accent-green/6 p-4 text-sm text-accent-green">
           Checkout completed. Your plan should update within a few seconds —
           refresh this page if you don&apos;t see the change immediately.
         </div>
       )}
       {params.status === "cancelled" && (
-        <div className="mb-6 rounded-xl border border-white/10 bg-white/[0.04] p-4 text-sm text-white/70">
+        <div className="mb-6 rounded-xl border border-white/10 bg-white/4 p-4 text-sm txt-body">
           Checkout cancelled. No charges were made.
         </div>
       )}
 
-      <section className="glass-card mb-6 rounded-xl p-6">
-        <h2 className="mb-1 text-base font-semibold text-white">
-          Current plan
-        </h2>
-        <div className="flex items-baseline gap-3">
-          <span className="text-2xl font-bold text-white">
-            {TIER_LIMITS[plan].label}
-          </span>
-          {org.paymentStatus === "past_due" && (
-            <span className="rounded-full bg-accent-orange/15 px-2.5 py-0.5 text-xs font-medium text-accent-orange">
-              Payment failed — update your card
-            </span>
-          )}
-          {org.paymentStatus === "canceled" && (
-            <span className="rounded-full bg-white/10 px-2.5 py-0.5 text-xs font-medium text-white/60">
-              Cancelled
-            </span>
-          )}
-        </div>
-        {plan !== "free" && org.planExpiresAt && (
-          <p className="mt-1 text-sm text-white/50">
-            Renews{" "}
-            {org.planExpiresAt.toLocaleDateString(undefined, {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
+      {/* Plan hero — only shown for the Free tier (where there's no
+          PlanSummaryCard below). For paid tiers, the PlanSummaryCard
+          owns the plan readout — duplicating it here was redundant. */}
+      {plan === "free" && (
+        <section className="surface-card mb-6 p-6">
+          <p className="mb-1 text-xs uppercase tracking-wide txt-faint">
+            Current plan
           </p>
-        )}
-      </section>
+          <div className="flex items-baseline gap-3">
+            <span className="text-3xl font-bold tracking-tight txt-strong">
+              {TIER_LIMITS[plan].label}
+            </span>
+          </div>
+          <p className="mt-2 text-sm txt-body">
+            Upgrade to unlock unlimited sites, racks, team members, and the full
+            feature set.
+          </p>
+        </section>
+      )}
 
       {billingMisconfigured && (
-        <div className="mb-6 rounded-xl border border-accent-red/30 bg-accent-red/[0.06] p-4 text-sm text-accent-red">
+        <div className="mb-6 rounded-xl border border-accent-red/30 bg-accent-red/6 p-4 text-sm text-accent-red">
           Billing is not fully configured on this deployment. Stripe keys or
           price IDs are missing — checkout will fail until they&apos;re set.
           Maintainers should review <code>.env</code> against{" "}

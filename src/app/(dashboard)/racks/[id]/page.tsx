@@ -1,6 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Pencil, ArrowLeft, MapPin, Zap, HardDrive } from "lucide-react";
+import {
+  PencilSimple,
+  ArrowLeft,
+  MapPin,
+  Lightning,
+  HardDrives,
+} from "@phosphor-icons/react/dist/ssr";
 import { requireMember } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
 import { withTenant } from "@/lib/prisma-tenant";
@@ -88,7 +94,7 @@ export default async function RackDetailPage({
         href="/racks"
         className="mb-4 inline-flex items-center gap-2 text-sm text-white/60 transition-colors hover:text-white"
       >
-        <ArrowLeft className="h-4 w-4" />
+        <ArrowLeft className="h-4 w-4" weight="bold" />
         All Racks
       </Link>
 
@@ -105,19 +111,19 @@ export default async function RackDetailPage({
           </div>
           <div className="flex flex-wrap items-center gap-4 text-sm text-white/60">
             <span className="flex items-center gap-1.5">
-              <HardDrive className="h-4 w-4" />
-              {rack.sizeU}U rack
+              <HardDrives className="h-4 w-4" weight="duotone" />
+              <span className="mono">{rack.sizeU}</span>U rack
             </span>
             {rack.location && (
               <span className="flex items-center gap-1.5">
-                <MapPin className="h-4 w-4" />
+                <MapPin className="h-4 w-4" weight="duotone" />
                 {rack.location}
               </span>
             )}
             {powerWatts > 0 && (
               <span className="flex items-center gap-1.5">
-                <Zap className="h-4 w-4" />
-                {powerWatts}W
+                <Lightning className="h-4 w-4" weight="duotone" />
+                <span className="mono">{powerWatts}</span>W
               </span>
             )}
           </div>
@@ -131,16 +137,16 @@ export default async function RackDetailPage({
           href={`/racks/${rack.id}/edit`}
           className="glass-button flex shrink-0 items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-white"
         >
-          <Pencil className="h-4 w-4" />
+          <PencilSimple className="h-4 w-4" weight="bold" />
           Edit
         </Link>
       </div>
 
       {/* Utilization bar */}
-      <div className="mb-6 glass-card rounded-xl p-4">
+      <div className="mb-6 surface-card p-4">
         <div className="mb-2 flex items-center justify-between text-sm">
           <span className="font-medium text-white/70">Utilization</span>
-          <span className="font-mono text-white">
+          <span className="mono text-white">
             {usedU}/{rack.sizeU}U · {utilizationPct}%
           </span>
         </div>

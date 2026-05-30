@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { twMerge } from "tailwind-merge";
-import { Trash2 } from "lucide-react";
+import { TrashSimple } from "@phosphor-icons/react/dist/ssr";
 import { DEVICE_TYPE_LABELS } from "@/types";
 import type { DeviceType } from "@/types";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
@@ -139,16 +139,19 @@ export function RackVisualizer({
   const usedU = devices.reduce((sum, d) => sum + d.sizeU, 0);
 
   return (
-    <div className="glass-card rounded-2xl p-5">
+    <div className="surface-card p-5">
       <div className="mb-4 flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold text-white">Rack Layout</h2>
           <p className="text-sm text-white/50">
-            {rackSizeU}U total · {usedU}U used · {rackSizeU - usedU}U free
+            <span className="mono">{rackSizeU}</span>U total ·{" "}
+            <span className="mono">{usedU}</span>U used ·{" "}
+            <span className="mono">{rackSizeU - usedU}</span>U free
           </p>
         </div>
         <div className="text-sm text-white/60">
-          {devices.length} device{devices.length !== 1 ? "s" : ""}
+          <span className="mono">{devices.length}</span> device
+          {devices.length !== 1 ? "s" : ""}
         </div>
       </div>
 
@@ -212,9 +215,17 @@ export function RackVisualizer({
                           {device.name}
                         </div>
                         <div className="truncate text-[9px] text-white/60 drop-shadow">
-                          {label} · {device.sizeU}U
-                          {device.portCount > 0 &&
-                            ` · ${device.portCount} ports`}
+                          {label} · <span className="mono">{device.sizeU}</span>
+                          U
+                          {device.portCount > 0 && (
+                            <>
+                              {" · "}
+                              <span className="mono">
+                                {device.portCount}
+                              </span>{" "}
+                              ports
+                            </>
+                          )}
                         </div>
                       </div>
                       <div className="flex shrink-0 items-center gap-1">
@@ -244,7 +255,7 @@ export function RackVisualizer({
                           className="rounded bg-red-500/40 p-1 text-white backdrop-blur hover:bg-red-500/70"
                           title="Delete device"
                         >
-                          <Trash2 className="h-2.5 w-2.5" />
+                          <TrashSimple className="h-2.5 w-2.5" weight="bold" />
                         </button>
                       </div>
                     </div>

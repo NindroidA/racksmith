@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useReducedMotion } from "framer-motion";
 import toast from "react-hot-toast";
-import { Loader2, X } from "lucide-react";
+import { CircleNotch, X } from "@phosphor-icons/react/dist/ssr";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
 import { cancelScan } from "@/app/(dashboard)/discovery/actions";
 
@@ -99,23 +99,29 @@ export function ActiveScanCard({ scanId, subnet, startedAt }: Props) {
   const elapsedStr = `${min}:${String(sec).padStart(2, "0")}`;
 
   return (
-    <div className="glass-card overflow-hidden rounded-xl border-accent-green/30 bg-accent-green/[0.04] p-5">
+    <div className="surface-elevated overflow-hidden border-accent-green/30 bg-accent-green/[0.04] p-5">
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="relative">
-            <Loader2
+            <CircleNotch
               className={`h-6 w-6 text-accent-green ${reduceMotion ? "" : "animate-spin"}`}
+              weight="duotone"
               aria-hidden
             />
           </div>
           <div>
-            <div className="text-sm font-semibold text-white">
-              Scanning{" "}
-              <span className="font-mono text-accent-green">{subnet}</span>
+            <div className="flex items-center gap-2 text-sm font-semibold text-white">
+              <span
+                className="led-dot led-dot--green led-dot--live"
+                aria-hidden
+              />
+              <span>
+                Scanning{" "}
+                <span className="mono text-accent-green">{subnet}</span>
+              </span>
             </div>
             <div className="text-xs text-white/50">
-              Started · running for{" "}
-              <span className="font-mono">{elapsedStr}</span>
+              Started · running for <span className="mono">{elapsedStr}</span>
             </div>
           </div>
         </div>
@@ -125,7 +131,7 @@ export function ActiveScanCard({ scanId, subnet, startedAt }: Props) {
           disabled={pending}
           className="flex items-center gap-1.5 rounded-lg border border-accent-red/30 bg-accent-red/10 px-3 py-1.5 text-xs font-medium text-accent-red transition-all hover:bg-accent-red/20 disabled:opacity-50"
         >
-          <X className="h-3.5 w-3.5" aria-hidden />
+          <X className="h-3.5 w-3.5" weight="bold" aria-hidden />
           Cancel
         </button>
       </div>
@@ -151,8 +157,8 @@ export function ActiveScanCard({ scanId, subnet, startedAt }: Props) {
         body={
           <p>
             Cancel the in-progress scan of{" "}
-            <span className="font-mono text-white">{subnet}</span>? The scan
-            will stop and no new hosts will be discovered from this run.
+            <span className="mono text-white">{subnet}</span>? The scan will
+            stop and no new hosts will be discovered from this run.
           </p>
         }
         confirmLabel="Cancel scan"

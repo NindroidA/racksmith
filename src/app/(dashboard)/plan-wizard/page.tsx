@@ -1,5 +1,12 @@
 import Link from "next/link";
-import { Plus, Wand2, ArrowRight, Check, Trash2 } from "lucide-react";
+import {
+  Plus,
+  MagicWand,
+  ArrowRight,
+  Check,
+  TrashSimple,
+} from "@phosphor-icons/react/dist/ssr";
+import { Tag } from "@/components/ui/tag";
 import { requireMember } from "@/lib/auth-helpers";
 import { withTenant } from "@/lib/prisma-tenant";
 import { canCreatePlan } from "@/lib/tiers";
@@ -46,7 +53,7 @@ export default async function PlanWizardListPage({ searchParams }: PageProps) {
             href="/plan-wizard/new"
             className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/50"
           >
-            <Plus className="h-4 w-4" aria-hidden /> New plan
+            <Plus className="h-4 w-4" weight="bold" aria-hidden /> New plan
           </Link>
         ) : (
           <button
@@ -55,7 +62,7 @@ export default async function PlanWizardListPage({ searchParams }: PageProps) {
             title={tier.reason}
             className="inline-flex cursor-not-allowed items-center gap-2 rounded-lg bg-primary/40 px-4 py-2.5 text-sm font-medium text-white/70"
           >
-            <Plus className="h-4 w-4" aria-hidden /> New plan
+            <Plus className="h-4 w-4" weight="bold" aria-hidden /> New plan
           </button>
         )}
       </header>
@@ -83,12 +90,13 @@ export default async function PlanWizardListPage({ searchParams }: PageProps) {
       ) : (
         <ul className="space-y-3">
           {plans.map((p) => (
-            <li
-              key={p.id}
-              className="glass-card flex items-center gap-4 rounded-xl p-5"
-            >
+            <li key={p.id} className="surface-card flex items-center gap-4 p-5">
               <div className="rounded-lg bg-primary/15 p-3">
-                <Wand2 className="h-5 w-5 text-primary" aria-hidden />
+                <MagicWand
+                  className="h-5 w-5 text-primary"
+                  weight="duotone"
+                  aria-hidden
+                />
               </div>
               <div className="min-w-0 flex-1">
                 <Link
@@ -100,11 +108,19 @@ export default async function PlanWizardListPage({ searchParams }: PageProps) {
                 <div className="mt-1 flex items-center gap-2 text-xs text-white/50">
                   <StatusBadge status={p.status} />
                   <span>·</span>
-                  <span>updated {p.updatedAt.toLocaleString()}</span>
+                  <span>
+                    updated{" "}
+                    <span className="mono">{p.updatedAt.toLocaleString()}</span>
+                  </span>
                   {p.appliedAt && (
                     <>
                       <span>·</span>
-                      <span>applied {p.appliedAt.toLocaleString()}</span>
+                      <span>
+                        applied{" "}
+                        <span className="mono">
+                          {p.appliedAt.toLocaleString()}
+                        </span>
+                      </span>
                     </>
                   )}
                 </div>
@@ -113,7 +129,8 @@ export default async function PlanWizardListPage({ searchParams }: PageProps) {
                 href={`/plan-wizard/${p.id}`}
                 className="inline-flex items-center gap-1 rounded-md border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-white/80 hover:bg-white/[0.08]"
               >
-                Open <ArrowRight className="h-3 w-3" aria-hidden />
+                Open{" "}
+                <ArrowRight className="h-3 w-3" weight="bold" aria-hidden />
               </Link>
             </li>
           ))}
@@ -125,8 +142,12 @@ export default async function PlanWizardListPage({ searchParams }: PageProps) {
 
 function EmptyState() {
   return (
-    <div className="glass-card rounded-xl p-12 text-center">
-      <Wand2 className="mx-auto mb-4 h-10 w-10 text-primary" aria-hidden />
+    <div className="surface-card p-12 text-center">
+      <MagicWand
+        className="mx-auto mb-4 h-10 w-10 text-primary"
+        weight="duotone"
+        aria-hidden
+      />
       <h2 className="text-lg font-semibold text-white">No plans yet</h2>
       <p className="mt-1 text-sm text-white/60">
         Start a new plan to size racks, switches, VLANs, and IPs in one flow.
@@ -135,7 +156,8 @@ function EmptyState() {
         href="/plan-wizard/new"
         className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90"
       >
-        <Plus className="h-3.5 w-3.5" aria-hidden /> Create your first plan
+        <Plus className="h-3.5 w-3.5" weight="bold" aria-hidden /> Create your
+        first plan
       </Link>
     </div>
   );
@@ -144,21 +166,31 @@ function EmptyState() {
 function StatusBadge({ status }: { status: string }) {
   if (status === "applied") {
     return (
-      <span className="inline-flex items-center gap-1 rounded bg-accent-green/[0.12] px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-accent-green">
-        <Check className="h-2.5 w-2.5" aria-hidden /> applied
-      </span>
+      <Tag
+        tone="success"
+        variant="subtle"
+        iconLeft={<Check className="h-2.5 w-2.5" weight="bold" aria-hidden />}
+      >
+        applied
+      </Tag>
     );
   }
   if (status === "discarded") {
     return (
-      <span className="inline-flex items-center gap-1 rounded bg-white/[0.05] px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-white/40">
-        <Trash2 className="h-2.5 w-2.5" aria-hidden /> discarded
-      </span>
+      <Tag
+        tone="neutral"
+        variant="subtle"
+        iconLeft={
+          <TrashSimple className="h-2.5 w-2.5" weight="bold" aria-hidden />
+        }
+      >
+        discarded
+      </Tag>
     );
   }
   return (
-    <span className="rounded bg-primary/15 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-primary">
+    <Tag tone="info" variant="subtle">
       draft
-    </span>
+    </Tag>
   );
 }

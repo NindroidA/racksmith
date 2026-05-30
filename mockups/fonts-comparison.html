@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Font pairings — RackSmith</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <!-- Geist + Geist Mono (Vercel) -->
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <!-- Inter Tight + JetBrains Mono -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <!-- IBM Plex Sans + IBM Plex Mono -->
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <!-- Manrope + Commit Mono (Manrope only on Google; Commit Mono via fontshare fallback to JetBrains) -->
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0a0e1a;
+      --bg-card: #1a1f35;
+      --border: rgba(255,255,255,0.10);
+      --txt-1: rgba(255,255,255,0.95);
+      --txt-2: rgba(255,255,255,0.70);
+      --txt-3: rgba(255,255,255,0.55);
+      --txt-4: rgba(255,255,255,0.40);
+      --primary: #5765f4;
+      --primary-bright: #6b78ff;
+      --primary-glow: rgba(107,120,255,0.4);
+      --orange-bright: #f5a623;
+      --orange-glow: rgba(245,166,35,0.45);
+      --green: #0bb678;
+      --cyan: #22d3ee;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 40px;
+      background: var(--bg);
+      color: var(--txt-1);
+      font-variant-numeric: tabular-nums;
+      -webkit-font-smoothing: antialiased;
+    }
+    h1 {
+      font-size: 24px; font-weight: 700; margin: 0 0 8px;
+      font-family: "Geist", system-ui, sans-serif;
+      letter-spacing: -0.02em;
+    }
+    .lede {
+      max-width: 820px;
+      color: var(--txt-2);
+      font-family: "Geist", system-ui, sans-serif;
+      font-size: 14px; line-height: 1.55;
+      margin: 0 0 32px;
+    }
+
+    /* ── one card per font pairing ───────────────────────────── */
+    .pair {
+      max-width: 880px;
+      margin: 0 0 36px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--bg-card);
+      padding: 0;
+      overflow: hidden;
+    }
+    .pair-header {
+      display: flex; align-items: baseline; justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,0.02);
+    }
+    .pair-name {
+      font-family: "Geist", system-ui, sans-serif;
+      font-size: 13px; font-weight: 700;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--txt-2);
+    }
+    .pair-meta {
+      font-family: "Geist Mono", ui-monospace, monospace;
+      font-size: 11px; color: var(--txt-3);
+    }
+
+    /* Render preview using each pairing */
+    .preview {
+      padding: 22px 26px;
+    }
+    .label {
+      font-size: 11px; font-weight: 500;
+      letter-spacing: 0; color: var(--txt-3);
+      margin: 0 0 4px;
+    }
+    .title {
+      font-size: 28px; font-weight: 700;
+      letter-spacing: -0.025em;
+      margin: 0 0 10px;
+      line-height: 1.05;
+    }
+    .body {
+      font-size: 14px; line-height: 1.55;
+      color: var(--txt-2);
+      margin: 0 0 18px;
+      max-width: 540px;
+    }
+
+    .meta-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 0;
+      border-top: 1px solid var(--border);
+      padding-top: 14px;
+    }
+    .meta-cell { padding-right: 18px; }
+    .meta-cell:not(:last-child) { border-right: 1px solid var(--border); padding-left: 0; }
+    .meta-cell:not(:first-child) { padding-left: 18px; }
+    .meta-label {
+      font-size: 10px; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--txt-4);
+      font-weight: 600; margin: 0 0 5px;
+    }
+    .meta-value {
+      font-size: 17px; font-weight: 600;
+      letter-spacing: -0.005em;
+      color: var(--txt-1);
+    }
+    .meta-value.mono {
+      font-family: var(--font-mono);
+      font-weight: 500;
+    }
+
+    /* Sample numerics in mono */
+    .data-row {
+      display: flex; align-items: center; gap: 14px;
+      padding: 10px 0;
+      border-top: 1px dashed var(--border);
+      font-family: var(--font-mono);
+    }
+    .data-row:first-of-type { border-top: none; }
+    .data-key {
+      width: 130px; color: var(--txt-3); font-size: 12px;
+    }
+    .data-val { color: var(--txt-1); font-size: 13px; font-weight: 500; }
+    .data-val .led {
+      display: inline-block; width: 6px; height: 6px;
+      border-radius: 50%; margin-right: 6px; vertical-align: middle;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+    }
+
+    /* Per-pair font variables — switched on a body data attr */
+    body[data-pair="geist"]   .pair[data-pair="geist"]   .preview { font-family: "Geist", system-ui, sans-serif; --font-mono: "Geist Mono", ui-monospace, monospace; }
+    body[data-pair="inter"]   .pair[data-pair="inter"]   .preview { font-family: "Inter Tight", system-ui, sans-serif; --font-mono: "JetBrains Mono", ui-monospace, monospace; }
+    body[data-pair="plex"]    .pair[data-pair="plex"]    .preview { font-family: "IBM Plex Sans", system-ui, sans-serif; --font-mono: "IBM Plex Mono", ui-monospace, monospace; }
+    body[data-pair="manrope"] .pair[data-pair="manrope"] .preview { font-family: "Manrope", system-ui, sans-serif; --font-mono: "JetBrains Mono", ui-monospace, monospace; }
+
+    /* All pairs render simultaneously — switch via data attrs */
+    .pair[data-pair="geist"]   .preview { font-family: "Geist", system-ui, sans-serif; --font-mono: "Geist Mono", ui-monospace, monospace; }
+    .pair[data-pair="inter"]   .preview { font-family: "Inter Tight", system-ui, sans-serif; --font-mono: "JetBrains Mono", ui-monospace, monospace; }
+    .pair[data-pair="plex"]    .preview { font-family: "IBM Plex Sans", system-ui, sans-serif; --font-mono: "IBM Plex Mono", ui-monospace, monospace; }
+    .pair[data-pair="manrope"] .preview { font-family: "Manrope", system-ui, sans-serif; --font-mono: "JetBrains Mono", ui-monospace, monospace; }
+  </style>
+</head>
+<body>
+  <h1>Font pairing comparison</h1>
+  <p class="lede">
+    Same Billing card content rendered with four different display + mono pairings. Look at the heading
+    weight, body line-height, and how the monetary value <code style="font-family: 'Geist Mono', monospace;">$58.00</code>
+    sits next to "2 members" — that pairing is what you'll see on every billing/IPAM/audit screen.
+    All four are free, OFL-licensed, web-loaded.
+  </p>
+
+  <!-- ── 1. Geist + Geist Mono (Vercel) ── -->
+  <div class="pair" data-pair="geist">
+    <div class="pair-header">
+      <span class="pair-name">A · Geist + Geist Mono</span>
+      <span class="pair-meta">Vercel · OFL · <a href="https://vercel.com/font" style="color: inherit;">vercel.com/font</a></span>
+    </div>
+    <div class="preview">
+      <p class="label">Current plan</p>
+      <h2 class="title">Business</h2>
+      <p class="body">Subscription is active. Plan switches, payment method, invoices, and cancellation are handled in the Stripe customer portal.</p>
+      <div class="meta-grid">
+        <div class="meta-cell">
+          <p class="meta-label">Cycle</p>
+          <p class="meta-value">Monthly</p>
+        </div>
+        <div class="meta-cell">
+          <p class="meta-label">Price</p>
+          <p class="meta-value mono">$58.00</p>
+        </div>
+        <div class="meta-cell">
+          <p class="meta-label">Renews</p>
+          <p class="meta-value">Jun 9, 2026</p>
+        </div>
+        <div class="meta-cell">
+          <p class="meta-label">Customer</p>
+          <p class="meta-value mono">cus_smoke_001</p>
+        </div>
+      </div>
+      <div style="margin-top: 18px;">
+        <div class="data-row">
+          <span class="data-key">status</span>
+          <span class="data-val"><span class="led"></span>active</span>
+        </div>
+        <div class="data-row">
+          <span class="data-key">ip_pool</span>
+          <span class="data-val">10.0.0.0/16 · 192.168.4.0/22</span>
+        </div>
+        <div class="data-row">
+          <span class="data-key">last_invoice</span>
+          <span class="data-val">2026-05-09 · $58.00 · paid</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 2. Inter Tight + JetBrains Mono ── -->
+  <div class="pair" data-pair="inter">
+    <div class="pair-header">
+      <span class="pair-name">B · Inter Tight + JetBrains Mono</span>
+      <span class="pair-meta">rsms.me + jetbrains.com · OFL</span>
+    </div>
+    <div class="preview">
+      <p class="label">Current plan</p>
+      <h2 class="title">Business</h2>
+      <p class="body">Subscription is active. Plan switches, payment method, invoices, and cancellation are handled in the Stripe customer portal.</p>
+      <div class="meta-grid">
+        <div class="meta-cell">
+          <p class="meta-label">Cycle</p>
+          <p class="meta-value">Monthly</p>
+        </div>
+        <div class="meta-cell">
+          <p class="meta-label">Price</p>
+          <p class="meta-value mono">$58.00</p>
+        </div>
+        <div class="meta-cell">
+          <p class="meta-label">Renews</p>
+          <p class="meta-value">Jun 9, 2026</p>
+        </div>
+        <div class="meta-cell">
+          <p class="meta-label">Customer</p>
+          <p class="meta-value mono">cus_smoke_001</p>
+        </div>
+      </div>
+      <div style="margin-top: 18px;">
+        <div class="data-row">
+          <span class="data-key">status</span>
+          <span class="data-val"><span class="led"></span>active</span>
+        </div>
+        <div class="data-row">
+          <span class="data-key">ip_pool</span>
+          <span class="data-val">10.0.0.0/16 · 192.168.4.0/22</span>
+        </div>
+        <div class="data-row">
+          <span class="data-key">last_invoice</span>
+          <span class="data-val">2026-05-09 · $58.00 · paid</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 3. IBM Plex Sans + IBM Plex Mono ── -->
+  <div class="pair" data-pair="plex">
+    <div class="pair-header">
+      <span class="pair-name">C · IBM Plex Sans + IBM Plex Mono</span>
+      <span class="pair-meta">IBM Carbon · OFL · plexfonts.com</span>
+    </div>
+    <div class="preview">
+      <p class="label">Current plan</p>
+      <h2 class="title">Business</h2>
+      <p class="body">Subscription is active. Plan switches, payment method, invoices, and cancellation are handled in the Stripe customer portal.</p>
+      <div class="meta-grid">
+        <div class="meta-cell">
+          <p class="meta-label">Cycle</p>
+          <p class="meta-value">Monthly</p>
+        </div>
+        <div class="meta-cell">
+          <p class="meta-label">Price</p>
+          <p class="meta-value mono">$58.00</p>
+        </div>
+        <div class="meta-cell">
+          <p class="meta-label">Renews</p>
+          <p class="meta-value">Jun 9, 2026</p>
+        </div>
+        <div class="meta-cell">
+          <p class="meta-label">Customer</p>
+          <p class="meta-value mono">cus_smoke_001</p>
+        </div>
+      </div>
+      <div style="margin-top: 18px;">
+        <div class="data-row">
+          <span class="data-key">status</span>
+          <span class="data-val"><span class="led"></span>active</span>
+        </div>
+        <div class="data-row">
+          <span class="data-key">ip_pool</span>
+          <span class="data-val">10.0.0.0/16 · 192.168.4.0/22</span>
+        </div>
+        <div class="data-row">
+          <span class="data-key">last_invoice</span>
+          <span class="data-val">2026-05-09 · $58.00 · paid</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 4. Manrope + JetBrains Mono ── -->
+  <div class="pair" data-pair="manrope">
+    <div class="pair-header">
+      <span class="pair-name">D · Manrope + JetBrains Mono</span>
+      <span class="pair-meta">Mikhail Sharanda · OFL · github.com/sharanda/manrope</span>
+    </div>
+    <div class="preview">
+      <p class="label">Current plan</p>
+      <h2 class="title">Business</h2>
+      <p class="body">Subscription is active. Plan switches, payment method, invoices, and cancellation are handled in the Stripe customer portal.</p>
+      <div class="meta-grid">
+        <div class="meta-cell">
+          <p class="meta-label">Cycle</p>
+          <p class="meta-value">Monthly</p>
+        </div>
+        <div class="meta-cell">
+          <p class="meta-label">Price</p>
+          <p class="meta-value mono">$58.00</p>
+        </div>
+        <div class="meta-cell">
+          <p class="meta-label">Renews</p>
+          <p class="meta-value">Jun 9, 2026</p>
+        </div>
+        <div class="meta-cell">
+          <p class="meta-label">Customer</p>
+          <p class="meta-value mono">cus_smoke_001</p>
+        </div>
+      </div>
+      <div style="margin-top: 18px;">
+        <div class="data-row">
+          <span class="data-key">status</span>
+          <span class="data-val"><span class="led"></span>active</span>
+        </div>
+        <div class="data-row">
+          <span class="data-key">ip_pool</span>
+          <span class="data-val">10.0.0.0/16 · 192.168.4.0/22</span>
+        </div>
+        <div class="data-row">
+          <span class="data-key">last_invoice</span>
+          <span class="data-val">2026-05-09 · $58.00 · paid</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

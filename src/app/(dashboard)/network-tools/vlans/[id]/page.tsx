@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Pencil } from "lucide-react";
+import { ArrowLeft, PencilSimple } from "@phosphor-icons/react/dist/ssr";
 import { requireMember } from "@/lib/auth-helpers";
 import { withTenant } from "@/lib/prisma-tenant";
 import { COLOR_TAG_MAP, type ColorTag } from "@/types";
@@ -67,7 +67,7 @@ export default async function VlanDetailPage({
         href="/network-tools/vlans"
         className="inline-flex items-center gap-2 text-sm text-white/60 transition-colors hover:text-white"
       >
-        <ArrowLeft className="h-4 w-4" aria-hidden />
+        <ArrowLeft className="h-4 w-4" weight="bold" aria-hidden />
         Back to VLANs
       </Link>
 
@@ -78,12 +78,14 @@ export default async function VlanDetailPage({
               className="rounded-md px-2 py-0.5 font-mono text-sm"
               style={{ backgroundColor: `${color}22`, color }}
             >
-              VLAN {vlan.vlanId}
+              VLAN <span className="mono">{vlan.vlanId}</span>
             </span>
             <h1 className="text-3xl font-bold text-white">{vlan.name}</h1>
           </div>
           <p className="mt-1 text-sm text-white/60 capitalize">
-            {vlan.purpose} · {vlan.assignments.length} device assignment
+            {vlan.purpose} ·{" "}
+            <span className="mono">{vlan.assignments.length}</span> device
+            assignment
             {vlan.assignments.length !== 1 ? "s" : ""}
           </p>
           {vlan.description && (
@@ -96,7 +98,7 @@ export default async function VlanDetailPage({
           href={`/network-tools/vlans/${vlan.id}/edit`}
           className="glass-button flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white"
         >
-          <Pencil className="h-4 w-4" aria-hidden />
+          <PencilSimple className="h-4 w-4" weight="bold" aria-hidden />
           Edit
         </Link>
       </div>

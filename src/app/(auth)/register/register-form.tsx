@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { User, Mail, Lock } from "lucide-react";
+import { User, Envelope, Lock } from "@phosphor-icons/react/dist/ssr";
 import { signIn, signUp } from "@/lib/auth-client";
 import toast from "react-hot-toast";
 import type { OAuthProviders } from "@/lib/oauth-providers";
@@ -117,7 +117,10 @@ export function RegisterForm({
             Name
           </label>
           <div className="relative">
-            <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" />
+            <User
+              className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30"
+              weight="duotone"
+            />
             <input
               id="name"
               type="text"
@@ -139,7 +142,10 @@ export function RegisterForm({
             Email
           </label>
           <div className="relative">
-            <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" />
+            <Envelope
+              className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30"
+              weight="duotone"
+            />
             <input
               id="email"
               type="email"
@@ -171,7 +177,10 @@ export function RegisterForm({
             Password
           </label>
           <div className="relative">
-            <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" />
+            <Lock
+              className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30"
+              weight="duotone"
+            />
             <input
               id="password"
               type="password"
@@ -197,7 +206,10 @@ export function RegisterForm({
             Confirm Password
           </label>
           <div className="relative">
-            <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" />
+            <Lock
+              className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30"
+              weight="duotone"
+            />
             <input
               id="confirmPassword"
               type="password"

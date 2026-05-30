@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { Plus, Pencil } from "lucide-react";
-import { twMerge } from "tailwind-merge";
+import { Plus, PencilSimple } from "@phosphor-icons/react/dist/ssr";
+import { Button } from "@/components/ui/button";
+import { Tag } from "@/components/ui/tag";
 import type { AssignmentLite } from "./subnet-types";
 
 type Props = {
@@ -11,27 +12,28 @@ type Props = {
   onAdd: () => void;
 };
 
-const STATUS_STYLES: Record<string, string> = {
-  assigned: "bg-accent-green/15 text-accent-green",
-  reserved: "bg-accent-orange/15 text-accent-orange",
-  dhcp: "bg-accent-blue/15 text-accent-blue",
-};
+const STATUS_TONES: Record<string, "success" | "warning" | "info" | "neutral"> =
+  {
+    assigned: "success",
+    reserved: "warning",
+    dhcp: "info",
+  };
 
 export function AssignmentList({ assignments, onEdit, onAdd }: Props) {
   return (
-    <section className="glass-card rounded-xl p-6">
+    <section className="surface-card p-6">
       <div className="mb-3 flex items-center justify-between">
         <h2 className="text-lg font-semibold text-white">
-          Assignments · {assignments.length}
+          Assignments · <span className="mono">{assignments.length}</span>
         </h2>
-        <button
-          type="button"
+        <Button
+          variant="primary"
+          size="sm"
           onClick={onAdd}
-          className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-white hover:bg-primary/90"
+          iconLeft={<Plus className="h-3.5 w-3.5" weight="bold" aria-hidden />}
         >
-          <Plus className="h-3.5 w-3.5" aria-hidden />
           Assign IP
-        </button>
+        </Button>
       </div>
 
       {assignments.length === 0 ? (
@@ -57,18 +59,15 @@ export function AssignmentList({ assignments, onEdit, onAdd }: Props) {
                   key={a.id}
                   className="transition-colors hover:bg-white/[0.03]"
                 >
-                  <td className="px-4 py-2 font-mono text-white">
-                    {a.ipAddress}
-                  </td>
+                  <td className="px-4 py-2 mono text-white">{a.ipAddress}</td>
                   <td className="px-4 py-2">
-                    <span
-                      className={twMerge(
-                        "rounded-full px-2 py-0.5 text-xs capitalize",
-                        STATUS_STYLES[a.status] ?? "bg-white/5 text-white/60",
-                      )}
+                    <Tag
+                      tone={STATUS_TONES[a.status] ?? "neutral"}
+                      variant="subtle"
+                      className="capitalize"
                     >
                       {a.status}
-                    </span>
+                    </Tag>
                   </td>
                   <td className="px-4 py-2">
                     {a.device ? (
@@ -92,7 +91,11 @@ export function AssignmentList({ assignments, onEdit, onAdd }: Props) {
                       aria-label={`Edit assignment for ${a.ipAddress}`}
                       className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded text-white/40 hover:bg-white/[0.06] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/50"
                     >
-                      <Pencil className="h-3.5 w-3.5" aria-hidden />
+                      <PencilSimple
+                        className="h-3.5 w-3.5"
+                        weight="bold"
+                        aria-hidden
+                      />
                     </button>
                   </td>
                 </tr>

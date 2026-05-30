@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import { Plus, Unlink } from "lucide-react";
+import { Plus, LinkBreak } from "@phosphor-icons/react/dist/ssr";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
 import { Select, SelectOption } from "@/components/ui/select";
 import { linkSubnetToVlan } from "@/app/(dashboard)/network-tools/vlans/actions";
@@ -65,7 +65,7 @@ export function SubnetLinkSelect({
   };
 
   return (
-    <section className="glass-card rounded-xl p-6">
+    <section className="surface-card p-6">
       <div className="mb-3 flex items-center justify-between">
         <h2 className="text-lg font-semibold text-white">Linked subnets</h2>
         {available.length > 0 && (
@@ -90,7 +90,7 @@ export function SubnetLinkSelect({
               disabled={!selectId || pending}
               className="flex items-center gap-1 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-white hover:bg-primary/90 disabled:opacity-50"
             >
-              <Plus className="h-3 w-3" aria-hidden />
+              <Plus className="h-3 w-3" weight="bold" aria-hidden />
               Link
             </button>
           </div>
@@ -110,10 +110,10 @@ export function SubnetLinkSelect({
             >
               <Link
                 href={`/ipam/${s.id}`}
-                className="font-mono text-white hover:text-primary"
+                className="mono text-white hover:text-primary"
               >
                 {s.cidr}
-                <span className="ml-2 text-white/60">{s.name}</span>
+                <span className="ml-2 font-sans text-white/60">{s.name}</span>
               </Link>
               <button
                 type="button"
@@ -123,7 +123,7 @@ export function SubnetLinkSelect({
                 aria-label={`Unlink ${s.cidr}`}
                 className="flex items-center gap-1 text-xs text-white/40 hover:text-accent-red"
               >
-                <Unlink className="h-3 w-3" aria-hidden />
+                <LinkBreak className="h-3 w-3" weight="bold" aria-hidden />
                 Unlink
               </button>
             </li>
@@ -138,9 +138,9 @@ export function SubnetLinkSelect({
         body={
           <p>
             Unlink{" "}
-            <span className="font-mono text-white">{confirmTarget?.cidr}</span>{" "}
-            from this VLAN? The subnet and its IP assignments stay intact — only
-            the VLAN association is removed.
+            <span className="mono text-white">{confirmTarget?.cidr}</span> from
+            this VLAN? The subnet and its IP assignments stay intact — only the
+            VLAN association is removed.
           </p>
         }
         confirmLabel="Unlink subnet"

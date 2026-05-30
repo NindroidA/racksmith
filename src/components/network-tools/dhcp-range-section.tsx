@@ -2,7 +2,8 @@
 
 import { useState, useTransition } from "react";
 import toast from "react-hot-toast";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, TrashSimple } from "@phosphor-icons/react/dist/ssr";
+import { Button } from "@/components/ui/button";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
 import {
   createDhcpRange,
@@ -59,25 +60,27 @@ export function DhcpRangeSection({ subnetId, subnetCidr, dhcpRanges }: Props) {
   };
 
   return (
-    <section className="glass-card rounded-xl p-6">
+    <section className="surface-card p-6">
       <div className="mb-3 flex items-center justify-between">
         <h2 className="text-lg font-semibold text-white">DHCP ranges</h2>
         {!adding && (
-          <button
-            type="button"
+          <Button
+            variant="secondary"
+            size="sm"
             onClick={() => setAdding(true)}
-            className="glass-button flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-white"
+            iconLeft={
+              <Plus className="h-3.5 w-3.5" weight="bold" aria-hidden />
+            }
           >
-            <Plus className="h-3.5 w-3.5" aria-hidden />
             Add range
-          </button>
+          </Button>
         )}
       </div>
 
       {dhcpRanges.length === 0 && !adding && (
         <p className="text-sm text-white/50">
-          No DHCP ranges on {subnetCidr}. Add one to mark a pool you hand out
-          leases from.
+          No DHCP ranges on <span className="mono">{subnetCidr}</span>. Add one
+          to mark a pool you hand out leases from.
         </p>
       )}
 
@@ -89,7 +92,7 @@ export function DhcpRangeSection({ subnetId, subnetCidr, dhcpRanges }: Props) {
               className="flex items-center justify-between gap-3 py-2"
             >
               <div>
-                <div className="font-mono text-sm text-white">
+                <div className="mono text-sm text-white">
                   {r.startIp} – {r.endIp}
                 </div>
                 {r.label && (
@@ -107,7 +110,7 @@ export function DhcpRangeSection({ subnetId, subnetCidr, dhcpRanges }: Props) {
                 aria-label={`Delete DHCP range ${r.startIp}-${r.endIp}`}
                 className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded text-white/40 hover:bg-white/[0.06] hover:text-accent-red focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/50"
               >
-                <Trash2 className="h-4 w-4" aria-hidden />
+                <TrashSimple className="h-4 w-4" weight="bold" aria-hidden />
               </button>
             </li>
           ))}
@@ -149,20 +152,21 @@ export function DhcpRangeSection({ subnetId, subnetCidr, dhcpRanges }: Props) {
             maxLength={100}
           />
           <div className="flex gap-2">
-            <button
-              type="button"
+            <Button
+              variant="secondary"
+              size="sm"
               onClick={() => setAdding(false)}
-              className="glass-button rounded-lg px-3 py-2 text-xs font-medium text-white"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
               type="submit"
               disabled={pending}
-              className="rounded-lg bg-primary px-3 py-2 text-xs font-medium text-white hover:bg-primary/90 disabled:opacity-50"
             >
               {pending ? "Saving..." : "Add"}
-            </button>
+            </Button>
           </div>
         </form>
       )}
@@ -174,9 +178,9 @@ export function DhcpRangeSection({ subnetId, subnetCidr, dhcpRanges }: Props) {
         body={
           <p>
             Delete the DHCP range{" "}
-            <span className="font-mono text-white">{confirmTarget?.range}</span>
-            ? This removes the pool record — the subnet and any IP assignments
-            are not affected.
+            <span className="mono text-white">{confirmTarget?.range}</span>?
+            This removes the pool record — the subnet and any IP assignments are
+            not affected.
           </p>
         }
         confirmLabel="Delete range"

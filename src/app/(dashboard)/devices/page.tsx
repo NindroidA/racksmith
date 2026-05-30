@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus, Upload } from "lucide-react";
+import { Plus, UploadSimple } from "@phosphor-icons/react/dist/ssr";
 import { requireMember } from "@/lib/auth-helpers";
 import { withTenant } from "@/lib/prisma-tenant";
 import {
@@ -40,8 +40,8 @@ export default async function DevicesPage() {
         <div>
           <h1 className="text-3xl font-bold text-white">Devices</h1>
           <p className="mt-1 text-white/60">
-            {devices.length} device{devices.length !== 1 ? "s" : ""} in
-            inventory
+            <span className="mono">{devices.length}</span> device
+            {devices.length !== 1 ? "s" : ""} in inventory
           </p>
         </div>
         <div className="flex gap-2">
@@ -49,14 +49,14 @@ export default async function DevicesPage() {
             href="/devices/import"
             className="glass-button flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-white"
           >
-            <Upload className="h-4 w-4" />
+            <UploadSimple className="h-4 w-4" weight="bold" />
             Import CSV
           </Link>
           <Link
             href="/devices/new"
             className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white transition-all hover:bg-primary/90"
           >
-            <Plus className="h-4 w-4" />
+            <Plus className="h-4 w-4" weight="bold" />
             Add Device
           </Link>
         </div>

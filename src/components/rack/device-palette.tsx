@@ -1,7 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Search, Package, HardDrive } from "lucide-react";
+import {
+  MagnifyingGlass,
+  Package,
+  HardDrives,
+} from "@phosphor-icons/react/dist/ssr";
 import { twMerge } from "tailwind-merge";
 import { DEVICE_TYPE_LABELS } from "@/types";
 import type { DeviceType } from "@/types";
@@ -109,7 +113,7 @@ function DraggablePaletteItem({
           </div>
           <div className="truncate text-[10px] text-white/50">{subtitle}</div>
         </div>
-        <span className="shrink-0 rounded bg-white/[0.06] px-1.5 py-0.5 font-mono text-[9px] text-white/60">
+        <span className="mono shrink-0 rounded bg-white/[0.06] px-1.5 py-0.5 text-[9px] text-white/60">
           {sizeU}U
         </span>
       </div>
@@ -147,14 +151,17 @@ export function DevicePalette({ catalog, unracked }: Props) {
   }, [filteredCatalog]);
 
   return (
-    <aside className="glass-card flex h-full flex-col overflow-hidden rounded-2xl">
+    <aside className="surface-card flex h-full flex-col overflow-hidden">
       <div className="border-b border-white/10 p-4">
         <div className="mb-3 flex items-center gap-2">
-          <Package className="h-4 w-4 text-primary" />
+          <Package className="h-4 w-4 text-primary" weight="duotone" />
           <h3 className="text-sm font-semibold text-white">Device Palette</h3>
         </div>
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" />
+          <MagnifyingGlass
+            className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30"
+            weight="bold"
+          />
           <input
             type="text"
             value={search}
@@ -172,9 +179,13 @@ export function DevicePalette({ catalog, unracked }: Props) {
         {filteredUnracked.length > 0 && (
           <section className="mb-4">
             <div className="mb-2 flex items-center gap-2">
-              <HardDrive className="h-3.5 w-3.5 text-accent-green" />
+              <HardDrives
+                className="h-3.5 w-3.5 text-accent-green"
+                weight="duotone"
+              />
               <h4 className="text-xs font-semibold uppercase tracking-wider text-white/50">
-                Your Devices ({filteredUnracked.length})
+                Your Devices (
+                <span className="mono">{filteredUnracked.length}</span>)
               </h4>
             </div>
             <div className="space-y-2">

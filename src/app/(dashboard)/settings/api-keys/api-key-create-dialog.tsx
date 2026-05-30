@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useRef, useState, useTransition } from "react";
 import toast from "react-hot-toast";
-import { Plus, Copy, Check, X } from "lucide-react";
+import { Plus, Copy, Check, X } from "@phosphor-icons/react/dist/ssr";
 import { createApiKey } from "./actions";
 import { describeError } from "@/lib/error-message";
 import { Select, SelectOption } from "@/components/ui/select";
@@ -68,7 +68,7 @@ export function ApiKeyCreateDialog({ disabled }: Props) {
         disabled={disabled}
         className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
       >
-        <Plus className="h-4 w-4" /> Create API key
+        <Plus className="h-4 w-4" weight="bold" /> Create API key
       </button>
 
       {open && (
@@ -97,7 +97,7 @@ export function ApiKeyCreateDialog({ disabled }: Props) {
                     disabled={pending}
                     className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded p-1 text-white/50 hover:bg-white/10 hover:text-white disabled:opacity-50"
                   >
-                    <X className="h-4 w-4" aria-hidden />
+                    <X className="h-4 w-4" weight="bold" aria-hidden />
                   </button>
                 </div>
                 <div>
@@ -192,7 +192,7 @@ export function ApiKeyCreateDialog({ disabled }: Props) {
                   Copy it now — after you close this window it can never be
                   retrieved.
                 </div>
-                <div className="glass-input overflow-hidden rounded-lg p-3 font-mono text-xs text-white break-all">
+                <div className="glass-input mono overflow-hidden rounded-lg p-3 text-xs text-white break-all">
                   {revealed}
                 </div>
                 <div className="flex gap-2">
@@ -205,9 +205,9 @@ export function ApiKeyCreateDialog({ disabled }: Props) {
                     className="inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-xs font-medium text-white hover:bg-primary/90"
                   >
                     {copied ? (
-                      <Check className="h-3.5 w-3.5" />
+                      <Check className="h-3.5 w-3.5" weight="bold" />
                     ) : (
-                      <Copy className="h-3.5 w-3.5" />
+                      <Copy className="h-3.5 w-3.5" weight="bold" />
                     )}
                     {copied ? "Copied" : "Copy"}
                   </button>

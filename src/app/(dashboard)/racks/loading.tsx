@@ -15,7 +15,7 @@ export default function RacksLoading() {
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {[0, 1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="glass-card flex flex-col gap-3 rounded-xl p-6">
+            <div key={i} className="surface-card flex flex-col gap-3 p-6">
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 motion-safe:animate-pulse rounded-lg bg-white/[0.05]" />
                 <div className="flex-1">

@@ -5,12 +5,12 @@ import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Check,
-  ChevronRight,
-  Home,
-  Server,
+  CaretRight,
+  House,
+  Buildings,
   Users,
   Compass,
-} from "lucide-react";
+} from "@phosphor-icons/react/dist/ssr";
 import toast from "react-hot-toast";
 import { twMerge } from "tailwind-merge";
 import { saveProfile } from "@/app/(dashboard)/settings/actions";
@@ -36,25 +36,25 @@ const ROLE_OPTIONS: Array<{
     value: "homelab",
     label: "Homelab",
     blurb: "Personal setup, 1–2 racks.",
-    icon: <Home className="h-5 w-5" aria-hidden />,
+    icon: <House className="h-5 w-5" aria-hidden weight="duotone" />,
   },
   {
     value: "small_it",
     label: "Small IT team",
     blurb: "In-house IT at a business.",
-    icon: <Users className="h-5 w-5" aria-hidden />,
+    icon: <Users className="h-5 w-5" aria-hidden weight="duotone" />,
   },
   {
     value: "msp",
     label: "MSP / Consultant",
     blurb: "Managing client infrastructure.",
-    icon: <Server className="h-5 w-5" aria-hidden />,
+    icon: <Buildings className="h-5 w-5" aria-hidden weight="duotone" />,
   },
   {
     value: "exploring",
     label: "Just exploring",
     blurb: "Kicking the tires.",
-    icon: <Compass className="h-5 w-5" aria-hidden />,
+    icon: <Compass className="h-5 w-5" aria-hidden weight="duotone" />,
   },
 ];
 
@@ -252,7 +252,7 @@ export function ProfileQuiz({ open, onClose }: Props) {
                     className="flex items-center gap-1 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-all hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     Next
-                    <ChevronRight className="h-4 w-4" aria-hidden />
+                    <CaretRight className="h-4 w-4" aria-hidden weight="bold" />
                   </button>
                 ) : (
                   <button
@@ -317,7 +317,11 @@ function OptionRow({
         )}
       </span>
       {selected && (
-        <Check className="h-4 w-4 shrink-0 text-primary" aria-hidden />
+        <Check
+          className="h-4 w-4 shrink-0 text-primary"
+          aria-hidden
+          weight="bold"
+        />
       )}
     </button>
   );

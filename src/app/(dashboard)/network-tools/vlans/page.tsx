@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus, Lock, Tag } from "lucide-react";
+import { Plus, Lock, Tag } from "@phosphor-icons/react/dist/ssr";
 import { requireMember } from "@/lib/auth-helpers";
 import { withTenant } from "@/lib/prisma-tenant";
 import { getUsageSummary } from "@/lib/tiers";
@@ -53,14 +53,23 @@ export default async function VlansPage() {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="flex items-center gap-2 text-3xl font-bold text-white">
-            <Tag className="h-7 w-7 text-accent-purple" aria-hidden />
+            <Tag
+              className="h-7 w-7 text-accent-purple"
+              weight="duotone"
+              aria-hidden
+            />
             VLANs
           </h1>
           <p className="mt-1 text-white/60">
-            {vlans.length} VLAN{vlans.length !== 1 ? "s" : ""} defined
+            <span className="mono">{vlans.length}</span> VLAN
+            {vlans.length !== 1 ? "s" : ""} defined
             {limit !== null && (
               <span className="ml-2 text-white/40">
-                · {usage.vlans.current}/{limit} on {usage.planLabel}
+                ·{" "}
+                <span className="mono">
+                  {usage.vlans.current}/{limit}
+                </span>{" "}
+                on {usage.planLabel}
               </span>
             )}
           </p>
@@ -70,9 +79,10 @@ export default async function VlansPage() {
             role="status"
             className="flex items-center gap-2 rounded-lg border border-accent-orange/40 bg-accent-orange/10 px-4 py-2.5 text-sm font-medium text-accent-orange"
           >
-            <Lock className="h-4 w-4" aria-hidden />
+            <Lock className="h-4 w-4" weight="duotone" aria-hidden />
             <span>
-              VLAN limit reached ({limit} on {usage.planLabel})
+              VLAN limit reached (<span className="mono">{limit}</span> on{" "}
+              {usage.planLabel})
             </span>
           </div>
         ) : (
@@ -80,7 +90,7 @@ export default async function VlansPage() {
             href="/network-tools/vlans/new"
             className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white transition-all hover:bg-primary/90"
           >
-            <Plus className="h-4 w-4" aria-hidden />
+            <Plus className="h-4 w-4" weight="bold" aria-hidden />
             Add VLAN
           </Link>
         )}
@@ -115,7 +125,7 @@ export default async function VlansPage() {
                 COLOR_TAG_MAP[v.colorTag as ColorTag] ?? COLOR_TAG_MAP.purple;
               return (
                 <Link key={v.id} href={`/network-tools/vlans/${v.id}`}>
-                  <div className="glass-card flex flex-col gap-2 rounded-xl p-5">
+                  <div className="surface-card flex flex-col gap-2 p-5">
                     <div className="flex items-start justify-between">
                       <div>
                         <span
@@ -125,7 +135,7 @@ export default async function VlansPage() {
                             color,
                           }}
                         >
-                          VLAN {v.vlanId}
+                          VLAN <span className="mono">{v.vlanId}</span>
                         </span>
                         <h3 className="mt-2 font-semibold text-white">
                           {v.name}
@@ -142,11 +152,12 @@ export default async function VlansPage() {
                     )}
                     <div className="mt-auto flex items-center justify-between text-xs text-white/50">
                       <span>
-                        {v._count.assignments} device
+                        <span className="mono">{v._count.assignments}</span>{" "}
+                        device
                         {v._count.assignments !== 1 ? "s" : ""}
                       </span>
                       <span>
-                        {v._count.subnets} subnet
+                        <span className="mono">{v._count.subnets}</span> subnet
                         {v._count.subnets !== 1 ? "s" : ""}
                       </span>
                     </div>
@@ -163,9 +174,9 @@ export default async function VlansPage() {
 
 function EmptyState() {
   return (
-    <div className="glass-card flex flex-col items-center rounded-2xl px-6 py-16 text-center">
+    <div className="surface-card flex flex-col items-center px-6 py-16 text-center">
       <div className="mb-4 rounded-xl bg-accent-purple/20 p-4 text-accent-purple">
-        <Tag className="h-8 w-8" aria-hidden />
+        <Tag className="h-8 w-8" weight="duotone" aria-hidden />
       </div>
       <h2 className="mb-2 text-xl font-semibold text-white">No VLANs yet</h2>
       <p className="mb-6 max-w-md text-sm text-white/50">
@@ -176,7 +187,7 @@ function EmptyState() {
         href="/network-tools/vlans/new"
         className="flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-white hover:bg-primary/90"
       >
-        <Plus className="h-4 w-4" aria-hidden />
+        <Plus className="h-4 w-4" weight="bold" aria-hidden />
         Add your first VLAN
       </Link>
     </div>

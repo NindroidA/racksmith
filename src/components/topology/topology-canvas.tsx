@@ -18,11 +18,10 @@ import {
 import "@xyflow/react/dist/style.css";
 import toast from "react-hot-toast";
 import {
-  LayoutGrid,
+  SquaresFour,
   Plus,
-  Download,
-  Network as NetworkIcon,
-} from "lucide-react";
+  DownloadSimple,
+} from "@phosphor-icons/react/dist/ssr";
 import { toPng } from "html-to-image";
 import { DeviceNode, type DeviceNodeData } from "./device-node";
 import { CableEdge, CABLE_COLORS, type CableEdgeData } from "./cable-edge";
@@ -212,7 +211,7 @@ function CanvasInner({ devices, connections }: Props) {
       toast.loading("Generating image...", { id: "export" });
 
       const dataUrl = await toPng(container, {
-        backgroundColor: "#0a0e1a",
+        backgroundColor: "#0e0b1c",
         pixelRatio: 2,
         filter: (node) => {
           // Skip controls + minimap + attribution in export
@@ -267,7 +266,7 @@ function CanvasInner({ devices, connections }: Props) {
             onClick={handleAddConnection}
             className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-white transition-all hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/50"
           >
-            <Plus className="h-3.5 w-3.5" aria-hidden />
+            <Plus className="h-3.5 w-3.5" weight="bold" aria-hidden />
             Add Connection
           </button>
           <button
@@ -276,7 +275,7 @@ function CanvasInner({ devices, connections }: Props) {
             disabled={pending}
             className="glass-button flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
           >
-            <LayoutGrid className="h-3.5 w-3.5" aria-hidden />
+            <SquaresFour className="h-3.5 w-3.5" weight="bold" aria-hidden />
             Auto-Layout
           </button>
           <button
@@ -284,7 +283,7 @@ function CanvasInner({ devices, connections }: Props) {
             onClick={handleExport}
             className="glass-button flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-white"
           >
-            <Download className="h-3.5 w-3.5" aria-hidden />
+            <DownloadSimple className="h-3.5 w-3.5" weight="bold" aria-hidden />
             Export PNG
           </button>
         </div>
@@ -331,7 +330,7 @@ function CanvasInner({ devices, connections }: Props) {
 
       <div
         ref={canvasRef}
-        className="h-[calc(100vh-16rem)] overflow-hidden rounded-2xl border-2 border-white/10 bg-[#0a0e1a]"
+        className="h-[calc(100vh-16rem)] overflow-hidden rounded-2xl border-2 border-white/10 bg-[#0e0b1c]"
       >
         <ReactFlow
           aria-label="Network topology canvas"
@@ -371,7 +370,7 @@ function CanvasInner({ devices, connections }: Props) {
               borderRadius: 8,
             }}
             maskColor="rgba(10,14,26,0.6)"
-            nodeColor="#3b82f6"
+            nodeColor="#5765f4"
           />
         </ReactFlow>
       </div>

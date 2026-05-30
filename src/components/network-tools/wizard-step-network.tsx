@@ -1,7 +1,12 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Plus, Trash2 } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Plus,
+  TrashSimple,
+} from "@phosphor-icons/react/dist/ssr";
 import { InlineHelp } from "@/components/ui/inline-help";
 import { Select, SelectOption } from "@/components/ui/select";
 import type { NetworkInput, VlanLine } from "@/lib/plan/wizard-types";
@@ -75,7 +80,7 @@ export function WizardStepNetwork({ value, disabled, onBack, onNext }: Props) {
 
   return (
     <fieldset disabled={disabled} className="space-y-6">
-      <section className="glass-card rounded-xl p-6">
+      <section className="surface-card p-6">
         <h3 className="text-lg font-semibold text-white">
           Parent address space
         </h3>
@@ -92,12 +97,12 @@ export function WizardStepNetwork({ value, disabled, onBack, onNext }: Props) {
             type="text"
             value={parentCidr}
             onChange={(e) => setParentCidr(e.target.value)}
-            className="glass-input w-full rounded-lg px-3 py-2 font-mono text-white"
+            className="glass-input mono w-full rounded-lg px-3 py-2 text-white"
           />
         </div>
       </section>
 
-      <section className="glass-card rounded-xl p-6">
+      <section className="surface-card p-6">
         <header className="mb-4 flex items-end justify-between">
           <div>
             <h3 className="text-lg font-semibold text-white">
@@ -112,7 +117,7 @@ export function WizardStepNetwork({ value, disabled, onBack, onNext }: Props) {
             onClick={addRow}
             className="btn-secondary inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm"
           >
-            <Plus className="h-3.5 w-3.5" /> Add VLAN
+            <Plus className="h-3.5 w-3.5" weight="bold" /> Add VLAN
           </button>
         </header>
 
@@ -137,7 +142,7 @@ export function WizardStepNetwork({ value, disabled, onBack, onNext }: Props) {
                     onChange={(e) =>
                       updateRow(idx, { vlanId: Number(e.target.value) || 1 })
                     }
-                    className="glass-input rounded-lg px-2 py-1.5 text-sm text-white"
+                    className="glass-input mono rounded-lg px-2 py-1.5 text-sm text-white"
                     aria-label={`VLAN ID for ${rowLabel}`}
                   />
                   <input
@@ -176,7 +181,7 @@ export function WizardStepNetwork({ value, disabled, onBack, onNext }: Props) {
                         ),
                       })
                     }
-                    className="glass-input rounded-lg px-2 py-1.5 text-sm text-white"
+                    className="glass-input mono rounded-lg px-2 py-1.5 text-sm text-white"
                     aria-label={`Subnet suffix for VLAN ${row.vlanId}`}
                     title="Replaces the third octet of the parent CIDR (parent /16 → x.y.SUFFIX.0/24)"
                   />
@@ -186,7 +191,11 @@ export function WizardStepNetwork({ value, disabled, onBack, onNext }: Props) {
                     aria-label={`Remove VLAN ${rowLabel}`}
                     className="flex h-9 w-9 items-center justify-center rounded-lg text-white/40 transition-colors hover:bg-red-500/10 hover:text-red-400"
                   >
-                    <Trash2 className="h-4 w-4" aria-hidden />
+                    <TrashSimple
+                      className="h-4 w-4"
+                      weight="bold"
+                      aria-hidden
+                    />
                   </button>
                 </li>
               );
@@ -201,7 +210,7 @@ export function WizardStepNetwork({ value, disabled, onBack, onNext }: Props) {
           onClick={onBack}
           className="btn-secondary inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium"
         >
-          <ArrowLeft className="h-4 w-4" aria-hidden /> Back
+          <ArrowLeft className="h-4 w-4" weight="bold" aria-hidden /> Back
         </button>
         <button
           type="button"
@@ -209,7 +218,7 @@ export function WizardStepNetwork({ value, disabled, onBack, onNext }: Props) {
           disabled={disabled || !valid}
           className="btn-primary inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium"
         >
-          Review <ArrowRight className="h-4 w-4" aria-hidden />
+          Review <ArrowRight className="h-4 w-4" weight="bold" aria-hidden />
         </button>
       </div>
     </fieldset>

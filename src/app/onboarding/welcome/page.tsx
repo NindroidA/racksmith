@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { randomBytes } from "node:crypto";
-import { Wrench, ArrowRight, Settings } from "lucide-react";
+import { Wrench, ArrowRight, GearSix } from "@phosphor-icons/react/dist/ssr";
 import { requireUser } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
 import { generateSlugFromName, validateSlug } from "@/lib/slug";
@@ -108,7 +108,7 @@ export default async function WelcomePage() {
       <div className="glass-panel w-full max-w-xl rounded-2xl p-8">
         <div className="mb-6 flex flex-col items-center text-center">
           <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20">
-            <Wrench className="h-7 w-7 text-primary" />
+            <Wrench className="h-7 w-7 text-primary" weight="duotone" />
           </div>
           <h1 className="gradient-text text-2xl font-bold">
             Welcome to RackSmith
@@ -134,7 +134,7 @@ export default async function WelcomePage() {
             href="/settings?tab=organization"
             className="glass-button inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-white"
           >
-            <Settings className="h-4 w-4" aria-hidden />
+            <GearSix className="h-4 w-4" aria-hidden weight="duotone" />
             Customize
           </Link>
           <Link
@@ -142,7 +142,7 @@ export default async function WelcomePage() {
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white transition-all hover:bg-primary/90"
           >
             Skip to dashboard
-            <ArrowRight className="h-4 w-4" aria-hidden />
+            <ArrowRight className="h-4 w-4" aria-hidden weight="bold" />
           </Link>
         </div>
       </div>

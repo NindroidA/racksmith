@@ -3,12 +3,12 @@
 import {
   ArrowLeft,
   Globe,
-  HardDrive,
-  Layers,
-  Loader2,
-  Server,
+  HardDrives,
+  StackSimple,
+  CircleNotch,
+  Stack,
   Tag,
-} from "lucide-react";
+} from "@phosphor-icons/react/dist/ssr";
 import type { WizardInputs } from "@/lib/plan/wizard-types";
 
 type Props = {
@@ -33,7 +33,7 @@ export function WizardStepReview({
 
   return (
     <div className="space-y-6">
-      <section className="glass-card rounded-xl p-6">
+      <section className="surface-card p-6">
         <h3 className="text-lg font-semibold text-white">Plan summary</h3>
         <p className="mt-1 text-sm text-white/50">
           Applying creates real records — racks, devices, VLANs, and subnets in
@@ -41,9 +41,9 @@ export function WizardStepReview({
         </p>
 
         <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <SummaryCell icon={Server} label="Rack" value="1" />
+          <SummaryCell icon={Stack} label="Rack" value="1" />
           <SummaryCell
-            icon={HardDrive}
+            icon={HardDrives}
             label="Devices"
             value={String(deviceCount)}
           />
@@ -57,10 +57,10 @@ export function WizardStepReview({
       </section>
 
       {inputs.topology && (
-        <section className="glass-card rounded-xl p-6">
+        <section className="surface-card p-6">
           <h3 className="text-base font-semibold text-white">
             Equipment list ({inputs.topology.rackName} ·{" "}
-            {inputs.topology.rackSizeU}U)
+            <span className="mono">{inputs.topology.rackSizeU}U</span>)
           </h3>
           <ul className="mt-4 divide-y divide-white/[0.06]">
             {inputs.topology.selected.map((d, idx) => (
@@ -73,13 +73,16 @@ export function WizardStepReview({
                     {d.manufacturer} {d.model}
                   </span>
                   <span className="ml-2 text-xs text-white/40">
-                    {d.deviceType} · {d.sizeU > 0 ? `${d.sizeU}U` : "0U"} ·{" "}
-                    {d.portCount} ports
+                    {d.deviceType} ·{" "}
+                    <span className="mono">
+                      {d.sizeU > 0 ? `${d.sizeU}U` : "0U"}
+                    </span>{" "}
+                    · <span className="mono">{d.portCount}</span> ports
                   </span>
                 </div>
                 {d.powerWatts !== null && (
                   <span className="text-xs text-white/50">
-                    ~{d.powerWatts}W
+                    <span className="mono">~{d.powerWatts}W</span>
                   </span>
                 )}
               </li>
@@ -89,9 +92,10 @@ export function WizardStepReview({
       )}
 
       {inputs.network && inputs.network.vlans.length > 0 && (
-        <section className="glass-card rounded-xl p-6">
+        <section className="surface-card p-6">
           <h3 className="text-base font-semibold text-white">
-            VLAN + IP plan ({inputs.network.parentCidr})
+            VLAN + IP plan (
+            <span className="mono">{inputs.network.parentCidr}</span>)
           </h3>
           <ul className="mt-4 divide-y divide-white/[0.06]">
             {inputs.network.vlans.map((v) => (
@@ -100,13 +104,13 @@ export function WizardStepReview({
                 className="flex items-center justify-between py-2.5 text-sm"
               >
                 <div className="flex items-center gap-2">
-                  <span className="rounded bg-white/[0.06] px-1.5 py-0.5 font-mono text-[11px] text-white/70">
+                  <span className="mono rounded bg-white/[0.06] px-1.5 py-0.5 text-[11px] text-white/70">
                     VLAN {v.vlanId}
                   </span>
                   <span className="font-medium text-white">{v.name}</span>
                   <span className="text-xs text-white/40">{v.purpose}</span>
                 </div>
-                <span className="font-mono text-xs text-white/60">
+                <span className="mono text-xs text-white/60">
                   /24 at suffix .{v.subnetSuffix}
                 </span>
               </li>
@@ -122,7 +126,7 @@ export function WizardStepReview({
           disabled={pending}
           className="btn-secondary inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium"
         >
-          <ArrowLeft className="h-4 w-4" aria-hidden /> Back
+          <ArrowLeft className="h-4 w-4" weight="bold" aria-hidden /> Back
         </button>
         <button
           type="button"
@@ -132,9 +136,11 @@ export function WizardStepReview({
           aria-describedby="apply-status"
           className="btn-primary inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium"
         >
-          {pending && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
+          {pending && (
+            <CircleNotch className="h-4 w-4 animate-spin" aria-hidden />
+          )}
           {pending ? "Materializing…" : "Apply plan"}
-          <Layers className="h-4 w-4" aria-hidden />
+          <StackSimple className="h-4 w-4" weight="duotone" aria-hidden />
         </button>
       </div>
       <p id="apply-status" aria-live="polite" className="sr-only">
@@ -149,17 +155,17 @@ function SummaryCell({
   label,
   value,
 }: {
-  icon: typeof Server;
+  icon: typeof Stack;
   label: string;
   value: string;
 }) {
   return (
     <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-3">
       <div className="flex items-center gap-2 text-xs uppercase tracking-wide text-white/40">
-        <Icon className="h-3.5 w-3.5" aria-hidden />
+        <Icon className="h-3.5 w-3.5" weight="duotone" aria-hidden />
         {label}
       </div>
-      <div className="mt-2 text-2xl font-semibold text-white">{value}</div>
+      <div className="mono mt-2 text-2xl font-semibold text-white">{value}</div>
     </div>
   );
 }

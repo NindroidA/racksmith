@@ -1,13 +1,13 @@
 import Link from "next/link";
-import { Wrench, Compass } from "lucide-react";
+import { Wrench, Compass } from "@phosphor-icons/react/dist/ssr";
 
 export default function NotFound() {
   return (
     <div className="flex min-h-screen items-center justify-center p-6">
-      <div className="glass-panel w-full max-w-md rounded-2xl p-8 text-center">
+      <div className="surface-card w-full max-w-md p-8 text-center">
         <div className="mb-4 flex flex-col items-center">
           <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20">
-            <Wrench className="h-7 w-7 text-primary" />
+            <Wrench weight="duotone" className="h-7 w-7 text-primary" />
           </div>
           <h1 className="gradient-text mb-1 text-2xl font-bold">RackSmith</h1>
           <p className="text-xs uppercase tracking-wider text-white/40">
@@ -17,7 +17,7 @@ export default function NotFound() {
 
         <div className="mb-6 flex flex-col items-center text-center">
           <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white/[0.04]">
-            <Compass className="h-6 w-6 text-white/60" />
+            <Compass weight="duotone" className="h-6 w-6 text-white/60" />
           </div>
           <h2 className="mb-2 text-lg font-semibold text-white">
             That page doesn&apos;t exist

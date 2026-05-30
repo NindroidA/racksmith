@@ -27,7 +27,7 @@ export default function DevicesLoading() {
           ))}
         </div>
 
-        <div className="glass-card overflow-hidden rounded-xl">
+        <div className="surface-card overflow-hidden">
           <div className="grid grid-cols-6 gap-4 border-b border-white/[0.06] px-4 py-3">
             {[0, 1, 2, 3, 4, 5].map((i) => (
               <div
