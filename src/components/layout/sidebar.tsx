@@ -5,25 +5,25 @@ import { usePathname } from "next/navigation";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { twMerge } from "tailwind-merge";
 import {
-  LayoutDashboard,
-  Server,
-  HardDrive,
-  Network,
-  Radar,
-  Settings,
-  ChevronLeft,
-  ChevronRight,
-  LogOut,
+  Gauge,
+  Stack,
+  HardDrives,
+  ShareNetwork,
+  Pulse,
+  GearSix,
+  CaretLeft,
+  CaretRight,
+  SignOut,
   Wrench,
   Calculator,
   Globe,
   Tag,
   FileCode,
-  Wand2,
-  Battery,
-  Cable,
+  MagicWand,
+  BatteryCharging,
+  PlugsConnected,
   Bell,
-} from "lucide-react";
+} from "@phosphor-icons/react/dist/ssr";
 import { signOut } from "@/lib/auth-client";
 import { useSidebar } from "./sidebar-context";
 import {
@@ -34,21 +34,21 @@ import {
 type NavItem = {
   href: string;
   label: string;
-  icon: typeof LayoutDashboard;
+  icon: typeof Gauge;
   group?: string;
 };
 
 const NAV_ITEMS: readonly NavItem[] = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/racks", label: "Racks", icon: Server },
-  { href: "/devices", label: "Devices", icon: HardDrive },
-  { href: "/topology", label: "Topology", icon: Network },
-  { href: "/discovery", label: "Discovery", icon: Radar },
+  { href: "/dashboard", label: "Dashboard", icon: Gauge },
+  { href: "/racks", label: "Racks", icon: Stack },
+  { href: "/devices", label: "Devices", icon: HardDrives },
+  { href: "/topology", label: "Topology", icon: ShareNetwork },
+  { href: "/discovery", label: "Discovery", icon: Pulse },
   // IPAM and Plan Wizard are full features (own data models, server actions,
   // recommendation integrations) — promoted out of the Network Tools
   // calculator bucket to top-level peers of Racks/Devices/Topology.
   { href: "/ipam", label: "IPAM", icon: Globe },
-  { href: "/plan-wizard", label: "Plan Wizard", icon: Wand2 },
+  { href: "/plan-wizard", label: "Plan Wizard", icon: MagicWand },
   {
     href: "/network-tools/subnet-calc",
     label: "Subnet Calc",
@@ -70,13 +70,13 @@ const NAV_ITEMS: readonly NavItem[] = [
   {
     href: "/network-tools/power",
     label: "Power",
-    icon: Battery,
+    icon: BatteryCharging,
     group: "Network Tools",
   },
   {
     href: "/network-tools/cables",
     label: "Cables",
-    icon: Cable,
+    icon: PlugsConnected,
     group: "Network Tools",
   },
   {
@@ -85,7 +85,7 @@ const NAV_ITEMS: readonly NavItem[] = [
     icon: Bell,
     group: "Network Tools",
   },
-  { href: "/settings", label: "Settings", icon: Settings },
+  { href: "/settings", label: "Settings", icon: GearSix },
 ] as const;
 
 type SidebarProps = {
@@ -139,17 +139,23 @@ export function Sidebar({
           )}
         >
           {collapsed ? (
-            <ChevronRight className="h-3.5 w-3.5 text-white/50 transition-colors group-hover:text-white/90" />
+            <CaretRight
+              weight="bold"
+              className="h-3.5 w-3.5 text-white/50 transition-colors group-hover:text-white/90"
+            />
           ) : (
-            <ChevronLeft className="h-3.5 w-3.5 text-white/50 transition-colors group-hover:text-white/90" />
+            <CaretLeft
+              weight="bold"
+              className="h-3.5 w-3.5 text-white/50 transition-colors group-hover:text-white/90"
+            />
           )}
         </span>
       </button>
 
       {/* Logo */}
       <div className="flex h-16 shrink-0 items-center gap-3 px-4">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/20">
-          <Wrench className="h-5 w-5 text-primary" />
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-primary/15 ring-1 ring-inset ring-primary/25">
+          <Wrench weight="duotone" className="h-5 w-5 text-primary" />
         </div>
         <AnimatePresence>
           {!collapsed && (
@@ -209,7 +215,15 @@ export function Sidebar({
                     transition={{ type: "spring", bounce: 0.15, duration: 0.5 }}
                   />
                 )}
+                {/* Instrument-panel left accent on the active item. */}
+                {isActive && (
+                  <span
+                    aria-hidden
+                    className="absolute left-0 top-1/2 z-10 h-5 w-[2px] -translate-y-1/2 rounded-full bg-primary"
+                  />
+                )}
                 <Icon
+                  weight="duotone"
                   className={twMerge(
                     "relative z-10 h-5 w-5 shrink-0",
                     isActive ? "text-primary" : "",
@@ -239,7 +253,7 @@ export function Sidebar({
           aria-label={collapsed ? "Sign Out" : undefined}
           className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white/60 transition-all duration-200 hover:bg-white/[0.06] hover:text-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/50"
         >
-          <LogOut className="h-5 w-5 shrink-0" />
+          <SignOut weight="duotone" className="h-5 w-5 shrink-0" />
           <AnimatePresence>
             {!collapsed && (
               <motion.span

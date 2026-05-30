@@ -577,3 +577,160 @@ textarea:-webkit-autofill {
 .txt-body { color: var(--color-text-secondary); }
 .txt-muted { color: var(--color-text-muted); }
 .txt-faint { color: var(--color-text-faint); }
+
+/* ════════════════════════════════════════════════════════
+   FORGE — refined-industrial surface system
+   ────────────────────────────────────────────────────────
+   Material rhythm replaces universal glass: solid dark
+   cards, hairline borders, soft top-light. Glass-blur is
+   demoted to atmospheric overlays only (command palette,
+   modals, auth shell). The rack-unit grid + LED dots are
+   the identity wedge that keeps this from reading generic.
+   ════════════════════════════════════════════════════════ */
+
+:root {
+  /* Radius scale. Distinct names so we don't stomp Tailwind's own
+     --radius-* (which would resize every rounded-md utility app-wide). */
+  --r-control: 9px;   /* buttons, chips, inputs */
+  --r-card: 14px;     /* cards, alerts, dropdowns */
+  --r-surface: 20px;  /* page-level surfaces, modals */
+
+  /* Easing — named so call sites read clearly. */
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ─── Surface tiers ──────────────────────────────────────
+   page (body) → card → elevated. Each step lighter, all
+   solid material — NOT glass. */
+.surface-card {
+  position: relative;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0) 90px),
+    #0e1426;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: var(--r-card);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+
+.surface-elevated {
+  position: relative;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0) 90px),
+    #141b30;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: var(--r-card);
+  box-shadow:
+    0 6px 22px rgba(0, 0, 0, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* Cards that are also links/buttons — hairline lifts on hover. */
+.surface-interactive {
+  transition:
+    border-color 0.18s var(--ease-out),
+    background-color 0.18s var(--ease-out),
+    transform 0.18s var(--ease-out),
+    box-shadow 0.18s var(--ease-out);
+}
+.surface-interactive:hover {
+  border-color: rgba(255, 255, 255, 0.16);
+  transform: translateY(-1px);
+  box-shadow:
+    0 8px 26px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+.surface-interactive:active {
+  transform: translateY(0);
+}
+
+/* The one "currently-relevant action" surface per page: a 2px
+   brand-gradient left edge. Use sparingly — one per view. */
+.surface-accent {
+  overflow: hidden;
+}
+.surface-accent::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(
+    180deg,
+    var(--color-primary),
+    var(--color-accent-cyan) 70%
+  );
+}
+
+/* Hero surface — a card that wears the rack frame. The left-edge
+   tick column + 1U banding read as a rack rail without shouting.
+   background-color (not the `background` shorthand) so it composes
+   with the banding background-image. */
+.surface-hero {
+  position: relative;
+  background-color: #0e1426;
+  background-image:
+    linear-gradient(
+      to right,
+      var(--ru-tick) 0,
+      var(--ru-tick) 1px,
+      transparent 1px,
+      transparent 7px,
+      var(--ru-tick) 7px,
+      var(--ru-tick) 8px,
+      transparent 8px
+    ),
+    linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 22px,
+      var(--ru-line) 22px,
+      var(--ru-line) 24px
+    );
+  background-size: 8px 24px, 100% 24px;
+  background-repeat: repeat-y, repeat;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: var(--r-card);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+/* ─── LED status dot ─────────────────────────────────────
+   A small illuminated dot with a matching glow — the "live
+   device" status tell, borrowed from real controller panels.
+   ALWAYS pair with a text label; color is never the only
+   signal (WCAG 1.4.1). */
+.led-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 9999px;
+  flex-shrink: 0;
+}
+.led-dot--green {
+  background: var(--color-accent-green-bright);
+  box-shadow: 0 0 7px 1px var(--color-accent-green-glow);
+}
+.led-dot--amber {
+  background: var(--color-accent-orange-bright);
+  box-shadow: 0 0 7px 1px var(--color-accent-orange-glow);
+}
+.led-dot--red {
+  background: var(--color-accent-red-bright);
+  box-shadow: 0 0 7px 1px var(--color-accent-red-glow);
+}
+.led-dot--muted {
+  background: rgba(255, 255, 255, 0.28);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .led-dot--live {
+    animation: led-breathe 2.4s ease-in-out infinite;
+  }
+}
+@keyframes led-breathe {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}

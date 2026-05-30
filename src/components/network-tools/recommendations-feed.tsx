@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Bell } from "lucide-react";
+import { Bell } from "@phosphor-icons/react/dist/ssr";
 import { bySeverity, type Recommendation } from "@/lib/recommendations/types";
 import { RecommendationCard } from "./recommendation-card";
 
@@ -28,8 +28,8 @@ export function RecommendationsFeed({
   return (
     <section>
       <header className="mb-4 flex items-center justify-between">
-        <h2 className="flex items-center gap-2 text-lg font-semibold text-white">
-          <Bell className="h-4 w-4 text-primary" aria-hidden />
+        <h2 className="flex items-center gap-2 text-lg font-semibold txt-strong">
+          <Bell weight="duotone" className="h-4 w-4 text-primary" aria-hidden />
           Recommendations
           {hasAny && (
             <span className="rounded-full bg-white/[0.06] px-2 py-0.5 text-xs font-normal text-white/60">
@@ -48,7 +48,8 @@ export function RecommendationsFeed({
       </header>
 
       {!hasAny ? (
-        <div className="glass-card rounded-xl p-6 text-center text-sm text-white/60">
+        <div className="surface-card flex items-center justify-center gap-2 p-6 text-center text-sm txt-body">
+          <span className="led-dot led-dot--green" aria-hidden />
           {emptyMessage}
         </div>
       ) : (

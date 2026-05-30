@@ -1,33 +1,33 @@
 import Link from "next/link";
 import {
-  Plus,
-  Pencil,
-  Trash2,
+  PlusCircle,
+  PencilSimple,
+  TrashSimple,
   ArrowDown,
   ArrowUp,
-  Radar,
-  Server,
-  HardDrive,
-  Network,
-  Activity,
-} from "lucide-react";
+  Pulse,
+  Stack,
+  HardDrives,
+  ShareNetwork,
+} from "@phosphor-icons/react/dist/ssr";
 import { withTenant } from "@/lib/prisma-tenant";
 
-const ACTION_LABELS: Record<string, { verb: string; icon: typeof Plus }> = {
-  created: { verb: "Created", icon: Plus },
-  updated: { verb: "Updated", icon: Pencil },
-  deleted: { verb: "Deleted", icon: Trash2 },
-  placed: { verb: "Placed", icon: ArrowDown },
-  unplaced: { verb: "Removed from rack", icon: ArrowUp },
-  device_discovered: { verb: "Discovered", icon: Radar },
-  device_imported: { verb: "Imported devices", icon: HardDrive },
-};
+const ACTION_LABELS: Record<string, { verb: string; icon: typeof PlusCircle }> =
+  {
+    created: { verb: "Created", icon: PlusCircle },
+    updated: { verb: "Updated", icon: PencilSimple },
+    deleted: { verb: "Deleted", icon: TrashSimple },
+    placed: { verb: "Placed", icon: ArrowDown },
+    unplaced: { verb: "Removed from rack", icon: ArrowUp },
+    device_discovered: { verb: "Discovered", icon: Pulse },
+    device_imported: { verb: "Imported devices", icon: HardDrives },
+  };
 
-const ENTITY_ICONS: Record<string, typeof Server> = {
-  rack: Server,
-  device: HardDrive,
-  connection: Network,
-  discovery_scan: Radar,
+const ENTITY_ICONS: Record<string, typeof Stack> = {
+  rack: Stack,
+  device: HardDrives,
+  connection: ShareNetwork,
+  discovery_scan: Pulse,
 };
 
 function relativeTime(date: Date): string {
@@ -87,8 +87,8 @@ export async function ActivityFeed({
   return (
     <section>
       <div className="mb-4 flex items-end justify-between">
-        <h2 className="flex items-center gap-2 text-lg font-semibold text-white">
-          <Activity className="h-4 w-4 text-primary" />
+        <h2 className="flex items-center gap-2 text-lg font-semibold txt-strong">
+          <Pulse weight="duotone" className="h-4 w-4 text-primary" />
           Recent activity
         </h2>
         {logs.length > 0 && (
@@ -102,8 +102,8 @@ export async function ActivityFeed({
       </div>
 
       {logs.length === 0 ? (
-        <div className="glass-card rounded-xl p-8 text-center">
-          <p className="text-sm text-white/60">
+        <div className="surface-card p-8 text-center">
+          <p className="text-sm txt-body">
             No activity yet. Start by{" "}
             <Link href="/racks/new" className="text-primary hover:underline">
               adding a rack
@@ -112,28 +112,28 @@ export async function ActivityFeed({
           </p>
         </div>
       ) : (
-        <ul className="glass-card divide-y divide-white/[0.04] overflow-hidden rounded-xl">
+        <ul className="surface-card divide-y divide-white/[0.04] overflow-hidden">
           {logs.map((log) => {
             const meta = ACTION_LABELS[log.action] ?? {
               verb: log.action,
-              icon: Activity,
+              icon: Pulse,
             };
             const Icon = meta.icon;
-            const EntityIcon = ENTITY_ICONS[log.entityType] ?? Activity;
+            const EntityIcon = ENTITY_ICONS[log.entityType] ?? Pulse;
             const href = entityHref(log.entityType, log.entityId);
             const detail = describe(log);
 
             const inner = (
               <div className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-white/[0.02]">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/[0.04]">
-                  <Icon className="h-3.5 w-3.5 text-white/60" />
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/[0.04] ring-1 ring-inset ring-white/[0.05]">
+                  <Icon weight="bold" className="h-3.5 w-3.5 text-white/60" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="text-sm text-white/80">
                     <span className="font-medium text-white">{meta.verb}</span>{" "}
                     <span className="text-white/50">·</span>{" "}
                     <span className="inline-flex items-center gap-1 text-white/70">
-                      <EntityIcon className="h-3 w-3" />
+                      <EntityIcon weight="bold" className="h-3 w-3" />
                       {log.entityType.replace(/_/g, " ")}
                     </span>
                     {detail && (
@@ -143,7 +143,7 @@ export async function ActivityFeed({
                     )}
                   </div>
                 </div>
-                <div className="shrink-0 text-xs text-white/40">
+                <div className="mono shrink-0 text-xs text-white/40">
                   {relativeTime(log.createdAt)}
                 </div>
               </div>

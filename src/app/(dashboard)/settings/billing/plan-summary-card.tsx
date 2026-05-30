@@ -1,7 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
-import { ExternalLink } from "lucide-react";
+import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
 import toast from "react-hot-toast";
 
 import { describeError } from "@/lib/error-message";
@@ -70,16 +70,11 @@ export function PlanSummaryCard({
 
   return (
     <section
-      className={
-        // Distinctive accent: thin primary stripe on the left edge marks
-        // this card as the "currently-relevant action" surface (per the
-        // §4 three-tier card hierarchy in the audit). Visually
-        // differentiates it from neutral content cards and from the
-        // upgrade cards (those keep their plain glass treatment).
-        "glass-card relative overflow-hidden rounded-xl p-6 pl-7 " +
-        "before:absolute before:left-0 before:top-0 before:h-full before:w-0.75 " +
-        "before:bg-linear-to-b before:from-primary before:via-primary/70 before:to-accent-cyan/60"
-      }
+      // Distinctive accent: the `surface-accent` 2px brand-gradient left edge
+      // marks this as the "currently-relevant action" surface (the one
+      // accent card per page). A material surface, not glass — the upgrade
+      // cards stay neutral.
+      className="surface-card surface-accent relative p-6 pl-7"
     >
       <div className="mb-5 flex items-start justify-between gap-4">
         <div>
@@ -94,7 +89,11 @@ export function PlanSummaryCard({
         <Button
           onClick={openPortal}
           loading={pending}
-          iconRight={!pending ? <ExternalLink className="h-3.5 w-3.5" /> : null}
+          iconRight={
+            !pending ? (
+              <ArrowUpRight weight="bold" className="h-3.5 w-3.5" />
+            ) : null
+          }
           aria-label="Open Stripe customer portal in a new tab"
         >
           {pending ? "Opening…" : "Manage billing"}
@@ -103,6 +102,18 @@ export function PlanSummaryCard({
 
       {status && (
         <div className="mb-5 flex items-center gap-2">
+          <span
+            aria-hidden
+            className={`led-dot ${
+              status.tone === "success"
+                ? "led-dot--green"
+                : status.tone === "warning"
+                  ? "led-dot--amber"
+                  : status.tone === "danger"
+                    ? "led-dot--red"
+                    : "led-dot--muted"
+            }${paymentStatus === "past_due" ? " led-dot--live" : ""}`}
+          />
           <Tag tone={status.tone} size="md">
             {status.label}
           </Tag>
