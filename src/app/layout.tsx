@@ -1,11 +1,25 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { IBM_Plex_Sans, Geist_Mono } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import "./globals.css";
 
-const inter = Inter({
+// Typography pairing — IBM Plex Sans for chrome + body, Geist Mono for
+// every numeric / code / IP / customer-id readout. Both free, OFL, loaded
+// via next/font/google so they're self-hosted and don't ship a render-
+// blocking <link> tag. The CSS variables drive --color-* style usage in
+// globals.css and the `font-mono` Tailwind utility via @theme.
+const plexSans = IBM_Plex_Sans({
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
+  variable: "--font-sans",
+});
+
+const geistMono = Geist_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  display: "swap",
+  variable: "--font-mono",
 });
 
 const SITE_URL = process.env.BETTER_AUTH_URL || "http://localhost:3000";
@@ -58,7 +72,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={inter.className}>
+    <html lang="en" className={`${plexSans.variable} ${geistMono.variable}`}>
       <body>
         {children}
         <Toaster
@@ -74,10 +88,10 @@ export default function RootLayout({
               boxShadow: "0 8px 32px rgba(0, 0, 0, 0.4)",
             },
             success: {
-              iconTheme: { primary: "#10b981", secondary: "#0a0e1a" },
+              iconTheme: { primary: "#0bb678", secondary: "#0a0e1a" },
             },
             error: {
-              iconTheme: { primary: "#ef4444", secondary: "#0a0e1a" },
+              iconTheme: { primary: "#e63946", secondary: "#0a0e1a" },
             },
           }}
         />

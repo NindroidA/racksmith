@@ -291,13 +291,13 @@ export default function LandingPage() {
         <div
           className="pointer-events-none absolute -left-40 top-20 h-96 w-96 rounded-full opacity-30 blur-3xl"
           style={{
-            background: "radial-gradient(closest-side, #3b82f6, transparent)",
+            background: "radial-gradient(closest-side, #5765f4, transparent)",
           }}
         />
         <div
           className="pointer-events-none absolute -right-40 top-40 h-96 w-96 rounded-full opacity-20 blur-3xl"
           style={{
-            background: "radial-gradient(closest-side, #8b5cf6, transparent)",
+            background: "radial-gradient(closest-side, #a674f6, transparent)",
           }}
         />
 

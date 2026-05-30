@@ -158,7 +158,14 @@ export function OrganizationSwitcher({
         </span>
         {!collapsed && (
           <>
-            <span className="min-w-0 flex-1 truncate text-left">
+            {/* Identity moment — the user's active workspace name renders
+                in the teal→cyan workspace gradient (distinct from the
+                purple-pink brand wordmark used on the landing hero +
+                auth-shell). Reduce-motion respected via the class. */}
+            <span
+              className="gradient-workspace min-w-0 flex-1 truncate text-left font-semibold"
+              title={activeOrgName}
+            >
               {triggerLabel}
             </span>
             <ChevronsUpDown

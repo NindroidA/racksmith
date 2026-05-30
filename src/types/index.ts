@@ -23,13 +23,16 @@ export const COLOR_TAGS = [
 
 export type ColorTag = (typeof COLOR_TAGS)[number];
 
+// User-facing color tags for racks/devices. Aligned with the brand
+// palette (globals.css @theme) so a user-tagged blue rack matches the
+// app's primary indigo, etc. Visually distinct across the six tones.
 export const COLOR_TAG_MAP: Record<ColorTag, string> = {
-  blue: "#3b82f6",
-  purple: "#8b5cf6",
-  cyan: "#06b6d4",
-  green: "#10b981",
-  orange: "#f97316",
-  red: "#ef4444",
+  blue: "#5765f4",
+  purple: "#a674f6",
+  cyan: "#22d3ee",
+  green: "#0bb678",
+  orange: "#eb8c2e",
+  red: "#e63946",
 };
 
 export const DEVICE_TYPE_LABELS: Record<DeviceType, string> = {

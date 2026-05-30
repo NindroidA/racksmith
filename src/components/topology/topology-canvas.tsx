@@ -371,7 +371,7 @@ function CanvasInner({ devices, connections }: Props) {
               borderRadius: 8,
             }}
             maskColor="rgba(10,14,26,0.6)"
-            nodeColor="#3b82f6"
+            nodeColor="#5765f4"
           />
         </ReactFlow>
       </div>

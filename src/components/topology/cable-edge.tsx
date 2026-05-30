@@ -16,13 +16,17 @@ export type CableEdgeData = {
   targetPort: string;
 };
 
+// Semantic cable colors — aligned with the brand palette (globals.css
+// @theme) but kept as literal hex because @xyflow/react needs string
+// stroke colors not CSS vars. Fiber stays amber-gold (it's a literal
+// referent — that's the real-world jacket color of OM3/OM4 cable).
 const CABLE_COLORS: Record<string, string> = {
-  ethernet: "#3b82f6", // blue
-  fiber: "#fbbf24", // amber-gold (common fiber jacket color)
-  sfp: "#06b6d4", // cyan
-  dac: "#8b5cf6", // purple
-  power: "#ef4444", // red
-  other: "#94a3b8", // slate
+  ethernet: "#5765f4", // primary indigo
+  fiber: "#fbbf24", // amber-gold (real-world fiber jacket color — kept)
+  sfp: "#22d3ee", // accent cyan
+  dac: "#a674f6", // accent purple
+  power: "#e63946", // accent red
+  other: "#94a3b8", // slate (neutral)
 };
 
 function CableEdgeInner({
@@ -64,9 +68,7 @@ function CableEdgeInner({
           stroke: color,
           strokeWidth: selected ? 3 : 2,
           strokeOpacity: selected ? 1 : 0.85,
-          filter: selected
-            ? `drop-shadow(0 0 6px ${color})`
-            : undefined,
+          filter: selected ? `drop-shadow(0 0 6px ${color})` : undefined,
         }}
       />
       {label && (
