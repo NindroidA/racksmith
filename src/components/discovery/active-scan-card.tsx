@@ -112,7 +112,7 @@ export function ActiveScanCard({ scanId, subnet, startedAt }: Props) {
           <div>
             <div className="flex items-center gap-2 text-sm font-semibold text-white">
               <span
-                className="led-dot led-dot--amber led-dot--live"
+                className="led-dot led-dot--green led-dot--live"
                 aria-hidden
               />
               <span>

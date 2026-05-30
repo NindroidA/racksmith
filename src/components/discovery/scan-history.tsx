@@ -139,28 +139,24 @@ export function ScanHistory({ scans }: Props) {
                     {scan.status === "completed" && (
                       <CheckCircle
                         className="h-3 w-3"
-                        weight="duotone"
+                        weight="bold"
                         aria-hidden
                       />
                     )}
                     {isFailed && (
                       <WarningCircle
                         className="h-3 w-3"
-                        weight="duotone"
+                        weight="bold"
                         aria-hidden
                       />
                     )}
                     {isCancelled && (
-                      <Prohibit
-                        className="h-3 w-3"
-                        weight="duotone"
-                        aria-hidden
-                      />
+                      <Prohibit className="h-3 w-3" weight="bold" aria-hidden />
                     )}
                     {isRunning && (
                       <CircleNotch
                         className={`h-3 w-3 ${reduceMotion ? "" : "animate-spin"}`}
-                        weight="duotone"
+                        weight="bold"
                         aria-hidden
                       />
                     )}

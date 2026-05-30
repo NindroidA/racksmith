@@ -96,7 +96,7 @@ export function PaymentStatusBanner({ planLabel }: Props) {
       <button
         type="button"
         onClick={() => setDismissed(true)}
-        className="rounded-md p-1 txt-faint transition-colors hover:bg-white/6 hover:txt-strong"
+        className="rounded-md p-1 txt-faint transition-colors hover:bg-white/6 hover:text-white"
         aria-label="Dismiss"
       >
         <X className="h-4 w-4" weight="bold" />

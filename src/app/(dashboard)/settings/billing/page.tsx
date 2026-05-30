@@ -84,7 +84,7 @@ export default async function BillingPage({
     <div className="mx-auto max-w-4xl">
       <Link
         href="/settings"
-        className="mb-4 inline-flex items-center gap-1.5 text-sm txt-muted transition-colors hover:txt-strong"
+        className="mb-4 inline-flex items-center gap-1.5 text-sm txt-muted transition-colors hover:text-white"
       >
         <ArrowLeft className="h-3.5 w-3.5" weight="bold" /> Back to settings
       </Link>

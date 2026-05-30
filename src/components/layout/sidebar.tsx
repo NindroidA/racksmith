@@ -9,7 +9,7 @@ import {
   Stack,
   HardDrives,
   ShareNetwork,
-  Pulse,
+  Broadcast,
   GearSix,
   CaretLeft,
   CaretRight,
@@ -43,7 +43,7 @@ const NAV_ITEMS: readonly NavItem[] = [
   { href: "/racks", label: "Racks", icon: Stack },
   { href: "/devices", label: "Devices", icon: HardDrives },
   { href: "/topology", label: "Topology", icon: ShareNetwork },
-  { href: "/discovery", label: "Discovery", icon: Pulse },
+  { href: "/discovery", label: "Discovery", icon: Broadcast },
   // IPAM and Plan Wizard are full features (own data models, server actions,
   // recommendation integrations) — promoted out of the Network Tools
   // calculator bucket to top-level peers of Racks/Devices/Topology.

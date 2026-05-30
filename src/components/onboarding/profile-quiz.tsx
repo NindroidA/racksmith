@@ -7,7 +7,7 @@ import {
   Check,
   CaretRight,
   House,
-  Stack,
+  Buildings,
   Users,
   Compass,
 } from "@phosphor-icons/react/dist/ssr";
@@ -48,7 +48,7 @@ const ROLE_OPTIONS: Array<{
     value: "msp",
     label: "MSP / Consultant",
     blurb: "Managing client infrastructure.",
-    icon: <Stack className="h-5 w-5" aria-hidden weight="duotone" />,
+    icon: <Buildings className="h-5 w-5" aria-hidden weight="duotone" />,
   },
   {
     value: "exploring",

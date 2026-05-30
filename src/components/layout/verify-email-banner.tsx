@@ -91,14 +91,14 @@ export function VerifyEmailBanner({ email }: Props) {
       )}
       <Link
         href="/settings"
-        className="text-xs txt-muted transition-colors hover:txt-strong"
+        className="text-xs txt-muted transition-colors hover:text-white"
       >
         Settings
       </Link>
       <button
         type="button"
         onClick={() => setDismissed(true)}
-        className="rounded-md p-1 txt-faint transition-colors hover:bg-white/6 hover:txt-strong"
+        className="rounded-md p-1 txt-faint transition-colors hover:bg-white/6 hover:text-white"
         aria-label="Dismiss"
       >
         <X className="h-4 w-4" weight="bold" />

@@ -7,7 +7,7 @@ import {
   Stack,
   HardDrives,
   ShareNetwork,
-  Pulse,
+  Broadcast,
   Lock,
   Package,
   Sparkle,
@@ -42,7 +42,7 @@ const FEATURES = [
     bg: "bg-accent-cyan/15",
   },
   {
-    icon: Pulse,
+    icon: Broadcast,
     title: "Auto-Discovery",
     description:
       "Point at a subnet, click scan, populate your inventory. nmap ping-scan under the hood. Pending-device queue — approve, assign, or ignore each host.",

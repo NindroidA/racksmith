@@ -10,7 +10,7 @@ import {
   HardDrives,
   Tag as TagIcon,
   MapPin,
-  Pulse,
+  Broadcast,
 } from "@phosphor-icons/react/dist/ssr";
 import { requireMember } from "@/lib/auth-helpers";
 import { withTenant } from "@/lib/prisma-tenant";
@@ -136,7 +136,7 @@ export default async function DeviceDetailPage({
             )}
             {!device.isManual && (
               <span className="flex items-center gap-1.5 text-accent-cyan">
-                <Pulse className="h-3.5 w-3.5" weight="duotone" />
+                <Broadcast className="h-3.5 w-3.5" weight="duotone" />
                 Auto-discovered
               </span>
             )}
@@ -307,7 +307,7 @@ export default async function DeviceDetailPage({
           {!device.isManual && (device.discoveredAt || device.lastSeen) && (
             <section className="surface-card p-5">
               <h2 className="mb-3 flex items-center gap-1.5 text-sm font-semibold uppercase tracking-wider text-white/50">
-                <Pulse className="h-3.5 w-3.5" weight="duotone" />
+                <Broadcast className="h-3.5 w-3.5" weight="duotone" />
                 Discovery
               </h2>
               <dl className="space-y-3">

@@ -6,6 +6,7 @@ import {
   ArrowDown,
   ArrowUp,
   Pulse,
+  Broadcast,
   Stack,
   HardDrives,
   ShareNetwork,
@@ -19,7 +20,7 @@ const ACTION_LABELS: Record<string, { verb: string; icon: typeof PlusCircle }> =
     deleted: { verb: "Deleted", icon: TrashSimple },
     placed: { verb: "Placed", icon: ArrowDown },
     unplaced: { verb: "Removed from rack", icon: ArrowUp },
-    device_discovered: { verb: "Discovered", icon: Pulse },
+    device_discovered: { verb: "Discovered", icon: Broadcast },
     device_imported: { verb: "Imported devices", icon: HardDrives },
   };
 
@@ -27,7 +28,7 @@ const ENTITY_ICONS: Record<string, typeof Stack> = {
   rack: Stack,
   device: HardDrives,
   connection: ShareNetwork,
-  discovery_scan: Pulse,
+  discovery_scan: Broadcast,
 };
 
 function relativeTime(date: Date): string {

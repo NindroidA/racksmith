@@ -115,7 +115,7 @@ export default async function OwnershipTransferPage({
 function Shell({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
-      <div className="surface-card w-full max-w-md p-8">
+      <div className="glass-panel w-full max-w-md rounded-2xl p-8">
         <div className="mb-5 flex items-center gap-2 text-sm text-white/50">
           <Wrench
             weight="duotone"

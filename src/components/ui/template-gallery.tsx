@@ -127,7 +127,7 @@ export function TemplateGallery<T extends Item>({
                         onClick={() => onSelect(item)}
                         disabled={!!submittingId}
                         className={twMerge(
-                          "glass-card group flex flex-col items-stretch rounded-xl p-4 text-left transition-all",
+                          "surface-card surface-interactive group flex flex-col items-stretch p-4 text-left",
                           "disabled:cursor-wait disabled:opacity-60",
                         )}
                       >

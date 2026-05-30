@@ -59,6 +59,7 @@ export function OwnershipTransferForm({ transferId }: { transferId: string }) {
             variant="primary"
             onClick={accept}
             disabled={pending}
+            aria-busy={pending}
             iconLeft={<Check weight="bold" className="h-4 w-4" aria-hidden />}
             className="flex-1"
           >
@@ -68,6 +69,7 @@ export function OwnershipTransferForm({ transferId }: { transferId: string }) {
             variant="secondary"
             onClick={decline}
             disabled={pending}
+            aria-busy={pending}
             iconLeft={<X weight="bold" className="h-4 w-4" aria-hidden />}
           >
             Decline

@@ -1,4 +1,4 @@
-import { Pulse } from "@phosphor-icons/react/dist/ssr";
+import { Broadcast } from "@phosphor-icons/react/dist/ssr";
 import { requireMember } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
 import { withTenant } from "@/lib/prisma-tenant";
@@ -104,7 +104,7 @@ export default async function DiscoveryPage() {
           </p>
         </div>
         <div className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-xs text-white/50">
-          <Pulse className="h-3.5 w-3.5" weight="duotone" />
+          <Broadcast className="h-3.5 w-3.5" weight="duotone" />
           <span>
             <span className="mono">{scans.length}</span> scan
             {scans.length !== 1 ? "s" : ""} ·{" "}

@@ -7,7 +7,7 @@ import {
   ShareNetwork,
   Lightning,
   Globe,
-  Pulse,
+  Broadcast,
   ArrowRight,
 } from "@phosphor-icons/react/dist/ssr";
 import { ActivityFeed } from "@/components/dashboard/activity-feed";
@@ -187,7 +187,7 @@ export default async function DashboardPage() {
             className="surface-card surface-interactive flex items-center gap-4 p-5"
           >
             <div className="rounded-[10px] bg-accent-cyan/12 p-3 ring-1 ring-inset ring-accent-cyan/20">
-              <Pulse
+              <Broadcast
                 weight="duotone"
                 className="h-5 w-5 text-accent-cyan"
                 aria-hidden

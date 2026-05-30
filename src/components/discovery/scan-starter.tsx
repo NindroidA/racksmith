@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import {
-  Pulse,
+  Broadcast,
   WarningCircle,
   CircleNotch,
 } from "@phosphor-icons/react/dist/ssr";
@@ -48,7 +48,7 @@ export function ScanStarter({ defaultSubnet, disabled }: Props) {
   return (
     <div className="surface-card p-6">
       <div className="mb-4 flex items-center gap-2">
-        <Pulse className="h-5 w-5 text-accent-green" weight="duotone" />
+        <Broadcast className="h-5 w-5 text-accent-green" weight="duotone" />
         <h2 className="text-lg font-semibold text-white">Scan a network</h2>
       </div>
 
@@ -99,7 +99,7 @@ export function ScanStarter({ defaultSubnet, disabled }: Props) {
             </>
           ) : (
             <>
-              <Pulse className="h-4 w-4" weight="duotone" aria-hidden />
+              <Broadcast className="h-4 w-4" weight="duotone" aria-hidden />
               Start Scan
             </>
           )}
