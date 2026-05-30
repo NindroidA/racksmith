@@ -1,7 +1,7 @@
 # RackSmith — Agent Instructions
 
-> **Status:** v1.5 complete on `main` (Phases 6.5 + 7 + 8 + 9 shipped, R3 passed Reality Check on 2026-04-18). v2.0 in progress (Phase 10 → Teams/RBAC, gated by R4 Multi-Tenant Security).
-> **Version:** 0.0.0 (no tagged releases until v1.5 + v2.0 complete — see CHANGELOG `[Unreleased]`)
+> **Status:** v1.5 + v2.0 core shipped on `main`. Phases 6.5–9 (R3), 10 Teams/RBAC (R4 passed 2026-04-20), 11 + 12 Public REST API, and 13 Stripe billing are all merged. The **"Forge" visual direction** (Amethyst material system + Phosphor Duotone) shipped 2026-05-30 (PR #32). Open before launch: live-mode Stripe verification on prizmo, OIDC SSO scope decision, and the desloppify test-health backlog.
+> **Version:** 0.0.0 (no tagged releases yet — see CHANGELOG `[Unreleased]`)
 
 ## What This Project Is
 
