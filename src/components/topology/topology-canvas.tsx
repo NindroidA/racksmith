@@ -212,7 +212,7 @@ function CanvasInner({ devices, connections }: Props) {
       toast.loading("Generating image...", { id: "export" });
 
       const dataUrl = await toPng(container, {
-        backgroundColor: "#0a0e1a",
+        backgroundColor: "#0e0b1c",
         pixelRatio: 2,
         filter: (node) => {
           // Skip controls + minimap + attribution in export
@@ -331,7 +331,7 @@ function CanvasInner({ devices, connections }: Props) {
 
       <div
         ref={canvasRef}
-        className="h-[calc(100vh-16rem)] overflow-hidden rounded-2xl border-2 border-white/10 bg-[#0a0e1a]"
+        className="h-[calc(100vh-16rem)] overflow-hidden rounded-2xl border-2 border-white/10 bg-[#0e0b1c]"
       >
         <ReactFlow
           aria-label="Network topology canvas"

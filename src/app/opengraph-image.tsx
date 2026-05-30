@@ -10,7 +10,7 @@ export default function OpenGraphImage() {
       style={{
         width: "100%",
         height: "100%",
-        background: "#0a0e1a",
+        background: "#0e0b1c",
         backgroundImage:
           "radial-gradient(at 15% 20%, rgba(59,130,246,0.30) 0px, transparent 50%), radial-gradient(at 85% 80%, rgba(139,92,246,0.25) 0px, transparent 50%)",
         display: "flex",

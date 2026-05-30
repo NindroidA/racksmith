@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>RackSmith — Forge preview (v2)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/duotone/style.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/bold/style.css"
+    />
+    <style>
+      :root {
+        /* --base / --card / --vig / --side-* are set by the bg switcher below */
+        --base: #0c0a16;
+        --card: #1a1626;
+        --vig: rgba(166, 116, 246, 0.06);
+        --side-top: rgba(30, 24, 46, 0.96);
+        --side-bot: rgba(22, 18, 36, 0.98);
+        --primary: #5765f4;
+        --cyan: #22d3ee;
+        --purple: #a674f6;
+        --green: #0bb678;
+        --green-bright: #14d99a;
+        --green-glow: rgba(20, 217, 154, 0.26);
+        --orange: #eb8c2e;
+        --rail-tick: rgba(255, 255, 255, 0.3);
+        --rail-line: rgba(255, 255, 255, 0.09);
+        --r-card: 12px; /* denser */
+        --txt-strong: rgba(255, 255, 255, 0.95);
+        --txt-body: rgba(255, 255, 255, 0.7);
+        --txt-muted: rgba(255, 255, 255, 0.55);
+        --txt-faint: rgba(255, 255, 255, 0.4);
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        font-family: "IBM Plex Sans", -apple-system, system-ui, sans-serif;
+        color: var(--txt-strong);
+        font-variant-numeric: tabular-nums;
+        background:
+          radial-gradient(ellipse 80% 55% at 50% 0%, var(--vig), transparent 60%),
+          var(--base);
+        min-height: 100vh;
+        -webkit-font-smoothing: antialiased;
+      }
+      .mono { font-family: "Geist Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+      h1, h2 { letter-spacing: -0.022em; }
+      h1 { letter-spacing: -0.03em; }
+      .txt-body { color: var(--txt-body); }
+      .txt-muted { color: var(--txt-muted); }
+      .txt-faint { color: var(--txt-faint); }
+
+      .app { display: grid; grid-template-columns: 232px 1fr; min-height: 100vh; }
+
+      /* Sidebar */
+      .sidebar {
+        background: linear-gradient(180deg, var(--side-top), var(--side-bot));
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 14px 11px; display: flex; flex-direction: column; gap: 3px;
+      }
+      .brand { display: flex; align-items: center; gap: 11px; height: 44px; padding: 0 8px; margin-bottom: 8px; }
+      .brand .tile {
+        width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center;
+        background: rgba(87, 101, 244, 0.15); box-shadow: inset 0 0 0 1px rgba(87, 101, 244, 0.25);
+        color: var(--primary); font-size: 19px;
+      }
+      .wordmark {
+        font-size: 17px; font-weight: 700;
+        background: linear-gradient(135deg, #7b85f8, #a674f6 50%, #e89bf8);
+        -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+      }
+      .ws {
+        margin: 2px 6px 10px; padding: 8px 10px; border-radius: 9px;
+        background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); font-size: 13px;
+      }
+      .ws .name {
+        font-weight: 600;
+        background: linear-gradient(135deg, #2dd4bf, #22d3ee 55%, #38bdf8);
+        -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+      }
+      .nav { display: flex; flex-direction: column; gap: 2px; }
+      .nav a {
+        position: relative; display: flex; align-items: center; gap: 11px; padding: 9px 12px; border-radius: 8px;
+        font-size: 14px; font-weight: 500; color: var(--txt-body); text-decoration: none;
+      }
+      .nav a i { font-size: 19px; }
+      .nav a.active { background: rgba(87, 101, 244, 0.15); color: #fff; }
+      .nav a.active::before {
+        content: ""; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+        width: 2px; height: 19px; border-radius: 99px; background: var(--primary);
+      }
+      .nav a.active i { color: var(--primary); }
+      .group-label {
+        font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;
+        color: rgba(255, 255, 255, 0.3); padding: 11px 12px 4px;
+      }
+
+      /* Main */
+      .main { padding: 24px; max-width: 1180px; }
+
+      /* Surfaces */
+      .surface-card {
+        position: relative;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0) 90px),
+          var(--card);
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        border-radius: var(--r-card);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.035);
+      }
+      /* Railed surface — the rack rail (vertical tick column + divider).
+         NO horizontal lines. Used for the page hero + empty-state wells. */
+      .railed {
+        position: relative;
+        background-color: var(--card);
+        background-image:
+          radial-gradient(circle, var(--rail-tick) 0, var(--rail-tick) 1.3px, transparent 2px),
+          linear-gradient(to right, transparent 0, transparent 16px, var(--rail-line) 16px, var(--rail-line) 17px, transparent 17px);
+        background-size: 16px 12px, 100% 100%;
+        background-repeat: repeat-y, no-repeat;
+        background-position: 0 10px, 0 0;
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        border-radius: var(--r-card);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+      }
+      .hero { padding: 18px 24px; margin-bottom: 22px; }
+      .surface-accent { overflow: hidden; }
+      .surface-accent::before {
+        content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 2px;
+        background: linear-gradient(180deg, var(--primary), var(--cyan) 70%);
+      }
+
+      .led { display: inline-block; width: 7px; height: 7px; border-radius: 99px; flex-shrink: 0; }
+      .led.green { background: var(--green-bright); box-shadow: 0 0 7px 1px var(--green-glow); }
+
+      /* Stats */
+      .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+      .stat { padding: 16px; }
+      .stat .row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+      .stat .label { font-size: 13px; font-weight: 500; color: var(--txt-muted); }
+      .stat .val { font-size: 28px; font-weight: 600; margin-top: 7px; line-height: 1; }
+      .icontile {
+        border-radius: 9px; padding: 9px; background: rgba(255, 255, 255, 0.04);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06); font-size: 22px; line-height: 1;
+      }
+      .tint-blue { color: var(--primary); }
+      .tint-purple { color: var(--purple); }
+      .tint-cyan { color: var(--cyan); }
+      .tint-orange { color: var(--orange); }
+
+      .ntools { display: flex; align-items: center; gap: 14px; padding: 16px; margin-top: 16px; text-decoration: none; color: inherit; }
+      .ntools .icontile { background: rgba(34, 211, 238, 0.12); box-shadow: inset 0 0 0 1px rgba(34, 211, 238, 0.2); color: var(--cyan); }
+      .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 28px; }
+      .section-h { display: flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 600; margin-bottom: 14px; }
+      .section-h i { color: var(--primary); font-size: 18px; }
+      .empty { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 22px; text-align: center; font-size: 14px; color: var(--txt-body); }
+      .feed { overflow: hidden; }
+      .feed .item { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-top: 1px solid rgba(255, 255, 255, 0.04); }
+      .feed .item:first-child { border-top: none; }
+      .feed .dot {
+        width: 31px; height: 31px; border-radius: 8px; display: flex; align-items: center; justify-content: center;
+        background: rgba(255, 255, 255, 0.04); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+        color: var(--txt-body); font-size: 15px; flex-shrink: 0;
+      }
+      .feed .txt { flex: 1; font-size: 14px; color: rgba(255, 255, 255, 0.8); }
+      .feed .txt b { color: #fff; font-weight: 600; }
+      .feed .ent { color: rgba(255, 255, 255, 0.5); }
+      .feed .time { font-size: 12px; color: var(--txt-faint); }
+
+      .bill { margin-top: 28px; padding: 22px 22px 22px 26px; max-width: 640px; }
+      .bill .head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+      .bill h2 { font-size: 18px; font-weight: 600; margin-bottom: 2px; }
+      .bill .sub { font-size: 14px; color: var(--txt-body); max-width: 360px; }
+      .btn {
+        display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 16px; border-radius: 9px;
+        background: var(--primary); color: #fff; font-size: 14px; font-weight: 500; border: none;
+        box-shadow: 0 1px 2px rgba(87, 101, 244, 0.2); white-space: nowrap;
+      }
+      .tag {
+        display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 99px;
+        font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.02em;
+        background: rgba(11, 182, 120, 0.85); color: #fff;
+      }
+      .status { display: flex; align-items: center; gap: 8px; margin-bottom: 18px; }
+      .dl { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 24px; }
+      .dl .k { font-size: 12px; color: var(--txt-faint); }
+      .dl .v { font-size: 16px; font-weight: 500; margin-top: 2px; }
+      .dl .hint { font-size: 12px; color: var(--txt-muted); margin-top: 2px; }
+      .tag-pill { font-size: 11px; color: rgba(255, 255, 255, 0.55); padding: 2px 8px; border-radius: 99px; background: rgba(255, 255, 255, 0.06); }
+      .caption { margin: 34px 0 12px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.12em; color: rgba(255, 255, 255, 0.35); }
+
+      /* Background-name badge (so each render self-labels) */
+      .bgbadge {
+        position: fixed; top: 14px; right: 16px; z-index: 10;
+        font-family: "Geist Mono", monospace; font-size: 12px; letter-spacing: 0.02em;
+        padding: 6px 11px; border-radius: 99px; color: rgba(255, 255, 255, 0.85);
+        background: rgba(0, 0, 0, 0.35); border: 1px solid rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(8px);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bgbadge" id="bgname">Ink Indigo · #0a0c17</div>
+    <div class="app">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="tile"><i class="ph-duotone ph-wrench"></i></div>
+          <span class="wordmark">RackSmith</span>
+        </div>
+        <div class="ws">
+          <div class="name">Prizmo Homelab</div>
+          <div class="txt-faint" style="font-size: 11px; margin-top: 2px">Business · owner</div>
+        </div>
+        <nav class="nav">
+          <a class="active" href="#"><i class="ph-duotone ph-gauge"></i>Dashboard</a>
+          <a href="#"><i class="ph-duotone ph-stack"></i>Racks</a>
+          <a href="#"><i class="ph-duotone ph-hard-drives"></i>Devices</a>
+          <a href="#"><i class="ph-duotone ph-share-network"></i>Topology</a>
+          <a href="#"><i class="ph-duotone ph-pulse"></i>Discovery</a>
+          <a href="#"><i class="ph-duotone ph-globe"></i>IPAM</a>
+          <a href="#"><i class="ph-duotone ph-magic-wand"></i>Plan Wizard</a>
+          <div class="group-label">Network Tools</div>
+          <a href="#"><i class="ph-duotone ph-calculator"></i>Subnet Calc</a>
+          <a href="#"><i class="ph-duotone ph-tag"></i>VLANs</a>
+          <a href="#"><i class="ph-duotone ph-file-code"></i>Config Gen</a>
+          <a href="#"><i class="ph-duotone ph-bell"></i>Recommendations</a>
+          <a href="#"><i class="ph-duotone ph-gear-six"></i>Settings</a>
+        </nav>
+      </aside>
+
+      <main class="main">
+        <header class="surface-card hero">
+          <h1 style="font-size: 28px; font-weight: 700">Dashboard</h1>
+          <p class="txt-body" style="margin-top: 5px">Welcome back, Andrew</p>
+        </header>
+
+        <div class="stats">
+          <div class="surface-card stat">
+            <div class="row">
+              <div><div class="label">Racks</div><div class="val mono">12</div></div>
+              <div class="icontile tint-blue"><i class="ph-duotone ph-stack"></i></div>
+            </div>
+          </div>
+          <div class="surface-card stat">
+            <div class="row">
+              <div><div class="label">Devices</div><div class="val mono">84</div></div>
+              <div class="icontile tint-purple"><i class="ph-duotone ph-hard-drives"></i></div>
+            </div>
+          </div>
+          <div class="surface-card stat">
+            <div class="row">
+              <div><div class="label">Connections</div><div class="val mono">37</div></div>
+              <div class="icontile tint-cyan"><i class="ph-duotone ph-share-network"></i></div>
+            </div>
+          </div>
+          <div class="surface-card stat">
+            <div class="row">
+              <div><div class="label">Est. Power (W)</div><div class="val mono">1,240</div></div>
+              <div class="icontile tint-orange"><i class="ph-duotone ph-lightning"></i></div>
+            </div>
+          </div>
+        </div>
+
+        <a class="surface-card ntools" href="#">
+          <div class="icontile"><i class="ph-duotone ph-globe"></i></div>
+          <div style="flex: 1">
+            <div style="font-weight: 500">Network Tools</div>
+            <div class="txt-muted" style="font-size: 14px">
+              <span class="mono">6</span> subnets · <span class="mono">128</span> IPs assigned
+            </div>
+          </div>
+          <i class="ph-bold ph-arrow-right txt-faint"></i>
+        </a>
+
+        <div class="grid2">
+          <section>
+            <div class="section-h">
+              <i class="ph-duotone ph-bell"></i>Recommendations
+              <span class="tag-pill" style="font-weight: 400">2</span>
+            </div>
+            <div class="surface-card empty">
+              <span class="led green"></span>All clear — no capacity, power, or VLAN issues to flag.
+            </div>
+          </section>
+          <section>
+            <div class="section-h"><i class="ph-duotone ph-pulse"></i>Recent activity</div>
+            <ul class="surface-card feed" style="list-style: none">
+              <li class="item">
+                <div class="dot"><i class="ph-bold ph-plus-circle"></i></div>
+                <div class="txt"><b>Created</b> <span class="ent">· rack</span> <span class="txt-muted">MDF-01</span></div>
+                <div class="time mono">2m ago</div>
+              </li>
+              <li class="item">
+                <div class="dot"><i class="ph-bold ph-hard-drives"></i></div>
+                <div class="txt"><b>Imported devices</b> <span class="ent">· device</span></div>
+                <div class="time mono">1h ago</div>
+              </li>
+              <li class="item">
+                <div class="dot"><i class="ph-bold ph-pulse"></i></div>
+                <div class="txt"><b>Discovered</b> <span class="ent">· discovery scan</span></div>
+                <div class="time mono">3h ago</div>
+              </li>
+            </ul>
+          </section>
+        </div>
+
+        <div class="caption">Billing · Manage subscription card</div>
+        <section class="surface-card surface-accent bill">
+          <div class="head">
+            <div>
+              <h2>Manage subscription</h2>
+              <p class="sub">Plan switches, payment method, invoices, and cancellation are handled in the Stripe customer portal.</p>
+            </div>
+            <button class="btn">Manage billing<i class="ph-bold ph-arrow-up-right"></i></button>
+          </div>
+          <div class="status"><span class="led green"></span><span class="tag">Active</span></div>
+          <div class="dl">
+            <div><div class="k">Plan</div><div class="v">Business</div></div>
+            <div><div class="k">Billing cycle</div><div class="v">Annual</div></div>
+            <div><div class="k">Price</div><div class="v mono">$290/yr</div><div class="hint mono">Flat rate, billed annually</div></div>
+            <div><div class="k">Next invoice</div><div class="v mono">Apr 22, 2027</div></div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      // Carbon-dark with an increasing violet bias (per Andrew's "carbon + a
+      // purple hue"). Sidebar + card + vignette all carry the same tint.
+      const BG = {
+        slate: {
+          base: "#0b0a11", card: "#171520",
+          side1: "rgba(26,22,38,0.96)", side2: "rgba(19,16,28,0.98)",
+          vig: "rgba(166,116,246,0.05)", label: "Slate Violet",
+        },
+        plum: {
+          base: "#0c0a16", card: "#1a1626",
+          side1: "rgba(30,24,46,0.96)", side2: "rgba(22,18,36,0.98)",
+          vig: "rgba(166,116,246,0.06)", label: "Plum",
+        },
+        amethyst: {
+          base: "#0e0b1c", card: "#1d1830",
+          side1: "rgba(38,29,60,0.96)", side2: "rgba(26,20,44,0.98)",
+          vig: "rgba(166,116,246,0.075)", label: "Amethyst",
+        },
+      };
+      const key = new URLSearchParams(location.search).get("bg") || "amethyst";
+      const c = BG[key] || BG.amethyst;
+      const r = document.documentElement.style;
+      r.setProperty("--base", c.base);
+      r.setProperty("--card", c.card);
+      r.setProperty("--vig", c.vig);
+      r.setProperty("--side-top", c.side1);
+      r.setProperty("--side-bot", c.side2);
+      document.getElementById("bgname").textContent = c.label + " · " + c.base;
+    </script>
+  </body>
+</html>

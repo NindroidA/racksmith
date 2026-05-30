@@ -235,7 +235,7 @@ function Stepper({
                 aria-label={`Step ${idx + 1} of ${STEPS.length}: ${s.label}${isDone ? " (completed)" : isCurrent ? " (current)" : ""}`}
                 className={twMerge(
                   "flex items-center gap-2 rounded-full border px-3 py-2.5 text-sm font-medium transition-colors",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0e1a]",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0e0b1c]",
                   isCurrent
                     ? "border-primary/60 bg-primary/15 text-white"
                     : isDone

@@ -229,7 +229,7 @@ export default function LandingPage() {
       {/* Nav */}
       <nav
         aria-label="Main"
-        className="fixed top-0 z-50 w-full border-b border-white/[0.08] bg-[#0a0e1a]/75 backdrop-blur-xl"
+        className="fixed top-0 z-50 w-full border-b border-white/[0.08] bg-[#0e0b1c]/75 backdrop-blur-xl"
       >
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
           <div className="flex items-center gap-3">
@@ -361,7 +361,7 @@ export default function LandingPage() {
           <div
             className="pointer-events-none absolute inset-x-0 -bottom-2 h-32"
             style={{
-              background: "linear-gradient(to top, #0a0e1a, transparent)",
+              background: "linear-gradient(to top, #0e0b1c, transparent)",
             }}
           />
         </div>

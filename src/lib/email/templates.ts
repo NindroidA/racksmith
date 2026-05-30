@@ -16,7 +16,7 @@ function escapeHtml(input: string): string {
 }
 const WRAP = (body: string) => `<!doctype html>
 <html>
-<body style="margin:0;padding:24px;background:#0a0e1a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#fff;">
+<body style="margin:0;padding:24px;background:#0e0b1c;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#fff;">
   <div style="max-width:520px;margin:0 auto;background:#111827;border:1px solid #1f2937;border-radius:16px;padding:32px;">
     <div style="font-size:20px;font-weight:700;background:linear-gradient(90deg,#5765f4,#a674f6);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:24px;">${BRAND}</div>
     ${body}

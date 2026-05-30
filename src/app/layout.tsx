@@ -88,10 +88,10 @@ export default function RootLayout({
               boxShadow: "0 8px 32px rgba(0, 0, 0, 0.4)",
             },
             success: {
-              iconTheme: { primary: "#0bb678", secondary: "#0a0e1a" },
+              iconTheme: { primary: "#0bb678", secondary: "#0e0b1c" },
             },
             error: {
-              iconTheme: { primary: "#e63946", secondary: "#0a0e1a" },
+              iconTheme: { primary: "#e63946", secondary: "#0e0b1c" },
             },
           }}
         />

@@ -78,8 +78,8 @@ export default async function DashboardPage() {
 
   return (
     <div>
-      {/* Header — wears the rack frame: 1U banding + left rail ticks. */}
-      <header className="surface-hero mb-8 px-7 py-6">
+      {/* Header — clean material card. */}
+      <header className="surface-card mb-6 px-6 py-5">
         <h1 className="text-3xl font-bold txt-strong">Dashboard</h1>
         <p className="mt-1.5 txt-body">
           Welcome back, {session.user.name || "there"}

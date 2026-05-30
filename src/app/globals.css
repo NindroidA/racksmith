@@ -25,9 +25,12 @@
      cards; surface is the in-between (sidebar,
      elevated rows).
   */
-  --color-base: #0a0e1a;
-  --color-surface: #141829;
-  --color-surface-raised: #1a1f35;
+  /* "Amethyst" — a near-black carbon base with a deliberate violet bias
+     (ties to Patch Violet + the wordmark gradient). Replaces the generic
+     dark-blue #0a0e1a. Surfaces step up the same violet-neutral ramp. */
+  --color-base: #0e0b1c;
+  --color-surface: #1a1626;
+  --color-surface-raised: #241d38;
 
   /* ─── Brand palette (refreshed) ─────────────────
      Every token below replaces a Tailwind-500
@@ -94,7 +97,7 @@
 /* ─── Base ─────────────────────────────────────── */
 
 html {
-  background: #0a0e1a;
+  background: #0e0b1c;
   overflow-x: hidden;
 }
 
@@ -115,10 +118,10 @@ body {
   background:
     radial-gradient(
       ellipse 80% 60% at 50% 0%,
-      rgba(107, 120, 255, 0.06),
+      rgba(166, 116, 246, 0.08),
       transparent 60%
     ),
-    #0a0e1a;
+    #0e0b1c;
   background-attachment: fixed;
   margin: 0;
   padding: 0;
@@ -189,12 +192,12 @@ h1, .display-xl {
 .glass-sidebar {
   background: linear-gradient(
     180deg,
-    rgba(20, 25, 40, 0.96) 0%,
-    rgba(15, 20, 35, 0.98) 100%
+    rgba(38, 29, 60, 0.96) 0%,
+    rgba(26, 20, 44, 0.98) 100%
   );
   backdrop-filter: blur(40px) saturate(180%);
   -webkit-backdrop-filter: blur(40px) saturate(180%);
-  border-right: 1px solid rgba(255, 255, 255, 0.12);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow:
     4px 0 32px 0 rgba(0, 0, 0, 0.5),
     inset -1px 0 0 0 rgba(255, 255, 255, 0.05);
@@ -592,8 +595,8 @@ textarea:-webkit-autofill {
   /* Radius scale. Distinct names so we don't stomp Tailwind's own
      --radius-* (which would resize every rounded-md utility app-wide). */
   --r-control: 9px;   /* buttons, chips, inputs */
-  --r-card: 14px;     /* cards, alerts, dropdowns */
-  --r-surface: 20px;  /* page-level surfaces, modals */
+  --r-card: 12px;     /* cards, alerts, dropdowns (denser) */
+  --r-surface: 18px;  /* page-level surfaces, modals */
 
   /* Easing — named so call sites read clearly. */
   --ease-out: cubic-bezier(0, 0, 0.2, 1);
@@ -608,7 +611,7 @@ textarea:-webkit-autofill {
   position: relative;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0) 90px),
-    #0e1426;
+    #1d1830;
   border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: var(--r-card);
   box-shadow:
@@ -620,7 +623,7 @@ textarea:-webkit-autofill {
   position: relative;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0) 90px),
-    #141b30;
+    #241e3a;
   border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: var(--r-card);
   box-shadow:
