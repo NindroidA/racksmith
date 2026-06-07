@@ -1,14 +1,22 @@
 import { spawn } from "child_process";
 
 /**
- * Minimal nmap wrapper — runs nmap binary via child_process, parses grepable
- * output. No external deps.
+ * Minimal nmap wrapper — runs nmap binary via child_process, parses XML
+ * output (`-oX -`). No external deps.
+ *
+ * Why XML over grepable (`-oG`): grepable output OMITS the MAC + vendor line,
+ * so discovered hosts came back with empty MAC/vendor (3 of 5 device fields).
+ * nmap XML <host> blocks carry the MAC as
+ * `<address addr="AA:BB:.." addrtype="mac" vendor="Ubiquiti Inc"/>` — nmap
+ * does the OUI vendor lookup for us. nmap XML is simple + stable enough to
+ * parse with regex over <host>...</host> blocks (no XML-parser dependency).
  *
  * Security notes:
  * - Never shell-interpolate the subnet arg; spawn uses argv array which is safe
  * - CIDR validation is the caller's job (use validateCidr below)
  * - Ping scan (-sn) does not require root. OS detection (-O) + SYN scan (-sS) do.
- *   V1 only uses -sn + optional -PE (ICMP) to keep things simple.
+ *   V1 only uses -sn (fast ARP/ping discovery — returns MAC+vendor for
+ *   L2-adjacent hosts) to keep things simple.
  */
 
 export type DiscoveredHost = {
@@ -108,11 +116,10 @@ export function runPingScan(
   }
 
   const startedAt = Date.now();
-  // -sn: no port scan (discovery only)
-  // -oG -: grepable output to stdout
-  // -n: no DNS resolution (faster; we'll resolve hostnames from nmap's reply field)
+  // -sn: no port scan (discovery only — fast ARP/ping, no root needed)
+  // -oX -: XML output to stdout (carries MAC + vendor; grepable -oG does not)
   // --host-timeout 10s: per-host cap so scans don't hang
-  const args = ["-sn", "-oG", "-", "--host-timeout", "10s", validated];
+  const args = ["-sn", "-oX", "-", "--host-timeout", "10s", validated];
 
   const proc = spawn(getNmapBin(), args);
   let stdout = "";
@@ -146,76 +153,120 @@ export function runPingScan(
       });
       return;
     }
-    const hosts = parseGrepableOutput(stdout);
+    const hosts = parseXmlOutput(stdout);
     const durationSec = Math.round((Date.now() - startedAt) / 1000);
     fire({ kind: "ok", hosts, durationSec, rawOutput: stdout });
   });
 }
 
+/** Decode the XML entities nmap escapes in attribute values. */
+function decodeXmlEntities(value: string): string {
+  return value
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/&amp;/g, "&");
+}
+
 /**
- * Parse nmap -oG grepable output.
- *
- * Example lines:
- *   # Nmap 7.92 scan initiated ...
- *   Host: 192.168.1.1 (router.local) Status: Up
- *   Host: 192.168.1.1 () Status: Up
- *   Host: 192.168.1.5 (printer)	Ports: 22/open/tcp/ssh
+ * Parse every `name="value"` pair out of a single XML tag string into a
+ * lookup map. Uses one hardcoded regex (no dynamic `RegExp(...)` built from a
+ * variable — that pattern risks ReDoS and trips the security linter).
  */
-export function parseGrepableOutput(text: string): DiscoveredHost[] {
+function tagAttrs(tag: string): Map<string, string> {
+  const attrs = new Map<string, string>();
+  const attrRe = /([\w:-]+)="([^"]*)"/g;
+  let m: RegExpExecArray | null;
+  while ((m = attrRe.exec(tag)) !== null) {
+    attrs.set(m[1], decodeXmlEntities(m[2]));
+  }
+  return attrs;
+}
+
+/**
+ * Parse nmap XML output (`-oX -`). Regex over <host>...</host> blocks —
+ * nmap XML is simple and stable, so no XML-parser dependency is warranted.
+ *
+ * A representative <host> block from `nmap -sn -oX -`:
+ *   <host>
+ *     <status state="up" reason="arp-response"/>
+ *     <address addr="192.168.1.1" addrtype="ipv4"/>
+ *     <address addr="AA:BB:CC:DD:EE:FF" addrtype="mac" vendor="Ubiquiti Inc"/>
+ *     <hostnames><hostname name="router.local" type="PTR"/></hostnames>
+ *   </host>
+ *
+ * MAC + vendor are only present for L2-adjacent hosts (same broadcast
+ * domain). `<ports>` is only present if a port scan ran (-sn does not scan
+ * ports), so openPorts is usually empty — we still parse it for the case a
+ * future caller adds a port-scan path.
+ */
+export function parseXmlOutput(text: string): DiscoveredHost[] {
   const hosts: DiscoveredHost[] = [];
-  const lines = text.split("\n");
+  const hostBlockRe = /<host\b[\s\S]*?<\/host>/g;
 
-  for (const line of lines) {
-    if (!line.startsWith("Host:")) continue;
+  let block: RegExpExecArray | null;
+  while ((block = hostBlockRe.exec(text)) !== null) {
+    const xml = block[0];
 
-    // "Host: <ip> (<hostname>)\tStatus: Up" OR "Host: <ip> (<hostname>)\tPorts: ..."
-    const headerMatch = line.match(/^Host:\s+(\S+)\s+\(([^)]*)\)/);
-    if (!headerMatch) continue;
-
-    const [, ip, hostnameRaw] = headerMatch;
-    const hostname = hostnameRaw.trim() || null;
-
-    const statusMatch = line.match(/Status:\s+(\w+)/);
-    const portsMatch = line.match(/Ports:\s+(.+?)(?:\t|$)/);
-
+    const statusTag = xml.match(/<status\b[^>]*>/);
     const status: "up" | "down" =
-      statusMatch && statusMatch[1].toLowerCase() === "up" ? "up" : "down";
+      statusTag && tagAttrs(statusTag[0]).get("state")?.toLowerCase() === "up"
+        ? "up"
+        : "down";
 
+    // Walk every <address> tag: ipv4 → ip, mac → mac + vendor.
+    let ip: string | null = null;
+    let mac: string | null = null;
+    let vendor: string | null = null;
+    const addrRe = /<address\b[^>]*>/g;
+    let addr: RegExpExecArray | null;
+    while ((addr = addrRe.exec(xml)) !== null) {
+      const a = tagAttrs(addr[0]);
+      const type = a.get("addrtype");
+      if (type === "ipv4") {
+        ip = a.get("addr") ?? null;
+      } else if (type === "mac") {
+        mac = a.get("addr") ?? null;
+        const v = a.get("vendor");
+        vendor = v && v.trim() ? v.trim() : null;
+      }
+    }
+
+    // No usable IP → skip (e.g. a malformed/IPv6-only block).
+    if (!ip) continue;
+
+    // First hostname wins (nmap lists PTR/user records; the PTR is first).
+    const hostnameTag = xml.match(/<hostname\b[^>]*>/);
+    const hostnameRaw = hostnameTag
+      ? (tagAttrs(hostnameTag[0]).get("name") ?? null)
+      : null;
+    const hostname = hostnameRaw && hostnameRaw.trim() ? hostnameRaw : null;
+
+    // <ports> only present if a port scan ran. Collect open TCP/UDP ports.
     const openPorts: number[] = [];
-    if (portsMatch) {
-      // "22/open/tcp/ssh, 80/open/tcp/http"
-      const portEntries = portsMatch[1].split(",");
-      for (const entry of portEntries) {
-        const portMatch = entry.trim().match(/^(\d+)\/open\//);
-        if (portMatch) openPorts.push(parseInt(portMatch[1], 10));
+    const portRe = /<port\b[^>]*>[\s\S]*?<\/port>|<port\b[^>]*\/>/g;
+    let port: RegExpExecArray | null;
+    while ((port = portRe.exec(xml)) !== null) {
+      const portTag = port[0];
+      const portId = tagAttrs(portTag).get("portid");
+      const stateTag = portTag.match(/<state\b[^>]*>/);
+      const portState = stateTag ? tagAttrs(stateTag[0]).get("state") : null;
+      if (portId && portState === "open") {
+        const n = parseInt(portId, 10);
+        if (!Number.isNaN(n) && !openPorts.includes(n)) openPorts.push(n);
       }
     }
 
-    // nmap -sn with sudo reports MAC as a separate line like:
-    // "Host: 192.168.1.1 (router.local) Status: Up"
-    // "Host script result: ... (MAC: aa:bb:cc:dd:ee:ff)"
-    // For v1 without sudo, MAC won't be in grepable output. That's OK.
-
-    // Dedupe by IP — grepable output has one line per host, but port scans
-    // generate a second line for the same host.
-    const existing = hosts.find((h) => h.ip === ip);
-    if (existing) {
-      if (openPorts.length > 0) {
-        existing.openPorts = [
-          ...new Set([...existing.openPorts, ...openPorts]),
-        ];
-      }
-    } else {
-      hosts.push({
-        ip,
-        hostname,
-        mac: null,
-        vendor: null,
-        osGuess: null,
-        openPorts,
-        status,
-      });
-    }
+    hosts.push({
+      ip,
+      hostname,
+      mac,
+      vendor,
+      osGuess: null,
+      openPorts,
+      status,
+    });
   }
 
   return hosts.filter((h) => h.status === "up");

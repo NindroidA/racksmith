@@ -51,6 +51,7 @@ export default async function DiscoveryPage() {
     ip: string;
     hostname: string | null;
     mac: string | null;
+    vendor: string | null;
     osGuess: string | null;
     openPorts: number[];
     typeGuess: string;
@@ -71,6 +72,9 @@ export default async function DiscoveryPage() {
       if (host.match.kind === "known") continue; // already known, skip from pending
       pendingHosts.push({
         ...host,
+        // Scans completed before MAC/vendor capture landed have no `vendor`
+        // key in their stored JSON — coalesce to null so the type holds.
+        vendor: host.vendor ?? null,
         scanId: scan.id,
         scanSubnet: scan.subnet,
       });

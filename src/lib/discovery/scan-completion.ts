@@ -62,6 +62,7 @@ export async function completeScan(args: CompleteScanArgs): Promise<void> {
         },
       }),
     );
+    const deviceById = new Map(devices.map((d) => [d.id, d]));
 
     const enriched = result.hosts.map((host) => ({
       ...host,
@@ -116,8 +117,10 @@ export async function completeScan(args: CompleteScanArgs): Promise<void> {
     // Refresh lastSeen on matched devices so the inventory page reflects
     // the most recent successful scan. Two writes:
     //   1. Bulk `updateMany` for lastSeen across every matched id (one query).
-    //   2. Per-device hostname backfill (Promise.all) only when hostname is
-    //      missing. Skipped if no hosts had hostname data.
+    //   2. Per-device backfill (Promise.all) of hostname / MAC / vendor when
+    //      the existing device row is missing that field. nmap now captures
+    //      MAC + vendor (XML output), so a host matched by IP can fill in a
+    //      device that predates the MAC capture. Skipped when nothing to fill.
     const lastSeenAt = new Date();
     const knownDeviceIds = Array.from(
       new Set(
@@ -126,10 +129,22 @@ export async function completeScan(args: CompleteScanArgs): Promise<void> {
         ),
       ),
     );
-    const hostnameUpdates = new Map<string, string>();
+    const fieldBackfills = new Map<
+      string,
+      { hostname?: string; macAddress?: string }
+    >();
     for (const h of enriched) {
-      if (h.match.kind === "known" && h.hostname) {
-        hostnameUpdates.set(h.match.deviceId, h.hostname);
+      if (h.match.kind !== "known") continue;
+      const device = deviceById.get(h.match.deviceId);
+      if (!device) continue;
+      const patch: { hostname?: string; macAddress?: string } = {};
+      if (h.hostname && !device.hostname) patch.hostname = h.hostname;
+      if (h.mac && !device.macAddress) patch.macAddress = h.mac;
+      if (Object.keys(patch).length > 0) {
+        fieldBackfills.set(h.match.deviceId, {
+          ...fieldBackfills.get(h.match.deviceId),
+          ...patch,
+        });
       }
     }
 
@@ -139,12 +154,12 @@ export async function completeScan(args: CompleteScanArgs): Promise<void> {
           where: { id: { in: knownDeviceIds }, organizationId },
           data: { lastSeen: lastSeenAt },
         });
-        if (hostnameUpdates.size > 0) {
+        if (fieldBackfills.size > 0) {
           await Promise.all(
-            Array.from(hostnameUpdates.entries()).map(([deviceId, hostname]) =>
+            Array.from(fieldBackfills.entries()).map(([deviceId, data]) =>
               tx.device.update({
                 where: { id: deviceId },
-                data: { hostname },
+                data,
               }),
             ),
           );
