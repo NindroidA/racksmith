@@ -22,6 +22,10 @@ type Props = {
   onDrop: (positionU: number, payload: DropPayload) => void;
   onRemove: (deviceId: string) => void;
   onDelete: (deviceId: string) => void;
+  /** Tap-to-place selection from the palette (touch fallback for drag). */
+  selection?: { payload: DropPayload; label: string } | null;
+  onSlotTap?: (positionU: number) => void;
+  onCancelSelection?: () => void;
 };
 
 type DragHover = { bottomU: number; sizeU: number } | null;
@@ -57,10 +61,15 @@ export function RackVisualizer({
   onDrop,
   onRemove,
   onDelete,
+  selection = null,
+  onSlotTap,
+  onCancelSelection,
 }: Props) {
   const [hoverDrag, setHoverDrag] = useState<DragHover>(null);
   const activeDrag = useDragPayload();
   const [confirmTarget, setConfirmTarget] = useState<ConfirmTarget>(null);
+  // Touch: tapping a placed device reveals its actions (no hover on touch).
+  const [activeDeviceId, setActiveDeviceId] = useState<string | null>(null);
 
   function performConfirm() {
     if (!confirmTarget) return;
@@ -83,6 +92,15 @@ export function RackVisualizer({
     }
     return set;
   }, [devices]);
+
+  // Can a device of `sizeU` be placed with its bottom at `bottomU`?
+  function canPlaceAt(bottomU: number, sizeU: number) {
+    if (bottomU + sizeU - 1 > rackSizeU) return false;
+    for (let u = bottomU; u < bottomU + sizeU; u++) {
+      if (occupied.has(u)) return false;
+    }
+    return true;
+  }
 
   function handleDragOver(e: React.DragEvent, bottomU: number) {
     if (!activeDrag) return;
@@ -156,6 +174,24 @@ export function RackVisualizer({
         </div>
       </div>
 
+      {selection && (
+        <div className="mb-3 flex items-center justify-between gap-3 rounded-lg border border-primary/40 bg-primary/10 px-3 py-2 text-sm">
+          <span className="text-white/80">
+            Placing{" "}
+            <span className="font-medium text-white">{selection.label}</span> (
+            <span className="mono">{selection.payload.sizeU}</span>U) — tap a
+            free slot.
+          </span>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => onCancelSelection?.()}
+          >
+            Cancel
+          </Button>
+        </div>
+      )}
+
       <div className="mx-auto max-w-[640px] rounded-xl border-2 border-white/10 bg-black/50 p-3 shadow-inner">
         <div className="space-y-[2px]">
           {slots.map(({ u, device, isDeviceTop }) => {
@@ -188,8 +224,16 @@ export function RackVisualizer({
                     setDragPayload(null);
                     setHoverDrag(null);
                   }}
+                  onClick={() =>
+                    setActiveDeviceId((cur) =>
+                      cur === device.id ? null : device.id,
+                    )
+                  }
                   style={slotStyle(device.sizeU)}
-                  className="group relative overflow-hidden rounded-md cursor-grab active:cursor-grabbing transition-all hover:ring-2 hover:ring-white/20 hover:ring-offset-0"
+                  className={twMerge(
+                    "group relative cursor-grab overflow-hidden rounded-md transition-all hover:ring-2 hover:ring-white/20 active:cursor-grabbing",
+                    activeDeviceId === device.id && "ring-2 ring-primary/50",
+                  )}
                   title={`${device.name} — ${device.positionU === topU ? `U${device.positionU}` : `U${device.positionU}-${topU}`}`}
                 >
                   {/* Authentic device faceplate */}
@@ -208,8 +252,15 @@ export function RackVisualizer({
                       : `U${device.positionU}-${topU}`}
                   </div>
 
-                  {/* Hover overlay with name + actions */}
-                  <div className="pointer-events-none absolute inset-0 flex items-end bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100">
+                  {/* Name + actions overlay — on hover (desktop) or tap (touch) */}
+                  <div
+                    className={twMerge(
+                      "pointer-events-none absolute inset-0 flex items-end bg-gradient-to-t from-black/80 via-black/20 to-transparent transition-opacity group-hover:opacity-100",
+                      activeDeviceId === device.id
+                        ? "opacity-100"
+                        : "opacity-0",
+                    )}
+                  >
                     <div className="pointer-events-auto flex w-full items-end justify-between gap-2 px-2 pb-1">
                       <div className="min-w-0 flex-1">
                         <div className="truncate text-[11px] font-semibold text-white drop-shadow">
@@ -273,12 +324,31 @@ export function RackVisualizer({
             // Empty slot
             const preview = isHoverPreview(u);
             const collision = preview && hoverHasAnyCollision;
+            const selectable =
+              !!selection && canPlaceAt(u, selection.payload.sizeU);
+            const selectBlocked = !!selection && !selectable;
 
             return (
               <div
                 key={u}
                 onDragOver={(e) => handleDragOver(e, u)}
                 onDrop={(e) => handleDrop(e, u)}
+                onClick={selectable ? () => onSlotTap?.(u) : undefined}
+                onKeyDown={
+                  selectable
+                    ? (e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          onSlotTap?.(u);
+                        }
+                      }
+                    : undefined
+                }
+                role={selectable ? "button" : undefined}
+                tabIndex={selectable ? 0 : undefined}
+                aria-label={
+                  selectable ? `Place ${selection?.label} at U${u}` : undefined
+                }
                 style={slotStyle(1)}
                 className={twMerge(
                   "mono flex items-center justify-between rounded-md border border-dashed border-white/8 px-3 text-[10px] text-white/25 transition-all",
@@ -288,6 +358,9 @@ export function RackVisualizer({
                   preview &&
                     collision &&
                     "border-accent-red/60 border-solid bg-accent-red/20 text-accent-red",
+                  selectable &&
+                    "cursor-pointer border-solid border-primary/50 bg-primary/10 text-white/70 hover:bg-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55",
+                  selectBlocked && "opacity-40",
                 )}
               >
                 <span>U{u}</span>
@@ -296,7 +369,9 @@ export function RackVisualizer({
                     ? "Blocked"
                     : preview
                       ? "Drop here"
-                      : ""}
+                      : selectable
+                        ? "Tap to place"
+                        : ""}
                 </span>
               </div>
             );

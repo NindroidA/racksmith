@@ -37,6 +37,9 @@ export type PaletteUnrackedDevice = {
 type Props = {
   catalog: PaletteCatalogItem[];
   unracked: PaletteUnrackedDevice[];
+  /** Tap-to-place: the currently-selected item's key (catalogId/deviceId). */
+  selectedKey?: string | null;
+  onSelect?: (payload: DropPayload, label: string, key: string) => void;
 };
 
 function matches(search: string, fields: (string | null | undefined)[]) {
@@ -54,6 +57,9 @@ type DraggablePaletteItemProps = {
   model: string;
   portCount: number;
   payload: DropPayload;
+  itemKey: string;
+  selected: boolean;
+  onSelect?: (payload: DropPayload, label: string, key: string) => void;
 };
 
 function DraggablePaletteItem({
@@ -65,12 +71,26 @@ function DraggablePaletteItem({
   model,
   portCount,
   payload,
+  itemKey,
+  selected,
+  onSelect,
 }: DraggablePaletteItemProps) {
   const [dragging, setDragging] = useState(false);
 
   return (
     <div
       draggable
+      role="button"
+      tabIndex={0}
+      aria-pressed={selected}
+      aria-label={`${name} (${sizeU}U). Tap to select for placement, then tap a free rack slot.`}
+      onClick={() => onSelect?.(payload, name, itemKey)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onSelect?.(payload, name, itemKey);
+        }
+      }}
       onDragStart={(e) => {
         const key =
           payload.kind === "catalog"
@@ -87,8 +107,9 @@ function DraggablePaletteItem({
         setDragging(false);
       }}
       className={twMerge(
-        "group relative cursor-grab overflow-hidden rounded-lg border border-white/10 bg-white/[0.03] p-2 transition-all hover:border-white/25 hover:bg-white/[0.07] active:cursor-grabbing",
+        "group relative cursor-grab overflow-hidden rounded-lg border border-white/10 bg-white/[0.03] p-2 transition-all hover:border-white/25 hover:bg-white/[0.07] active:cursor-grabbing focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55",
         dragging && "opacity-40",
+        selected && "border-primary/70 bg-primary/15 ring-2 ring-primary/50",
       )}
     >
       {/* Mini device preview (real faceplate at palette scale) */}
@@ -121,7 +142,12 @@ function DraggablePaletteItem({
   );
 }
 
-export function DevicePalette({ catalog, unracked }: Props) {
+export function DevicePalette({
+  catalog,
+  unracked,
+  selectedKey = null,
+  onSelect,
+}: Props) {
   const [search, setSearch] = useState("");
 
   const filteredUnracked = useMemo(
@@ -171,7 +197,7 @@ export function DevicePalette({ catalog, unracked }: Props) {
           />
         </div>
         <p className="mt-2 text-[11px] text-white/40">
-          Drag devices into rack slots
+          Drag a device into a slot — or tap to select, then tap a free slot.
         </p>
       </div>
 
@@ -209,6 +235,9 @@ export function DevicePalette({ catalog, unracked }: Props) {
                     deviceId: d.id,
                     sizeU: d.sizeU,
                   }}
+                  itemKey={d.id}
+                  selected={selectedKey === d.id}
+                  onSelect={onSelect}
                 />
               ))}
             </div>
@@ -247,6 +276,9 @@ export function DevicePalette({ catalog, unracked }: Props) {
                           catalogId: item.id,
                           sizeU: item.sizeU,
                         }}
+                        itemKey={item.id}
+                        selected={selectedKey === item.id}
+                        onSelect={onSelect}
                       />
                     ))}
                   </div>
