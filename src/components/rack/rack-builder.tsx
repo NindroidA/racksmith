@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { RackVisualizer } from "./rack-visualizer";
@@ -34,6 +34,23 @@ export function RackBuilder({
 }: Props) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
+  // Tap-to-place selection (touch fallback for HTML5 drag, which never fires on
+  // touchscreens). Tap a palette item to select it, then tap a free rack slot.
+  const [selected, setSelected] = useState<{
+    payload: DropPayload;
+    label: string;
+    key: string;
+  } | null>(null);
+
+  function handleSelect(payload: DropPayload, label: string, key: string) {
+    setSelected((cur) => (cur?.key === key ? null : { payload, label, key }));
+  }
+
+  function handleSlotTap(positionU: number) {
+    if (!selected) return;
+    handleDrop(positionU, selected.payload);
+    setSelected(null);
+  }
 
   function handleDrop(positionU: number, payload: DropPayload) {
     if (pending) return;
@@ -99,10 +116,18 @@ export function RackBuilder({
           onDrop={handleDrop}
           onRemove={handleRemove}
           onDelete={handleDelete}
+          selection={selected}
+          onSlotTap={handleSlotTap}
+          onCancelSelection={() => setSelected(null)}
         />
       </div>
-      <div className="h-[calc(100vh-12rem)] lg:sticky lg:top-6">
-        <DevicePalette catalog={catalog} unracked={unracked} />
+      <div className="lg:sticky lg:top-6 lg:h-[calc(100vh-12rem)]">
+        <DevicePalette
+          catalog={catalog}
+          unracked={unracked}
+          selectedKey={selected?.key ?? null}
+          onSelect={handleSelect}
+        />
       </div>
     </div>
   );
