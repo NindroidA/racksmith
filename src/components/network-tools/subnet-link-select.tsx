@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { Plus, LinkBreak } from "@phosphor-icons/react/dist/ssr";
+import { Button } from "@/components/ui/button";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
 import { Select, SelectOption } from "@/components/ui/select";
 import { linkSubnetToVlan } from "@/app/(dashboard)/network-tools/vlans/actions";
@@ -84,15 +85,15 @@ export function SubnetLinkSelect({
                 </SelectOption>
               ))}
             </Select>
-            <button
-              type="button"
+            <Button
+              variant="primary"
+              size="sm"
               onClick={() => selectId && link(selectId)}
               disabled={!selectId || pending}
-              className="flex items-center gap-1 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-white hover:bg-primary/90 disabled:opacity-50"
+              iconLeft={<Plus className="h-3 w-3" weight="bold" aria-hidden />}
             >
-              <Plus className="h-3 w-3" weight="bold" aria-hidden />
               Link
-            </button>
+            </Button>
           </div>
         )}
       </div>

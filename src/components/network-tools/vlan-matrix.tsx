@@ -73,7 +73,7 @@ export function VlanMatrix({ vlans, switches }: Props) {
           <tr className="text-left text-xs uppercase tracking-wider text-white/40">
             <th
               scope="col"
-              className="sticky left-0 z-10 bg-[rgba(20,25,40,0.85)] px-3 py-2 font-medium"
+              className="sticky left-0 z-10 bg-[#1d1830] px-3 py-2 font-medium"
             >
               VLAN
             </th>
@@ -103,7 +103,7 @@ export function VlanMatrix({ vlans, switches }: Props) {
               <tr key={v.id}>
                 <th
                   scope="row"
-                  className="sticky left-0 z-10 bg-[rgba(20,25,40,0.85)] px-3 py-2 font-normal"
+                  className="sticky left-0 z-10 bg-[#1d1830] px-3 py-2 font-normal"
                 >
                   <Link
                     href={`/network-tools/vlans/${v.id}`}

@@ -9,6 +9,7 @@ import toast from "react-hot-toast";
 import type { OAuthProviders } from "@/lib/oauth-providers";
 import { GithubIcon, GoogleIcon } from "@/components/ui/oauth-icons";
 import { AuthShell } from "@/components/layout/auth-shell";
+import { Button } from "@/components/ui/button";
 import { describeError } from "@/lib/error-message";
 
 export function RegisterForm({
@@ -81,22 +82,24 @@ export function RegisterForm({
         <>
           <div className="mb-6 flex flex-col gap-3">
             {oauth.github && (
-              <button
+              <Button
+                variant="secondary"
                 onClick={() => handleOAuth("github")}
-                className="glass-button flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-white"
+                className="w-full"
+                iconLeft={<GithubIcon className="h-4 w-4" />}
               >
-                <GithubIcon className="h-4 w-4" />
                 Sign up with GitHub
-              </button>
+              </Button>
             )}
             {oauth.google && (
-              <button
+              <Button
+                variant="secondary"
                 onClick={() => handleOAuth("google")}
-                className="glass-button flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-white"
+                className="w-full"
+                iconLeft={<GoogleIcon className="h-4 w-4" />}
               >
-                <GoogleIcon className="h-4 w-4" />
                 Sign up with Google
-              </button>
+              </Button>
             )}
           </div>
 
@@ -234,14 +237,15 @@ export function RegisterForm({
           )}
         </div>
 
-        <button
+        <Button
           type="submit"
+          variant="primary"
           disabled={loading}
-          aria-busy={loading}
-          className="mt-2 w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white transition-all hover:bg-primary/90 disabled:opacity-50"
+          loading={loading}
+          className="mt-2 w-full"
         >
           {loading ? "Creating account..." : "Create Account"}
-        </button>
+        </Button>
       </form>
 
       <p className="mt-6 text-center text-sm text-white/50">

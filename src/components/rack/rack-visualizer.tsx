@@ -5,6 +5,7 @@ import { twMerge } from "tailwind-merge";
 import { TrashSimple } from "@phosphor-icons/react/dist/ssr";
 import { DEVICE_TYPE_LABELS } from "@/types";
 import type { DeviceType } from "@/types";
+import { Button } from "@/components/ui/button";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
 import { useDragPayload, setDragPayload } from "./drag-state";
 import { DeviceGraphic, U_ASPECT } from "./device-graphic";
@@ -201,7 +202,7 @@ export function RackVisualizer({
                   />
 
                   {/* Position label (appears on left outside chassis) */}
-                  <div className="pointer-events-none absolute left-1 top-1 rounded bg-black/60 px-1 py-0.5 font-mono text-[8px] text-white/50 backdrop-blur-sm opacity-0 transition-opacity group-hover:opacity-100">
+                  <div className="mono pointer-events-none absolute left-1 top-1 rounded bg-black/60 px-1 py-0.5 text-[8px] text-white/50 backdrop-blur-sm opacity-0 transition-opacity group-hover:opacity-100">
                     {device.positionU === topU
                       ? `U${device.positionU}`
                       : `U${device.positionU}-${topU}`}
@@ -229,7 +230,9 @@ export function RackVisualizer({
                         </div>
                       </div>
                       <div className="flex shrink-0 items-center gap-1">
-                        <button
+                        <Button
+                          size="sm"
+                          variant="ghost"
                           onClick={(e) => {
                             e.stopPropagation();
                             setConfirmTarget({
@@ -238,12 +241,14 @@ export function RackVisualizer({
                               deviceName: device.name,
                             });
                           }}
-                          className="rounded bg-white/15 px-1.5 py-0.5 text-[10px] font-medium text-white backdrop-blur hover:bg-white/30"
+                          className="min-h-[44px] bg-white/15 text-[10px] text-white backdrop-blur hover:bg-white/30 hover:text-white"
                           title="Remove from rack"
                         >
                           Unrack
-                        </button>
-                        <button
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="danger"
                           onClick={(e) => {
                             e.stopPropagation();
                             setConfirmTarget({
@@ -252,11 +257,12 @@ export function RackVisualizer({
                               deviceName: device.name,
                             });
                           }}
-                          className="rounded bg-red-500/40 p-1 text-white backdrop-blur hover:bg-red-500/70"
+                          className="min-h-[44px] min-w-[44px] backdrop-blur"
                           title="Delete device"
+                          aria-label="Delete device"
                         >
-                          <TrashSimple className="h-2.5 w-2.5" weight="bold" />
-                        </button>
+                          <TrashSimple className="h-3.5 w-3.5" weight="bold" />
+                        </Button>
                       </div>
                     </div>
                   </div>
@@ -275,7 +281,7 @@ export function RackVisualizer({
                 onDrop={(e) => handleDrop(e, u)}
                 style={slotStyle(1)}
                 className={twMerge(
-                  "flex items-center justify-between rounded-md border border-dashed border-white/8 px-3 text-[10px] font-mono text-white/25 transition-all",
+                  "mono flex items-center justify-between rounded-md border border-dashed border-white/8 px-3 text-[10px] text-white/25 transition-all",
                   preview &&
                     !collision &&
                     "border-primary/60 border-solid bg-primary/15 text-white/80",

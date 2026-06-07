@@ -9,6 +9,7 @@ import {
   Power,
 } from "@phosphor-icons/react/dist/ssr";
 import { twMerge } from "tailwind-merge";
+import { Button } from "@/components/ui/button";
 import { InlineHelp } from "@/components/ui/inline-help";
 import { AdvancedAccordion } from "@/components/ui/advanced-accordion";
 import { Select, SelectOption } from "@/components/ui/select";
@@ -19,8 +20,8 @@ import { calculateUpsRuntime } from "@/lib/power/ups";
 const STATUS_COLOR: Record<string, string> = {
   ok: "text-accent-green",
   warning: "text-accent-orange",
-  critical: "text-red-400",
-  exceeded: "text-red-500",
+  critical: "text-accent-red",
+  exceeded: "text-accent-red",
 };
 
 const STATUS_LED: Record<string, string> = {
@@ -165,7 +166,7 @@ function PoePanel() {
                   type="button"
                   onClick={() => removeLine(idx)}
                   aria-label={`Remove ${line.label}`}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg text-white/40 transition-colors hover:bg-red-500/10 hover:text-red-400"
+                  className="flex h-9 w-9 items-center justify-center rounded-lg text-white/40 transition-colors hover:bg-accent-red/10 hover:text-accent-red"
                 >
                   <TrashSimple className="h-4 w-4" weight="bold" />
                 </button>
@@ -173,14 +174,17 @@ function PoePanel() {
             ))}
           </ul>
 
-          <button
-            type="button"
+          <Button
+            variant="secondary"
+            size="sm"
             onClick={addLine}
-            className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-1.5 text-sm text-white/80 hover:bg-white/[0.08]"
+            className="mt-3"
+            iconLeft={
+              <Plus className="h-3.5 w-3.5" weight="bold" aria-hidden />
+            }
           >
-            <Plus className="h-3.5 w-3.5" weight="bold" aria-hidden /> Add
-            device class
-          </button>
+            Add device class
+          </Button>
 
           <AdvancedAccordion label="Advanced (headroom)" className="mt-4">
             <div>

@@ -90,7 +90,7 @@ export function AssignmentList({ assignments, onEdit, onAdd }: Props) {
                         type="button"
                         onClick={() => onEdit(a)}
                         aria-label={`Edit assignment for ${a.ipAddress}`}
-                        className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded text-white/40 hover:bg-white/[0.06] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/50"
+                        className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded text-white/40 hover:bg-white/[0.06] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55"
                       >
                         <PencilSimple
                           className="h-3.5 w-3.5"

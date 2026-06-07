@@ -108,7 +108,7 @@ export function DhcpRangeSection({ subnetId, subnetCidr, dhcpRanges }: Props) {
                   })
                 }
                 aria-label={`Delete DHCP range ${r.startIp}-${r.endIp}`}
-                className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded text-white/40 hover:bg-white/[0.06] hover:text-accent-red focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/50"
+                className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded text-white/40 hover:bg-white/[0.06] hover:text-accent-red focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55"
               >
                 <TrashSimple className="h-4 w-4" weight="bold" aria-hidden />
               </button>
@@ -126,7 +126,7 @@ export function DhcpRangeSection({ subnetId, subnetCidr, dhcpRanges }: Props) {
             type="text"
             value={startIp}
             onChange={(e) => setStartIp(e.target.value)}
-            className="glass-input rounded-lg px-3 py-2 font-mono text-sm"
+            className="glass-input mono rounded-lg px-3 py-2 text-sm"
             placeholder="Start IP"
             aria-label="Start IP"
             required
@@ -136,7 +136,7 @@ export function DhcpRangeSection({ subnetId, subnetCidr, dhcpRanges }: Props) {
             type="text"
             value={endIp}
             onChange={(e) => setEndIp(e.target.value)}
-            className="glass-input rounded-lg px-3 py-2 font-mono text-sm"
+            className="glass-input mono rounded-lg px-3 py-2 text-sm"
             placeholder="End IP"
             aria-label="End IP"
             required

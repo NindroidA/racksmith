@@ -10,6 +10,7 @@ import {
   TrashSimple,
 } from "@phosphor-icons/react/dist/ssr";
 import type { ColorTag } from "@/types";
+import { Button } from "@/components/ui/button";
 import { ColorTagPicker } from "@/components/ui/color-tag-picker";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
 import { useOrgAction } from "@/hooks/use-org-action";
@@ -261,15 +262,15 @@ export function RackForm(props: Props) {
       {/* Actions */}
       <div className="mt-6 flex items-center justify-between">
         {props.mode === "edit" ? (
-          <button
+          <Button
             type="button"
+            variant="danger"
             onClick={() => setConfirmOpen(true)}
             disabled={deleting || pending}
-            className="flex items-center gap-2 rounded-lg border border-accent-red/30 bg-accent-red/10 px-4 py-2.5 text-sm font-medium text-accent-red transition-all hover:bg-accent-red/20 disabled:opacity-50"
+            iconLeft={<TrashSimple className="h-4 w-4" weight="bold" />}
           >
-            <TrashSimple className="h-4 w-4" weight="bold" />
             {deleting ? "Deleting..." : "Delete Rack"}
-          </button>
+          </Button>
         ) : (
           <div />
         )}
@@ -277,22 +278,22 @@ export function RackForm(props: Props) {
         <div className="flex gap-3">
           <Link
             href={props.mode === "edit" ? `/racks/${props.rackId}` : "/racks"}
-            className="glass-button rounded-lg px-4 py-2.5 text-sm font-medium text-white"
+            className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.06] px-4 text-sm font-medium text-white transition-[background-color,border-color] duration-150 hover:border-white/20 hover:bg-white/[0.10] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/55 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
           >
             Cancel
           </Link>
-          <button
+          <Button
             type="submit"
+            variant="primary"
             disabled={pending || deleting}
-            className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white transition-all hover:bg-primary/90 disabled:opacity-50"
+            iconLeft={<FloppyDisk className="h-4 w-4" weight="bold" />}
           >
-            <FloppyDisk className="h-4 w-4" weight="bold" />
             {pending
               ? "Saving..."
               : props.mode === "create"
                 ? "Create Rack"
                 : "Save Changes"}
-          </button>
+          </Button>
         </div>
       </div>
 

@@ -4,7 +4,6 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useReducedMotion } from "framer-motion";
 import toast from "react-hot-toast";
-import { twMerge } from "tailwind-merge";
 import {
   WarningCircle,
   Prohibit,
@@ -13,6 +12,7 @@ import {
   CircleNotch,
   TrashSimple,
 } from "@phosphor-icons/react/dist/ssr";
+import { Tag } from "@/components/ui/tag";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
 import { deleteScan } from "@/app/(dashboard)/discovery/actions";
 
@@ -126,42 +126,47 @@ export function ScanHistory({ scans }: Props) {
                   <span className="mono">{scan.subnet}</span>
                 </td>
                 <td className="px-4 py-3">
-                  <span
-                    className={twMerge(
-                      "inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium",
-                      scan.status === "completed" &&
-                        "bg-accent-green/15 text-accent-green",
-                      isFailed && "bg-accent-red/15 text-accent-red",
-                      isCancelled && "bg-white/[0.08] text-white/60",
-                      isRunning && "bg-primary/15 text-primary",
-                    )}
+                  <Tag
+                    variant="subtle"
+                    tone={
+                      scan.status === "completed"
+                        ? "success"
+                        : isFailed
+                          ? "danger"
+                          : isRunning
+                            ? "info"
+                            : "neutral"
+                    }
+                    iconLeft={
+                      scan.status === "completed" ? (
+                        <CheckCircle
+                          className="h-3 w-3"
+                          weight="bold"
+                          aria-hidden
+                        />
+                      ) : isFailed ? (
+                        <WarningCircle
+                          className="h-3 w-3"
+                          weight="bold"
+                          aria-hidden
+                        />
+                      ) : isCancelled ? (
+                        <Prohibit
+                          className="h-3 w-3"
+                          weight="bold"
+                          aria-hidden
+                        />
+                      ) : isRunning ? (
+                        <CircleNotch
+                          className={`h-3 w-3 ${reduceMotion ? "" : "animate-spin"}`}
+                          weight="bold"
+                          aria-hidden
+                        />
+                      ) : undefined
+                    }
                   >
-                    {scan.status === "completed" && (
-                      <CheckCircle
-                        className="h-3 w-3"
-                        weight="bold"
-                        aria-hidden
-                      />
-                    )}
-                    {isFailed && (
-                      <WarningCircle
-                        className="h-3 w-3"
-                        weight="bold"
-                        aria-hidden
-                      />
-                    )}
-                    {isCancelled && (
-                      <Prohibit className="h-3 w-3" weight="bold" aria-hidden />
-                    )}
-                    {isRunning && (
-                      <CircleNotch
-                        className={`h-3 w-3 ${reduceMotion ? "" : "animate-spin"}`}
-                        weight="bold"
-                        aria-hidden
-                      />
-                    )}
                     {STATUS_LABELS[scan.status] ?? scan.status}
-                  </span>
+                  </Tag>
                   {isFailed && scan.error && (
                     <div className="mt-1 max-w-sm truncate text-[10px] text-accent-red/70">
                       {scan.error}

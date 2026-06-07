@@ -41,7 +41,7 @@ export function PaymentStatusBanner({ planLabel }: Props) {
 
   return (
     <div
-      className="relative mb-6 flex items-center gap-3 overflow-hidden rounded-xl border px-4 py-3 text-sm"
+      className="relative mb-6 flex flex-col gap-3 overflow-hidden rounded-xl border px-4 py-3 text-sm sm:flex-row sm:items-center"
       style={{
         borderColor:
           "color-mix(in srgb, var(--color-accent-orange-bright) 50%, transparent)",
@@ -56,46 +56,52 @@ export function PaymentStatusBanner({ planLabel }: Props) {
         className="absolute left-0 top-0 h-full w-1"
         style={{ background: "var(--color-accent-orange-bright)" }}
       />
-      <span
-        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[#1a1308]"
-        aria-hidden="true"
-        style={{
-          background: "var(--color-accent-orange-bright)",
-          boxShadow:
-            "0 0 0 1px rgba(0,0,0,0.15), 0 2px 6px var(--color-accent-orange-glow)",
-        }}
-      >
-        <Warning className="h-4 w-4" weight="duotone" />
-      </span>
-      <div className="flex-1 txt-body">
-        <span className="font-semibold txt-strong">Payment failed.</span> Update
-        your payment method to keep RackSmith {planLabel}. We&apos;ll retry the
-        charge automatically — fix it now to avoid an interruption.
+      <div className="flex flex-1 items-start gap-3">
+        <span
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[#1a1308]"
+          aria-hidden="true"
+          style={{
+            background: "var(--color-accent-orange-bright)",
+            boxShadow:
+              "0 0 0 1px rgba(0,0,0,0.15), 0 2px 6px var(--color-accent-orange-glow)",
+          }}
+        >
+          <Warning className="h-4 w-4" weight="duotone" />
+        </span>
+        <div className="flex-1 txt-body">
+          <span className="font-semibold txt-strong">Payment failed.</span>{" "}
+          Update your payment method to keep RackSmith {planLabel}. We&apos;ll
+          retry the charge automatically — fix it now to avoid an interruption.
+        </div>
       </div>
-      <Button
-        size="sm"
-        variant="primary"
-        onClick={openPortal}
-        loading={pending}
-        iconRight={
-          !pending ? <ArrowSquareOut className="h-3 w-3" weight="bold" /> : null
-        }
-        className="text-[#1a1308] shadow-[0_1px_4px_var(--color-accent-orange-glow)]"
-        style={{
-          background: "var(--color-accent-orange-bright)",
-        }}
-        aria-label="Open Stripe customer portal to update payment method"
-      >
-        {pending ? "Opening…" : "Update payment"}
-      </Button>
-      <button
-        type="button"
-        onClick={() => setDismissed(true)}
-        className="rounded-md p-1 txt-faint transition-colors hover:bg-white/6 hover:text-white"
-        aria-label="Dismiss"
-      >
-        <X className="h-4 w-4" weight="bold" />
-      </button>
+      <div className="flex shrink-0 items-center justify-end gap-2 pl-11 sm:pl-0">
+        <Button
+          size="sm"
+          variant="primary"
+          onClick={openPortal}
+          loading={pending}
+          iconRight={
+            !pending ? (
+              <ArrowSquareOut className="h-3 w-3" weight="bold" />
+            ) : null
+          }
+          className="min-h-11 text-[#1a1308] shadow-[0_1px_4px_var(--color-accent-orange-glow)] sm:min-h-0"
+          style={{
+            background: "var(--color-accent-orange-bright)",
+          }}
+          aria-label="Open Stripe customer portal to update payment method"
+        >
+          {pending ? "Opening…" : "Update payment"}
+        </Button>
+        <button
+          type="button"
+          onClick={() => setDismissed(true)}
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md txt-faint transition-colors hover:bg-white/6 hover:text-white sm:h-8 sm:w-8"
+          aria-label="Dismiss"
+        >
+          <X className="h-4 w-4" weight="bold" />
+        </button>
+      </div>
     </div>
   );
 }

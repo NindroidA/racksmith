@@ -26,6 +26,7 @@ import { toPng } from "html-to-image";
 import { DeviceNode, type DeviceNodeData } from "./device-node";
 import { CableEdge, CABLE_COLORS, type CableEdgeData } from "./cable-edge";
 import { ConnectionForm } from "./connection-form";
+import { Button } from "@/components/ui/button";
 import {
   updateDevicePosition,
   autoLayout,
@@ -261,31 +262,40 @@ function CanvasInner({ devices, connections }: Props) {
       {/* Toolbar */}
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <button
-            type="button"
+          <Button
+            size="sm"
             onClick={handleAddConnection}
-            className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-white transition-all hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/50"
+            iconLeft={
+              <Plus className="h-3.5 w-3.5" weight="bold" aria-hidden />
+            }
           >
-            <Plus className="h-3.5 w-3.5" weight="bold" aria-hidden />
             Add Connection
-          </button>
-          <button
-            type="button"
+          </Button>
+          <Button
+            variant="secondary"
+            size="sm"
             onClick={handleAutoLayout}
             disabled={pending}
-            className="glass-button flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
+            iconLeft={
+              <SquaresFour className="h-3.5 w-3.5" weight="bold" aria-hidden />
+            }
           >
-            <SquaresFour className="h-3.5 w-3.5" weight="bold" aria-hidden />
             Auto-Layout
-          </button>
-          <button
-            type="button"
+          </Button>
+          <Button
+            variant="secondary"
+            size="sm"
             onClick={handleExport}
-            className="glass-button flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-white"
+            iconLeft={
+              <DownloadSimple
+                className="h-3.5 w-3.5"
+                weight="bold"
+                aria-hidden
+              />
+            }
           >
-            <DownloadSimple className="h-3.5 w-3.5" weight="bold" aria-hidden />
             Export PNG
-          </button>
+          </Button>
         </div>
 
         <div className="flex items-center gap-3 text-xs text-white/40">

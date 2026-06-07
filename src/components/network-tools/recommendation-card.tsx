@@ -16,6 +16,7 @@ import {
   dismissRecommendation,
   undismissRecommendation,
 } from "@/app/(dashboard)/network-tools/recommendations/actions";
+import { Button } from "@/components/ui/button";
 import { Tag } from "@/components/ui/tag";
 import type { Recommendation, Severity } from "@/lib/recommendations/types";
 
@@ -38,24 +39,24 @@ const SEV_TONE: Record<Severity, "danger" | "warning" | "info"> = {
 
 const SEV_META: Record<Severity, SevMeta> = {
   critical: {
-    border: "border-l-red-500",
-    bg: "bg-red-500/[0.04]",
+    border: "border-l-accent-red",
+    bg: "bg-accent-red/[0.04]",
     icon: ShieldWarning,
-    iconColor: "text-red-400",
+    iconColor: "text-accent-red",
     label: "Critical",
     led: "led-dot--red",
   },
   warning: {
-    border: "border-l-amber-500",
-    bg: "bg-amber-500/[0.04]",
+    border: "border-l-accent-orange",
+    bg: "bg-accent-orange/[0.04]",
     icon: Warning,
-    iconColor: "text-amber-400",
+    iconColor: "text-accent-orange",
     label: "Warning",
     led: "led-dot--amber",
   },
   info: {
-    border: "border-l-blue-500",
-    bg: "bg-blue-500/[0.04]",
+    border: "border-l-accent-blue",
+    bg: "bg-accent-blue/[0.04]",
     icon: Info,
     iconColor: "text-accent-blue",
     label: "Info",
@@ -175,7 +176,7 @@ export function RecommendationCard({
             disabled={pending}
             aria-label={`Snooze "${recommendation.title}" for 7 days`}
             title="Snooze 7 days"
-            className="flex h-11 w-11 items-center justify-center rounded-md text-white/55 transition-colors hover:bg-white/[0.08] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/60 disabled:opacity-50"
+            className="flex h-11 w-11 items-center justify-center rounded-md text-white/55 transition-colors hover:bg-white/[0.08] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55 disabled:opacity-50"
           >
             <Clock className="h-4 w-4" weight="bold" aria-hidden />
           </button>
@@ -185,21 +186,22 @@ export function RecommendationCard({
             disabled={pending}
             aria-label={`Dismiss "${recommendation.title}" permanently`}
             title="Dismiss permanently"
-            className="flex h-11 w-11 items-center justify-center rounded-md text-white/55 transition-colors hover:bg-white/[0.08] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/60 disabled:opacity-50"
+            className="flex h-11 w-11 items-center justify-center rounded-md text-white/55 transition-colors hover:bg-white/[0.08] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55 disabled:opacity-50"
           >
             <X className="h-4 w-4" weight="bold" aria-hidden />
           </button>
         </div>
       )}
       {interactive && dismissed && (
-        <button
-          type="button"
+        <Button
+          variant="secondary"
+          size="sm"
           onClick={handleUndismiss}
           disabled={pending}
-          className="self-start rounded-md border border-white/10 bg-white/[0.04] px-2 py-1 text-[11px] text-white/70 hover:bg-white/[0.08] disabled:opacity-50"
+          className="self-start"
         >
           Restore
-        </button>
+        </Button>
       )}
     </article>
   );
