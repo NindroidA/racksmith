@@ -239,7 +239,7 @@ export function Sidebar({
                   )}
                 />
                 <AnimatePresence>
-                  {!collapsed && (
+                  {(!collapsed || mobileOpen) && (
                     <motion.span
                       {...labelAnim}
                       className="relative z-10 overflow-hidden whitespace-nowrap"
@@ -269,7 +269,7 @@ export function Sidebar({
         >
           <SignOut weight="duotone" className="h-5 w-5 shrink-0" />
           <AnimatePresence>
-            {!collapsed && (
+            {(!collapsed || mobileOpen) && (
               <motion.span
                 {...labelAnim}
                 className="overflow-hidden whitespace-nowrap"

@@ -45,7 +45,7 @@ export function TierLimitBanner({
             <span className="mono">{limit}</span> {resource}
           </span>
           . You currently have <span className="mono">{current}</span>. Upgrade
-          to Pro or Business to unlock unlimited {resource} and more.
+          to Pro or Business for higher limits and more.
         </p>
 
         <div className="mb-6 grid grid-cols-2 gap-3 rounded-lg border border-white/[0.06] bg-white/[0.02] p-4 text-sm">
@@ -57,7 +57,7 @@ export function TierLimitBanner({
               <li>Unlimited sites &amp; racks</li>
               <li>Up to 5 team members</li>
               <li>API access</li>
-              <li>PDF / CSV / SVG exports</li>
+              <li>CSV exports</li>
             </ul>
           </div>
           <div>
