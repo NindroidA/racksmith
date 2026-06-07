@@ -249,104 +249,106 @@ export function DeviceListClient({ devices }: Props) {
         </div>
       ) : (
         <div className="surface-card overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-white/10 text-left text-xs uppercase tracking-wider text-white/40">
-                <th scope="col" className="w-28 px-4 py-3 font-medium">
-                  Preview
-                </th>
-                <SortableHeader
-                  label="Name"
-                  active={sortKey === "name"}
-                  desc={sortDesc}
-                  onClick={() => toggleSort("name")}
-                />
-                <SortableHeader
-                  label="Type"
-                  active={sortKey === "type"}
-                  desc={sortDesc}
-                  onClick={() => toggleSort("type")}
-                />
-                <SortableHeader
-                  label="Manufacturer"
-                  active={sortKey === "manufacturer"}
-                  desc={sortDesc}
-                  onClick={() => toggleSort("manufacturer")}
-                />
-                <SortableHeader
-                  label="Rack"
-                  active={sortKey === "rack"}
-                  desc={sortDesc}
-                  onClick={() => toggleSort("rack")}
-                />
-                <th scope="col" className="px-4 py-3 font-medium">
-                  IP
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/[0.05]">
-              {sorted.map((d) => (
-                <tr
-                  key={d.id}
-                  className="group transition-colors hover:bg-white/[0.03]"
-                >
-                  <td className="px-4 py-3">
-                    <Link
-                      href={`/devices/${d.id}`}
-                      className="block overflow-hidden rounded bg-black/30"
-                      style={{ aspectRatio: `${U_ASPECT} / ${d.sizeU}` }}
-                    >
-                      <DeviceGraphic
-                        deviceType={d.deviceType}
-                        manufacturer={d.manufacturer || "custom"}
-                        model={d.model}
-                        sizeU={d.sizeU}
-                        portCount={d.portCount}
-                      />
-                    </Link>
-                  </td>
-                  <td className="px-4 py-3">
-                    <Link
-                      href={`/devices/${d.id}`}
-                      className="font-medium text-white transition-colors hover:text-primary"
-                    >
-                      {d.name}
-                    </Link>
-                    {d.model && (
-                      <div className="text-xs text-white/40">{d.model}</div>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-white/70">
-                    {DEVICE_TYPE_LABELS[d.deviceType as DeviceType] ||
-                      d.deviceType}
-                  </td>
-                  <td className="px-4 py-3 text-white/70">
-                    {d.manufacturer || "—"}
-                  </td>
-                  <td className="px-4 py-3">
-                    {d.rackId && d.rackName ? (
-                      <Link
-                        href={`/racks/${d.rackId}`}
-                        className="text-white/80 hover:text-primary"
-                      >
-                        {d.rackName}
-                        {d.positionU != null && (
-                          <span className="mono ml-1 text-xs text-white/40">
-                            U{d.positionU}
-                          </span>
-                        )}
-                      </Link>
-                    ) : (
-                      <span className="text-white/30">Unracked</span>
-                    )}
-                  </td>
-                  <td className="mono px-4 py-3 text-xs text-white/60">
-                    {d.ipAddress || "—"}
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[640px] text-sm">
+              <thead>
+                <tr className="border-b border-white/10 text-left text-xs uppercase tracking-wider text-white/40">
+                  <th scope="col" className="w-28 px-4 py-3 font-medium">
+                    Preview
+                  </th>
+                  <SortableHeader
+                    label="Name"
+                    active={sortKey === "name"}
+                    desc={sortDesc}
+                    onClick={() => toggleSort("name")}
+                  />
+                  <SortableHeader
+                    label="Type"
+                    active={sortKey === "type"}
+                    desc={sortDesc}
+                    onClick={() => toggleSort("type")}
+                  />
+                  <SortableHeader
+                    label="Manufacturer"
+                    active={sortKey === "manufacturer"}
+                    desc={sortDesc}
+                    onClick={() => toggleSort("manufacturer")}
+                  />
+                  <SortableHeader
+                    label="Rack"
+                    active={sortKey === "rack"}
+                    desc={sortDesc}
+                    onClick={() => toggleSort("rack")}
+                  />
+                  <th scope="col" className="px-4 py-3 font-medium">
+                    IP
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-white/[0.05]">
+                {sorted.map((d) => (
+                  <tr
+                    key={d.id}
+                    className="group transition-colors hover:bg-white/[0.03]"
+                  >
+                    <td className="px-4 py-3">
+                      <Link
+                        href={`/devices/${d.id}`}
+                        className="block overflow-hidden rounded bg-black/30"
+                        style={{ aspectRatio: `${U_ASPECT} / ${d.sizeU}` }}
+                      >
+                        <DeviceGraphic
+                          deviceType={d.deviceType}
+                          manufacturer={d.manufacturer || "custom"}
+                          model={d.model}
+                          sizeU={d.sizeU}
+                          portCount={d.portCount}
+                        />
+                      </Link>
+                    </td>
+                    <td className="px-4 py-3">
+                      <Link
+                        href={`/devices/${d.id}`}
+                        className="font-medium text-white transition-colors hover:text-primary"
+                      >
+                        {d.name}
+                      </Link>
+                      {d.model && (
+                        <div className="text-xs text-white/40">{d.model}</div>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-white/70">
+                      {DEVICE_TYPE_LABELS[d.deviceType as DeviceType] ||
+                        d.deviceType}
+                    </td>
+                    <td className="px-4 py-3 text-white/70">
+                      {d.manufacturer || "—"}
+                    </td>
+                    <td className="px-4 py-3">
+                      {d.rackId && d.rackName ? (
+                        <Link
+                          href={`/racks/${d.rackId}`}
+                          className="text-white/80 hover:text-primary"
+                        >
+                          {d.rackName}
+                          {d.positionU != null && (
+                            <span className="mono ml-1 text-xs text-white/40">
+                              U{d.positionU}
+                            </span>
+                          )}
+                        </Link>
+                      ) : (
+                        <span className="text-white/30">Unracked</span>
+                      )}
+                    </td>
+                    <td className="mono px-4 py-3 text-xs text-white/60">
+                      {d.ipAddress || "—"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>

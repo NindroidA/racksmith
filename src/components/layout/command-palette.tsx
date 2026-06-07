@@ -13,6 +13,7 @@ import {
   ShareNetwork,
   Broadcast,
   GearSix,
+  Key,
   Plus,
   MagnifyingGlass,
   UploadSimple,
@@ -56,8 +57,14 @@ export function CommandPalette() {
         setOpen((v) => !v);
       }
     };
+    // The mobile top-bar search button dispatches this (no keyboard on touch).
+    const onOpen = () => setOpen(true);
     document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
+    window.addEventListener("racksmith:command-palette", onOpen);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      window.removeEventListener("racksmith:command-palette", onOpen);
+    };
   }, []);
 
   useEffect(() => {
@@ -199,6 +206,15 @@ export function CommandPalette() {
         run: () => router.push("/settings"),
       },
       {
+        id: "nav-api-keys",
+        label: "Go to API Keys",
+        hint: "/settings/api-keys",
+        icon: Key,
+        group: "Navigate",
+        keywords: ["api", "token", "rest", "key"],
+        run: () => router.push("/settings/api-keys"),
+      },
+      {
         id: "nav-audit",
         label: "View audit log",
         hint: "/settings/audit",
@@ -272,6 +288,8 @@ export function CommandPalette() {
         run: async () => {
           try {
             await signOut();
+            // Full reload to /login so all client state is cleared.
+            window.location.href = "/login";
           } catch (err) {
             const { default: toast } = await import("react-hot-toast");
             toast.error(describeError(err, "Failed to sign out"));

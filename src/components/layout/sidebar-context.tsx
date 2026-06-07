@@ -9,21 +9,28 @@ import {
 } from "react";
 
 type SidebarState = {
+  /** Desktop rail collapsed↔expanded (md+). */
   collapsed: boolean;
   setCollapsed: (v: boolean) => void;
   toggle: () => void;
+  /** Mobile off-canvas drawer open↔closed (<md). */
+  mobileOpen: boolean;
+  setMobileOpen: (v: boolean) => void;
 };
 
 const SidebarCtx = createContext<SidebarState>({
   collapsed: false,
   setCollapsed: () => {},
   toggle: () => {},
+  mobileOpen: false,
+  setMobileOpen: () => {},
 });
 
 const STORAGE_KEY = "racksmith:sidebar-collapsed";
 
 export function SidebarProvider({ children }: { children: ReactNode }) {
   const [collapsed, setCollapsedState] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
@@ -49,6 +56,8 @@ export function SidebarProvider({ children }: { children: ReactNode }) {
     collapsed,
     setCollapsed: setCollapsedState,
     toggle: () => setCollapsedState(!collapsed),
+    mobileOpen,
+    setMobileOpen,
   };
 
   return <SidebarCtx.Provider value={value}>{children}</SidebarCtx.Provider>;

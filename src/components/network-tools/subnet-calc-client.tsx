@@ -280,21 +280,23 @@ function VlsmSplitter({ parent }: { parent: ParsedCidr }) {
 
       {result?.ok && result.allocations.length > 0 && (
         <div className="mt-5 overflow-hidden rounded-lg border border-white/10">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-white/10 text-left text-xs uppercase tracking-wider text-white/40">
-                <th className="px-4 py-2 font-medium">Name</th>
-                <th className="px-4 py-2 font-medium">CIDR</th>
-                <th className="px-4 py-2 font-medium">Range</th>
-                <th className="px-4 py-2 font-medium text-right">Usable</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/[0.05]">
-              {result.allocations.map((a) => (
-                <AllocationRow key={a.name} allocation={a} />
-              ))}
-            </tbody>
-          </table>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[560px] text-sm">
+              <thead>
+                <tr className="border-b border-white/10 text-left text-xs uppercase tracking-wider text-white/40">
+                  <th className="px-4 py-2 font-medium">Name</th>
+                  <th className="px-4 py-2 font-medium">CIDR</th>
+                  <th className="px-4 py-2 font-medium">Range</th>
+                  <th className="px-4 py-2 font-medium text-right">Usable</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/[0.05]">
+                {result.allocations.map((a) => (
+                  <AllocationRow key={a.name} allocation={a} />
+                ))}
+              </tbody>
+            </table>
+          </div>
           {result.unusedHosts > 0n && (
             <div className="border-t border-white/10 bg-white/[0.02] px-4 py-2 text-xs text-white/40">
               <span className="mono">{formatBig(result.unusedHosts)}</span>{" "}

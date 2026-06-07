@@ -38,10 +38,29 @@ export function SubnetGrid({
 }: Props) {
   const details = useMemo(() => calculateCidr(subnetCidr), [subnetCidr]);
 
-  if (
-    details.kind === "ipv6" ||
-    Number(details.totalHosts) > MAX_RENDERED_CELLS
-  ) {
+  const notRenderable =
+    details.kind === "ipv6" || Number(details.totalHosts) > MAX_RENDERED_CELLS;
+
+  const cells = useMemo(
+    () =>
+      notRenderable
+        ? []
+        : buildCells(
+            details.network,
+            Number(details.totalHosts),
+            assignments,
+            dhcpRanges,
+          ),
+    [
+      notRenderable,
+      details.network,
+      details.totalHosts,
+      assignments,
+      dhcpRanges,
+    ],
+  );
+
+  if (notRenderable) {
     return (
       <section className="surface-card p-6">
         <h2 className="mb-2 text-lg font-semibold text-white">Grid</h2>
@@ -53,17 +72,6 @@ export function SubnetGrid({
       </section>
     );
   }
-
-  const cells = useMemo(
-    () =>
-      buildCells(
-        details.network,
-        Number(details.totalHosts),
-        assignments,
-        dhcpRanges,
-      ),
-    [details.network, details.totalHosts, assignments, dhcpRanges],
-  );
 
   const cols = Math.min(16, cells.length);
 
