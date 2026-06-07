@@ -57,7 +57,7 @@ export default async function RacksPage() {
         ) : (
           <Link
             href="/racks/new"
-            className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white transition-all hover:bg-primary/90"
+            className="inline-flex h-11 items-center gap-1.5 rounded-lg bg-primary px-6 text-sm font-medium text-white shadow-sm shadow-primary/20 transition-[background-color,transform] duration-150 hover:bg-primary/90 active:translate-y-px focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/55 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
           >
             <Plus className="h-4 w-4" weight="bold" aria-hidden />
             Add Rack
@@ -74,7 +74,7 @@ export default async function RacksPage() {
               COLOR_TAG_MAP[rack.colorTag as ColorTag] || COLOR_TAG_MAP.blue;
             return (
               <Link key={rack.id} href={`/racks/${rack.id}`}>
-                <div className="surface-card p-6">
+                <div className="surface-card surface-interactive p-6">
                   <div className="mb-3 flex items-center justify-between">
                     <div
                       className="h-2 w-8 rounded-full"

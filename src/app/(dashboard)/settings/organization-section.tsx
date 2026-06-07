@@ -15,6 +15,7 @@ import {
   X,
 } from "@phosphor-icons/react/dist/ssr";
 import { twMerge } from "tailwind-merge";
+import { Button } from "@/components/ui/button";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
 import { Select, SelectOption } from "@/components/ui/select";
 import { Tag } from "@/components/ui/tag";
@@ -310,8 +311,8 @@ export function OrganizationSection({
                 autoComplete="off"
                 data-1p-ignore
               />
-              <button
-                type="button"
+              <Button
+                variant="primary"
                 onClick={submitRename}
                 disabled={
                   !canEditGeneral ||
@@ -319,11 +320,12 @@ export function OrganizationSection({
                   name.trim() === organization.name ||
                   name.trim().length < 2
                 }
-                className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-primary/90 disabled:opacity-40"
+                iconLeft={
+                  <FloppyDisk className="h-4 w-4" weight="bold" aria-hidden />
+                }
               >
-                <FloppyDisk className="h-4 w-4" weight="bold" aria-hidden />
                 Save
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -342,12 +344,12 @@ export function OrganizationSection({
                 onChange={(e) => setSlug(e.target.value.toLowerCase())}
                 disabled={!canEditGeneral || slugPending}
                 maxLength={63}
-                className="glass-input flex-1 rounded-lg px-4 py-2.5 font-mono text-sm disabled:opacity-50"
+                className="glass-input mono flex-1 rounded-lg px-4 py-2.5 text-sm disabled:opacity-50"
                 autoComplete="off"
                 data-1p-ignore
               />
-              <button
-                type="button"
+              <Button
+                variant="primary"
                 onClick={submitSlug}
                 disabled={
                   !canEditGeneral ||
@@ -355,11 +357,12 @@ export function OrganizationSection({
                   slug.trim() === organization.slug ||
                   slug.trim().length < 2
                 }
-                className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-primary/90 disabled:opacity-40"
+                iconLeft={
+                  <FloppyDisk className="h-4 w-4" weight="bold" aria-hidden />
+                }
               >
-                <FloppyDisk className="h-4 w-4" weight="bold" aria-hidden />
                 Save
-              </button>
+              </Button>
             </div>
             <p className="mt-1 text-xs text-white/40">
               Lowercase, numbers, and dashes only.
@@ -408,9 +411,9 @@ export function OrganizationSection({
 
       {/* Pending ownership transfer */}
       {pendingTransfer && (
-        <div className="flex items-start gap-3 rounded-xl border border-amber-300/30 bg-amber-300/[0.05] px-5 py-4">
+        <div className="flex items-start gap-3 rounded-xl border border-accent-orange/30 bg-accent-orange/[0.05] px-5 py-4">
           <Key
-            className="mt-0.5 h-5 w-5 shrink-0 text-amber-200"
+            className="mt-0.5 h-5 w-5 shrink-0 text-accent-orange"
             weight="duotone"
             aria-hidden
           />
@@ -427,14 +430,15 @@ export function OrganizationSection({
             </p>
           </div>
           {canTransferOwnership && (
-            <button
-              type="button"
+            <Button
+              variant="secondary"
+              size="sm"
               onClick={() => setRevokeTransferOpen(true)}
               disabled={transferPending}
-              className="shrink-0 rounded-md border border-white/[0.12] px-2.5 py-1 text-xs text-white/70 transition-colors hover:bg-white/[0.06] hover:text-white disabled:opacity-50"
+              className="shrink-0"
             >
               Cancel
-            </button>
+            </Button>
           )}
         </div>
       )}
@@ -523,7 +527,7 @@ export function OrganizationSection({
                       disabled={rowPending || transferPending}
                       title="Transfer ownership to this member"
                       aria-label={`Transfer ownership to ${m.user.name ?? m.user.email}`}
-                      className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md text-white/40 transition-colors hover:bg-amber-300/15 hover:text-amber-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/50 disabled:opacity-40"
+                      className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md text-white/40 transition-colors hover:bg-accent-orange/15 hover:text-accent-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-orange/50 disabled:opacity-40"
                     >
                       <Key className="h-4 w-4" weight="duotone" aria-hidden />
                     </button>
@@ -611,15 +615,18 @@ export function OrganizationSection({
                 ))}
               </Select>
             </div>
-            <button
+            <Button
               type="submit"
+              variant="primary"
               disabled={invitePending || inviteEmail.trim().length === 0}
               aria-busy={invitePending}
-              className="flex min-h-[44px] items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-white transition-colors hover:bg-primary/90 disabled:opacity-40"
+              className="min-h-[44px]"
+              iconLeft={
+                <PaperPlaneTilt className="h-4 w-4" weight="bold" aria-hidden />
+              }
             >
-              <PaperPlaneTilt className="h-4 w-4" weight="bold" aria-hidden />
               {invitePending ? "Sending..." : "Invite"}
-            </button>
+            </Button>
           </form>
 
           {invitations.length > 0 && (
@@ -668,7 +675,7 @@ export function OrganizationSection({
                             ? `Invitation to ${inv.email} has expired — resend unavailable`
                             : `Resend invitation to ${inv.email}`
                         }
-                        className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md text-white/40 transition-colors hover:bg-white/[0.06] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/50 disabled:opacity-30"
+                        className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md text-white/40 transition-colors hover:bg-white/[0.06] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55 disabled:opacity-30"
                       >
                         <ArrowsClockwise
                           className="h-4 w-4"
@@ -722,15 +729,16 @@ export function OrganizationSection({
             removes every rack, device, subnet, VLAN, plan, scan, and audit log
             inside it. Members lose access immediately.
           </p>
-          <button
-            type="button"
+          <Button
+            variant="danger"
             onClick={() => setDeleteOpen(true)}
             disabled={deletePending}
-            className="flex items-center gap-2 rounded-lg border border-accent-red/40 bg-accent-red/15 px-4 py-2 text-sm font-medium text-accent-red transition-colors hover:bg-accent-red/25 disabled:opacity-50"
+            iconLeft={
+              <TrashSimple className="h-4 w-4" weight="bold" aria-hidden />
+            }
           >
-            <TrashSimple className="h-4 w-4" weight="bold" aria-hidden />
             Delete organization
-          </button>
+          </Button>
         </div>
       )}
 

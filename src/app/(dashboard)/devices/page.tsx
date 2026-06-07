@@ -47,14 +47,14 @@ export default async function DevicesPage() {
         <div className="flex gap-2">
           <Link
             href="/devices/import"
-            className="glass-button flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-white"
+            className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.06] px-4 text-sm font-medium text-white transition-[background-color,border-color] duration-150 hover:border-white/20 hover:bg-white/[0.10] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/55 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
           >
             <UploadSimple className="h-4 w-4" weight="bold" />
             Import CSV
           </Link>
           <Link
             href="/devices/new"
-            className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white transition-all hover:bg-primary/90"
+            className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-primary px-4 text-sm font-medium text-white shadow-sm shadow-primary/20 transition-[background-color,transform] duration-150 hover:bg-primary/90 active:translate-y-px focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/55 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
           >
             <Plus className="h-4 w-4" weight="bold" />
             Add Device

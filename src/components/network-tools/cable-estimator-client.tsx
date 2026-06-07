@@ -7,6 +7,7 @@ import {
   TrashSimple,
 } from "@phosphor-icons/react/dist/ssr";
 import { twMerge } from "tailwind-merge";
+import { Button } from "@/components/ui/button";
 import { Select, SelectOption } from "@/components/ui/select";
 import {
   CABLE_SPECS,
@@ -22,8 +23,8 @@ import {
 const STATUS_COLOR: Record<string, string> = {
   ok: "text-accent-green",
   warning: "text-accent-orange",
-  exceeded: "text-red-500",
-  speed_mismatch: "text-red-500",
+  exceeded: "text-accent-red",
+  speed_mismatch: "text-accent-red",
 };
 
 const STATUS_LED: Record<string, string> = {
@@ -225,7 +226,7 @@ export function CableEstimatorClient() {
                       type="button"
                       onClick={() => removeRow(row.id)}
                       aria-label={`Remove ${CABLE_SPECS[row.cableType].label} cable run`}
-                      className="flex h-8 w-8 items-center justify-center rounded-lg text-white/40 transition-colors hover:bg-red-500/10 hover:text-red-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/50"
+                      className="flex h-8 w-8 items-center justify-center rounded-lg text-white/40 transition-colors hover:bg-accent-red/10 hover:text-accent-red focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55"
                     >
                       <TrashSimple className="h-4 w-4" weight="bold" />
                     </button>
@@ -236,14 +237,15 @@ export function CableEstimatorClient() {
           </table>
         </div>
 
-        <button
-          type="button"
+        <Button
+          variant="secondary"
+          size="sm"
           onClick={addRow}
-          className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-1.5 text-sm text-white/80 hover:bg-white/[0.08]"
+          className="mt-3"
+          iconLeft={<Plus className="h-3.5 w-3.5" weight="bold" aria-hidden />}
         >
-          <Plus className="h-3.5 w-3.5" weight="bold" aria-hidden /> Add cable
-          run
-        </button>
+          Add cable run
+        </Button>
 
         <NotesList evaluated={evaluated} />
       </section>
@@ -298,7 +300,7 @@ function NotesList({
       {notes.map((n) => (
         <li
           key={n.key}
-          className="rounded-lg border border-amber-500/20 bg-amber-500/[0.06] px-3 py-2 text-xs text-amber-100/90"
+          className="rounded-lg border border-accent-orange/20 bg-accent-orange/[0.06] px-3 py-2 text-xs text-accent-orange/90"
         >
           {n.note}
         </li>

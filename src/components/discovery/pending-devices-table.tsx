@@ -4,7 +4,6 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import { twMerge } from "tailwind-merge";
 import {
   Check,
   X,
@@ -12,6 +11,7 @@ import {
   CheckCircle,
 } from "@phosphor-icons/react/dist/ssr";
 import { DEVICE_TYPE_LABELS, type DeviceType } from "@/types";
+import { Button } from "@/components/ui/button";
 import { Select, SelectOption } from "@/components/ui/select";
 import {
   approveDiscovery,
@@ -211,32 +211,35 @@ export function PendingDevicesTable({ hosts, devices }: Props) {
                             </SelectOption>
                           ))}
                         </Select>
-                        <button
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           onClick={() => setAssignTarget(null)}
-                          className="text-xs text-white/50 hover:text-white/80"
                         >
                           Cancel
-                        </button>
+                        </Button>
                       </div>
                     ) : (
                       <div className="flex items-center justify-end gap-1.5">
-                        <button
-                          type="button"
+                        <Button
+                          size="sm"
                           onClick={() => handleApprove(host)}
                           disabled={pending}
                           aria-label={`Add ${host.ip} to inventory`}
-                          className="flex items-center gap-1 rounded-md bg-accent-green/20 px-2 py-1 text-xs font-medium text-accent-green hover:bg-accent-green/30 disabled:opacity-50"
                           title="Add as new device to inventory"
+                          iconLeft={
+                            <Check
+                              className="h-3 w-3"
+                              weight="bold"
+                              aria-hidden
+                            />
+                          }
                         >
-                          <Check
-                            className="h-3 w-3"
-                            weight="bold"
-                            aria-hidden
-                          />
                           Add
-                        </button>
-                        <button
-                          type="button"
+                        </Button>
+                        <Button
+                          variant="secondary"
+                          size="sm"
                           onClick={() => setAssignTarget(host.ip)}
                           disabled={pending || devices.length === 0}
                           aria-label={
@@ -244,33 +247,31 @@ export function PendingDevicesTable({ hosts, devices }: Props) {
                               ? `Cannot assign ${host.ip} — no devices in inventory`
                               : `Assign ${host.ip} to existing device`
                           }
-                          className={twMerge(
-                            "flex items-center gap-1 rounded-md bg-white/[0.06] px-2 py-1 text-xs font-medium text-white/80 hover:bg-white/[0.12]",
-                            (pending || devices.length === 0) && "opacity-40",
-                          )}
                           title={
                             devices.length === 0
                               ? "No devices in inventory to assign to"
                               : "Assign to an existing device"
                           }
+                          iconLeft={
+                            <LinkSimple
+                              className="h-3 w-3"
+                              weight="bold"
+                              aria-hidden
+                            />
+                          }
                         >
-                          <LinkSimple
-                            className="h-3 w-3"
-                            weight="bold"
-                            aria-hidden
-                          />
                           Assign
-                        </button>
-                        <button
-                          type="button"
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           onClick={() => handleIgnore(host)}
                           disabled={pending}
                           aria-label={`Ignore ${host.ip}`}
-                          className="flex items-center gap-1 rounded-md bg-white/[0.03] px-2 py-1 text-xs font-medium text-white/60 hover:bg-white/[0.08] hover:text-white/90 disabled:opacity-50"
                           title="Ignore this host"
                         >
                           <X className="h-3 w-3" weight="bold" aria-hidden />
-                        </button>
+                        </Button>
                       </div>
                     )}
                   </td>

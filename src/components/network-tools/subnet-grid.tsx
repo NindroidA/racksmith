@@ -163,7 +163,7 @@ function CellButton({
       title={label}
       aria-label={label}
       className={twMerge(
-        "relative flex aspect-square items-center justify-center rounded text-[9px] font-mono transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/50",
+        "relative mono flex aspect-square items-center justify-center rounded text-[9px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55",
         compact && "min-h-[44px] min-w-[44px]",
         className,
       )}

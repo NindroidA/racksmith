@@ -3,6 +3,7 @@
 import { useId, useState, useTransition } from "react";
 import toast from "react-hot-toast";
 import { X, TrashSimple, MagicWand } from "@phosphor-icons/react/dist/ssr";
+import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
 import { Select, SelectOption } from "@/components/ui/select";
@@ -112,7 +113,7 @@ export function IpAssignmentDialog({
             type="button"
             onClick={onClose}
             aria-label="Close assignment dialog"
-            className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded text-white/40 hover:bg-white/[0.06] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/50"
+            className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded text-white/40 hover:bg-white/[0.06] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55"
           >
             <X className="h-4 w-4" weight="bold" aria-hidden />
           </button>
@@ -136,28 +137,30 @@ export function IpAssignmentDialog({
                 type="text"
                 value={ipAddress}
                 onChange={(e) => setIpAddress(e.target.value)}
-                className="glass-input flex-1 rounded-lg px-4 py-2.5 font-mono text-sm"
+                className="glass-input mono flex-1 rounded-lg px-4 py-2.5 text-sm"
                 placeholder="192.168.1.10"
                 required
                 maxLength={45}
                 autoComplete="off"
                 data-1p-ignore
               />
-              <button
-                type="button"
+              <Button
+                variant="secondary"
+                size="sm"
                 onClick={suggest}
                 disabled={pending}
                 title="Suggest next free IP"
                 aria-label="Suggest next free IP"
-                className="glass-button flex items-center gap-1 rounded-lg px-3 text-xs font-medium text-white"
+                iconLeft={
+                  <MagicWand
+                    className="h-3.5 w-3.5"
+                    weight="duotone"
+                    aria-hidden
+                  />
+                }
               >
-                <MagicWand
-                  className="h-3.5 w-3.5"
-                  weight="duotone"
-                  aria-hidden
-                />
                 Suggest
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -221,34 +224,37 @@ export function IpAssignmentDialog({
 
         <footer className="flex items-center justify-between border-t border-white/[0.08] px-5 py-3">
           {existing ? (
-            <button
-              type="button"
+            <Button
+              variant="danger"
+              size="sm"
               onClick={() => setConfirmOpen(true)}
               disabled={pending}
-              className="flex items-center gap-1 rounded-lg border border-accent-red/30 bg-accent-red/10 px-3 py-1.5 text-xs font-medium text-accent-red hover:bg-accent-red/20 disabled:opacity-50"
+              iconLeft={
+                <TrashSimple
+                  className="h-3.5 w-3.5"
+                  weight="bold"
+                  aria-hidden
+                />
+              }
             >
-              <TrashSimple className="h-3.5 w-3.5" weight="bold" aria-hidden />
               Release
-            </button>
+            </Button>
           ) : (
             <span />
           )}
           <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="glass-button rounded-lg px-4 py-1.5 text-xs font-medium text-white"
-            >
+            <Button variant="secondary" size="sm" onClick={onClose}>
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
               type="submit"
               form="ip-assignment-form"
               disabled={pending || !ipAddress.trim()}
-              className="rounded-lg bg-primary px-4 py-1.5 text-xs font-medium text-white hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/50 disabled:opacity-50"
             >
               {pending ? "Saving..." : existing ? "Save" : "Assign"}
-            </button>
+            </Button>
           </div>
         </footer>
       </Dialog>

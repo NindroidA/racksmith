@@ -32,7 +32,7 @@ function DeviceNodeInner({ data, selected }: NodeProps) {
       className={
         "group flex flex-col rounded-xl transition-all " +
         (selected
-          ? "ring-2 ring-primary shadow-[0_0_24px_rgba(59,130,246,0.3)]"
+          ? "ring-2 ring-primary shadow-[0_0_24px_rgba(87,101,244,0.3)]"
           : "ring-1 ring-white/10 hover:ring-white/25")
       }
       style={{ width, background: "rgba(20, 25, 40, 0.85)" }}
@@ -111,7 +111,7 @@ function DeviceNodeInner({ data, selected }: NodeProps) {
           >
             {d.name}
           </Link>
-          <span className="shrink-0 rounded bg-white/[0.06] px-1 py-0.5 font-mono text-[9px] text-white/50">
+          <span className="mono shrink-0 rounded bg-white/[0.06] px-1 py-0.5 text-[9px] text-white/50">
             {d.sizeU}U
           </span>
         </div>
@@ -120,7 +120,7 @@ function DeviceNodeInner({ data, selected }: NodeProps) {
           {d.ipAddress && (
             <>
               <span>·</span>
-              <span className="truncate font-mono">{d.ipAddress}</span>
+              <span className="mono truncate">{d.ipAddress}</span>
             </>
           )}
           {d.rackName && (

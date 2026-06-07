@@ -12,6 +12,7 @@ import toast from "react-hot-toast";
 import { authClient } from "@/lib/auth-client";
 import { updateProfile } from "./actions";
 import { describeError } from "@/lib/error-message";
+import { Button } from "@/components/ui/button";
 import { Tag } from "@/components/ui/tag";
 
 type Props = {
@@ -113,14 +114,14 @@ export function ProfileSection({ initialName, email, emailVerified }: Props) {
             maxLength={100}
             autoComplete="name"
           />
-          <button
+          <Button
             type="submit"
+            variant="primary"
             disabled={isPending || name === initialName || !name.trim()}
-            aria-busy={isPending}
-            className="rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary/90 disabled:opacity-40"
+            loading={isPending}
           >
             {isPending ? "Saving…" : "Save"}
-          </button>
+          </Button>
         </div>
       </form>
 
@@ -143,23 +144,26 @@ export function ProfileSection({ initialName, email, emailVerified }: Props) {
               Verified
             </Tag>
           ) : (
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={handleResend}
               disabled={resendLoading || resendSent}
-              className="ml-auto inline-flex items-center gap-1 rounded-full bg-accent-orange/15 px-2 py-0.5 text-xs text-accent-orange transition-colors hover:bg-accent-orange/20 disabled:opacity-60"
-            >
-              {resendSent ? (
-                <>
+              className="ml-auto text-accent-orange hover:text-accent-orange"
+              iconLeft={
+                resendSent ? (
                   <PaperPlaneTilt className="h-3 w-3" weight="bold" />
-                  Link sent
-                </>
-              ) : (
-                <>
+                ) : (
                   <WarningCircle className="h-3 w-3" weight="duotone" />
-                  {resendLoading ? "Sending…" : "Resend verification"}
-                </>
-              )}
-            </button>
+                )
+              }
+            >
+              {resendSent
+                ? "Link sent"
+                : resendLoading
+                  ? "Sending…"
+                  : "Resend verification"}
+            </Button>
           )}
         </div>
 
@@ -174,14 +178,14 @@ export function ProfileSection({ initialName, email, emailVerified }: Props) {
             className="glass-input flex-1 rounded-lg px-4 py-2.5 text-sm"
             autoComplete="email"
           />
-          <button
+          <Button
             type="submit"
+            variant="secondary"
             disabled={emailLoading || !newEmail || newEmail === email}
-            aria-busy={emailLoading}
-            className="rounded-lg bg-white/[0.06] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/[0.1] disabled:opacity-40"
+            loading={emailLoading}
           >
             {emailLoading ? "Requesting…" : "Change email"}
-          </button>
+          </Button>
         </form>
         <p id="profile-email-hint" className="text-xs text-white/40">
           We&apos;ll send a confirmation link to your current email.

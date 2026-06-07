@@ -10,7 +10,7 @@ import {
 } from "react";
 import toast from "react-hot-toast";
 import { X } from "@phosphor-icons/react/dist/ssr";
-import { twMerge } from "tailwind-merge";
+import { Button } from "@/components/ui/button";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
 import { Dialog } from "@/components/ui/dialog";
 import { Select, SelectOption } from "@/components/ui/select";
@@ -415,38 +415,30 @@ export function ConnectionForm({
             {/* Actions */}
             <div className="flex items-center justify-between pt-2">
               {existing ? (
-                <button
-                  type="button"
+                <Button
+                  variant="danger"
+                  size="sm"
                   onClick={() => setConfirmOpen(true)}
                   disabled={deleting || pending}
-                  className={twMerge(
-                    "flex items-center gap-2 rounded-lg border border-accent-red/30 bg-accent-red/10 px-3 py-2 text-xs font-medium text-accent-red transition-all hover:bg-accent-red/20 disabled:opacity-50",
-                  )}
+                  loading={deleting}
                 >
-                  {deleting ? "Deleting..." : "Delete Connection"}
-                </button>
+                  Delete Connection
+                </Button>
               ) : (
                 <div />
               )}
               <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="glass-button rounded-lg px-3 py-2 text-xs font-medium text-white"
-                >
+                <Button variant="secondary" size="sm" onClick={onClose}>
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
+                  size="sm"
                   disabled={pending || deleting}
-                  className="rounded-lg bg-primary px-3 py-2 text-xs font-medium text-white transition-all hover:bg-primary/90 disabled:opacity-50"
+                  loading={pending}
                 >
-                  {pending
-                    ? "Saving..."
-                    : existing
-                      ? "Save Changes"
-                      : "Create Connection"}
-                </button>
+                  {existing ? "Save Changes" : "Create Connection"}
+                </Button>
               </div>
             </div>
           </form>

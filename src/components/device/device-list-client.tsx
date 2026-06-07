@@ -3,8 +3,14 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { twMerge } from "tailwind-merge";
-import { MagnifyingGlass, HardDrives } from "@phosphor-icons/react/dist/ssr";
-import { DEVICE_TYPE_LABELS, type DeviceType } from "@/types";
+import {
+  MagnifyingGlass,
+  HardDrives,
+  CaretUp,
+  CaretDown,
+  ArrowsDownUp,
+} from "@phosphor-icons/react/dist/ssr";
+import { DEVICE_TYPES, DEVICE_TYPE_LABELS, type DeviceType } from "@/types";
 import { DeviceGraphic, U_ASPECT } from "@/components/rack/device-graphic";
 import { Select, SelectOption } from "@/components/ui/select";
 
@@ -29,18 +35,6 @@ type RackedFilter = "all" | "racked" | "unracked";
 type Props = {
   devices: DeviceRow[];
 };
-
-const TYPES = [
-  "router",
-  "switch",
-  "server",
-  "firewall",
-  "storage",
-  "ups",
-  "pdu",
-  "patch_panel",
-  "other",
-] as const;
 
 export function DeviceListClient({ devices }: Props) {
   const [search, setSearch] = useState("");
@@ -164,7 +158,7 @@ export function DeviceListClient({ devices }: Props) {
                 onClick={() => setRackedFilter(v)}
                 aria-pressed={rackedFilter === v}
                 className={twMerge(
-                  "rounded-md px-2.5 py-1 text-xs font-medium capitalize transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/50",
+                  "rounded-md px-2.5 py-1 text-xs font-medium capitalize transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55",
                   rackedFilter === v
                     ? "bg-white/[0.1] text-white"
                     : "text-white/50 hover:text-white/80",
@@ -184,7 +178,7 @@ export function DeviceListClient({ devices }: Props) {
             aria-label="Filter by device type"
           >
             <SelectOption value="">All types</SelectOption>
-            {TYPES.map((t) => (
+            {DEVICE_TYPES.map((t) => (
               <SelectOption key={t} value={t}>
                 {DEVICE_TYPE_LABELS[t]}
               </SelectOption>
@@ -376,15 +370,31 @@ function SortableHeader({
         type="button"
         onClick={onClick}
         className={twMerge(
-          "flex items-center gap-1 rounded uppercase transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/50",
+          "flex items-center gap-1 rounded uppercase transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55",
           active ? "text-white" : "hover:text-white/80",
         )}
       >
         {label}
-        {active && (
-          <span className="text-[9px]" aria-hidden>
-            {desc ? "▼" : "▲"}
-          </span>
+        {active ? (
+          desc ? (
+            <CaretDown
+              className="h-3 w-3 text-primary"
+              weight="bold"
+              aria-hidden
+            />
+          ) : (
+            <CaretUp
+              className="h-3 w-3 text-primary"
+              weight="bold"
+              aria-hidden
+            />
+          )
+        ) : (
+          <ArrowsDownUp
+            className="h-3 w-3 text-white/30"
+            weight="bold"
+            aria-hidden
+          />
         )}
       </button>
     </th>

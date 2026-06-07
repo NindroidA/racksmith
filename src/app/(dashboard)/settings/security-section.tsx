@@ -6,6 +6,7 @@ import { Lock, Monitor, SignOut } from "@phosphor-icons/react/dist/ssr";
 import toast from "react-hot-toast";
 import { authClient } from "@/lib/auth-client";
 import { describeError } from "@/lib/error-message";
+import { Button } from "@/components/ui/button";
 import { Tag } from "@/components/ui/tag";
 
 type SessionRow = {
@@ -220,14 +221,14 @@ export function SecuritySection({
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <button
+          <Button
             type="submit"
+            variant="primary"
             disabled={pwLoading}
-            aria-busy={pwLoading}
-            className="rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary/90 disabled:opacity-40"
+            loading={pwLoading}
           >
             {pwLoading ? "Changing…" : "Change password"}
-          </button>
+          </Button>
           <p className="text-xs text-white/40">
             Other sessions will be signed out.
           </p>
@@ -240,13 +241,9 @@ export function SecuritySection({
             Active sessions
           </h3>
           {sessions.length > 1 && (
-            <button
-              type="button"
-              onClick={handleRevokeOthers}
-              className="text-xs text-white/50 transition-colors hover:text-white"
-            >
+            <Button variant="ghost" size="sm" onClick={handleRevokeOthers}>
               Sign out all other sessions
-            </button>
+            </Button>
           )}
         </div>
 
@@ -289,15 +286,16 @@ export function SecuritySection({
                   </div>
                 </div>
                 {!s.current && (
-                  <button
-                    type="button"
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={() => handleRevoke(s.token)}
                     disabled={revokeLoading === s.token}
                     aria-label={`Sign out session on ${formatUserAgent(s.userAgent)}`}
-                    className="text-xs text-white/50 transition-colors hover:text-accent-red disabled:opacity-40"
+                    className="text-white/50 hover:text-accent-red"
                   >
                     {revokeLoading === s.token ? "…" : "Sign out"}
-                  </button>
+                  </Button>
                 )}
               </li>
             ))}
@@ -306,14 +304,17 @@ export function SecuritySection({
       </div>
 
       <div className="mt-6 border-t border-white/[0.06] pt-4">
-        <button
-          type="button"
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={handleSignOutAll}
-          className="flex items-center gap-2 text-sm text-white/50 transition-colors hover:text-accent-red"
+          className="text-white/50 hover:text-accent-red"
+          iconLeft={
+            <SignOut className="h-4 w-4" weight="duotone" aria-hidden />
+          }
         >
-          <SignOut className="h-4 w-4" weight="duotone" aria-hidden />
           Sign out everywhere (including this device)
-        </button>
+        </Button>
       </div>
     </section>
   );
