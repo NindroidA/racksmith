@@ -78,6 +78,44 @@ describe("matcher.matchHost", () => {
     );
     expect(result).toEqual({ kind: "new" });
   });
+
+  it("does NOT fall back to hostname when the host reports a MAC (avoids blank/duplicate-hostname collapse)", () => {
+    // Both the host and the device share the same PTR hostname, but the host
+    // has a MAC that does not match the device's MAC. Trusting the hostname
+    // here would wrongly collapse two distinct devices onto one row.
+    const result = matchHost(
+      host({
+        ip: "10.0.0.51",
+        mac: "AA:AA:AA:AA:AA:AA",
+        hostname: "lan",
+      }),
+      [
+        device({
+          id: "other",
+          macAddress: "BB:BB:BB:BB:BB:BB",
+          hostname: "lan",
+        }),
+      ],
+    );
+    expect(result).toEqual({ kind: "new" });
+  });
+
+  it("does not match two MAC-less hosts that share a blank hostname", () => {
+    // A device whose hostname is an empty/whitespace string must never act as
+    // a hostname-match target — even for a MAC-less host with a blank name.
+    const result = matchHost(host({ ip: "10.0.0.52", hostname: "   " }), [
+      device({ id: "blank", hostname: "" }),
+    ]);
+    expect(result).toEqual({ kind: "new" });
+  });
+
+  it("still falls back to hostname when the host has NO MAC and a real hostname", () => {
+    const result = matchHost(host({ hostname: "Switch-1", mac: null }), [
+      device({ id: "right", hostname: "switch-1" }),
+    ]);
+    expect(result.kind).toBe("known");
+    if (result.kind === "known") expect(result.deviceId).toBe("right");
+  });
 });
 
 describe("matcher.guessDeviceType", () => {
@@ -92,6 +130,47 @@ describe("matcher.guessDeviceType", () => {
     ["random-thing", "other"],
   ])("hostname %j → %s", (hostname, expected) => {
     expect(guessDeviceType(host({ hostname }))).toBe(expected);
+  });
+
+  it.each<[string, string]>([
+    ["Ubiquiti Inc", "switch"],
+    ["MikroTikls SIA", "router"],
+    ["Synology Incorporated", "storage"],
+    ["QNAP Systems, Inc.", "storage"],
+    ["American Power Conversion", "ups"],
+    ["CyberPower Systems", "ups"],
+    ["Dell Inc.", "server"],
+    ["Hewlett Packard Enterprise", "server"],
+    ["Super Micro Computer", "server"],
+    ["Fortinet, Inc.", "firewall"],
+    ["Palo Alto Networks", "firewall"],
+    ["SonicWall", "firewall"],
+    ["Netgear", "switch"],
+    ["Some Unknown Vendor", "other"],
+  ])("vendor %j → %s", (vendor, expected) => {
+    expect(guessDeviceType(host({ vendor }))).toBe(expected);
+  });
+
+  it("hostname rule wins over vendor rule", () => {
+    // Vendor says Ubiquiti (→ switch) but the hostname clearly names a router.
+    expect(
+      guessDeviceType(host({ hostname: "udm-pro", vendor: "Ubiquiti Inc" })),
+    ).toBe("router");
+  });
+
+  it("vendor rule wins over port heuristic", () => {
+    // Ports 80+443 alone would say "server", but the Synology OUI is stronger.
+    expect(
+      guessDeviceType(
+        host({ vendor: "Synology Incorporated", openPorts: [80, 443] }),
+      ),
+    ).toBe("storage");
+  });
+
+  it("hostname vendor keywords are matched too (UniFi/Ubiquiti in the name)", () => {
+    expect(guessDeviceType(host({ hostname: "unifi-ap-livingroom" }))).toBe(
+      "switch",
+    );
   });
 
   it("port heuristic 22+80+443+3306 → server", () => {

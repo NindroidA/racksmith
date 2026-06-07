@@ -23,6 +23,7 @@ export type PendingHost = {
   ip: string;
   hostname: string | null;
   mac: string | null;
+  vendor: string | null;
   osGuess: string | null;
   openPorts: number[];
   scanId: string;
@@ -102,6 +103,12 @@ export function PendingDevicesTable({ hosts, devices }: Props) {
     });
   }
 
+  // -sn (the default discovery scan) does not scan ports, so openPorts is
+  // empty for every host. Only render the Open Ports column when at least
+  // one host actually reported open ports — otherwise the column is a
+  // misleading always-empty placeholder.
+  const showPorts = hosts.some((h) => h.openPorts.length > 0);
+
   if (hosts.length === 0) {
     return (
       <div className="surface-card flex flex-col items-center py-12 text-center">
@@ -129,14 +136,19 @@ export function PendingDevicesTable({ hosts, devices }: Props) {
                 IP
               </th>
               <th scope="col" className="px-4 py-3 font-medium">
-                Hostname
+                Hostname / MAC
+              </th>
+              <th scope="col" className="px-4 py-3 font-medium">
+                Vendor
               </th>
               <th scope="col" className="px-4 py-3 font-medium">
                 Type (guess)
               </th>
-              <th scope="col" className="px-4 py-3 font-medium">
-                Open Ports
-              </th>
+              {showPorts && (
+                <th scope="col" className="px-4 py-3 font-medium">
+                  Open Ports
+                </th>
+              )}
               <th scope="col" className="px-4 py-3 font-medium">
                 From Scan
               </th>
@@ -168,28 +180,33 @@ export function PendingDevicesTable({ hosts, devices }: Props) {
                       </div>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-white/70">{typeLabel}</td>
-                  <td className="px-4 py-3">
-                    {host.openPorts.length > 0 ? (
-                      <div className="flex flex-wrap gap-1">
-                        {host.openPorts.slice(0, 6).map((p) => (
-                          <span
-                            key={p}
-                            className="mono rounded bg-white/[0.06] px-1.5 py-0.5 text-[10px] text-white/60"
-                          >
-                            {p}
-                          </span>
-                        ))}
-                        {host.openPorts.length > 6 && (
-                          <span className="px-1 text-[10px] text-white/40">
-                            +{host.openPorts.length - 6}
-                          </span>
-                        )}
-                      </div>
-                    ) : (
-                      <span className="text-xs text-white/30">none</span>
-                    )}
+                  <td className="px-4 py-3 text-white/70">
+                    {host.vendor || <span className="text-white/30">—</span>}
                   </td>
+                  <td className="px-4 py-3 text-white/70">{typeLabel}</td>
+                  {showPorts && (
+                    <td className="px-4 py-3">
+                      {host.openPorts.length > 0 ? (
+                        <div className="flex flex-wrap gap-1">
+                          {host.openPorts.slice(0, 6).map((p) => (
+                            <span
+                              key={p}
+                              className="mono rounded bg-white/[0.06] px-1.5 py-0.5 text-[10px] text-white/60"
+                            >
+                              {p}
+                            </span>
+                          ))}
+                          {host.openPorts.length > 6 && (
+                            <span className="px-1 text-[10px] text-white/40">
+                              +{host.openPorts.length - 6}
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-xs text-white/30">none</span>
+                      )}
+                    </td>
+                  )}
                   <td className="px-4 py-3 text-xs text-white/50">
                     <span className="mono">{host.scanSubnet}</span>
                   </td>
