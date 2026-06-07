@@ -45,7 +45,7 @@ export function TierLimitBanner({
             <span className="mono">{limit}</span> {resource}
           </span>
           . You currently have <span className="mono">{current}</span>. Upgrade
-          to Pro or Business to unlock unlimited {resource} and team features.
+          to Pro or Business for higher limits and more.
         </p>
 
         <div className="mb-6 grid grid-cols-2 gap-3 rounded-lg border border-white/[0.06] bg-white/[0.02] p-4 text-sm">
@@ -55,9 +55,9 @@ export function TierLimitBanner({
             </div>
             <ul className="mt-2 space-y-1 text-white/70">
               <li>Unlimited sites &amp; racks</li>
-              <li>Team members (up to 5)</li>
+              <li>Up to 5 team members</li>
               <li>API access</li>
-              <li>PDF / CSV / SVG exports</li>
+              <li>CSV exports</li>
             </ul>
           </div>
           <div>
@@ -66,20 +66,20 @@ export function TierLimitBanner({
             </div>
             <ul className="mt-2 space-y-1 text-white/70">
               <li>Everything in Pro</li>
-              <li>Client workspaces</li>
-              <li>White-label branding</li>
-              <li>SSO (OIDC)</li>
+              <li>Unlimited team members</li>
+              <li>Higher API rate limits</li>
+              <li>Priority support</li>
             </ul>
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
           <Link
-            href="/#pricing"
+            href="/settings/billing"
             className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary/90"
           >
             <Sparkle className="h-4 w-4" weight="duotone" />
-            Join hosted waitlist
+            View upgrade options
           </Link>
           <Link
             href={backHref}
@@ -90,8 +90,8 @@ export function TierLimitBanner({
         </div>
 
         <p className="mt-5 text-xs text-white/40">
-          Paid tiers run on our hosted service at launch. Self-hosted paid
-          licensing (signed JWT + instance binding) lands post-v1.
+          Upgrade instantly with secure checkout — change or cancel your plan
+          anytime from Settings → Billing.
         </p>
       </div>
     </div>

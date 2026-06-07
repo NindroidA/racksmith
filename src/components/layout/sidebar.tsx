@@ -99,7 +99,7 @@ export function Sidebar({
   activeOrgName,
   memberships,
 }: SidebarProps) {
-  const { collapsed, toggle } = useSidebar();
+  const { collapsed, toggle, mobileOpen, setMobileOpen } = useSidebar();
   const pathname = usePathname();
   const reduceMotion = useReducedMotion();
   // When the user prefers reduced motion, skip the sliding/fading label
@@ -116,16 +116,22 @@ export function Sidebar({
 
   return (
     <aside
+      aria-label="Primary navigation"
       className={twMerge(
-        "glass-sidebar fixed left-0 top-0 z-40 flex h-screen flex-col transition-[width] duration-300",
-        collapsed ? "w-[72px]" : "w-[240px]",
+        "glass-sidebar fixed left-0 top-0 z-50 flex h-screen flex-col transition-[width,transform] duration-300",
+        // Mobile (<md): full-width off-canvas drawer, slides in when open.
+        "w-[260px]",
+        mobileOpen ? "translate-x-0" : "-translate-x-full",
+        // Desktop (md+): always-visible rail; collapse controls width.
+        "md:translate-x-0",
+        collapsed ? "md:w-[72px]" : "md:w-[240px]",
       )}
     >
-      {/* Collapse Tab Handle — sticks out from the right edge, slides further out on hover */}
+      {/* Collapse Tab Handle — desktop only; sticks out from the right edge */}
       <button
         onClick={toggle}
         aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-        className="group absolute right-[-18px] top-1/2 z-50 flex h-14 w-[22px] -translate-y-1/2 items-center justify-center rounded-r-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/50"
+        className="group absolute right-[-18px] top-1/2 z-50 hidden h-14 w-[22px] -translate-y-1/2 items-center justify-center rounded-r-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/50 md:flex"
       >
         <span
           aria-hidden
@@ -158,7 +164,7 @@ export function Sidebar({
           <Wrench weight="duotone" className="h-5 w-5 text-primary" />
         </div>
         <AnimatePresence>
-          {!collapsed && (
+          {(!collapsed || mobileOpen) && (
             <motion.span
               {...labelAnim}
               className="gradient-text overflow-hidden whitespace-nowrap text-lg font-bold"
@@ -173,7 +179,7 @@ export function Sidebar({
       {activeOrgId && activeOrgName && (
         <div className="mt-2 shrink-0">
           <OrganizationSwitcher
-            collapsed={collapsed}
+            collapsed={collapsed && !mobileOpen}
             activeOrgId={activeOrgId}
             activeOrgName={activeOrgName}
             memberships={memberships}
@@ -189,7 +195,9 @@ export function Sidebar({
           const Icon = item.icon;
           const prevGroup = idx > 0 ? NAV_ITEMS[idx - 1].group : undefined;
           const showHeader =
-            !collapsed && item.group && item.group !== prevGroup;
+            (!collapsed || mobileOpen) &&
+            item.group &&
+            item.group !== prevGroup;
 
           return (
             <div key={item.href}>
@@ -201,6 +209,7 @@ export function Sidebar({
               <Link
                 href={item.href}
                 title={collapsed ? item.label : undefined}
+                onClick={() => setMobileOpen(false)}
                 className={twMerge(
                   "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/50",
                   isActive
@@ -230,7 +239,7 @@ export function Sidebar({
                   )}
                 />
                 <AnimatePresence>
-                  {!collapsed && (
+                  {(!collapsed || mobileOpen) && (
                     <motion.span
                       {...labelAnim}
                       className="relative z-10 overflow-hidden whitespace-nowrap"
@@ -248,14 +257,19 @@ export function Sidebar({
       {/* Bottom actions */}
       <div className="shrink-0 border-t border-white/10 p-3">
         <button
-          onClick={() => signOut()}
+          onClick={async () => {
+            setMobileOpen(false);
+            await signOut();
+            // Full reload to /login so all client state is cleared.
+            window.location.href = "/login";
+          }}
           title={collapsed ? "Sign Out" : undefined}
           aria-label={collapsed ? "Sign Out" : undefined}
           className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white/60 transition-all duration-200 hover:bg-white/[0.06] hover:text-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue/50"
         >
           <SignOut weight="duotone" className="h-5 w-5 shrink-0" />
           <AnimatePresence>
-            {!collapsed && (
+            {(!collapsed || mobileOpen) && (
               <motion.span
                 {...labelAnim}
                 className="overflow-hidden whitespace-nowrap"

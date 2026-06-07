@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState, type ReactNode } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { List, MagnifyingGlass } from "@phosphor-icons/react/dist/ssr";
 import { twMerge } from "tailwind-merge";
 import { Sidebar } from "./sidebar";
 import { useSidebar } from "./sidebar-context";
@@ -30,9 +31,15 @@ export function DashboardShell({
   memberships,
   paymentBanner,
 }: Props) {
-  const { collapsed } = useSidebar();
+  const { collapsed, mobileOpen, setMobileOpen } = useSidebar();
   const router = useRouter();
+  const pathname = usePathname();
   const [quizOpen, setQuizOpen] = useState(needsProfile);
+
+  // Close the mobile drawer whenever the route changes.
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname, setMobileOpen]);
 
   return (
     <div className="flex min-h-screen">
@@ -41,11 +48,44 @@ export function DashboardShell({
         activeOrgName={activeOrgName}
         memberships={memberships}
       />
+
+      {/* Mobile top app-bar — hidden on md+ where the persistent rail shows. */}
+      <header className="fixed inset-x-0 top-0 z-30 flex h-14 items-center gap-1 border-b border-white/10 bg-[#0e0b1c]/90 px-2 backdrop-blur-xl md:hidden">
+        <button
+          type="button"
+          onClick={() => setMobileOpen(true)}
+          aria-label="Open navigation menu"
+          className="flex h-11 w-11 items-center justify-center rounded-lg text-white/70 transition-colors hover:bg-white/[0.06] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55"
+        >
+          <List weight="bold" className="h-5 w-5" />
+        </button>
+        <span className="gradient-text text-base font-bold">RackSmith</span>
+        <button
+          type="button"
+          onClick={() =>
+            window.dispatchEvent(new CustomEvent("racksmith:command-palette"))
+          }
+          aria-label="Search and commands"
+          className="ml-auto flex h-11 w-11 items-center justify-center rounded-lg text-white/70 transition-colors hover:bg-white/[0.06] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55"
+        >
+          <MagnifyingGlass weight="bold" className="h-5 w-5" />
+        </button>
+      </header>
+
+      {/* Drawer backdrop (mobile only). */}
+      {mobileOpen && (
+        <div
+          onClick={() => setMobileOpen(false)}
+          aria-hidden
+          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden"
+        />
+      )}
+
       <main
         aria-label="Page content"
         className={twMerge(
-          "flex-1 p-8 transition-[margin] duration-300",
-          collapsed ? "ml-[72px]" : "ml-[240px]",
+          "flex-1 px-4 pb-8 pt-[72px] transition-[margin] duration-300 md:p-8",
+          collapsed ? "md:ml-[72px]" : "md:ml-[240px]",
         )}
       >
         {unverifiedEmail && <VerifyEmailBanner email={unverifiedEmail} />}

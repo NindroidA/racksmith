@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Wrench, Compass } from "@phosphor-icons/react/dist/ssr";
+import { GITHUB_REPO_URL } from "@/lib/links";
 
 export default function NotFound() {
   return (
@@ -35,7 +36,7 @@ export default function NotFound() {
             Take me home
           </Link>
           <a
-            href="https://github.com/nindroid-systems/racksmith/issues/new"
+            href={`${GITHUB_REPO_URL}/issues/new`}
             target="_blank"
             rel="noopener noreferrer"
             className="rounded-lg bg-white/[0.06] px-4 py-2.5 text-sm font-medium text-white/70 transition-colors hover:bg-white/[0.1]"

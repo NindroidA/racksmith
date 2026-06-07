@@ -145,57 +145,60 @@ export default async function AuditPage({
         </div>
       ) : (
         <div className="surface-card overflow-hidden">
-          <table className="w-full text-sm">
-            <caption className="sr-only">Audit log entries</caption>
-            <thead>
-              <tr className="border-b border-white/[0.06] text-xs uppercase tracking-wider text-white/40">
-                <th className="px-4 py-3 text-left font-medium">When</th>
-                <th className="px-4 py-3 text-left font-medium">Action</th>
-                <th className="px-4 py-3 text-left font-medium">Entity</th>
-                <th className="px-4 py-3 text-left font-medium">Details</th>
-                <th className="px-4 py-3 text-left font-medium">From</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/[0.04]">
-              {logs.map((log) => {
-                const meta = (log.metadata ?? {}) as Record<string, unknown>;
-                const ip =
-                  typeof meta.ipAddress === "string" ? meta.ipAddress : "—";
-                const changes = log.changes as Record<string, unknown> | null;
-                const colorClass = ACTION_COLORS[log.action] ?? "text-white/70";
-                return (
-                  <tr key={log.id} className="hover:bg-white/[0.02]">
-                    <td className="whitespace-nowrap px-4 py-3 text-xs text-white/50">
-                      <span className="mono">
-                        {new Date(log.createdAt).toLocaleString()}
-                      </span>
-                    </td>
-                    <td
-                      className={`whitespace-nowrap px-4 py-3 font-medium ${colorClass}`}
-                    >
-                      {ACTION_LABELS[log.action] ?? log.action}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-white/70">
-                      {log.entityType.replace(/_/g, " ")}
-                    </td>
-                    <td className="px-4 py-3 text-xs text-white/50">
-                      {changes
-                        ? truncate(
-                            Object.entries(changes)
-                              .map(([k, v]) => `${k}=${formatValue(v)}`)
-                              .join(", "),
-                            80,
-                          )
-                        : "—"}
-                    </td>
-                    <td className="mono whitespace-nowrap px-4 py-3 text-xs text-white/40">
-                      {ip}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[640px] text-sm">
+              <caption className="sr-only">Audit log entries</caption>
+              <thead>
+                <tr className="border-b border-white/[0.06] text-xs uppercase tracking-wider text-white/40">
+                  <th className="px-4 py-3 text-left font-medium">When</th>
+                  <th className="px-4 py-3 text-left font-medium">Action</th>
+                  <th className="px-4 py-3 text-left font-medium">Entity</th>
+                  <th className="px-4 py-3 text-left font-medium">Details</th>
+                  <th className="px-4 py-3 text-left font-medium">From</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/[0.04]">
+                {logs.map((log) => {
+                  const meta = (log.metadata ?? {}) as Record<string, unknown>;
+                  const ip =
+                    typeof meta.ipAddress === "string" ? meta.ipAddress : "—";
+                  const changes = log.changes as Record<string, unknown> | null;
+                  const colorClass =
+                    ACTION_COLORS[log.action] ?? "text-white/70";
+                  return (
+                    <tr key={log.id} className="hover:bg-white/[0.02]">
+                      <td className="whitespace-nowrap px-4 py-3 text-xs text-white/50">
+                        <span className="mono">
+                          {new Date(log.createdAt).toLocaleString()}
+                        </span>
+                      </td>
+                      <td
+                        className={`whitespace-nowrap px-4 py-3 font-medium ${colorClass}`}
+                      >
+                        {ACTION_LABELS[log.action] ?? log.action}
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-3 text-white/70">
+                        {log.entityType.replace(/_/g, " ")}
+                      </td>
+                      <td className="px-4 py-3 text-xs text-white/50">
+                        {changes
+                          ? truncate(
+                              Object.entries(changes)
+                                .map(([k, v]) => `${k}=${formatValue(v)}`)
+                                .join(", "),
+                              80,
+                            )
+                          : "—"}
+                      </td>
+                      <td className="mono whitespace-nowrap px-4 py-3 text-xs text-white/40">
+                        {ip}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 

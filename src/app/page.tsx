@@ -15,6 +15,7 @@ import {
   Rocket,
 } from "@phosphor-icons/react/dist/ssr";
 import { GithubIcon } from "@/components/ui/oauth-icons";
+import { GITHUB_REPO_URL } from "@/lib/links";
 
 const FEATURES = [
   {
@@ -262,7 +263,7 @@ export default function LandingPage() {
               Pricing
             </a>
             <a
-              href="https://github.com/nindroid-systems/racksmith"
+              href={GITHUB_REPO_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="hidden items-center gap-1.5 text-sm text-white/60 transition-colors hover:text-white md:flex"
@@ -331,7 +332,7 @@ export default function LandingPage() {
             <ArrowRight className="h-4 w-4" weight="bold" />
           </Link>
           <a
-            href="https://github.com/nindroid-systems/racksmith"
+            href={GITHUB_REPO_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="glass-button flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-medium text-white"
@@ -667,7 +668,7 @@ export default function LandingPage() {
             Get Started Free
           </Link>
           <a
-            href="https://github.com/nindroid-systems/racksmith"
+            href={GITHUB_REPO_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="glass-button flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-medium text-white"
@@ -718,7 +719,7 @@ export default function LandingPage() {
           </div>
           <div className="flex flex-wrap items-center gap-5">
             <a
-              href="https://github.com/nindroid-systems/racksmith"
+              href={GITHUB_REPO_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1.5 hover:text-white"

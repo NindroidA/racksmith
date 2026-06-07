@@ -77,90 +77,95 @@ export default async function ApiKeysPage() {
         </div>
       ) : (
         <div className="surface-card overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-white/[0.06] text-xs uppercase tracking-wider text-white/40">
-                <th className="px-4 py-3 text-left font-medium">Name</th>
-                <th className="px-4 py-3 text-left font-medium">Prefix</th>
-                <th className="px-4 py-3 text-left font-medium">Role</th>
-                <th className="px-4 py-3 text-left font-medium">Created</th>
-                <th className="px-4 py-3 text-left font-medium">Last used</th>
-                <th className="px-4 py-3 text-left font-medium">Status</th>
-                <th className="px-4 py-3" />
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/[0.04]">
-              {keys.map((k) => (
-                <tr key={k.id} className="hover:bg-white/[0.02]">
-                  <td className="px-4 py-3 text-white">{k.name}</td>
-                  <td className="px-4 py-3 text-xs text-white/70">
-                    <span className="mono">{k.prefix}</span>…
-                  </td>
-                  <td className="px-4 py-3 text-white/70">
-                    <span className="mono">{k.role}</span>
-                  </td>
-                  <td className="px-4 py-3 text-xs text-white/50">
-                    <span className="mono">
-                      {new Date(k.createdAt).toLocaleDateString()}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-xs text-white/50">
-                    {k.lastUsedAt ? (
-                      <span className="mono">
-                        {new Date(k.lastUsedAt).toLocaleDateString()}
-                      </span>
-                    ) : (
-                      "—"
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-xs">
-                    {k.revokedAt ? (
-                      <Tag
-                        tone="danger"
-                        variant="subtle"
-                        iconLeft={
-                          <span className="led-dot led-dot--red" aria-hidden />
-                        }
-                      >
-                        Revoked
-                      </Tag>
-                    ) : k.expiresAt && k.expiresAt.getTime() < Date.now() ? (
-                      <Tag
-                        tone="neutral"
-                        variant="subtle"
-                        iconLeft={
-                          <span
-                            className="led-dot led-dot--muted"
-                            aria-hidden
-                          />
-                        }
-                      >
-                        Expired
-                      </Tag>
-                    ) : (
-                      <Tag
-                        tone="success"
-                        variant="subtle"
-                        iconLeft={
-                          <span
-                            className="led-dot led-dot--green"
-                            aria-hidden
-                          />
-                        }
-                      >
-                        Active
-                      </Tag>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    {!k.revokedAt && (
-                      <RevokeKeyButton keyId={k.id} keyName={k.name} />
-                    )}
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[720px] text-sm">
+              <thead>
+                <tr className="border-b border-white/[0.06] text-xs uppercase tracking-wider text-white/40">
+                  <th className="px-4 py-3 text-left font-medium">Name</th>
+                  <th className="px-4 py-3 text-left font-medium">Prefix</th>
+                  <th className="px-4 py-3 text-left font-medium">Role</th>
+                  <th className="px-4 py-3 text-left font-medium">Created</th>
+                  <th className="px-4 py-3 text-left font-medium">Last used</th>
+                  <th className="px-4 py-3 text-left font-medium">Status</th>
+                  <th className="px-4 py-3" />
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-white/[0.04]">
+                {keys.map((k) => (
+                  <tr key={k.id} className="hover:bg-white/[0.02]">
+                    <td className="px-4 py-3 text-white">{k.name}</td>
+                    <td className="px-4 py-3 text-xs text-white/70">
+                      <span className="mono">{k.prefix}</span>…
+                    </td>
+                    <td className="px-4 py-3 text-white/70">
+                      <span className="mono">{k.role}</span>
+                    </td>
+                    <td className="px-4 py-3 text-xs text-white/50">
+                      <span className="mono">
+                        {new Date(k.createdAt).toLocaleDateString()}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-xs text-white/50">
+                      {k.lastUsedAt ? (
+                        <span className="mono">
+                          {new Date(k.lastUsedAt).toLocaleDateString()}
+                        </span>
+                      ) : (
+                        "—"
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-xs">
+                      {k.revokedAt ? (
+                        <Tag
+                          tone="danger"
+                          variant="subtle"
+                          iconLeft={
+                            <span
+                              className="led-dot led-dot--red"
+                              aria-hidden
+                            />
+                          }
+                        >
+                          Revoked
+                        </Tag>
+                      ) : k.expiresAt && k.expiresAt.getTime() < Date.now() ? (
+                        <Tag
+                          tone="neutral"
+                          variant="subtle"
+                          iconLeft={
+                            <span
+                              className="led-dot led-dot--muted"
+                              aria-hidden
+                            />
+                          }
+                        >
+                          Expired
+                        </Tag>
+                      ) : (
+                        <Tag
+                          tone="success"
+                          variant="subtle"
+                          iconLeft={
+                            <span
+                              className="led-dot led-dot--green"
+                              aria-hidden
+                            />
+                          }
+                        >
+                          Active
+                        </Tag>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      {!k.revokedAt && (
+                        <RevokeKeyButton keyId={k.id} keyName={k.name} />
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>

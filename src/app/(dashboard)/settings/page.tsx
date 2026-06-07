@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CreditCard, FileText } from "@phosphor-icons/react/dist/ssr";
+import { CreditCard, FileText, Key } from "@phosphor-icons/react/dist/ssr";
 import { requireMember } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
 import { getUsageSummary } from "@/lib/tiers";
@@ -126,6 +126,26 @@ export default async function SettingsPage({
                 </div>
                 <div className="text-sm text-white/50">
                   Manage your subscription, payment method, and invoices.
+                </div>
+              </div>
+            </div>
+            <span className="text-sm text-white/40">Manage →</span>
+          </Link>
+        )}
+
+        {roleHasAccess(role, "admin") && (
+          <Link
+            href="/settings/api-keys"
+            className="surface-card flex items-center justify-between p-6 transition-colors hover:bg-white/[0.04]"
+          >
+            <div className="flex items-center gap-3">
+              <Key className="h-5 w-5 text-primary" weight="duotone" />
+              <div>
+                <div className="text-base font-semibold text-white">
+                  API Keys
+                </div>
+                <div className="text-sm text-white/50">
+                  Create and revoke keys for the public REST API.
                 </div>
               </div>
             </div>
