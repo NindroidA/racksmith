@@ -5,7 +5,8 @@ import { requireMember } from "@/lib/auth-helpers";
 import { withTenant } from "@/lib/prisma-tenant";
 import { audit } from "@/lib/audit";
 import { canCreateDeviceLocked } from "@/lib/tiers";
-import { withActionEnvelope } from "@/lib/action-helpers";
+import { handleZodError, withActionEnvelope } from "@/lib/action-helpers";
+import { cuidSchema } from "@/lib/validators";
 import type { ActionResult } from "@/lib/action-types";
 import type { DiscoveredHost } from "@/lib/discovery/nmap";
 
@@ -266,12 +267,16 @@ export async function cancelScan(scanId: string): Promise<ActionResult> {
 
 export async function deleteScan(scanId: string): Promise<ActionResult> {
   return withActionEnvelope(async () => {
+    const parsed = cuidSchema.safeParse(scanId);
+    if (!parsed.success) {
+      return { ok: false, error: handleZodError(parsed.error) };
+    }
     // Destructive delete of a tenant-scoped row → admin rank (CLAUDE.md
     // destructive-operation policy; DiscoveryScan is not a carve-out).
     const { session, organizationId } = await requireMember("admin");
     const result = await withTenant(organizationId, (tx) =>
       tx.discoveryScan.deleteMany({
-        where: { id: scanId, organizationId },
+        where: { id: parsed.data, organizationId },
       }),
     );
     if (result.count === 0) {
@@ -282,7 +287,7 @@ export async function deleteScan(scanId: string): Promise<ActionResult> {
       organizationId,
       action: "deleted",
       entityType: "discovery_scan",
-      entityId: scanId,
+      entityId: parsed.data,
     });
     revalidatePath("/discovery");
     return { ok: true, data: undefined };
