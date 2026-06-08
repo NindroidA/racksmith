@@ -102,7 +102,7 @@ export const STRIPE_PRICE_IDS: Record<PriceKey, string> = {
   business_annual: process.env.STRIPE_PRICE_BUSINESS_ANNUAL ?? "",
 };
 
-export function isKnownPriceId(value: string): value is string {
+export function isKnownPriceId(value: string): boolean {
   return Object.values(STRIPE_PRICE_IDS).some(
     (id) => id !== "" && id === value,
   );

@@ -4,6 +4,7 @@ import { randomBytes } from "node:crypto";
 import { Wrench, ArrowRight, GearSix } from "@phosphor-icons/react/dist/ssr";
 import { requireUser } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
+import { audit } from "@/lib/audit";
 import { generateSlugFromName, validateSlug } from "@/lib/slug";
 
 /**
@@ -101,6 +102,18 @@ export default async function WelcomePage() {
 
     organizationId = created.id;
     organizationName = created.name;
+
+    // Record the org-create lifecycle event. Every other org-touching write
+    // (rename/slug/delete/transfer, member create/remove) emits an audit row;
+    // first-org creation is the one transition that previously had no trail.
+    await audit({
+      userId,
+      organizationId: created.id,
+      action: "created",
+      entityType: "organization",
+      entityId: created.id,
+      metadata: { source: "onboarding" },
+    });
   }
 
   return (
