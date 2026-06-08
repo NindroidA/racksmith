@@ -266,7 +266,9 @@ export async function cancelScan(scanId: string): Promise<ActionResult> {
 
 export async function deleteScan(scanId: string): Promise<ActionResult> {
   return withActionEnvelope(async () => {
-    const { session, organizationId } = await requireMember("member");
+    // Destructive delete of a tenant-scoped row → admin rank (CLAUDE.md
+    // destructive-operation policy; DiscoveryScan is not a carve-out).
+    const { session, organizationId } = await requireMember("admin");
     const result = await withTenant(organizationId, (tx) =>
       tx.discoveryScan.deleteMany({
         where: { id: scanId, organizationId },

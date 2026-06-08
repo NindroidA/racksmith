@@ -67,4 +67,25 @@ The biggest wins for launch + early adoption (high value, mostly medium effort).
 
 ---
 
-*Generated from the 2026-06-06 pre-launch audit (37 candidates across 9 review agents). The launch-blocking UI/correctness/mobile/discovery items from that audit were fixed directly in PRs #35–#38, not tracked here.*
+## 🧹 Code-quality / internal consistency (from the 2026-06-08 subjective review)
+
+Non-blocking refactors surfaced by the 20-dimension blind review (overall
+health 86.7/100). The genuine correctness/authorization findings were fixed
+directly (see note below); these are the deferred *consistency* items —
+each is safe to skip but each nudges a quality dimension upward.
+
+- **Partition `src/components/network-tools/`** [low/M] — one flat 24-file drawer spans 7 sub-domains (IPAM, VLANs, plan-wizard, power, cable, config-gen, recommendations) while the route side and every sibling component domain nest by feature. Mirror the route structure (hoist `ipam/` + `vlans/` to their own folders). *(high_level_elegance + package_organization)*
+- **Group the `src/lib/` root** [low/M] — 28 mixed-concern files sit beside 10 well-grouped subfolders. Cluster the 5-file Stripe/billing set (`stripe.ts`, `stripe-events.ts`, `tiers.ts`-adjacent) into `lib/billing/`, and decide a home rule for new helpers. *(high_level_elegance + package_organization)*
+- **Split `organization-section.tsx`** [low/M] — 851 LOC bundling 5 distinct admin panels + 18 hooks into one component; extract per-panel (members, invites, transfer, rename, danger-zone). *(design_coherence)*
+- **Unify the `lib/` barrels** [low/S] — barrels exist for only 3/10 domains and are bypassed by deep imports even where they exist (`ip/index.ts` is a behavior-free `export *` used inconsistently). Either commit to barrels per domain or drop them. *(convention_outlier + abstraction_fitness)*
+- **Migrate `vlan-form.tsx` to the `useReducer` form pattern** [low/S] — the lone entity form still on raw `useState` while device/rack/subnet forms moved to a typed `FormState` + `formReducer` + `buildInitial`. Also align `connection-form`'s `{field,value}` reducer action with the siblings' `{payload}` shape. *(low_level_elegance + design_coherence)*
+- **DRY the repeated async-handler skeleton** [low/S] — `two-factor-section.tsx` has 4 near-identical `setLoading/try/result-check/finally` handlers; extract a local `run2FA` helper. *(low_level_elegance)*
+- **DRY the CSV export envelope** [low/S] — both CSV export routes hand-roll the same header+rows+Response assembly; and Date→ISO translation is via a serializer on v1 routes but inline on discovery/export routes. Share both. *(mid_level_elegance)*
+- **Lazy `STRIPE_PRICE_IDS` getter** [low/S] — currently an import-time `process.env` snapshot, inconsistent with the same file's deliberate call-time secret-key handling and forcing `vi.resetModules()` ceremony in tests. Mirror `getStripeClient()`. *(initialization_coupling)*  ⚠️ *touches billing — sequence after live-mode Stripe verification.*
+- **Use `roleHasAccess` in `organization-section.tsx`** [low/S] — client capability checks are hardcoded inline instead of the shared `roleHasAccess` helper (display-only; server enforcement is already correct). *(authorization_consistency)*
+- **Tighten React Flow / DropPayload typing** [low/S] — topology node/edge components use `as unknown as` instead of React Flow's typed generic; the rack drag handler casts `JSON.parse` straight to the `DropPayload` union without validating the discriminant. *(type_safety)*
+- **Test backfill for untested critical paths** [med/L] — `scan-completion.ts` (discovery reconciliation) and `organization-export.ts` (pre-delete backup) have zero direct tests. *(test_strategy — complements the dashboard server-action backfill already listed above)*
+
+---
+
+*Generated from the 2026-06-06 pre-launch audit (37 candidates across 9 review agents) and refreshed by the 2026-06-08 subjective review (20 dimensions, overall 86.7/100). The launch-blocking UI/correctness/mobile/discovery items were fixed in PRs #35–#38; the review's authorization (`deleteScan`/`deleteBuildPlan` admin-rank, onboarding audit), dead-dependency, type-correctness, naming, and docstring findings were fixed in the follow-up review-findings PR — not tracked here.*

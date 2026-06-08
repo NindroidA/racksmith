@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { Check, X } from "@phosphor-icons/react/dist/ssr";
 import {
-  acceptInvitationAction,
-  declineInvitationAction,
+  acceptInvitation,
+  declineInvitation,
 } from "@/app/(dashboard)/settings/actions";
 import { Button } from "@/components/ui/button";
 
@@ -17,7 +17,7 @@ export function InviteAcceptForm({ invitationId }: { invitationId: string }) {
 
   const accept = () => {
     startTransition(async () => {
-      const result = await acceptInvitationAction(invitationId);
+      const result = await acceptInvitation(invitationId);
       if (!result.ok) {
         toast.error(result.error);
         return;
@@ -32,7 +32,7 @@ export function InviteAcceptForm({ invitationId }: { invitationId: string }) {
 
   const decline = () => {
     startTransition(async () => {
-      const result = await declineInvitationAction(invitationId);
+      const result = await declineInvitation(invitationId);
       if (!result.ok) {
         toast.error(result.error);
         return;

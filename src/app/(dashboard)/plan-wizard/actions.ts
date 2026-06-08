@@ -334,7 +334,9 @@ export async function discardBuildPlan(planId: string): Promise<ActionResult> {
 
 export async function deleteBuildPlan(planId: string): Promise<ActionResult> {
   return withActionEnvelope(async () => {
-    const { session, organizationId } = await requireMember("member");
+    // Destructive delete of a tenant-scoped row → admin rank (CLAUDE.md
+    // destructive-operation policy; BuildPlan is not a carve-out).
+    const { session, organizationId } = await requireMember("admin");
     const idCheck = validatePlanId(planId);
     if (!idCheck.ok) return idCheck;
 

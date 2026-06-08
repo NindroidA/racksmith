@@ -222,7 +222,7 @@ export function OrganizationSection({
     });
   };
 
-  const doResendInvite = (id: string) => {
+  const resendInvite = (id: string) => {
     setPendingInviteId(id);
     runInvite(() => resendInvitation(id), {
       okMessage: "Invitation re-sent",
@@ -254,7 +254,7 @@ export function OrganizationSection({
     });
   };
 
-  const doRevokeTransfer = () => {
+  const confirmRevokeTransfer = () => {
     if (!pendingTransfer) return;
     const id = pendingTransfer.id;
     runTransfer(() => revokeOwnershipTransfer(id), {
@@ -662,7 +662,7 @@ export function OrganizationSection({
                       </div>
                       <button
                         type="button"
-                        onClick={() => doResendInvite(inv.id)}
+                        onClick={() => resendInvite(inv.id)}
                         disabled={rowPending || invitePending || expired}
                         aria-busy={rowPending}
                         title={
@@ -844,7 +844,7 @@ export function OrganizationSection({
         }
         confirmLabel="Cancel transfer"
         pending={transferPending}
-        onConfirm={doRevokeTransfer}
+        onConfirm={confirmRevokeTransfer}
       />
     </section>
   );

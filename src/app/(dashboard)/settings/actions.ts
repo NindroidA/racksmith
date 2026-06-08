@@ -229,7 +229,7 @@ class NotAMemberError extends Error {
  * creates the Member row. We additionally mirror the new active org into
  * `User.activeOrganizationId` since `requireMember` reads from there.
  */
-export async function acceptInvitationAction(
+export async function acceptInvitation(
   invitationId: string,
 ): Promise<ActionResult<{ organizationId: string }>> {
   return withActionEnvelope(async () => {
@@ -290,7 +290,7 @@ export async function acceptInvitationAction(
   }, "Failed to accept invitation");
 }
 
-export async function declineInvitationAction(
+export async function declineInvitation(
   invitationId: string,
 ): Promise<ActionResult> {
   return withActionEnvelope(async () => {

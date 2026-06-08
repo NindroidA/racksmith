@@ -259,7 +259,7 @@ export async function recordMaterialization(
 // `suffix`. wizardNetworkSchema rejects IPv6 at the validator layer; this
 // throw is defense-in-depth so a future schema loosening can't silently
 // produce VLANs with no subnets attached.
-function synthesizeSubnetCidr(
+export function synthesizeSubnetCidr(
   parentNetwork: string,
   kind: "ipv4" | "ipv6",
   suffix: number,

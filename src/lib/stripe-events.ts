@@ -72,20 +72,16 @@ export async function attachStripeEventOrg(
 }
 
 /**
- * Mark an event as failed processing so the row records what went
- * wrong. Used when the webhook handler returns 500 to Stripe — Stripe
- * will retry, and on retry our recordStripeEvent will return
- * `alreadyProcessed: true` (the row exists). Wait — we want retries to
- * actually retry, not short-circuit on the error row. So errored rows
- * are deleted before Stripe's retry, OR we tolerate the error path
- * being non-idempotent and accept that retries become no-ops once
- * we've recorded the event.
+ * Soft-fail path: record the error message on the StripeEvent row and
+ * KEEP the row, so the event is not reprocessed if Stripe retries. Use
+ * this for permanent failures where a retry cannot succeed (e.g. an
+ * unresolvable customer) — the row stays as a processed-with-error
+ * marker and recordStripeEvent will short-circuit subsequent retries.
  *
- * Phase 13 PR-C decision: events that throw mid-processing get their
- * row DELETED so Stripe's retry can re-enter the handler cleanly. This
- * function is the "soft-fail" path where we want to log the error but
- * keep the row so we don't reprocess (e.g. unresolvable customer —
- * retrying won't help).
+ * Contrast with {@link clearStripeEvent}, the hard-fail path: it DELETES
+ * the row so Stripe's retry re-enters the handler cleanly, for transient
+ * errors (DB unavailable, Stripe API blip mid-handler) that retrying is
+ * expected to clear.
  */
 export async function markStripeEventError(
   eventId: string,
