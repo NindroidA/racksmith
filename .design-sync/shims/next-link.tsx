@@ -6,11 +6,14 @@
 import * as React from "react";
 
 type LinkShimProps = React.AnchorHTMLAttributes<HTMLAnchorElement> & {
-  href: string | { pathname?: string };
+  href: string | { pathname?: string; search?: string; hash?: string };
 };
 
 export default function Link({ href, children, ...rest }: LinkShimProps) {
-  const hrefStr = typeof href === "string" ? href : (href?.pathname ?? "#");
+  const hrefStr =
+    typeof href === "string"
+      ? href
+      : `${href?.pathname ?? ""}${href?.search ?? ""}${href?.hash ?? ""}` || "#";
   return (
     <a href={hrefStr} {...rest}>
       {children}
