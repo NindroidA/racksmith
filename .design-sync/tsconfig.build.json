@@ -1,0 +1,11 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": "..",
+    "paths": {
+      "next/link": [".design-sync/shims/next-link.tsx"],
+      "@/types": ["src/types/index.ts"],
+      "@/*": ["src/*"]
+    }
+  }
+}
