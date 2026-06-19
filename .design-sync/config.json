@@ -1,0 +1,37 @@
+{
+  "projectId": "7bf85df0-85b8-4a39-a27b-471f143315fc",
+  "pkg": "racksmith",
+  "globalName": "RackSmith",
+  "shape": "package",
+  "entry": "./.design-sync/entry.tsx",
+  "srcDir": "src",
+  "tsconfig": ".design-sync/tsconfig.build.json",
+  "buildCmd": "bash .design-sync/compile-css.sh",
+  "cssEntry": ".design-sync/.cache/forge-compiled.css",
+  "extraFonts": [".design-sync/fonts.css"],
+  "readmeHeader": ".design-sync/conventions.md",
+  "guidelinesGlob": [],
+  "extraEntries": ["./.design-sync/preview-frame.tsx"],
+  "provider": { "component": "ForgePreview" },
+  "overrides": {
+    "Dialog": { "cardMode": "single", "primaryStory": "Default" },
+    "DeleteConfirmDialog": { "cardMode": "single", "primaryStory": "Default" },
+    "TemplateGallery": { "cardMode": "single", "primaryStory": "Default" }
+  },
+  "componentSrcMap": {
+    "Button": "src/components/ui/button.tsx",
+    "Tag": "src/components/ui/tag.tsx",
+    "Dialog": "src/components/ui/dialog.tsx",
+    "Select": "src/components/ui/select.tsx",
+    "SelectOption": "src/components/ui/select.tsx",
+    "Tooltip": "src/components/ui/tooltip.tsx",
+    "DeleteConfirmDialog": "src/components/ui/delete-confirm-dialog.tsx",
+    "ColorTagPicker": "src/components/ui/color-tag-picker.tsx",
+    "AdvancedAccordion": "src/components/ui/advanced-accordion.tsx",
+    "InlineHelp": "src/components/ui/inline-help.tsx",
+    "EmptyStateWithTemplate": "src/components/ui/empty-state-with-template.tsx",
+    "TemplateGallery": "src/components/ui/template-gallery.tsx",
+    "GithubIcon": "src/components/ui/oauth-icons.tsx",
+    "GoogleIcon": "src/components/ui/oauth-icons.tsx"
+  }
+}
