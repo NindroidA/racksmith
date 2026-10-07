@@ -11,6 +11,18 @@ All notable changes to RackSmith are documented here. Format follows
 > pre-release work tracked on `main`. See
 > [`.plans/2026-04-18/01-new-direction-full-build.md`](.plans/2026-04-18/01-new-direction-full-build.md).
 
+### Security — dependency audit fixes (2026-10-07, #41)
+- In-range dependency bumps clear 60 of 61 `bun audit` advisories
+  (all 4 critical, 37 of 38 high): `next` 16.2.4 → 16.3.6 (RCE, proxy
+  bypass, SSRF, DoS), `better-auth` 1.6.9 → 1.6.22 (account takeover,
+  OAuth refresh-token replay, invitation acceptance), plus transitive
+  `kysely`, `sharp`, `postcss`, `nanoid`, `fast-uri`, `source-map-js`,
+  `baseline-browser-mapping`, and `vite`/`vitest`/`@vitest/coverage-v8`
+  4.1.11.
+- Remaining: `deepmerge-ts` < 8 via `prisma` 6 (GHSA-ggr8-5vv4-36mx,
+  CLI/config tooling only). Prisma 7 still pins 7.1.5, so clearing it
+  needs a major-version `overrides` entry — deferred.
+
 ### Added — Phase 13: Stripe billing
 - **Hosted-only paid tiers go live** — Pro and Business plans are now real,
   not "join the waitlist" placeholders. Free tier remains free forever.
